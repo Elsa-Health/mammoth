@@ -8,13 +8,17 @@
       "packages/*"
     ],
     "nohoist": [
-      "**/mobile-pediatrics", "**/mobile-pediatrics/**"
+      "**/mobile-providers/",
+      "**/mobile-providers/**",
+      "**/@elsa-ui/react-native/",
+      "**/@elsa-ui/react-native/**"
     ]
   },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
+    "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

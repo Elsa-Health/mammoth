@@ -1,0 +1,13 @@
+{
+  "name": "@elsa-ui/react-native",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.tsx",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^17.0.39",
+    "@types/react-native": "^0.66.15"
+  }
+}
