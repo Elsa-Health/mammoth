@@ -30,6 +30,7 @@ jobs:
 
             - name: Test Coverage for Entire Monolith
               run: yarn coverage --concurrency=1
+
             - name: Coverage for UI Components
               uses: coverallsapp/github-action@1.1.3
               with:
@@ -38,6 +39,7 @@ jobs:
                   service_name: ui-job
                   service_number: 2
                   base-path: ./packages/ui-react-native
+
             - name: Coveralls GitHub Action
               uses: coverallsapp/github-action@1.1.3
               with:
@@ -46,6 +48,7 @@ jobs:
                   service_name: providers-job
                   service_number: 1
                   base-path: ./apps/mobile-providers/
+
     finish:
         needs: test
         runs-on: ${{ matrix.os }}
