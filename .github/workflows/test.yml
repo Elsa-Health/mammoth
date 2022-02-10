@@ -30,7 +30,7 @@ jobs:
       run: yarn install
       
     - name: Test React Native Code
-      run: yarn test --ci --coverage --silent --maxWorkers=2
+      run: yarn test --coverage --silent --maxWorkers=2
     
     - name: Coverage for Providers App
       uses: coverallsapp/github-action@v1.1.2
