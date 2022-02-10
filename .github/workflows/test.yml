@@ -27,13 +27,13 @@ jobs:
 
             - name: Install deps and build (with cache)
               run: yarn
-            - run: cd apps/mobile-providers
             - name: Test for Providers
+              working-directory: apps/mobile-providers
               # Make sure they have different name so that you dont land on a recursion bug
               run: yarn coverage:ci
 
-            - run: cd ../../packages/ui-react-native
             - name: Test for UI
+              working-directory: packages/ui-react-native
               run: yarn coverage:ci
 
             - name: Upload Coverage for UI Components
