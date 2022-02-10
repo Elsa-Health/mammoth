@@ -29,7 +29,7 @@ jobs:
               run: yarn
 
             - name: Test Coverage for Entire Monolith
-              run: yarn coverage:ci --concurrency=1
+              run: yarn coverage:ci && echo "Done!"
 
             - name: Coverage for UI Components
               uses: coverallsapp/github-action@1.1.3
