@@ -37,6 +37,7 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   flag-name: elsa-ui-${{ matrix.os }}-${{ matrix.node }}
                   base-path: ./packages/ui-react-native
+                  path-to-lcov: ./packages/ui-react-native/coverage/lcov.info
 
             - name: Coveralls GitHub Action
               uses: coverallsapp/github-action@1.1.3
@@ -44,6 +45,7 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   flag-name: provider-${{ matrix.os }}-${{ matrix.node }}
                   base-path: ./apps/mobile-providers/
+                  path-to-lcov: ./apps/mobile-providers/coverage/lcov.info
 
     finish:
         needs: test
