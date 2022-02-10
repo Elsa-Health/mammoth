@@ -27,16 +27,16 @@ jobs:
 
             - name: Install deps and build (with cache)
               run: yarn
-
-            - name: Test Coverage for Entire Monolith
+            - run: cd apps/mobile-providers
+            - name: Test for Providers
               # Make sure they have different name so that you dont land on a recursion bug
-              run: |
-                  cd apps/mobile-providers
-                  yarn coverage:ci
-                  cd ../../packages/ui-react-native
-                  yarn coverage:ci
+              run: yarn coverage:ci
 
-            - name: Coverage for UI Components
+            - run: cd ../../packages/ui-react-native
+            - name: Test for UI
+            - run: yarn coverage:ci
+
+            - name: Upload Coverage for UI Components
               uses: coverallsapp/github-action@1.1.3
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
                   base-path: ./packages/ui-react-native
                   path-to-lcov: ./packages/ui-react-native/coverage/lcov.info
 
-            - name: Coveralls GitHub Action
+            - name: Upload Coverage for Providers
               uses: coverallsapp/github-action@1.1.3
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
