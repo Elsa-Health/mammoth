@@ -29,7 +29,8 @@ jobs:
               run: yarn
 
             - name: Test Coverage for Entire Monolith
-              run: yarn coverage:ci && echo "Done!"
+              # Make sure they have different name so that you dont land on a recursion bug
+              run: yarn coverage-ci && echo "Done!"
 
             - name: Coverage for UI Components
               uses: coverallsapp/github-action@1.1.3

@@ -20,7 +20,7 @@
 		"lint": "turbo run lint",
 		"test": "turbo run test",
 		"coverage": "turbo run coverage",
-		"coverage:ci": "cd ./apps/mobile-providers && yarn coverage:ci && cd ../../ && cd ./packages/ui-react-native && yarn coverage:ci && cd ../../",
+		"coverage-ci": "cd ./apps/mobile-providers && yarn coverage:ci && cd ../../ && cd ./packages/ui-react-native && yarn coverage:ci && cd ../../",
 		"format": "prettier --write \"**/*.{ts,tsx,md}\""
 	},
 	"devDependencies": {
