@@ -29,8 +29,8 @@ jobs:
     - name: Install deps and build (with cache)
       run: yarn install
       
-    - name: Test React Native Code
-      run: yarn test --coverage --silent --maxWorkers=2
+    - name: Test Coverage for Entire Monolith
+      run: yarn coverage
     
     - name: Coverage for Providers App
       uses: coverallsapp/github-action@v1.1.2
