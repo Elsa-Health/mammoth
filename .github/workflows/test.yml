@@ -10,7 +10,7 @@ on:
         branches: [main, dev]
 
 jobs:
-    build:
+    test:
         runs-on: ubuntu-latest
 
         strategy:
@@ -29,24 +29,34 @@ jobs:
               run: yarn
 
             - name: Test Coverage for Entire Monolith
-              run: yarn coverage
-
-            - name: Coverage for Providers App
-              uses: coverallsapp/github-action@v1.1.2
+              run: yarn coverage --concurrency=1
+            - name: Coverage for UI Components
+              uses: coverallsapp/github-action@1.1.3
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
-                  flag-name: run-${{ matrix.os }}-${{ matrix.node }}
-                  parallel: true
-                  service_name: providers-job
-                  service_number: 1
-                  path-to-lcov: ./apps/mobile-providers/coverage/lcov.info
-
-            - name: Coverage for UI Component
-              uses: coverallsapp/github-action@v1.1.2
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  flag-name: run-${{ matrix.os }}-${{ matrix.node }}
-                  parallel: true
+                  flag-name: elsa-ui-${{ matrix.os }}-${{ matrix.node }}
                   service_name: ui-job
                   service_number: 2
-                  path-to-lcov: ./packages/ui-react-native/coverage/lcov.info
+                  base-path: ./packages/ui-react-native
+            - name: Coveralls GitHub Action
+              uses: coverallsapp/github-action@1.1.3
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  flag-name: provider-${{ matrix.os }}-${{ matrix.node }}
+                  service_name: providers-job
+                  service_number: 1
+                  base-path: ./apps/mobile-providers/
+    finish:
+        needs: test
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                node: ["12.x", "14.x"]
+                os: [ubuntu-latest, windows-latest]
+
+        steps:
+            - name: Coveralls Finished
+              uses: coverallsapp/github-action@master
+              with:
+                  github-token: ${{ secrets.github_token }}
+                  parallel-finished: true
