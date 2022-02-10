@@ -4,50 +4,49 @@
 name: Node.js CI
 
 on:
-  push:
-    branches: [ main, dev ]
-  pull_request:
-    branches: [ main, dev ]
+    push:
+        branches: [main, dev]
+    pull_request:
+        branches: [main, dev]
 
 jobs:
-  build:
+    build:
+        runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [14.x, 16.x]
+                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        steps:
+            - uses: actions/checkout@v2
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ matrix.node-version }}
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}        
-      
-    - name: Install deps and build (with cache)
-      run: yarn install
-      
-    - name: Test Coverage for Entire Monolith
-      run: yarn coverage
-    
-    - name: Coverage for Providers App
-      uses: coverallsapp/github-action@v1.1.2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        flag-name: run-${{ matrix.os }}-${{ matrix.node }}
-        parallel: true
-        service_name: providers-job
-        service_number: 1
-        path-to-lcov: ./apps/mobile-providers/coverage/lcov.info
-        
-    - name: Coverage for UI Component
-      uses: coverallsapp/github-action@v1.1.2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        flag-name: run-${{ matrix.os }}-${{ matrix.node }}
-        parallel: true
-        service_name: ui-job
-        service_number: 2
-        path-to-lcov: ./packages/ui-react-native/coverage/lcov.info
+            - name: Install deps and build (with cache)
+              run: yarn
+
+            - name: Test Coverage for Entire Monolith
+              run: yarn coverage
+
+            - name: Coverage for Providers App
+              uses: coverallsapp/github-action@v1.1.2
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  flag-name: run-${{ matrix.os }}-${{ matrix.node }}
+                  parallel: true
+                  service_name: providers-job
+                  service_number: 1
+                  path-to-lcov: ./apps/mobile-providers/coverage/lcov.info
+
+            - name: Coverage for UI Component
+              uses: coverallsapp/github-action@v1.1.2
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  flag-name: run-${{ matrix.os }}-${{ matrix.node }}
+                  parallel: true
+                  service_name: ui-job
+                  service_number: 2
+                  path-to-lcov: ./packages/ui-react-native/coverage/lcov.info
