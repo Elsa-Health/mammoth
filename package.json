@@ -1,33 +1,37 @@
 {
-  "name": "turborepo-basic-shared",
-  "version": "0.0.0",
-  "private": true,
-  "workspaces": {
-    "packages": [
-      "apps/*",
-      "packages/*"
-    ],
-    "nohoist": [
-      "**/mobile-providers/",
-      "**/mobile-providers/**",
-      "**/@elsa-ui/react-native/",
-      "**/@elsa-ui/react-native/**"
-    ]
-  },
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
-  },
-  "devDependencies": {
-    "prettier": "^2.5.1",
-    "turbo": "latest"
-  },
-  "engines": {
-    "npm": ">=7.0.0",
-    "node": ">=14.0.0"
-  },
-  "packageManager": "yarn@1.22.17"
+	"name": "turborepo-basic-shared",
+	"version": "0.0.0",
+	"private": true,
+	"workspaces": {
+		"packages": [
+			"apps/*",
+			"packages/*"
+		],
+		"nohoist": [
+			"**/mobile-providers/",
+			"**/mobile-providers/**",
+			"**/@elsa-ui/react-native/",
+			"**/@elsa-ui/react-native/**"
+		]
+	},
+	"scripts": {
+		"build": "turbo run build",
+		"dev": "turbo run dev --parallel",
+		"lint": "turbo run lint",
+		"test": "turbo run test",
+		"coverage": "turbo run coverage",
+		"format": "prettier --write \"**/*.{ts,tsx,md}\""
+	},
+	"devDependencies": {
+		"prettier": "^2.5.1",
+		"turbo": "latest"
+	},
+	"engines": {
+		"npm": ">=7.0.0",
+		"node": ">=14.0.0"
+	},
+	"packageManager": "yarn@1.22.17",
+	"dependencies": {
+		"@sourceallies/coveralls-merge": "^1.0.0"
+	}
 }
