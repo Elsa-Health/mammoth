@@ -27,14 +27,14 @@ jobs:
 
             - name: Install deps and build (with cache)
               run: yarn
+
             - name: Test for Providers
               working-directory: ./apps/mobile-providers
-              # Make sure they have different name so that you dont land on a recursion bug
-              run: yarn coverage:ci
+              run: npx jest --ci --coverage --maxWorkers=2
 
             - name: Test for UI
               working-directory: ./packages/ui-react-native
-              run: yarn coverage:ci
+              run: npx jest --ci --coverage --maxWorkers=2
 
             - name: Upload Coverage for UI Components
               uses: coverallsapp/github-action@1.1.3
