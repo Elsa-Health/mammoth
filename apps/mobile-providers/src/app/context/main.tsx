@@ -10,13 +10,13 @@ import { persist } from "zustand/middleware";
 import produce from "immer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  Age,
-  Assessment,
-  AssessmentRecord,
-  ConditionId,
-  Differential,
-  SymptomRecord,
-  _CompleteSymptomData,
+	Age,
+	Assessment,
+	AssessmentRecord,
+	ConditionId,
+	Differential,
+	SymptomRecord,
+	_CompleteSymptomData,
 } from "../../../@types";
 
 import firestore from "@react-native-firebase/firestore";
@@ -28,153 +28,130 @@ import { PatientIntakeData } from "../../pages/core/PatientDescriptor/PatientInt
 import { MedicationHistory } from "../../pages/core/PatientDescriptor/MedicalHistory";
 import { DietaryHistory } from "../../pages/core/PatientDescriptor/DietaryHistory";
 
+import { convertAgeToMonths, getAgeGroup } from "../helper";
+
 const aStatsColl = firestore().collection("pediatrics-statistics");
 
 export type Recommendations = {
-  ref_nearest: boolean;
-  refered_lab_testing: {
-    selected: boolean;
-    tests: Array<LabTest>;
-  };
-  dispensed_medication: {
-    selected: boolean;
-    medications: Array<Medication.Addo | Medication.GS>;
-  };
-  recommendations: string;
+	ref_nearest: boolean;
+	refered_lab_testing: {
+		selected: boolean;
+		tests: Array<LabTest>;
+	};
+	dispensed_medication: {
+		selected: boolean;
+		medications: Array<Medication.Addo | Medication.GS>;
+	};
+	recommendations: string;
 };
 
 export type PatientAssessmentRecord = {
-  patient: PatientIntakeData;
-  history: {
-    medical: undefined | MedicationHistory;
-    dietary: undefined | DietaryHistory;
-  };
-  assessmentInfo: Assessment & {
-    userConditions: Array<ConditionId>;
-    elsaConditions: Array<Differential>;
-  };
+	patient: PatientIntakeData;
+	history: {
+		medical: undefined | MedicationHistory;
+		dietary: undefined | DietaryHistory;
+	};
+	assessmentInfo: Assessment & {
+		userConditions: Array<ConditionId>;
+		elsaConditions: Array<Differential>;
+	};
 };
 export type SavedPatientAssessmentRecord = PatientAssessmentRecord & {
-  id: string | number;
-  // UTC string time
-  dateTime: string;
+	id: string | number;
+	// UTC string time
+	dateTime: string;
 };
 
 type StateAssessmentRecord = {
-  record: AssessmentRecord;
-  recommendations: Partial<Recommendations>;
+	record: AssessmentRecord;
+	recommendations: Partial<Recommendations>;
 };
 interface MainState {
-  /**
-   * Here we can add other information like:
-   *  - The UI flow chose,
-   *  - Times taken to complete an assessment
-   */
-  patientRecords: Array<SavedPatientAssessmentRecord>;
+	/**
+	 * Here we can add other information like:
+	 *  - The UI flow chose,
+	 *  - Times taken to complete an assessment
+	 */
+	patientRecords: Array<SavedPatientAssessmentRecord>;
 
-  /**
-   * Functions to upload the file
-   */
-  addPatientRecord: (ar: PatientAssessmentRecord) => void;
+	/**
+	 * Functions to upload the file
+	 */
+	addPatientRecord: (ar: PatientAssessmentRecord) => void;
 }
 
 const uploadAsessment = (assessment: StateAssessmentRecord, userId: string) => {
-  const {
-    record: { assessmentInfo, id },
-    recommendations,
-  } = assessment;
-  // console.log("syncing data...", id)
+	const {
+		record: { assessmentInfo, id },
+		recommendations,
+	} = assessment;
+	// console.log("syncing data...", id)
 
-  // console.log(`${userId}/assessement/${id.toLocaleString()}`)
+	// console.log(`${userId}/assessement/${id.toLocaleString()}`)
 
-  // console.log("Diag:",assessmentInfo.presentingSymptoms )
-  // upload the assessment record
-  aStatsColl
-    .doc(userId)
-    .set({
-      isTest: [
-        "kevin-james",
-        "c5d2e724-2e27-11eb-adc1-0242ac120002",
-        "ba1d95ac-5977-11eb-ae93-0242ac130002",
-      ].includes(userId),
-      dataClass: "addo-stats",
-    })
-    .then((t) => {
-      aStatsColl
-        .doc(userId)
-        .collection("assessments")
-        .doc(id.toString())
-        .set(getAssessmentInfo(assessment))
-        .then(() => {
-          // console.log('sync completed:', id)
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    });
+	// console.log("Diag:",assessmentInfo.presentingSymptoms )
+	// upload the assessment record
+	aStatsColl
+		.doc(userId)
+		.set({
+			isTest: [
+				"kevin-james",
+				"c5d2e724-2e27-11eb-adc1-0242ac120002",
+				"ba1d95ac-5977-11eb-ae93-0242ac130002",
+			].includes(userId),
+			dataClass: "addo-stats",
+		})
+		.then((t) => {
+			aStatsColl
+				.doc(userId)
+				.collection("assessments")
+				.doc(id.toString())
+				.set(getAssessmentInfo(assessment))
+				.then(() => {
+					// console.log('sync completed:', id)
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+		});
 };
 
 const { Provider, useStore } = createContext<MainState>();
 const createStore = () =>
-  create<MainState>(
-    persist(
-      (set, get) => ({
-        patientRecords: [],
-        addPatientRecord: (ar) => {
-          set((s) =>
-            produce(s, (df) => {
-              df.patientRecords.push({
-                ...ar,
-                id:
-                  "PxT-" +
-                  Math.ceil(Math.random() * 100 + 1).toString() +
-                  "-" +
-                  new Date().getTime().toString(),
-                dateTime: new Date().toUTCString(),
-              });
-              return df;
-            })
-          );
-        },
-      }),
-      {
-        name: "providers-async-storage-va",
-        getStorage: () => AsyncStorage,
-      }
-    )
-  );
-
-function convertAgeToMonths(age: Age) {
-  const years = age.years || 0;
-  const months = age.months || 0;
-  const days = age.days || 0;
-
-  return Math.max(0, years * 12 + months + days / 30);
-}
-
-function getAgeGroup(months: number) {
-  if (months < 6) {
-    return "0 - 6 months";
-  }
-  if (months < 72) {
-    return "6 - 72 months";
-  }
-  if (months < 120) {
-    return "72 - 120 months";
-  }
-  if (months < 228) {
-    return "120 - 228 months";
-  }
-  if (months >= 228) {
-    return "228+ months";
-  }
-  return "(-inf, inf+)";
-}
+	create<MainState>(
+		persist(
+			(set, get) => ({
+				patientRecords: [],
+				addPatientRecord: (ar) => {
+					set((s) =>
+						produce(s, (df) => {
+							df.patientRecords.push({
+								...ar,
+								id:
+									"PxT-" +
+									Math.ceil(
+										Math.random() * 100 + 1
+									).toString() +
+									"-" +
+									new Date().getTime().toString(),
+								dateTime: new Date().toUTCString(),
+							});
+							return df;
+						})
+					);
+				},
+			}),
+			{
+				name: "providers-async-storage-va",
+				getStorage: () => AsyncStorage,
+			}
+		)
+	);
 
 function getSypmtomItem(
-  _s: (SymptomRecord & { data: Partial<_CompleteSymptomData> }) | any
+	_s: (SymptomRecord & { data: Partial<_CompleteSymptomData> }) | any
 ): string | undefined {
-  return _s.id || _s.symptom || undefined;
+	return _s.id || _s.symptom || undefined;
 }
 
 /**
@@ -182,38 +159,38 @@ function getSypmtomItem(
  * @param stateRecord Assessment record as stored in the application
  */
 function getAssessmentInfo(stateRecord: StateAssessmentRecord) {
-  const {
-    record: {
-      dateTime,
-      assessmentInfo: {
-        age,
-        sex,
-        pregnant,
-        presentingSymptoms,
-        absentSymptoms,
-      },
-      id,
-      diagnosis: { user, elsa },
-    },
-    recommendations,
-  } = stateRecord;
+	const {
+		record: {
+			dateTime,
+			assessmentInfo: {
+				age,
+				sex,
+				pregnant,
+				presentingSymptoms,
+				absentSymptoms,
+			},
+			id,
+			diagnosis: { user, elsa },
+		},
+		recommendations,
+	} = stateRecord;
 
-  const months = convertAgeToMonths(age);
+	const months = convertAgeToMonths(age);
 
-  return {
-    info: { sex, age, ageGroup: getAgeGroup(months), pregnant },
-    symptoms: {
-      present: presentingSymptoms.map(getSypmtomItem),
-      absent: absentSymptoms.map(getSypmtomItem),
-    },
-    diagnosis: {
-      user: user.map((s) => s.condition),
-      elsaTop10: elsa?.slice(0, 10).map((c) => c.condition),
-    },
-    recommendations,
-    // dateTime the appointment was made
-    dateTime: firestore.Timestamp.fromDate(new Date(dateTime)),
-  };
+	return {
+		info: { sex, age, ageGroup: getAgeGroup(months), pregnant },
+		symptoms: {
+			present: presentingSymptoms.map(getSypmtomItem),
+			absent: absentSymptoms.map(getSypmtomItem),
+		},
+		diagnosis: {
+			user: user.map((s) => s.condition),
+			elsaTop10: elsa?.slice(0, 10).map((c) => c.condition),
+		},
+		recommendations,
+		// dateTime the appointment was made
+		dateTime: firestore.Timestamp.fromDate(new Date(dateTime)),
+	};
 }
 
 /**
@@ -222,34 +199,34 @@ function getAssessmentInfo(stateRecord: StateAssessmentRecord) {
  * @returns
  */
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  return <Provider createStore={createStore}>{children}</Provider>;
+	return <Provider createStore={createStore}>{children}</Provider>;
 }
 
 export function useMainState() {
-  const records = useStore((s) => s.patientRecords);
-  const add = useStore((s) => s.addPatientRecord);
+	const records = useStore((s) => s.patientRecords);
+	const add = useStore((s) => s.addPatientRecord);
 
-  const uid = useApplication((s) => s.user?.uid);
+	const uid = useApplication((s) => s.user?.uid);
 
-  /**
-   * Adding functionality to sync data
-   *
-   * NOTE:
-   * THIS IS VERY AGGRESSIVE AND HAPPENS ALL THE TIME,
-   *  YOU MIGHT WANT TO CHANGE THIS UP
-   */
-  React.useEffect(() => {
-    if (uid === undefined) {
-      console.log("NULL UID");
-      return;
-    }
+	/**
+	 * Adding functionality to sync data
+	 *
+	 * NOTE:
+	 * THIS IS VERY AGGRESSIVE AND HAPPENS ALL THE TIME,
+	 *  YOU MIGHT WANT TO CHANGE THIS UP
+	 */
+	React.useEffect(() => {
+		if (uid === undefined) {
+			console.log("NULL UID");
+			return;
+		}
 
-    // sync the entire data
-    // assessments.map(a => uploadAsessment(a, uid))
-  }, [records, uid]);
+		// sync the entire data
+		// assessments.map(a => uploadAsessment(a, uid))
+	}, [records, uid]);
 
-  return {
-    records,
-    add,
-  };
+	return {
+		records,
+		add,
+	};
 }
