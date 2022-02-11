@@ -36,6 +36,7 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   flag-name: elsa-ui-${{ matrix.os }}-${{ matrix.node }}
+                  parallel: true # Must set to true as config gets aggreate
                   base-path: ./packages/ui-react-native
                   path-to-lcov: ./packages/ui-react-native/coverage/lcov.info
 
@@ -44,6 +45,7 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   flag-name: provider-${{ matrix.os }}-${{ matrix.node }}
+                  parallel: true # Must set to true as config gets aggreate
                   base-path: ./apps/mobile-providers/
                   path-to-lcov: ./apps/mobile-providers/coverage/lcov.info
 
