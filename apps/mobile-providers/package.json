@@ -8,7 +8,7 @@
 		"start": "react-native start",
 		"test": "jest",
 		"coverage": "jest --coverage",
-		"coverage:ci": "jest --ci --coverage --silent --maxWorkers=2",
+		"coverage:ci": "jest --ci --coverage --silent --maxWorkers=2 --bail",
 		"lint": "eslint ."
 	},
 	"dependencies": {

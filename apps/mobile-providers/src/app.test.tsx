@@ -7,21 +7,17 @@ import { ApplicationProvider, useApplication } from "./app/context/app";
 import { AppProvider } from "./app/context/main";
 import { LanguageProvider } from "./app/locale/config";
 
-const AppComponent = (props: any) => (
-	<ApplicationProvider>
-		<LanguageProvider>
-			<AppProvider>
-				<App />
-			</AppProvider>
-		</LanguageProvider>
-	</ApplicationProvider>
-);
-
-jest.mock("react-native-permissions", () =>
-	require("react-native-permissions/mock")
-);
+jest.mock("react-native-qrcode-scanner", () => {
+	return {
+		__esModule: true,
+		default: jest.fn(),
+	};
+});
 
 describe("Home screen", () => {
+	jest.mock("react-native-permissions", () =>
+		require("react-native-permissions/mock")
+	);
 	it("Renders / Without Logging in", () => {
 		render(
 			<ApplicationProvider initialState={undefined}>
