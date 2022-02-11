@@ -2,19 +2,21 @@ import React from "react";
 
 import { fireEvent, render } from "@testing-library/react-native";
 
-import App from "./app";
+import App, { BaseApp } from "./app";
 import { ApplicationProvider, useApplication } from "./app/context/app";
 import { AppProvider } from "./app/context/main";
 import { LanguageProvider } from "./app/locale/config";
 
 describe("Home screen", () => {
+	it("Renders Correctly", () => {
+		render(<App />);
+	});
+
 	it("Renders / Without Logging in", () => {
 		render(
-			<ApplicationProvider initialState={undefined}>
+			<ApplicationProvider>
 				<LanguageProvider>
-					<AppProvider>
-						<App />
-					</AppProvider>
+					<BaseApp />
 				</LanguageProvider>
 			</ApplicationProvider>
 		);
@@ -29,23 +31,19 @@ describe("Home screen", () => {
 				}}
 			>
 				<LanguageProvider>
-					<AppProvider>
-						<App />
-					</AppProvider>
+					<BaseApp />
 				</LanguageProvider>
 			</ApplicationProvider>
 		);
 	});
 
 	it("Renders / Logged in / Language NOT Pre Selected / ", () => {
+		const initialState = { user: { name: "Test User", uid: "test-user" } };
+
 		render(
-			<ApplicationProvider
-				initialState={{ user: { name: "Test User", uid: "test-user" } }}
-			>
+			<ApplicationProvider initialState={initialState}>
 				<LanguageProvider>
-					<AppProvider>
-						<App />
-					</AppProvider>
+					<BaseApp />
 				</LanguageProvider>
 			</ApplicationProvider>
 		);
@@ -56,9 +54,7 @@ describe("Home screen", () => {
 			const lang = useApplication((s) => s.settings.lang);
 			return (
 				<LanguageProvider>
-					<AppProvider>
-						<App />
-					</AppProvider>
+					<BaseApp />
 				</LanguageProvider>
 			);
 		};

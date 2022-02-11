@@ -23,13 +23,6 @@ jest.mock("@react-native-firebase/firestore", () => {
 	};
 });
 
-jest.mock("react-native-qrcode-scanner", () => {
-	return {
-		__esModule: true,
-		default: jest.fn(),
-	};
-});
-
 jest.mock("react-native-permissions", () =>
 	require("react-native-permissions/mock")
 );

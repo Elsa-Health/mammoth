@@ -139,7 +139,7 @@ function MainAppInteraction() {
 	);
 }
 
-function BaseApp() {
+export function BaseApp() {
 	const loggedIn = useApplication((s) => s.user !== undefined, shallow);
 
 	if (!loggedIn) {
