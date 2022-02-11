@@ -151,9 +151,9 @@ export const buttonStyleMap = (outline: boolean = false) =>
  */
 
 interface _BaseTextInputProps extends NativeTextInputProps {}
-export const _BaseTextInput = React.forwardRef<typeof NativeTextInput>(
+export const _BaseTextInput = React.forwardRef(
 	(props: _BaseTextInputProps, textInputRef) => {
-		return <NativeTextInput ref={textInputRef} {...props} />;
+		return <NativeTextInput {...props} ref={textInputRef} />;
 	}
 );
 
@@ -163,24 +163,30 @@ interface TextInputProps extends _BaseTextInputProps {
 }
 
 const defaultTextLabelColor = "#777";
-export function TextInput(props: TextInputProps) {
+export const TextInput = React.forwardRef((props: TextInputProps, ref) => {
 	const [color, setColor] = React.useState<ColorValue>(defaultTextLabelColor);
 
 	/**
 	 * Focus
 	 */
-	const onFocus = React.useCallback((e) => {
-		setColor(theme.color.primary.base);
-		props.onFocus && props.onFocus(e);
-	}, []);
+	const onFocus = React.useCallback(
+		(e) => {
+			setColor(theme.color.primary.base);
+			props.onFocus && props.onFocus(e);
+		},
+		[props.onFocus]
+	);
 
 	/**
 	 * Blur
 	 */
-	const onBlur = React.useCallback((e) => {
-		setColor(defaultTextLabelColor);
-		props.onBlur && props.onBlur(e);
-	}, []);
+	const onBlur = React.useCallback(
+		(e) => {
+			setColor(defaultTextLabelColor);
+			props.onBlur && props.onBlur(e);
+		},
+		[props.onBlur]
+	);
 
 	return (
 		<View
@@ -206,10 +212,12 @@ export function TextInput(props: TextInputProps) {
 					{props.label}
 				</Text>
 			)}
-			<_BaseTextInput
+			<NativeTextInput
 				{...props}
 				onFocus={onFocus}
+				ref={ref}
 				onBlur={onBlur}
+				testID={props.testID}
 				style={[
 					defaults.textInput,
 					props.label !== undefined ? textStyles.labeled : {},
@@ -219,7 +227,7 @@ export function TextInput(props: TextInputProps) {
 			/>
 		</View>
 	);
-}
+});
 
 export const textStyles = StyleSheet.create({
 	labeled: {
@@ -304,6 +312,9 @@ export const SearchInput = React.forwardRef<{}, SearchInputProps>(
 					/>
 					<_BaseTextInput
 						{...props}
+						testID={`search-input${
+							props.testID !== undefined ? "-" + props.testID : ""
+						}`}
 						ref={textInputRef}
 						onFocus={onFocus}
 						onBlur={onBlur}
@@ -319,6 +330,9 @@ export const SearchInput = React.forwardRef<{}, SearchInputProps>(
 					<Pressable
 						style={{ alignSelf: "flex-start" }}
 						onPress={sideButtonAction}
+						testID={`search-input-clear${
+							props.testID !== undefined ? "-" + props.testID : ""
+						}`}
 					>
 						{placeholder === "clear" ? (
 							<XIcon
