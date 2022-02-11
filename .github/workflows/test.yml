@@ -28,15 +28,10 @@ jobs:
             - name: Install deps and build (with cache)
               run: yarn
 
-            - name: Test for Providers
-              working-directory: ./apps/mobile-providers
-              run: npx jest --ci --coverage --maxWorkers=2
+            - name: Test Coverage for Entire Monolith
+              run: yarn coverage:ci
 
-            - name: Test for UI
-              working-directory: ./packages/ui-react-native
-              run: npx jest --ci --coverage --maxWorkers=2
-
-            - name: Upload Coverage for UI Components
+            - name: Coverage for UI Components
               uses: coverallsapp/github-action@1.1.3
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -44,7 +39,7 @@ jobs:
                   base-path: ./packages/ui-react-native
                   path-to-lcov: ./packages/ui-react-native/coverage/lcov.info
 
-            - name: Upload Coverage for Providers
+            - name: Coverage for Providers App
               uses: coverallsapp/github-action@1.1.3
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -57,8 +52,8 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                node: ["12.x", "14.x"]
-                os: [ubuntu-latest, windows-latest]
+                node: [14.x, 16.x]
+                os: [ubuntu-latest]
 
         steps:
             - name: Coveralls Finished
