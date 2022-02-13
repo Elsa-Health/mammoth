@@ -131,6 +131,7 @@ export default function HomePage() {
 							// navigate to patient intake
 							navigation.navigate("app.settings");
 						}}
+						testID="home.settingsBtn"
 					>
 						<SettingsIcon style={{ margin: 6 }} />
 						<Text font="medium">{t`settings.title`}</Text>

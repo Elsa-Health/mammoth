@@ -30,6 +30,6 @@ describe("Home screen", () => {
 	);
 
 	it("Renders", () => {
-		const { getByTestId } = render(Component);
+		render(Component);
 	});
 });

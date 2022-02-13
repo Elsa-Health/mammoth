@@ -37,21 +37,12 @@ describe("Home screen", () => {
 		);
 	});
 
-	it("Renders / Logged in / Language NOT Pre Selected / ", () => {
-		const initialState = { user: { name: "Test User", uid: "test-user" } };
-
-		render(
-			<ApplicationProvider initialState={initialState}>
-				<LanguageProvider>
-					<BaseApp />
-				</LanguageProvider>
-			</ApplicationProvider>
-		);
-	});
-
-	it("Renders / Logged in / Language NOT Pre Selected / Asks Language Select When Not Defined", () => {
+	it("Renders / Logged in / Language NOT Pre Selected", () => {
 		const Child = (props: any) => {
 			const lang = useApplication((s) => s.settings.lang);
+			React.useEffect(() => {
+				expect(lang).toBeUndefined();
+			}, []);
 			return (
 				<LanguageProvider>
 					<BaseApp />
@@ -71,4 +62,6 @@ describe("Home screen", () => {
 	it("Navigate to New Assessment", () => {});
 
 	it("Navigate to Assessment History", () => {});
+
+	it("Navigate to Settings", () => {});
 });

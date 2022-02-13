@@ -1,6 +1,8 @@
 import React from "react";
 
-const QRScanner = jest.fn().mockImplementation(() => {
+const QRScanner = jest.fn().mockImplementation(({ onRead, ...other }) => {
+	// mock login working
+	onRead({ data: "data" });
 	return <></>;
 });
 

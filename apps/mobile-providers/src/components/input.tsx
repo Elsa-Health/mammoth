@@ -348,7 +348,7 @@ export const SearchInput = React.forwardRef<{}, SearchInputProps>(
 	}
 );
 
-type VariableValue<T> = { input?: string | undefined; option: T };
+export type VariableValue<T> = { input?: string | undefined; option: T };
 type VariableTextInputProps<T = any> = Omit<
 	TextInputProps,
 	"value" | "onChangeText" | "onChange"
@@ -364,95 +364,105 @@ type VariableTextInputProps<T = any> = Omit<
 	pickerItemStyle?: PickerProps["itemStyle"];
 	pickerItemOptionProps?: PickerItemProps;
 };
-export function VariableTextInput<T>({
-	options,
-	wrapperStyle,
-	textInputStyle,
-	pickerStyle,
-	pickerItemStyle,
-	pickerItemOptionProps,
-	value,
-	onChangeValue,
-	...props
-}: VariableTextInputProps<T>) {
-	const [data, set] = useState<VariableValue<T>>(
-		() => value || { input: undefined, option: options[0].value }
-	);
 
-	const changeText = React.useCallback(
-		(text: string) =>
-			set((s) =>
-				produce(s, (df) => {
-					df["input"] = text;
-					return df;
-				})
-			),
-		[set]
-	);
-	const changeOption = React.useCallback(
-		(item: T, ix: number) =>
-			set((s) =>
-				produce(s, (df) => {
-					df["option"] = item;
-					return df;
-				})
-			),
-		[set]
-	);
+export const VariableTextInput = React.forwardRef(
+	<T,>(
+		{
+			options,
+			wrapperStyle,
+			textInputStyle,
+			pickerStyle,
+			pickerItemStyle,
+			pickerItemOptionProps,
+			value,
+			onChangeValue,
+			...props
+		}: VariableTextInputProps<T>,
+		ref
+	) => {
+		const [data, set] = useState<VariableValue<T>>(
+			() => value || { input: undefined, option: options[0].value }
+		);
 
-	// Update changes to the onChangeValue function
-	React.useEffect(
-		() => onChangeValue && onChangeValue(data),
-		[data, onChangeValue]
-	);
+		const changeText = React.useCallback(
+			(text: string) =>
+				set((s) =>
+					produce(s, (df) => {
+						df["input"] = text;
+						return df;
+					})
+				),
+			[set]
+		);
+		const changeOption = React.useCallback(
+			(item: T, ix: number) =>
+				set((s) =>
+					produce(s, (df) => {
+						df["option"] = item;
+						return df;
+					})
+				),
+			[set]
+		);
 
-	return (
-		<View
-			style={[
-				{
-					display: "flex",
-					flexDirection: "row",
-					alignItems: "center",
-					justifyContent: "space-between",
-					borderColor: "#ccc",
-					borderWidth: 1,
-					borderRadius: 2,
-				},
-				wrapperStyle,
-			]}
-		>
-			<_BaseTextInput
-				{...props}
-				value={data.input}
-				onChangeText={changeText}
-				style={[layoutStyle.input, fontStyle.normal, { flex: 1 }]}
-			/>
-			<Picker
+		// Update changes to the onChangeValue function
+		React.useEffect(
+			() => onChangeValue && onChangeValue(data),
+			[data, onChangeValue]
+		);
+
+		return (
+			<View
 				style={[
-					{ flex: 0.6, borderRadius: 100 },
-					fontStyle.normal,
-					pickerStyle,
+					{
+						display: "flex",
+						flexDirection: "row",
+						alignItems: "center",
+						justifyContent: "space-between",
+						borderColor: "#ccc",
+						borderWidth: 1,
+						borderRadius: 2,
+					},
+					wrapperStyle,
 				]}
-				itemStyle={[
-					{ backgroundColor: "pink" },
-					fontStyle.normal,
-					pickerItemStyle,
-				]}
-				selectedValue={data.option}
-				onValueChange={changeOption}
 			>
-				{options.map((s) => (
-					<Picker.Item
-						{...pickerItemOptionProps}
-						style={[fontStyle.normal, {}]}
-						key={s.value}
-						{...s}
-					/>
-				))}
-			</Picker>
-		</View>
-	);
-}
+				<_BaseTextInput
+					{...props}
+					ref={ref}
+					value={data.input}
+					onChangeText={changeText}
+					testID={`${props.testID}-text-input`}
+					style={[layoutStyle.input, fontStyle.normal, { flex: 1 }]}
+				/>
+				<Picker
+					style={[
+						{ flex: 0.6, borderRadius: 100 },
+						fontStyle.normal,
+						pickerStyle,
+					]}
+					testID={`${props.testID}-picker`}
+					itemStyle={[
+						{ backgroundColor: "pink" },
+						fontStyle.normal,
+						pickerItemStyle,
+					]}
+					selectedValue={data.option}
+					onValueChange={changeOption}
+				>
+					{options.map((s, ix) => (
+						<Picker.Item
+							{...pickerItemOptionProps}
+							style={[fontStyle.normal, {}]}
+							key={s.value || ix}
+							{...s}
+							testID={`${props.testID}-picker-item-${ix + 1}`}
+						/>
+					))}
+				</Picker>
+			</View>
+		);
+	}
+);
 
 export const fontStyle = StyleSheet.create({
 	normal: {
@@ -592,7 +602,10 @@ export function MultiInput<T extends string>({
 				visible={modalVisible}
 				onRequestClose={() => setModalVisible(false)}
 			>
-				<View style={multiInputStyles.centeredView}>
+				<View
+					testID={`${props.testID}-modal-view`}
+					style={multiInputStyles.centeredView}
+				>
 					<View style={multiInputStyles.modalView}>
 						<Text
 							font="bold"
@@ -610,6 +623,7 @@ export function MultiInput<T extends string>({
 							{fields.map(({ name, label }, ix) => {
 								return (
 									<SelectableChip
+										testID={`${props.testID}-item-option`}
 										style={{ margin: 4 }}
 										selected={visible[name]}
 										key={`${name}-${ix}`}
@@ -630,6 +644,7 @@ export function MultiInput<T extends string>({
 
 						<Button
 							title="Close"
+							testID={`${props.testID}-modal-button`}
 							onPress={() => setModalVisible(!modalVisible)}
 						/>
 					</View>
@@ -648,6 +663,7 @@ export function MultiInput<T extends string>({
 						{title}
 					</Text>
 					<Pressable
+						testID={`${props.testID}-add-button`}
 						android_ripple={{ borderless: true, radius: 16 }}
 						onPress={() => setModalVisible(true)}
 						style={{ padding: 4 }}
