@@ -80,7 +80,7 @@ import { useSymptomsInfo } from "../../../../app/utils";
 import { getAssocSymptomRecords } from "../../../../app/associated_symptoms";
 import shallow from "zustand/shallow";
 
-function InputHints() {
+export function InputHints() {
 	const { items } = useSearchData();
 	const navigation = useNavigation();
 	const [ps, as] = useSAStore((s) => [

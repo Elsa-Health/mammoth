@@ -40,4 +40,10 @@ describe("Main Symptom Screen", () => {
 	it("Renders correctly", () => {
 		render(Component);
 	});
+
+	// describe("Components", () => {
+	// 	it("<InputHints />", () => {
+
+	// 	})
+	// })
 });

@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react-native";
-import MainSymptomScreen from ".";
+import MainSymptomScreen, { SymptomList, SymptomSelectable } from ".";
 import { ApplicationProvider } from "../../../../app/context/app";
 import { AppProvider } from "../../../../app/context/main";
 import { NavigationContainer } from "@react-navigation/native";
@@ -37,7 +37,44 @@ describe("Main Symptom Screen", () => {
 		</ApplicationProvider>
 	);
 
+	const ComponentWithChild = ({ children }: any) => (
+		<ApplicationProvider
+			initialState={{
+				user: { name: "test-user", uid: "test-user" },
+				settings: { lang: "en" },
+			}}
+		>
+			<AppProvider>
+				<PatientDescriptionProvider>
+					<SymptomAssessmentSequenceProvider>
+						<SymptomInteractionProvider>
+							{children}
+						</SymptomInteractionProvider>
+					</SymptomAssessmentSequenceProvider>
+				</PatientDescriptionProvider>
+			</AppProvider>
+		</ApplicationProvider>
+	);
+
 	it("Renders correctly", () => {
 		render(Component);
+	});
+
+	describe("Components", () => {
+		it("<SymptomList />", () => {
+			render(
+				<ComponentWithChild>
+					<SymptomList />
+				</ComponentWithChild>
+			);
+		});
+
+		it("<SymptomSelectable />", () => {
+			render(
+				<ComponentWithChild>
+					<SymptomSelectable symptom="abdominal-tenderness" />
+				</ComponentWithChild>
+			);
+		});
 	});
 });

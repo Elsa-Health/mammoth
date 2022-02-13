@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react-native";
-import FinalAssessmentScreen from ".";
+import FinalAssessmentScreen, { NextSteps, RecommendedInfo } from ".";
 import { ApplicationProvider } from "../../../../app/context/app";
 import { AppProvider } from "../../../../app/context/main";
 import { NavigationContainer } from "@react-navigation/native";
@@ -34,7 +34,42 @@ describe("Final Assessment Screen", () => {
 		</ApplicationProvider>
 	);
 
+	const ComponentWithChild = ({ children }: any) => (
+		<ApplicationProvider
+			initialState={{
+				user: { name: "test-user", uid: "test-user" },
+				settings: { lang: "en" },
+			}}
+		>
+			<AppProvider>
+				<PatientDescriptionProvider>
+					<SymptomAssessmentSequenceProvider>
+						{children}
+					</SymptomAssessmentSequenceProvider>
+				</PatientDescriptionProvider>
+			</AppProvider>
+		</ApplicationProvider>
+	);
+
 	it("Renders correctly", () => {
 		render(Component);
+	});
+
+	describe("Components", () => {
+		it("<NextSteps />", () => {
+			render(
+				<ComponentWithChild>
+					<NextSteps conditions={["anaemia", "ascariasis"]} />
+				</ComponentWithChild>
+			);
+		});
+
+		it("<RecommendedInfo />", () => {
+			render(
+				<ComponentWithChild>
+					<RecommendedInfo conditionId="anaemia" collapsed={false} />
+				</ComponentWithChild>
+			);
+		});
 	});
 });
