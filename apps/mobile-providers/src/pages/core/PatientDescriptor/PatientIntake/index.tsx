@@ -61,7 +61,14 @@ const O2SatTextInput = (props: any) => (
 	/>
 );
 
-const InfoBox = (props: { title: string; text: string }) => {
+const InfoBox = ({
+	color,
+	...props
+}: {
+	title: string;
+	text: string;
+	color?: string;
+}) => {
 	return (
 		<View
 			style={{
@@ -69,7 +76,7 @@ const InfoBox = (props: { title: string; text: string }) => {
 				padding: 16,
 				borderWidth: 2,
 				borderRadius: 8,
-				borderColor: theme.color.primary.base,
+				borderColor: color ? color : theme.color.primary.base,
 				display: "flex",
 				flexWrap: "wrap",
 				alignItems: "flex-end",
@@ -88,12 +95,14 @@ const InfoBox = (props: { title: string; text: string }) => {
 					<InformationIcon
 						width={28}
 						height={28}
-						style={{ color: theme.color.primary.base }}
+						style={{
+							color: color ? color : theme.color.primary.base,
+						}}
 					/>
 					<Text
 						font="bold"
 						style={{
-							color: theme.color.primary.base,
+							color: color ? color : theme.color.primary.base,
 							lineHeight: 20,
 						}}
 					>
@@ -102,7 +111,10 @@ const InfoBox = (props: { title: string; text: string }) => {
 				</View>
 				<Text
 					font="medium"
-					style={{ color: theme.color.primary.base, lineHeight: 20 }}
+					style={{
+						color: color ? color : theme.color.primary.base,
+						lineHeight: 20,
+					}}
 				>
 					{props.text}
 				</Text>
@@ -143,27 +155,27 @@ function WeightHeightText({
 
 			if (bmi <= 18.5)
 				setBmiInfo({
-					title: `Patient's BMI: ${bmi}`,
+					title: `Patient's BMI: ${bmi.toFixed(2)}`,
 					text: "BMI indicates that the patient is MALNURISHED",
 				});
 			if (bmi > 18.5 && bmi <= 25)
 				setBmiInfo({
-					title: `Patient's BMI: ${bmi}`,
+					title: `Patient's BMI: ${bmi.toFixed(2)}`,
 					text: "BMI indicates that the patient is NORMAL WEIGHT",
 				});
 			if (bmi > 25 && bmi <= 30)
 				setBmiInfo({
-					title: `Patient's BMI: ${bmi}`,
+					title: `Patient's BMI: ${bmi.toFixed(2)}`,
 					text: "BMI indicates that the patient is OVER WEIGHT",
 				});
 			if (bmi > 30 && bmi <= 40)
 				setBmiInfo({
-					title: `Patient's BMI: ${bmi}`,
+					title: `Patient's BMI: ${bmi.toFixed(2)}`,
 					text: "BMI indicates that the patient is OBESE",
 				});
 			if (bmi > 40)
 				setBmiInfo({
-					title: `Patient's BMI: ${bmi}`,
+					title: `Patient's BMI: ${bmi.toFixed(2)}`,
 					text: "BMI indicates that the patient iis MORBIDLY OBESE",
 				});
 		} catch {
@@ -288,7 +300,7 @@ function TempTextInput({
 	onChangeValue: (value: string | undefined) => void;
 }) {
 	const [tempStatus, setTempStatus] = React.useState<
-		{ title: string; text: string } | undefined
+		{ title: string; text: string; color: string } | undefined
 	>(undefined);
 
 	React.useEffect(() => {
@@ -298,7 +310,10 @@ function TempTextInput({
 				setTempStatus({
 					title: "Temperature Warning",
 					text: "This patient has a high-grade fever.",
+					color: "#ffae2b",
 				});
+			} else {
+				setTempStatus(undefined);
 			}
 		} catch (err) {
 			setTempStatus(undefined);
