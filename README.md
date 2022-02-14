@@ -14,6 +14,7 @@ Document Structure:
 
 ## Badges
 
+![test](https://github.com/Elsa-Health/mammoth/workflows/CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/Elsa-Health/mammoth/badge.svg?branch=main)](https://coveralls.io/github/Elsa-Health/mammoth?branch=main)
 
 The badges are for the entire repository. Soon, there will be tests that are attached against each
