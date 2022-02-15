@@ -17,6 +17,7 @@ import {
 	SymptomRecord,
 } from "../../../@types";
 import { usePatientDescription } from "../../pages/core/PatientDescriptor/context";
+import { PatientIntakeData } from "../../pages/core/PatientDescriptor/PatientIntake";
 
 interface AssessmentState extends Assessment {
 	/**
@@ -287,11 +288,10 @@ export const getDiscretized = (
 
 	absentSymptoms: string[];
 }[] => {
-	return normalValueDiscretization(sortedConditions, asstr, topn, rangeToFit)
+	return fn(sortedConditions, asstr, topn, rangeToFit)
 		.filter((dd) => dd.data !== undefined)
 		.map((dd) => ({
 			condition: dd.data.condition,
-			data: dd.data,
 			// rescale to include certainity
 			count: dd.count,
 			presentingSymptoms: dd.presentingSymptoms,
@@ -304,19 +304,15 @@ export const getConditionData = (
 	condition: string,
 	conditions: {
 		condition: string;
-		label: string;
 		p: number;
 		symptoms: string[];
 	}[],
 	asstr?: string[]
-):
-	| undefined
-	| null
-	| {
-			rank: number; // its position in the sorted list
-			presentingSymptoms: string[];
-			absentSymptoms: string[];
-	  } => {
+): null | {
+	rank: number; // its position in the sorted list
+	presentingSymptoms: string[];
+	absentSymptoms: string[];
+} => {
 	const condIdx = conditions.findIndex((c) => c.condition === condition);
 
 	// console.log({ conditions, condIdx })
@@ -336,46 +332,51 @@ export const getConditionData = (
 	};
 };
 
-// NOTE: you might want to make this less imperative
-export function useElsaLambda() {
-	const patient = usePatientDescription((d) => {
-		const s = d.patientIntake;
-
-		if (s === undefined) {
-			return {
-				age: 0,
-				sex: null,
-			};
+export const _convertPatientForElsa = (patient: PatientIntakeData) =>
+	produce({} as { age: number; sex: "male" | "female" }, (df) => {
+		if (
+			patient.age?.years !== undefined ||
+			patient.age?.months !== undefined
+		) {
+			df["age"] = getAge(patient.age.years || 0, patient.age.months || 0);
 		}
 
-		const p = produce(
-			{} as { age: number; sex: "male" | "female" },
-			(df) => {
-				if (s.age.years !== undefined || s.age.months !== undefined) {
-					df["age"] = getAge(s.age.years || 0, s.age.months || 0);
-				}
+		df["sex"] = patient.sex;
 
-				df["sex"] = s.sex;
-
-				// if (s.vitalSigns?.height?.value !== undefined || s.vitalSigns?.height.value > 0) {
-				//     df['height'] = s.vitalSigns?.height.value
-				// }
-				// if (s.vitalSigns?.weight?.value !== undefined || s.vitalSigns?.weight.value > 0) {
-				//     df['weight'] = s.vitalSigns?.weight.value
-				// }
-				// return ({
-				//     age: getAge(s.age.years || 0, s.age.months || 0),
-				//     sex: s.sex,
-				//     height: s.vitalSigns?.height?.value || 0,
-				//     weight: s.vitalSigns?.weight?.value || 0
-				// })
-				return df;
-			}
-		);
-
-		// console.log("PATIENT:", p)
-		return p;
+		// if (s.vitalSigns?.height?.value !== undefined || s.vitalSigns?.height.value > 0) {
+		//     df['height'] = s.vitalSigns?.height.value
+		// }
+		// if (s.vitalSigns?.weight?.value !== undefined || s.vitalSigns?.weight.value > 0) {
+		//     df['weight'] = s.vitalSigns?.weight.value
+		// }
+		// return ({
+		//     age: getAge(s.age.years || 0, s.age.months || 0),
+		//     sex: s.sex,
+		//     height: s.vitalSigns?.height?.value || 0,
+		//     weight: s.vitalSigns?.weight?.value || 0
+		// })
+		return df;
 	});
+
+export const _getPatientForElsa = (patient: PatientIntakeData | undefined) => {
+	if (patient === undefined) {
+		return {
+			age: 0,
+			sex: null,
+		};
+	}
+
+	const p = _convertPatientForElsa(patient);
+
+	// console.log("PATIENT:", p)
+	return p;
+};
+
+// NOTE: you might want to make this less imperative
+export function useElsaLambda() {
+	const patient = usePatientDescription((d) =>
+		_getPatientForElsa(d.patientIntake)
+	);
 
 	const psstr = useStore((s) => s.presentingSymptoms, shallow);
 	const asstr = useStore((s) => s.absentSymptoms.map((d) => d.id), shallow);

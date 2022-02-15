@@ -21,8 +21,5 @@ export function getAgeGroup(months: number) {
 	if (months < 228) {
 		return "120 - 228 months";
 	}
-	if (months >= 228) {
-		return "228+ months";
-	}
-	return "(-inf, inf+)";
+	return "228+ months";
 }

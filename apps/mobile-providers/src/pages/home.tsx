@@ -23,7 +23,7 @@ var advancedFormat = require("dayjs/plugin/advancedFormat");
 dayjs.extend(advancedFormat);
 
 const TOTAL_COUNT_TO_SHOW = 3;
-function MinifiedPatientHistory() {
+export function MinifiedPatientHistory() {
 	const { records: data } = useMainState();
 	const { t } = useTranslation("translation", { keyPrefix: "home.history" });
 	const { t: tc } = useTranslation("translation", { keyPrefix: "common" });
