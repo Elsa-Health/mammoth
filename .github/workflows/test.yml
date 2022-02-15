@@ -9,6 +9,8 @@ on:
     pull_request:
         branches: [main, dev]
 
+    watch
+
 jobs:
     test:
         runs-on: ubuntu-latest
@@ -35,7 +37,7 @@ jobs:
               uses: coverallsapp/github-action@1.1.3
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
-                  flag-name: elsa-ui-${{ matrix.os }}-${{ matrix.node }}
+                  flag-name: elsa-ui
                   parallel: true # Must set to true as config gets aggreate
                   base-path: ./packages/ui-react-native
                   path-to-lcov: ./packages/ui-react-native/coverage/lcov.info
@@ -44,7 +46,7 @@ jobs:
               uses: coverallsapp/github-action@1.1.3
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
-                  flag-name: provider-${{ matrix.os }}-${{ matrix.node }}
+                  flag-name: provider
                   parallel: true # Must set to true as config gets aggreate
                   base-path: ./apps/mobile-providers/
                   path-to-lcov: ./apps/mobile-providers/coverage/lcov.info
