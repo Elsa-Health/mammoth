@@ -9,8 +9,6 @@ on:
     pull_request:
         branches: [main, dev]
 
-    watch
-
 jobs:
     test:
         runs-on: ubuntu-latest
