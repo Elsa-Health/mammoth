@@ -117,7 +117,7 @@ interface MainState {
 // };
 
 const { Provider, useStore } = createContext<MainState>();
-const createStore = () =>
+export const createStore = () =>
 	create<MainState>(
 		persist(
 			(set, get) => ({
