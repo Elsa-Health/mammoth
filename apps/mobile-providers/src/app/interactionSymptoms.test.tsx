@@ -86,14 +86,17 @@ describe("AssociativeSymptomSection", () => {
 
 describe("CustomBackdrop", () => {
 	it("Renders without erros", () => {
-		const av = useSharedValue(1);
-		render(
-			<CustomBackdrop
-				animatedIndex={av}
-				animatedPosition={{
-					value: 1,
-				}}
-			/>
-		);
+		function TD() {
+			const av = useSharedValue(1);
+			return (
+				<CustomBackdrop
+					animatedIndex={av}
+					animatedPosition={{
+						value: 1,
+					}}
+				/>
+			);
+		}
+		render(<TD />);
 	});
 });
