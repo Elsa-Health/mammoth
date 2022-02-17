@@ -71,7 +71,7 @@ type InteractiveSymptomState = {
  * Managing state that is useful to manage interactions
  * involving dealing with the current interacted symptom
  */
-interface SymptomInteractionState extends InteractionState {
+export interface SymptomInteractionState extends InteractionState {
 	showState: undefined | "full" | "half";
 
 	// For the interaction view, collect all states that are associated
@@ -226,7 +226,10 @@ export function SymptomInteractionProvider(
 	return <Provider createStore={createStore}>{props.children}</Provider>;
 }
 
-const CustomBackdrop = ({ animatedIndex, style }: BottomSheetBackdropProps) => {
+export const CustomBackdrop = ({
+	animatedIndex,
+	style,
+}: BottomSheetBackdropProps) => {
 	// animated variables
 	const containerAnimatedStyle = useAnimatedStyle(() => ({
 		opacity: interpolate(
@@ -440,6 +443,11 @@ const ModalComponent = (props: {}) => {
 		[addSymptom]
 	);
 
+	// const [data, state] = useSymptomStore(
+	// 	(s) => [s.symptoms[index].data, s.symptoms[index].state],
+	// 	shallow
+	// );
+
 	/** RENDER COMPONENTS **/
 	const removeSymptomFromId = useSAStore((s) => s.removeSymptomFromId);
 	const renderSymptoms = React.useCallback(
@@ -447,6 +455,8 @@ const ModalComponent = (props: {}) => {
 			<SymptomSection
 				{...symptom}
 				index={ix}
+				data={symptoms[ix].data}
+				state={symptoms[ix].state}
 				removeSymptom={() => {
 					removeSymptomFromId(symptom.symptom.id);
 
@@ -573,6 +583,8 @@ function SymptomSection({
 	mini = false,
 	index,
 	removeSymptom,
+	data,
+	state,
 }: {
 	mini?: boolean;
 	index: number;
@@ -580,13 +592,15 @@ function SymptomSection({
 	stateUpdate: (
 		fn: (pv: InteractiveSymptomState) => InteractiveSymptomState
 	) => void;
+	data: InteractiveSymptomState["data"];
+	symptom: InteractiveSymptomState["symptom"];
 } & Omit<InteractiveSymptomState, "data">) {
 	const lang = useApplication((s) => s.settings.lang, shallow);
 	// data about information
-	const [data, state] = useSymptomStore(
-		(s) => [s.symptoms[index].data, s.symptoms[index].state],
-		shallow
-	);
+	// const [data, state] = useSymptomStore(
+	// 	(s) => [s.symptoms[index].data, s.symptoms[index].state],
+	// 	shallow
+	// );
 	const [ready, setReady] = React.useState(false);
 
 	// const { t } = useTranslation('donpar-map')
@@ -1102,7 +1116,14 @@ function DonparItemOption({
 	);
 }
 
-export { BottomSheetInteractionProvider, useSymptomStore };
+export {
+	BottomSheetInteractionProvider,
+	useSymptomStore,
+	DonparItemOption,
+	AssociativeSymptomSection,
+	SymptomSection,
+	createStore,
+};
 
 const styles = StyleSheet.create({
 	container: {
