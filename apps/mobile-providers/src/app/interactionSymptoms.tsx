@@ -278,7 +278,7 @@ function BottomSheetInteractionProvider(
 	);
 }
 
-const ModalComponent = (props: {}) => {
+export const ModalComponent = (props: {}) => {
 	const symptoms = useSymptomStore((s) => s.symptoms, shallow);
 	const mainSypmtoms = useSymptomsInfo();
 

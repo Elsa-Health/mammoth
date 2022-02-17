@@ -2,9 +2,11 @@ import React from "react";
 import { render } from "@testing-library/react-native";
 import {
 	AssociativeSymptomSection,
+	BottomSheetInteractionProvider,
 	CustomBackdrop,
 	// createStore,
 	DonparItemOption,
+	ModalComponent,
 	SymptomInteractionProvider,
 	SymptomInteractionState,
 	SymptomSection,
@@ -14,6 +16,7 @@ import { LanguageProvider } from "./locale/config";
 import createContext from "zustand/context";
 import create from "zustand";
 import { useSharedValue } from "react-native-reanimated";
+import { SymptomAssessmentSequenceProvider } from "./context/assessment";
 
 describe("DonparItemOption", () => {
 	const cb = jest.fn();
@@ -58,7 +61,7 @@ describe("AssociativeSymptomSection", () => {
 
 	// console.log(createStore);
 
-	it("Renders without erros", () => {
+	it("Renders without errors", () => {
 		render(
 			<ApplicationProvider>
 				<SymptomSection
@@ -86,7 +89,7 @@ describe("AssociativeSymptomSection", () => {
 
 describe("CustomBackdrop", () => {
 	it("Renders without erros", () => {
-		function TD() {
+		function CustomBackdropTest() {
 			const av = useSharedValue(1);
 			return (
 				<CustomBackdrop
@@ -97,6 +100,32 @@ describe("CustomBackdrop", () => {
 				/>
 			);
 		}
-		render(<TD />);
+		render(<CustomBackdropTest />);
+	});
+});
+
+describe("BottomSheetInteractionProvider", () => {
+	it("Renders without errors", () => {
+		render(
+			<SymptomAssessmentSequenceProvider>
+				<BottomSheetInteractionProvider>
+					<></>
+				</BottomSheetInteractionProvider>
+			</SymptomAssessmentSequenceProvider>
+		);
+	});
+});
+
+describe("ModalComponent", () => {
+	it("Renders without erros", () => {
+		render(
+			<SymptomAssessmentSequenceProvider>
+				<SymptomInteractionProvider>
+					<BottomSheetInteractionProvider>
+						<ModalComponent />
+					</BottomSheetInteractionProvider>
+				</SymptomInteractionProvider>
+			</SymptomAssessmentSequenceProvider>
+		);
 	});
 });
