@@ -1,11 +1,12 @@
 import React from "react";
-import { render } from "@testing-library/react-native";
+import { fireEvent, render } from "@testing-library/react-native";
 import {
 	AssociativeSymptomSection,
 	BottomSheetInteractionProvider,
 	CustomBackdrop,
 	// createStore,
 	DonparItemOption,
+	InteractiveSymptomState,
 	ModalComponent,
 	SymptomInteractionProvider,
 	SymptomInteractionState,
@@ -55,14 +56,22 @@ describe("AssociativeSymptomSection", () => {
 	});
 });
 
-describe("AssociativeSymptomSection", () => {
+describe("SymptomSection", () => {
 	const setUpdate = jest.fn();
 	const removeSymptom = jest.fn();
 
+	const setUpdateCb =
+		(ix: number) =>
+		(fn: (pv: InteractiveSymptomState) => InteractiveSymptomState) => {
+			// const newState = { ...prevSymptomState, ...(fn(prevSymptomState)) }
+			// setSymptomsState(ix, fn);
+			setUpdate();
+		};
+
 	// console.log(createStore);
 
-	it("Renders without errors", () => {
-		render(
+	it("Renders without errors and methods are present", () => {
+		const component = render(
 			<ApplicationProvider>
 				<SymptomSection
 					index={0}
@@ -72,18 +81,34 @@ describe("AssociativeSymptomSection", () => {
 						id: "constipation",
 						location: [],
 						duration: [],
-						onset: [],
+						onset: ["sudden", "gradual"],
 						nature: [],
 						periodicity: [],
-						aggravators: [],
+						aggravators: ["eating"],
+						reducers: ["sleeping"],
+					}}
+					data={{
+						location: [],
+						duration: "2-weeks",
+						onset: "sudden",
+						nature: [],
+						periodicity: [],
+						aggravators: ["sleeping"],
 						reducers: [],
 					}}
 					mini={false}
+					stateUpdate={setUpdate}
 					// @ts-expect-error
-					setUpdate={(i) => setUpdate()}
+					setUpdate={setUpdateCb(0)}
 				/>
 			</ApplicationProvider>
 		);
+
+		const selectChip = component.getAllByTestId("DonparItemOptionChip");
+		fireEvent(selectChip[0], "press");
+
+		const removeBtn = component.getByTestId("SymptomSectionRemoveButton");
+		fireEvent(removeBtn, "press");
 	});
 });
 
@@ -104,11 +129,58 @@ describe("CustomBackdrop", () => {
 	});
 });
 
+const symptoms: InteractiveSymptomState[] = [
+	{
+		data: {
+			aggravators: [],
+			duration: "",
+			location: [""],
+			nature: [],
+			onset: "",
+			periodicity: [],
+			reducers: [],
+		},
+		state: "present",
+		symptom: {
+			id: "constipation",
+			location: [],
+			duration: [],
+			onset: [],
+			nature: [],
+			periodicity: [],
+			aggravators: [],
+			reducers: [],
+		},
+	},
+	{
+		data: {
+			aggravators: [],
+			duration: "",
+			location: [""],
+			nature: [],
+			onset: "",
+			periodicity: [],
+			reducers: [],
+		},
+		state: "absent",
+		symptom: {
+			id: "fever",
+			location: [],
+			duration: [],
+			onset: [],
+			nature: [],
+			periodicity: [],
+			aggravators: [],
+			reducers: [],
+		},
+	},
+];
+
 describe("BottomSheetInteractionProvider", () => {
 	it("Renders without errors", () => {
 		render(
 			<SymptomAssessmentSequenceProvider>
-				<BottomSheetInteractionProvider>
+				<BottomSheetInteractionProvider symptoms={symptoms}>
 					<></>
 				</BottomSheetInteractionProvider>
 			</SymptomAssessmentSequenceProvider>
@@ -120,8 +192,8 @@ describe("ModalComponent", () => {
 	it("Renders without erros", () => {
 		render(
 			<SymptomAssessmentSequenceProvider>
-				<SymptomInteractionProvider>
-					<BottomSheetInteractionProvider>
+				<SymptomInteractionProvider symptoms={symptoms}>
+					<BottomSheetInteractionProvider symptoms={symptoms}>
 						<ModalComponent />
 					</BottomSheetInteractionProvider>
 				</SymptomInteractionProvider>

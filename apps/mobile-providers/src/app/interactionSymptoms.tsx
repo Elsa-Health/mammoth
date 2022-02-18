@@ -57,7 +57,7 @@ interface InteractionState {
 	setVisible: (v: boolean) => void;
 }
 
-type InteractiveSymptomState = {
+export type InteractiveSymptomState = {
 	symptom: SymptomDescription;
 
 	data: Partial<SymptomData>;
@@ -133,97 +133,104 @@ export interface SymptomInteractionState extends InteractionState {
 // const one = symptomsBag[0]
 const { Provider, useStore: useSymptomStore } =
 	createContext<SymptomInteractionState>();
-const createStore = () =>
-	create<SymptomInteractionState>((set, get) => ({
-		visible: false,
-		showState: undefined,
-		symptoms: [],
+const createStore =
+	(symptoms: InteractiveSymptomState[] = []) =>
+	() =>
+		create<SymptomInteractionState>((set, get) => ({
+			visible: false,
+			showState: undefined,
+			symptoms,
 
-		associatedSymptoms: [],
+			associatedSymptoms: [],
 
-		setVisible: (visible) => set({ visible }),
-		reset: () => set({ symptoms: [], visible: false }),
+			setVisible: (visible) => set({ visible }),
+			reset: () => set({ symptoms: [], visible: false }),
 
-		addSymptomFromIndex: (refNumber, data = {}, present) => {
-			get().addSymptomFromDescription(
-				symptomsBag[refNumber],
-				data,
-				present
-			);
-		},
-		addSymptomFromId: (id, data = {}, present) => {
-			get().addSymptomFromDescription(
-				{ id, ...dataFn.symptoms.symptom.fromId(id) },
-				data,
-				present
-			);
-			// get().addSymptomFromDescription(symptomJson[id], data, present)
-		},
-		addSymptomFromDescription: (desc, data = {}, present) => {
-			set((s) =>
-				produce(s, (df) => {
-					df.symptoms.push({
-						data,
-						symptom: desc,
-						state:
-							present !== undefined
-								? present
-									? "present"
-									: "absent"
-								: "unknown",
-					});
-					return df;
-				})
-			);
-		},
-		unsafe_setAssociatedSymptoms: (associatedSymptoms) =>
-			set({ associatedSymptoms }),
-		unsafe_setSymptomsState: (symIdx, newState) => {
-			set((s) => ({
-				symptoms: produce(s.symptoms, (df) => {
-					df[symIdx] = newState;
-					return df;
-				}),
-			}));
-		},
-		unsafe_updateSymptomState: (symIdx, newState) => {
-			get().unsafe_setSymptomsState(symIdx, {
-				...get().symptoms[symIdx],
-				symptom: {
-					...get().symptoms[symIdx].symptom,
-					...newState.symptom,
-				},
-				data: {
-					...get().symptoms[symIdx].data,
-					...newState.data,
-				},
-				...newState,
-			});
-		},
-		setShowState: (show) => set({ showState: show }),
+			addSymptomFromIndex: (refNumber, data = {}, present) => {
+				get().addSymptomFromDescription(
+					symptomsBag[refNumber],
+					data,
+					present
+				);
+			},
+			addSymptomFromId: (id, data = {}, present) => {
+				get().addSymptomFromDescription(
+					{ id, ...dataFn.symptoms.symptom.fromId(id) },
+					data,
+					present
+				);
+				// get().addSymptomFromDescription(symptomJson[id], data, present)
+			},
+			addSymptomFromDescription: (desc, data = {}, present) => {
+				set((s) =>
+					produce(s, (df) => {
+						df.symptoms.push({
+							data,
+							symptom: desc,
+							state:
+								present !== undefined
+									? present
+										? "present"
+										: "absent"
+									: "unknown",
+						});
+						return df;
+					})
+				);
+			},
+			unsafe_setAssociatedSymptoms: (associatedSymptoms) =>
+				set({ associatedSymptoms }),
+			unsafe_setSymptomsState: (symIdx, newState) => {
+				set((s) => ({
+					symptoms: produce(s.symptoms, (df) => {
+						df[symIdx] = newState;
+						return df;
+					}),
+				}));
+			},
+			unsafe_updateSymptomState: (symIdx, newState) => {
+				get().unsafe_setSymptomsState(symIdx, {
+					...get().symptoms[symIdx],
+					symptom: {
+						...get().symptoms[symIdx].symptom,
+						...newState.symptom,
+					},
+					data: {
+						...get().symptoms[symIdx].data,
+						...newState.data,
+					},
+					...newState,
+				});
+			},
+			setShowState: (show) => set({ showState: show }),
 
-		proper_updateSymptomState: (
-			symIdx: number,
-			updater: (
-				oldState: InteractiveSymptomState
-			) => InteractiveSymptomState
-		) => {
-			set((s) => ({
-				symptoms: produce(s.symptoms, (df) => {
-					df[symIdx] = updater(s.symptoms[symIdx]);
-					return df;
-				}),
-			}));
-		},
-	}));
+			proper_updateSymptomState: (
+				symIdx: number,
+				updater: (
+					oldState: InteractiveSymptomState
+				) => InteractiveSymptomState
+			) => {
+				set((s) => ({
+					symptoms: produce(s.symptoms, (df) => {
+						df[symIdx] = updater(s.symptoms[symIdx]);
+						return df;
+					}),
+				}));
+			},
+		}));
 
 interface SymptomInteractionProviderProps {
 	children: React.ReactNode;
+	symptoms?: InteractiveSymptomState[];
 }
 export function SymptomInteractionProvider(
 	props: SymptomInteractionProviderProps
 ) {
-	return <Provider createStore={createStore}>{props.children}</Provider>;
+	return (
+		<Provider createStore={createStore(props.symptoms || [])}>
+			{props.children}
+		</Provider>
+	);
 }
 
 export const CustomBackdrop = ({
@@ -272,7 +279,7 @@ function BottomSheetInteractionProvider(
 	props: SymptomInteractionProviderProps
 ) {
 	return (
-		<SymptomInteractionProvider>
+		<SymptomInteractionProvider symptoms={[]}>
 			<SymptomModalContainer>{props.children}</SymptomModalContainer>
 		</SymptomInteractionProvider>
 	);
@@ -695,7 +702,7 @@ function SymptomSection({
 						state === "present" && ready && { marginLeft: 10 },
 					]}
 				>
-					{content.symptom}
+					{content?.symptom}
 				</Text>
 			</View>
 
@@ -707,7 +714,7 @@ function SymptomSection({
 						fontSize: state === "absent" ? 14 : 16,
 					}}
 				>
-					{content.description}{" "}
+					{content?.description}{" "}
 				</Text>
 			</RevealContent>
 
@@ -756,6 +763,7 @@ function SymptomSection({
 							flexWrap: "nowrap",
 							alignItems: "center",
 						}}
+						testID="SymptomSectionRemoveButton"
 						onPress={() => {
 							removeSymptom();
 							stateUpdate((s) =>
@@ -1075,6 +1083,7 @@ function DonparItemOption({
 										width: isTablet ? "48%" : "30%",
 										marginBottom: 1,
 									}}
+									testID="DonparItemOptionChip"
 									text={item.text.replace(/(-)+/g, " ")}
 									textStyle={{
 										textTransform: "capitalize",
