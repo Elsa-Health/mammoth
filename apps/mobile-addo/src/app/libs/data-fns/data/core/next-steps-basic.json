@@ -1,0 +1,1021 @@
+{
+  "severe-malaria": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "paracetamol-every-4-6-hours-until-symptoms-disappear",
+        "text": "Paracetamol, every 4-6 hours until symptoms disappear."
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "mrdt",
+        "text": "MRDT"
+      }
+    ],
+    "other-recommendations": "Recommended that patients use insecticide-treated nets (ITNs) ."
+  },
+  "malaria": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "artemether-lumefantrine-alu-first-dose-2-mg-kg-artemether-and-12-mg-kg-lumefantrine-for-uncomplicated-malaria",
+        "text": "Artemether-Lumefantrine (ALU), first dose, 2mg/kg Artemether and 12mg/kg Lumefantrine, for uncomplicated malaria.   "
+      },
+      {
+        "id": "diazepam-0-5-mg-kg-delivered-rectally",
+        "text": "Diazepam, 0.5mg/kg, delivered rectally"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "mrdt",
+        "text": "MRDT"
+      }
+    ],
+    "other-recommendations": "Begin patient on ALU/Quinine and document with patient. Give diazepam if convulsing and document."
+  },
+  "pneumonia": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "amoxycillin-capsule-250-mg-for-over-10-years-given-250-500-mg-every-8-hours-for-5-days",
+        "text": "Amoxycillin capsule, 250mg. For over 10 years, given 250-500mg every 8 hours for 5 days.  "
+      },
+      {
+        "id": "cough-suppressants-as-needed",
+        "text": "Cough suppressants, as needed."
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "text": "Chest X-Ray (CXR)"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": "If the patient is a smoker, recommend that they stop smoking."
+  },
+  "tb": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "text": "Chest X-Ray (CXR)"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "gene-xpert",
+        "text": "GeneXpert"
+      },
+      {
+        "id": "sputum-culture",
+        "text": "Sputum Culture"
+      }
+    ]
+  },
+  "coryza": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience difficulty breathing or excessive coughing.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "antihistamines-if-available",
+        "text": "Antihistamines (If available)"
+      },
+      {
+        "id": "paracetamol-syrup-for-children-10-mg-kg-as-needed",
+        "text": "Paracetamol (syrup for children), 10mg/kg, as needed"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient self-isolate and treats symptoms. Patient should rest and drink plenty of fluids."
+  },
+  "sinusitis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience severe pain, difficulty breathing, or excessive and recurrent coughing.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "erythromycin",
+        "text": "Erythromycin"
+      },
+      {
+        "id": "nasal-decongestants",
+        "text": "Nasal Decongestants "
+      },
+      {
+        "id": "paracetamol-10-mg-kg-as-needed",
+        "text": "Paracetamol, 10mg/kg, as needed"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": "Recommend the patient uses a warm compresses to ease pain in the nose and sinuses."
+  },
+  "bronchiolitis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "nonsteroidal-anti-inflammatory-drug",
+        "text": "Nonsteroidal anti-inflammatory drug"
+      },
+      {
+        "id": "nsai-ds",
+        "text": "(NSAIDs)"
+      },
+      {
+        "id": "bronchodilator",
+        "text": "Bronchodilator"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "It is not recommended that the patient takes antibiotics, as this is not a bacterial infection."
+  },
+  "bronchitis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "nonsteroidal-anti-inflammatory-drug",
+        "text": "Nonsteroidal anti-inflammatory drug"
+      },
+      {
+        "id": "nsai-ds",
+        "text": "(NSAIDs)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "text": "Chest X-Ray (CXR)"
+      }
+    ],
+    "other-recommendations": "It is not recommended that the patient takes antibiotics, as this is not a bacterial infection."
+  },
+  "gastritis": {
+    "triage-level": "2 days",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 2 days if symptoms worsen.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "oral-rehydration-salts",
+        "text": "Oral rehydration salts"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP) "
+      },
+      {
+        "id": "h-pylori-stool-test",
+        "text": "H Pylori stool test"
+      }
+    ],
+    "other-recommendations": "Recommend that the patient avoid acidic foods or foods that aggravate the pain. Patient should drink a lot of fluids."
+  },
+  "otitis-externa": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "ear-drops",
+        "text": "Ear drops"
+      },
+      {
+        "id": "paracetamol-as-needed",
+        "text": "Paracetamol, as needed."
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient stays away from swimming or putting water in their ears."
+  },
+  "supprative-otitis-media": {
+    "triage-level": "2 days",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 2 days.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "antibiotic-ear-drops",
+        "text": "Antibiotic ear drops"
+      },
+      {
+        "id": "paracetamol-or-ibuprofen-as-needed",
+        "text": "Paracetamol or ibuprofen, as needed."
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient observes their symptoms and keeps their ear canal clean. Complications can occur such as loss of hearing."
+  },
+  "otitis-media": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek immediate care if If their symptoms get worse, do not resolve, or if there is tympanic perforation.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "amoxicillin-90-mg-kg-max-3-g-a-day-divided-into-3-doses-if-2-years-take-for-2-weeks-if-2-years-take-for-7-days",
+        "text": "Amoxicillin, 90mg/kg (max 3g a day) divided into 3 doses. If <2 years, take for 2 weeks. If >2 years, take for 7 days. "
+      },
+      {
+        "id": "ibuprofen",
+        "text": "Ibuprofen"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient stays away from swimming or putting water in their ears."
+  },
+  "trichuriasis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "albendazole-400-mg-one-time-per-day-for-3-days",
+        "text": "Albendazole, 400mg, one time per day for 3 days"
+      },
+      {
+        "id": "deworming-tablets",
+        "text": "Deworming tablets"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that patient practices good hygeine and regularly washes their hands. If the patient is a child, provide counseling on deworming tablets."
+  },
+  "conjunctivitis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if their symptoms do not resolve.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "gentamycin-eyedrops",
+        "text": "Gentamycin Eyedrops"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient practices good hygeine and regularly washes their hands."
+  },
+  "uti": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms or if their symptoms do not resolve.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "amoxicillin",
+        "text": "Amoxicillin"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "urinalysis",
+        "text": "Urinalysis"
+      }
+    ],
+    "other-recommendations": "Provide counseling to patient on prevention menthods and recommend a follow-up after 5 months at a higher facility."
+  },
+  "dysentry": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "begin-dehydration-treatment",
+        "text": "Begin dehydration treatment"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "stool-analysis",
+        "text": "Stool Analysis"
+      }
+    ]
+  },
+  "malnutrition": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "oral-rehydration-salts",
+        "text": "Oral rehydration salts"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "text": "Chest X-Ray (CXR)"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "hiv-rapid-test",
+        "text": "HIV Rapid Test"
+      },
+      {
+        "id": "mrdt",
+        "text": "MRDT"
+      },
+      {
+        "id": "electrolytes-test",
+        "text": "Electrolytes Test"
+      }
+    ]
+  },
+  "ascariasis-changed-from-helminthiasis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience severe abdominal pain, if the patient is underweight, or if there are any emergency signs.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "albendazole-400-mg-one-time-per-day-for-3-days",
+        "text": "Albendazole, 400mg, one time per day for 3 days"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient practices good hygeine and regularly washes their hands."
+  },
+  "asthma": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "inhaled-corticosteroids-if-available",
+        "text": "Inhaled Corticosteroids (if available)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "text": "Chest X-Ray (CXR)"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": "If the patient smokes, recommend that they stop smoking. Recommend that the patient avoids any triggers, if they are known."
+  },
+  "influenza": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience difficulty breathing or excessive coughing.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "paracetamol",
+        "text": "Paracetamol"
+      },
+      {
+        "id": "nasal-decongestants",
+        "text": "Nasal decongestants"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": "Recommend that the patient self-isolate and treats symptoms. Patient should rest and drink plenty of fluids."
+  },
+  "tonsilitis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience difficulty breathing, if they cannot eat, if their symptoms come back, or if this is the second time with this condition.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "ampiclox",
+        "text": "Ampiclox"
+      },
+      {
+        "id": "paracetamol",
+        "text": "Paracetamol"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": "Recommend that the patient rests at home."
+  },
+  "laryngitis": {
+    "triage-level": "24 hours",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 24 hours.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient rests their voice."
+  },
+  "covid-19": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience difficulty breathing, chest pain, or excessive coughing.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "paracetamol",
+        "text": "Paracetamol"
+      },
+      {
+        "id": "nasal-decongestants",
+        "text": "Nasal decongestants"
+      },
+      {
+        "id": "vitamin-c",
+        "text": "Vitamin C"
+      },
+      {
+        "id": "vitamin-d",
+        "text": "Vitamin D"
+      },
+      {
+        "id": "zinc",
+        "text": "Zinc"
+      },
+      {
+        "id": "amoxyclav",
+        "text": "Amoxyclav"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient self-isolate and treats symptoms. Patient should rest and drink plenty of fluids."
+  },
+  "copd": {
+    "triage-level": "2 weeks",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 2 weeks.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "text": "Chest X-Ray (CXR)"
+      }
+    ],
+    "other-recommendations": "If the patient smokes, recommend that they stop smoking. Provide counseling to the patient on eating nutritious meals."
+  },
+  "syphillis": {
+    "triage-level": "24 hours",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 24 hours.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "doxycycline-or-penicillin-for-early-infection",
+        "text": "Doxycycline or Penicillin (for early infection)"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment."
+  },
+  "gonorrhea": {
+    "triage-level": "2 days",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 2 days.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [],
+    "other-recommendations": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment."
+  },
+  "hiv-aids": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "hiv-rapid-test",
+        "text": "HIV Rapid test"
+      }
+    ],
+    "other-recommendations": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment."
+  },
+  "bacterial-vaginosis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience these symptoms frequently or if their condition is recurrent.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "metronidazole-500-mg-twice-daily-for-7-days",
+        "text": "Metronidazole, 500mg, twice daily for 7 days"
+      }
+    ],
+    "test-recommendations": []
+  },
+  "vulvovaginal-candidiasis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience these symptoms frequently or if their condition is recurrent.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "fluconazole-150-mg-single-dose",
+        "text": "Fluconazole, 150mg, single dose"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Provide counseling to the patient on prevention practices and encourage good hygeine."
+  },
+  "trichomoniasis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "metronidazole-500-mg-twice-daily-for-7-days",
+        "text": "Metronidazole, 500mg, twice daily for 7 days"
+      }
+    ],
+    "test-recommendations": []
+  },
+  "acute-watery-diarrhoea": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they are severely dehydrated or if their symptoms do not resolve.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "oral-rehydration-salts",
+        "text": "Oral Rehydration Salts"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "stool-analysis",
+        "text": "Stool analysis"
+      }
+    ],
+    "other-recommendations": "Recommend that the patient rests at home."
+  },
+  "chlamydia": {
+    "triage-level": "2 days",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 2 days.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "azithromycin-1-g-single-dose",
+        "text": "Azithromycin, 1g, single dose"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment."
+  },
+  "g-herpes": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": []
+  },
+  "pelvic-inflammatory-disease": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "pelvic-exam",
+        "text": "Pelvic Exam"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP) "
+      },
+      {
+        "id": "urinalysis",
+        "text": "Urinalysis"
+      },
+      {
+        "id": "ultrasound-of-pelvis",
+        "text": "Ultrasound of Pelvis"
+      }
+    ],
+    "other-recommendations": "This condition can result in severe complications. Recommend that the patient seeks immediate care."
+  },
+  "genital-warts": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "imiquimod-or-trichloroacetic-acid",
+        "text": "Imiquimod or Trichloroacetic Acid"
+      },
+      {
+        "id": "other-topical-cream",
+        "text": "Other topical cream"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "If the warts continue to return or cause severe pain, recommend that the patient goes to a health facility for removal. Recommend that the patient gets an HPV vaccine if they have not yet done so."
+  },
+  "hpv": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "hpv-screening",
+        "text": "HPV Screening"
+      }
+    ]
+  },
+  "anemia": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "iron-supplements-ferrous-sulfate-325-3-tablets-per-day-taken-every-alternate-day-for-3-months",
+        "text": "Iron supplements (Ferrous Sulfate 325), 3 tablets per day, taken every alternate day for 3 months"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ]
+  },
+  "oral-thrush": {
+    "triage-level": "2 days",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 2 days.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "nystatin-oral-gel-applies-three-times-a-day",
+        "text": "Nystatin oral gel, applies three times a day"
+      }
+    ],
+    "test-recommendations": []
+  },
+  "typhoid": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if their symptoms last more than 3-5 days or if there are any emergency signs.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "ciprofloxacin-adults-500-mg-twice-daily-for-7-days-children-30-mg-kg-divided-in-two-doses-a-day-for-7-days",
+        "text": "Ciprofloxacin, (Adults) 500mg, twice daily for 7 days; (Children) 30mg/kg divided in two doses a day for 7 days"
+      },
+      {
+        "id": "oral-rehydration-salts-or-fluids-if-dehydrated",
+        "text": "Oral Rehydration Salts or Fluids (if dehydrated)"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Provide counseling to the patient on prevention practies and encourage them to practice good hygeine."
+  },
+  "cholera": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if their symptoms last more than 3 days or if there are any emergency signs.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "azithromycin-200-mg-kg-single-dose",
+        "text": "Azithromycin, 200mg/kg, single dose"
+      },
+      {
+        "id": "oral-rehydration-salts-or-fluids-if-dehydrated",
+        "text": "Oral Rehydration Salts or Fluids (if dehydrated)"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Provide counseling to the patient on prevention practies and encourage them to practice good hygeine."
+  },
+  "meningitis": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "spinal-fluid-tap",
+        "text": "Spinal Fluid Tap"
+      }
+    ]
+  },
+  "epilepsy": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [],
+    "other-recommendations": "Provide epilepsy first aid to the patient."
+  },
+  "dehydration": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "oral-rehydration-salts-for-2-years-50-100-ml-after-each-loose-stool-for-2-years-100-200-ml-after-each-loose-stool-alternatively-give-ors-every-4-hours",
+        "text": "Oral Rehydration Salts, for <2 years, 50-100ml after each loose stool. For >2 years, 100-200ml after each loose stool. Alternatively, give ORS every 4 hours. "
+      },
+      {
+        "id": "fluids",
+        "text": "Fluids"
+      },
+      {
+        "id": "zinc-supplements-children-20-mg-per-day-for-14-days-10-mg-per-day-if-less-than-2-years",
+        "text": "Zinc supplements (children), 20mg per day for 14 days (10mg per day if less than 2 years)"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "If the patient's symptoms are severe, recommend that they get treated at the hospital. If the child is breastfeeding, continue breastfeeding."
+  },
+  "htn": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "blood-pressure",
+        "text": "Blood Pressure"
+      }
+    ]
+  },
+  "scabies": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "scaboma",
+        "text": "Scaboma"
+      }
+    ],
+    "test-recommendations": []
+  },
+  "gastroenteritis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care. They should seek medical attention if they experience excessive pain, excessive vomitting or diarrhoea, if there are any emergency signs, or if the patient is pregnant",
+    "refer": false,
+    "medications": [
+      {
+        "id": "oral-rehydration-salts-or-fluids-if-dehydrated",
+        "text": "Oral Rehydration Salts or Fluids (if dehydrated)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": "Recommend that the patient rests and avoids eating milk-based foods."
+  },
+  "heat-rash": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "topical-corticosteroid-cream-if-severe-apply-2-3-times-a-day-on-the-affected-areas",
+        "text": "Topical Corticosteroid Cream (if severe), apply 2-3 times a day on the affected areas"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": "Recommend that the patient wear cool cotton clothing and that they ventilate their room."
+  },
+  "stomatitis": {
+    "triage-level": "2 days",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 2 days.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ]
+  },
+  "bacteremia": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "blood-culture",
+        "text": "Blood Culture"
+      }
+    ]
+  },
+  "cephalohematoma": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care.",
+    "refer": false,
+    "medications": [],
+    "test-recommendations": [],
+    "other-recommendations": "Provide counseling that the condition will likely go away on it's own. Recommend that the patient seeks medical care if the symptoms do not resolve."
+  },
+  "tinea-corporis": {
+    "triage-level": "Home based care",
+    "refer-and-triage-level": "The patient can recieve home based care.",
+    "refer": false,
+    "medications": [
+      {
+        "id": "fluconzaole-for-adults-150-mg-once-a-week-for-4-weeks-for-children-7-mg-kg-once-a-week-for-4-weeks",
+        "text": "Fluconzaole, for adults: 150mg once a week for 4 weeks. For children: 7mg/kg once a week for 4 weeks"
+      }
+    ],
+    "test-recommendations": []
+  },
+  "bact-skin-infection-impetigo": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      }
+    ]
+  },
+  "umb-cord-sepsis": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "c-reactive-protein-crp",
+        "text": "C-reactive protein (CRP)"
+      }
+    ]
+  },
+  "sepsis-changed-from-septicaemia": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "blood-culture",
+        "text": "Blood Culture"
+      }
+    ]
+  },
+  "ped-hiv-aids": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "hiv-rapid-test",
+        "text": "HIV Rapid Test"
+      },
+      {
+        "id": "hiv-pcr",
+        "text": "HIV PCR"
+      }
+    ]
+  },
+  "hepatitis-b": {
+    "triage-level": "2 days",
+    "refer-and-triage-level": "Refer the patient to a health facility. They should seek care within 2 days. They should seek medical care immediately if there are signs of liver failure.",
+    "refer": true,
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "text": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "hepatitis-b-surface-antigen-h-bs-ag",
+        "text": "Hepatitis B Surface Antigen (HBsAg)"
+      },
+      {
+        "id": "hepatitis-b-pcr-hbv-dna",
+        "text": "Hepatitis B PCR (HBV DNA)"
+      },
+      {
+        "id": "hepatitis-b-surface-antibody-hep-bs-ab",
+        "text": "Hepatitis B Surface Antibody (HepBsAb)"
+      },
+      {
+        "id": "liver-function-tests",
+        "text": "Liver Function Tests"
+      },
+      {
+        "id": "hiv-viral-load",
+        "text": "HIV Viral Load"
+      }
+    ]
+  },
+  "toxoplasmosis": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "n-a",
+        "text": "N/A"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "cd-4-count",
+        "text": "CD4 Count"
+      },
+      {
+        "id": "anti-toxoplasma-ig-g-serology",
+        "text": "Anti-Toxoplasma IgG Serology"
+      },
+      {
+        "id": "mri-or-ct",
+        "text": "MRI or CT"
+      }
+    ]
+  },
+  "pneumocystis-pneumonia": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "cough-suppressants-as-needed",
+        "text": "Cough suppressants, as needed."
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "microscopy-of-sputum",
+        "text": "Microscopy of Sputum"
+      },
+      {
+        "id": "pcr-test-fungal-dna",
+        "text": "PCR Test (Fungal DNA)"
+      }
+    ],
+    "other-recommendations": "If the patient is a smoker, recommend that they stop smoking."
+  },
+  "ectopic-pregnancy": {
+    "triage-level": "Immediately",
+    "refer-and-triage-level": "Refer the patient to a health facility immediately.",
+    "refer": true,
+    "medications": [
+      {
+        "id": "surgery",
+        "text": "Surgery"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "pregnancy-test",
+        "text": "Pregnancy Test"
+      },
+      {
+        "id": "pelvic-exam",
+        "text": "Pelvic Exam"
+      }
+    ],
+    "other-recommendations": "Recommend that the patient goes to a health facility immediately as they will likely need surgery."
+  }
+}

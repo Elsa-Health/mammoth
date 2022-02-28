@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Elsa Ddx</string>
+    <string name="appCenterCrashes_whenToSendCrashes" moduleConfig="true" translatable="false">DO_NOT_ASK_JAVASCRIPT</string>
+    <string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
+    <!-- Using the kibaha key -->
+    <string moduleConfig="true" name="CodePushDeploymentKey">EMW7jcV3zr8TUuD4jeRQVjuPhBPf-CWj5nQfI</string>
+    <!-- This is the `elsa-ddx-kibaha` key -->
+    <!-- <string moduleConfig="true" name="CodePushDeploymentKey">RNjlfJFNLUfljKSENRHo1k11-0Op7Pvm7o_4v</string> -->
+</resources>

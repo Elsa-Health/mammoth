@@ -1,0 +1,262 @@
+{
+  "project_info": {
+    "project_number": "612476832887",
+    "firebase_url": "https://elsa-39508.firebaseio.com",
+    "project_id": "elsa-39508",
+    "storage_bucket": "elsa-39508.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612476832887:android:26b1a298b04e7906508a72",
+        "android_client_info": {
+          "package_name": "com.elsa.afyauzazi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2xANgK68xycRz0PFlXW4bRnYvZH2ytBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612476832887:android:4e3d0c8537f28e34508a72",
+        "android_client_info": {
+          "package_name": "com.elsa.providers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612476832887-u5qholp5a53021pvqjl6n9eiopjrm7bn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elsa.providers",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2xANgK68xycRz0PFlXW4bRnYvZH2ytBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612476832887:android:fb0fd868fab3ce42508a72",
+        "android_client_info": {
+          "package_name": "com.elsa.tima"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2xANgK68xycRz0PFlXW4bRnYvZH2ytBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612476832887:android:b43af6ed4ae09da9508a72",
+        "android_client_info": {
+          "package_name": "com.elsa_ddx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2xANgK68xycRz0PFlXW4bRnYvZH2ytBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612476832887:android:9b9bbb0ab2880108508a72",
+        "android_client_info": {
+          "package_name": "com.elsaclinicians"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612476832887-f2jarj2oaib3m07t2c7r9k0dssvelbug.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elsaclinicians",
+            "certificate_hash": "e2cb7acbff8c85f982a1be38ac573e24f5162a3b"
+          }
+        },
+        {
+          "client_id": "612476832887-hkguod7g28lcigbhtmfm7mrg96tqo9fv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elsaclinicians",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "612476832887-s8g1kldfmvlqbsis32on1u6m1n7asl6o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elsaclinicians",
+            "certificate_hash": "3c29fef9e5e9cbb9918c60bfcca558ae74ced123"
+          }
+        },
+        {
+          "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2xANgK68xycRz0PFlXW4bRnYvZH2ytBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612476832887:android:6b2f81cfd35f4c0c508a72",
+        "android_client_info": {
+          "package_name": "com.elsalabs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612476832887-eh2944dlubt1a2u7l2rosfji9oe8udm9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elsalabs",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2xANgK68xycRz0PFlXW4bRnYvZH2ytBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612476832887:android:ff98669a492f3ec8508a72",
+        "android_client_info": {
+          "package_name": "io.afyabora"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612476832887-a87vjqpat9mnmrbusok1utth5931h2ue.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.afyabora",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2xANgK68xycRz0PFlXW4bRnYvZH2ytBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612476832887-qm3fg2ld2tgnnqck63gega72n23pnucl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
