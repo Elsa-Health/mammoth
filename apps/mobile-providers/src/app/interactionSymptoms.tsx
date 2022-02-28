@@ -57,7 +57,7 @@ interface InteractionState {
 	setVisible: (v: boolean) => void;
 }
 
-type InteractiveSymptomState = {
+export type InteractiveSymptomState = {
 	symptom: SymptomDescription;
 
 	data: Partial<SymptomData>;
@@ -71,7 +71,7 @@ type InteractiveSymptomState = {
  * Managing state that is useful to manage interactions
  * involving dealing with the current interacted symptom
  */
-interface SymptomInteractionState extends InteractionState {
+export interface SymptomInteractionState extends InteractionState {
 	showState: undefined | "full" | "half";
 
 	// For the interaction view, collect all states that are associated
@@ -133,100 +133,110 @@ interface SymptomInteractionState extends InteractionState {
 // const one = symptomsBag[0]
 const { Provider, useStore: useSymptomStore } =
 	createContext<SymptomInteractionState>();
-const createStore = () =>
-	create<SymptomInteractionState>((set, get) => ({
-		visible: false,
-		showState: undefined,
-		symptoms: [],
+const createStore =
+	(symptoms: InteractiveSymptomState[] = []) =>
+	() =>
+		create<SymptomInteractionState>((set, get) => ({
+			visible: false,
+			showState: undefined,
+			symptoms,
 
-		associatedSymptoms: [],
+			associatedSymptoms: [],
 
-		setVisible: (visible) => set({ visible }),
-		reset: () => set({ symptoms: [], visible: false }),
+			setVisible: (visible) => set({ visible }),
+			reset: () => set({ symptoms: [], visible: false }),
 
-		addSymptomFromIndex: (refNumber, data = {}, present) => {
-			get().addSymptomFromDescription(
-				symptomsBag[refNumber],
-				data,
-				present
-			);
-		},
-		addSymptomFromId: (id, data = {}, present) => {
-			get().addSymptomFromDescription(
-				{ id, ...dataFn.symptoms.symptom.fromId(id) },
-				data,
-				present
-			);
-			// get().addSymptomFromDescription(symptomJson[id], data, present)
-		},
-		addSymptomFromDescription: (desc, data = {}, present) => {
-			set((s) =>
-				produce(s, (df) => {
-					df.symptoms.push({
-						data,
-						symptom: desc,
-						state:
-							present !== undefined
-								? present
-									? "present"
-									: "absent"
-								: "unknown",
-					});
-					return df;
-				})
-			);
-		},
-		unsafe_setAssociatedSymptoms: (associatedSymptoms) =>
-			set({ associatedSymptoms }),
-		unsafe_setSymptomsState: (symIdx, newState) => {
-			set((s) => ({
-				symptoms: produce(s.symptoms, (df) => {
-					df[symIdx] = newState;
-					return df;
-				}),
-			}));
-		},
-		unsafe_updateSymptomState: (symIdx, newState) => {
-			get().unsafe_setSymptomsState(symIdx, {
-				...get().symptoms[symIdx],
-				symptom: {
-					...get().symptoms[symIdx].symptom,
-					...newState.symptom,
-				},
-				data: {
-					...get().symptoms[symIdx].data,
-					...newState.data,
-				},
-				...newState,
-			});
-		},
-		setShowState: (show) => set({ showState: show }),
+			addSymptomFromIndex: (refNumber, data = {}, present) => {
+				get().addSymptomFromDescription(
+					symptomsBag[refNumber],
+					data,
+					present
+				);
+			},
+			addSymptomFromId: (id, data = {}, present) => {
+				get().addSymptomFromDescription(
+					{ id, ...dataFn.symptoms.symptom.fromId(id) },
+					data,
+					present
+				);
+				// get().addSymptomFromDescription(symptomJson[id], data, present)
+			},
+			addSymptomFromDescription: (desc, data = {}, present) => {
+				set((s) =>
+					produce(s, (df) => {
+						df.symptoms.push({
+							data,
+							symptom: desc,
+							state:
+								present !== undefined
+									? present
+										? "present"
+										: "absent"
+									: "unknown",
+						});
+						return df;
+					})
+				);
+			},
+			unsafe_setAssociatedSymptoms: (associatedSymptoms) =>
+				set({ associatedSymptoms }),
+			unsafe_setSymptomsState: (symIdx, newState) => {
+				set((s) => ({
+					symptoms: produce(s.symptoms, (df) => {
+						df[symIdx] = newState;
+						return df;
+					}),
+				}));
+			},
+			unsafe_updateSymptomState: (symIdx, newState) => {
+				get().unsafe_setSymptomsState(symIdx, {
+					...get().symptoms[symIdx],
+					symptom: {
+						...get().symptoms[symIdx].symptom,
+						...newState.symptom,
+					},
+					data: {
+						...get().symptoms[symIdx].data,
+						...newState.data,
+					},
+					...newState,
+				});
+			},
+			setShowState: (show) => set({ showState: show }),
 
-		proper_updateSymptomState: (
-			symIdx: number,
-			updater: (
-				oldState: InteractiveSymptomState
-			) => InteractiveSymptomState
-		) => {
-			set((s) => ({
-				symptoms: produce(s.symptoms, (df) => {
-					df[symIdx] = updater(s.symptoms[symIdx]);
-					return df;
-				}),
-			}));
-		},
-	}));
+			proper_updateSymptomState: (
+				symIdx: number,
+				updater: (
+					oldState: InteractiveSymptomState
+				) => InteractiveSymptomState
+			) => {
+				set((s) => ({
+					symptoms: produce(s.symptoms, (df) => {
+						df[symIdx] = updater(s.symptoms[symIdx]);
+						return df;
+					}),
+				}));
+			},
+		}));
 
 interface SymptomInteractionProviderProps {
 	children: React.ReactNode;
+	symptoms?: InteractiveSymptomState[];
 }
 export function SymptomInteractionProvider(
 	props: SymptomInteractionProviderProps
 ) {
-	return <Provider createStore={createStore}>{props.children}</Provider>;
+	return (
+		<Provider createStore={createStore(props.symptoms || [])}>
+			{props.children}
+		</Provider>
+	);
 }
 
-const CustomBackdrop = ({ animatedIndex, style }: BottomSheetBackdropProps) => {
+export const CustomBackdrop = ({
+	animatedIndex,
+	style,
+}: BottomSheetBackdropProps) => {
 	// animated variables
 	const containerAnimatedStyle = useAnimatedStyle(() => ({
 		opacity: interpolate(
@@ -269,13 +279,13 @@ function BottomSheetInteractionProvider(
 	props: SymptomInteractionProviderProps
 ) {
 	return (
-		<SymptomInteractionProvider>
+		<SymptomInteractionProvider symptoms={[]}>
 			<SymptomModalContainer>{props.children}</SymptomModalContainer>
 		</SymptomInteractionProvider>
 	);
 }
 
-const ModalComponent = (props: {}) => {
+export const ModalComponent = (props: {}) => {
 	const symptoms = useSymptomStore((s) => s.symptoms, shallow);
 	const mainSypmtoms = useSymptomsInfo();
 
@@ -440,6 +450,11 @@ const ModalComponent = (props: {}) => {
 		[addSymptom]
 	);
 
+	// const [data, state] = useSymptomStore(
+	// 	(s) => [s.symptoms[index].data, s.symptoms[index].state],
+	// 	shallow
+	// );
+
 	/** RENDER COMPONENTS **/
 	const removeSymptomFromId = useSAStore((s) => s.removeSymptomFromId);
 	const renderSymptoms = React.useCallback(
@@ -447,6 +462,8 @@ const ModalComponent = (props: {}) => {
 			<SymptomSection
 				{...symptom}
 				index={ix}
+				data={symptoms[ix].data}
+				state={symptoms[ix].state}
 				removeSymptom={() => {
 					removeSymptomFromId(symptom.symptom.id);
 
@@ -573,6 +590,8 @@ function SymptomSection({
 	mini = false,
 	index,
 	removeSymptom,
+	data,
+	state,
 }: {
 	mini?: boolean;
 	index: number;
@@ -580,13 +599,15 @@ function SymptomSection({
 	stateUpdate: (
 		fn: (pv: InteractiveSymptomState) => InteractiveSymptomState
 	) => void;
+	data: InteractiveSymptomState["data"];
+	symptom: InteractiveSymptomState["symptom"];
 } & Omit<InteractiveSymptomState, "data">) {
 	const lang = useApplication((s) => s.settings.lang, shallow);
 	// data about information
-	const [data, state] = useSymptomStore(
-		(s) => [s.symptoms[index].data, s.symptoms[index].state],
-		shallow
-	);
+	// const [data, state] = useSymptomStore(
+	// 	(s) => [s.symptoms[index].data, s.symptoms[index].state],
+	// 	shallow
+	// );
 	const [ready, setReady] = React.useState(false);
 
 	// const { t } = useTranslation('donpar-map')
@@ -681,7 +702,7 @@ function SymptomSection({
 						state === "present" && ready && { marginLeft: 10 },
 					]}
 				>
-					{content.symptom}
+					{content?.symptom}
 				</Text>
 			</View>
 
@@ -693,7 +714,7 @@ function SymptomSection({
 						fontSize: state === "absent" ? 14 : 16,
 					}}
 				>
-					{content.description}{" "}
+					{content?.description}{" "}
 				</Text>
 			</RevealContent>
 
@@ -742,6 +763,7 @@ function SymptomSection({
 							flexWrap: "nowrap",
 							alignItems: "center",
 						}}
+						testID="SymptomSectionRemoveButton"
 						onPress={() => {
 							removeSymptom();
 							stateUpdate((s) =>
@@ -1061,6 +1083,7 @@ function DonparItemOption({
 										width: isTablet ? "48%" : "30%",
 										marginBottom: 1,
 									}}
+									testID="DonparItemOptionChip"
 									text={item.text.replace(/(-)+/g, " ")}
 									textStyle={{
 										textTransform: "capitalize",
@@ -1102,7 +1125,14 @@ function DonparItemOption({
 	);
 }
 
-export { BottomSheetInteractionProvider, useSymptomStore };
+export {
+	BottomSheetInteractionProvider,
+	useSymptomStore,
+	DonparItemOption,
+	AssociativeSymptomSection,
+	SymptomSection,
+	createStore,
+};
 
 const styles = StyleSheet.create({
 	container: {
