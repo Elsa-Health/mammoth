@@ -13,9 +13,7 @@
 			"**/mobile-addo/",
 			"**/mobile-addo/**",
 			"**/mobile-ctc/",
-			"**/mobile-ctc/**",
-			"**/@elsa-ui/react-native/",
-			"**/@elsa-ui/react-native/**"
+			"**/mobile-ctc/**"
 		]
 	},
 	"scripts": {

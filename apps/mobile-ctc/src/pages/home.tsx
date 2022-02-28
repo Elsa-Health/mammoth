@@ -14,19 +14,6 @@ import {Layout, Text} from '../components';
 import {SearchIcon} from '../assets/vectors';
 import produce from 'immer';
 
-import {create as createIpfsConnection} from 'ipfs-http-client';
-const OrbitDB = require('orbit-db');
-
-async function todosDB() {
-  const ipfs = await createIpfsConnection({url: 'http://127.0.0.1:5001'});
-  const orbitdb = await OrbitDB.createInstance(ipfs);
-
-  const db = await orbitdb.keyvalue('test');
-
-  await db.put('language', 'en');
-  return db;
-}
-
 export default function App() {
   const [indices, setIndices] = React.useState<(string | number)[]>([]);
   const [items, setItems] = React.useState<
