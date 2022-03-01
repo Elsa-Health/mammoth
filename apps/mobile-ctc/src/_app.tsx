@@ -1,21 +1,14 @@
 import {NativeBaseProvider} from 'native-base';
 import React from 'react';
 import SplashScreen from 'react-native-splash-screen';
-import {
-  ApplicationProvider,
-  AppLoginState,
-  useApplication,
-} from './app/context/application';
-import HomePage from './pages/home';
+import {ApplicationProvider, AppLoginState} from './app/context/application';
+import MainPage from './pages/main';
 import LoginPage from './pages/login';
-
-function MainScreen() {
-  return <HomePage />;
-}
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
   if (isLogin) {
-    return <MainScreen />;
+    return <MainPage />;
   }
 
   return <LoginPage />;
@@ -27,12 +20,16 @@ export default function App() {
   }, []);
 
   return (
-    <NativeBaseProvider>
-      <ApplicationProvider>
-        <AppLoginState>
-          {({isLogin, user}) => <_Application isLogin={isLogin} user={user} />}
-        </AppLoginState>
-      </ApplicationProvider>
-    </NativeBaseProvider>
+    <SafeAreaProvider>
+      <NativeBaseProvider>
+        <ApplicationProvider>
+          <AppLoginState>
+            {({isLogin, user}) => (
+              <_Application isLogin={isLogin} user={user} />
+            )}
+          </AppLoginState>
+        </ApplicationProvider>
+      </NativeBaseProvider>
+    </SafeAreaProvider>
   );
 }
