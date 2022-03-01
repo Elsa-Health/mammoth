@@ -10,8 +10,7 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "strict": true,
-    "target": "esnext",
-    "baseUrl": "./"
+    "target": "esnext"
   },
   "include": ["@types", "./src"],
   "exclude": [
