@@ -1,6 +1,6 @@
 import React from 'react';
 import {View} from 'react-native';
-import {Text} from '../../components';
+import {Text} from '../../../components';
 
 export default function AppoinmentPage() {
   return (
@@ -11,7 +11,7 @@ export default function AppoinmentPage() {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      <Text>Appoiment</Text>
+      <Text>View Appointments</Text>
     </View>
   );
 }

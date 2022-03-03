@@ -37,6 +37,7 @@
     "lodash": "^4.17.21",
     "native-base": "^3.2.1",
     "react": "17.0.2",
+    "react-async": "^10.0.1",
     "react-i18next": "^11.13.0",
     "react-native": "0.66.1",
     "react-native-camera": "^4.2.1",
@@ -58,6 +59,7 @@
     "react-native-webview-crypto": "^0.0.23",
     "styled-components": "^5.3.3",
     "styled-system": "^5.1.5",
+    "swr": "^1.2.2",
     "text-encoding": "^0.7.0",
     "zustand": "^3.6.0"
   },

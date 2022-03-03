@@ -26,11 +26,15 @@ export default function App() {
 
   return (
     <ApplicationProvider>
-      <SafeAreaProvider>
-        <AppLoginState>
-          {({isLogin, user}) => <_Application isLogin={isLogin} user={user} />}
-        </AppLoginState>
-      </SafeAreaProvider>
+      <NativeBaseProvider>
+        <SafeAreaProvider>
+          <AppLoginState>
+            {({isLogin, user}) => (
+              <_Application isLogin={isLogin} user={user} />
+            )}
+          </AppLoginState>
+        </SafeAreaProvider>
+      </NativeBaseProvider>
     </ApplicationProvider>
   );
 }

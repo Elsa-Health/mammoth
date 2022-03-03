@@ -15,6 +15,7 @@ export default function Main() {
   return (
     <NavigationContainer
       theme={{
+        // @ts-ignore
         colors: {
           background: '#FFF',
         },
