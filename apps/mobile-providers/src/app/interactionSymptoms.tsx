@@ -8,7 +8,6 @@ import {
 	BottomSheetModalProvider,
 	BottomSheetScrollView,
 	BottomSheetSectionList,
-	BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import produce from "immer";
 import * as React from "react";
@@ -279,7 +278,7 @@ function BottomSheetInteractionProvider(
 	props: SymptomInteractionProviderProps
 ) {
 	return (
-		<SymptomInteractionProvider symptoms={[]}>
+		<SymptomInteractionProvider>
 			<SymptomModalContainer>{props.children}</SymptomModalContainer>
 		</SymptomInteractionProvider>
 	);
