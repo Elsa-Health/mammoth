@@ -56,11 +56,11 @@ const createAppStore = () =>
   create<AppState>(
     // persist(
     (set, get) => ({
-      // user: undefined,
-      user: {uid: 'kevin-james', name: 'Kevin James'},
+      user: undefined,
+      //   user: {uid: 'kevin-james', name: 'Kevin James'},
       settings: {
-        lang: 'en',
-        // lang: undefined
+        // lang: 'en',
+        lang: undefined,
       },
       login: async (user: AppUser) => set({user}),
       logout: async () => set({user: undefined}),
