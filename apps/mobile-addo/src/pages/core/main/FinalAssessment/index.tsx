@@ -26,6 +26,7 @@ import {useApplication} from '../../../../app/context/app';
 import produce from 'immer';
 import {Medication} from '../../../../app/libs/data-fns';
 import {getAge} from '../../../../app/utils';
+import {uniq} from 'lodash';
 
 // const nextStepsBasic = data.nextSteps.basic(data.conditions.ids, data.medications.all.ids, data.labTests.ids)
 const nse = data.nextSteps.extended(
@@ -381,6 +382,7 @@ export default function FinalAssessmentScreen({
       setVals(s =>
         produce(s, df => {
           df.dispensed_medication.selected = true;
+
           df.dispensed_medication.medications.push(
             'oral-rehydration-salts-ors',
           );
@@ -553,7 +555,10 @@ export default function FinalAssessmentScreen({
                       ...s,
                       refered_lab_testing: {
                         ...s.refered_lab_testing,
-                        tests: testIds,
+                        tests: uniq([
+                          ...s.refered_lab_testing.tests,
+                          ...testIds,
+                        ]),
                       },
                     }))
                   }
