@@ -331,7 +331,9 @@ export default function FinalAssessmentScreen({
           ['oral-rehydration-salts-ors', 'zinc'] as Array<
             Medication.Addo | Medication.GS
           >
-        ).some(s => medications.includes(s)),
+        )
+          .map(s => medications.includes(s))
+          .reduce((x, y) => x && y, true),
     );
 
     // basic condtion is met and ors is not supplied
@@ -598,7 +600,7 @@ export default function FinalAssessmentScreen({
                     borderColor: '#ff960d',
                     display: 'flex',
                     flexWrap: 'wrap',
-                    alignItems: 'flex-end',
+                    alignItems: 'center',
                     paddingHorizontal: 10,
                   }}>
                   <View
@@ -618,6 +620,7 @@ export default function FinalAssessmentScreen({
                       <Text
                         font="bold"
                         style={{
+                          flexShrink: 1,
                           color: '#ff960d',
                           lineHeight: 20,
                         }}>{t`next_steps.supply_ors_text`}</Text>
