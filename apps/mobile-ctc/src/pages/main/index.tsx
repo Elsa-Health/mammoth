@@ -5,9 +5,9 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 // Screen
-import HomeScreen from './home';
-import AppointmentScreen from './appointment';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import HomeScreen from './Home';
+import SessionScreen from './Session';
+import SelectPatientScreen from './SelectPatient';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,8 +24,12 @@ export default function Main() {
         screenOptions={{
           headerShown: false,
         }}>
-        <Stack.Screen name="home" component={HomeScreen} />
-        <Stack.Screen name="appoinment" component={AppointmentScreen} />
+        <Stack.Screen name="app.home" component={HomeScreen} />
+        <Stack.Screen name="app.session" component={SessionScreen} />
+        <Stack.Screen
+          name="app.select_patient"
+          component={SelectPatientScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
