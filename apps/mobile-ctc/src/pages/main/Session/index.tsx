@@ -29,7 +29,7 @@ function PatientSession({
 export default function AppSession() {
   const route = useRoute();
   React.useEffect(() => {
-    const {patient}: {patient: string} = route?.params || {};
+    const {patient}: {patient?: string} = route?.params || {};
   }, []);
   return (
     <PatientSession>
