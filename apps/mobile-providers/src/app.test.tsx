@@ -2,7 +2,7 @@ import React from "react";
 
 import { fireEvent, render } from "@testing-library/react-native";
 
-import App, { BaseApp } from "./app";
+import App, { BaseApp } from "./_app";
 import { ApplicationProvider, useApplication } from "./app/context/app";
 import { AppProvider } from "./app/context/main";
 import { LanguageProvider } from "./app/locale/config";
@@ -52,7 +52,10 @@ describe("Home screen", () => {
 
 		render(
 			<ApplicationProvider
-				initialState={{ user: { name: "test-user", uid: "test-user" } }}
+				initialState={{
+					user: { name: "test-user", uid: "test-user" },
+					settings: { lang: undefined },
+				}}
 			>
 				<Child />
 			</ApplicationProvider>

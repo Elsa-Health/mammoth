@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Elsa Pediatrics</string>
-    <string name="appCenterCrashes_whenToSendCrashes" moduleConfig="true" translatable="false">DO_NOT_ASK_JAVASCRIPT</string>
-    <string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
+	<string name="app_name">Elsa Providers</string>
+	<string name="appCenterCrashes_whenToSendCrashes" moduleConfig="true" translatable="false">DO_NOT_ASK_JAVASCRIPT</string>
+	<string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
 
-    <!-- Staging Key -->
-    <string moduleConfig="true" name="CodePushDeploymentKey">7wN7D0zEWiF_oS6hPyTRzX5MGgoU2OKc4T_cD</string>
+	<!-- Staging Key -->
+	<string moduleConfig="true" name="CodePushDeploymentKey">7wN7D0zEWiF_oS6hPyTRzX5MGgoU2OKc4T_cD</string>
 
-    <!-- Production Key: Uncomment when ready -->
-    <!-- <string moduleConfig="true" name="CodePushDeploymentKey">0rsxAKCZFDHJskGSBPdtUBV34pseLkuGJWDP1</string> -->
+	<!-- Production Key: Uncomment when ready -->
+	<!-- <string moduleConfig="true" name="CodePushDeploymentKey">0rsxAKCZFDHJskGSBPdtUBV34pseLkuGJWDP1</string> -->
 </resources>

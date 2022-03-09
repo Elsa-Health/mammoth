@@ -70,5 +70,21 @@ export default {
 
 	typography: {
 		fontFamilyStyle,
+		sizes: {
+			xs: "12px",
+			sm: "14px",
+			md: "16px",
+			lg: "20px",
+			xl: "24px",
+			"2xl": "28px",
+		},
+	},
+	spacing: {
+		xs: 4,
+		sm: 8,
+		md: 16,
+		lg: 24,
+		xl: 32,
+		"2xl": 48,
 	},
 };

@@ -59,7 +59,8 @@ export const LanguageProvider = ({
 	children: React.ReactNode;
 }) => {
 	const [ready, setReady] = useState(false);
-	const lang = useApplication((s) => s.settings.lang, shallow);
+	// FIXME: update the language when the language changes
+	const lang = "en"; // useApplication((s) => s.settings.lang, shallow);
 
 	// Building the entire language part of the system
 	React.useEffect(() => {
