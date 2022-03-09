@@ -28,7 +28,7 @@ import {
 } from "../../../app/symptoms";
 import theme from "../../../theme";
 import { RevealContent } from "../../../@libs/elsa-ui/components/misc";
-import { useSymptomStore } from "../../../app/interactionSymptoms";
+import { useSymptomInteractionContext } from "../../../app/interactionSymptoms";
 import { useTranslation } from "react-i18next";
 import { Differential, SymptomData, SymptomId } from "../../../../@types";
 import { usePatientDescription } from "../PatientDescriptor/context";
@@ -52,7 +52,7 @@ export function useBasicInfo() {
 const TOTAL_CAPS_COUNT = 10;
 export function SymptomsListingSection() {
 	const symptoms = useSymptomsInfo();
-	const [addSymptom, reset, setShow] = useSymptomStore((s) => [
+	const [addSymptom, reset, setShow] = useSymptomInteractionContext((s) => [
 		s.addSymptomFromId,
 		s.reset,
 		s.setShowState,
@@ -158,7 +158,7 @@ export function ConditionViewSection({
 	conditions: any[];
 }) {
 	const navigation = useNavigation();
-	const [addSymptom, reset, setShow] = useSymptomStore((s) => [
+	const [addSymptom, reset, setShow] = useSymptomInteractionContext((s) => [
 		s.addSymptomFromId,
 		s.reset,
 		s.setShowState,

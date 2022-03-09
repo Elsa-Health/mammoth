@@ -127,7 +127,7 @@ export interface SymptomInteractionState extends InteractionState {
 }
 
 // const one = symptomsBag[0]
-const { Provider, useStore: useSymptomStore } =
+const { Provider, useStore: useSymptomInteractionContext } =
 	createContext<SymptomInteractionState>();
 const createStore =
 	(symptoms: InteractiveSymptomState[] = []) =>
@@ -276,20 +276,20 @@ function BottomSheetInteractionProvider(
 }
 
 export const ModalComponent = ({ lang }: { lang: Language }) => {
-	const symptoms = useSymptomStore((s) => s.symptoms, shallow);
+	const symptoms = useSymptomInteractionContext((s) => s.symptoms, shallow);
 	const mainSypmtoms = useSymptomsInfo();
 
-	const [visible, showState] = useSymptomStore(
+	const [visible, showState] = useSymptomInteractionContext(
 		(s) => [s.visible, s.showState],
 		shallow
 	);
-	const [setVisible, setShowState] = useSymptomStore((s) => [
+	const [setVisible, setShowState] = useSymptomInteractionContext((s) => [
 		s.setVisible,
 		s.setShowState,
 	]);
 
 	// associated symptoms presented here
-	const associatedSymptoms = useSymptomStore(
+	const associatedSymptoms = useSymptomInteractionContext(
 		(s) => s.associatedSymptoms,
 		shallow
 	);
@@ -301,7 +301,7 @@ export const ModalComponent = ({ lang }: { lang: Language }) => {
 		updateSymptomsState,
 		setAssociatedSymptoms,
 		addSymptom,
-	] = useSymptomStore((s) => [
+	] = useSymptomInteractionContext((s) => [
 		s.reset,
 		s.proper_updateSymptomState,
 		s.unsafe_updateSymptomState,
@@ -459,7 +459,6 @@ export const ModalComponent = ({ lang }: { lang: Language }) => {
 				state={symptoms[ix].state}
 				removeSymptom={() => {
 					removeSymptomFromId(symptom.symptom.id);
-
 					// something
 				}}
 				key={`${symptom.symptom.id}-${ix}`}
@@ -1121,7 +1120,7 @@ function DonparItemOption({
 
 export {
 	BottomSheetInteractionProvider,
-	useSymptomStore,
+	useSymptomInteractionContext,
 	DonparItemOption,
 	AssociativeSymptomSection,
 	SymptomSection,

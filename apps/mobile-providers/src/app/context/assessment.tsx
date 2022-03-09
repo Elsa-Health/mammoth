@@ -29,6 +29,9 @@ interface AssessmentState extends Assessment {
 		present?: boolean,
 		data?: SymptomData
 	) => void;
+
+	checkSymptomStatusById: (id: string) => "present" | "absent" | null;
+	queryPresentSymptomDataById: (id: string) => SymptomData | undefined;
 	removeSymptom: (symptom: SymptomRecord) => void;
 	removeSymptomFromId: (symptomId: string) => void;
 }
@@ -41,6 +44,31 @@ export const builderStoreCreator = () =>
 		presentingSymptoms: [],
 		absentSymptoms: [],
 
+		/**
+		 * Checks if the symptom is present or absent
+		 */
+		checkSymptomStatusById: (id: string) => {
+			const { presentingSymptoms, absentSymptoms } = get();
+
+			const psIds = presentingSymptoms.map((ps) => ps.id);
+			const asIds = absentSymptoms.map((as) => as.id);
+
+			if (psIds.includes(id)) {
+				return "present";
+			}
+
+			if (asIds.includes(id)) {
+				return "present";
+			}
+
+			return null;
+		},
+		queryPresentSymptomDataById: (id) => {
+			const { presentingSymptoms } = get();
+			const data = presentingSymptoms.find((s) => s.id === id);
+			if (data) return data.data;
+			return undefined;
+		},
 		setSymptom: (symptom, present, data = {}) => {
 			// remove
 			get().removeSymptom(symptom);

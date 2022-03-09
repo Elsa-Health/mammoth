@@ -54,15 +54,16 @@ const stack = {
 // TODO: Add authcheck on app start
 
 function MainLabComponent() {
-	const [user, setUser] = React.useState<UserObject | null>(null);
+	// const [user, setUser] = React.useState<UserObject | null>(null);
+	const [user, setUser] = React.useState<UserObject | null>({
+		fullName: "Mike Mill",
+	});
 	const isLoggedIn = user !== null;
 	const setPatientIntake = useLabContext((s) => s.updatePatientIntake);
 	const assessment = useLabContext((s) => s.assessment);
 
-	React.useEffect(() => {
-		console.log("Assessment: -->", assessment);
-	}, [assessment]);
-	return !isLoggedIn ? (
+	// return !isLoggedIn ? (
+	return false ? (
 		<Stack.Navigator screenOptions={{ headerShown: false }}>
 			<Stack.Screen
 				name="lab.auth"
@@ -76,7 +77,10 @@ function MainLabComponent() {
 			/>
 		</Stack.Navigator>
 	) : (
-		<Stack.Navigator screenOptions={{ headerShown: false }}>
+		<Stack.Navigator
+			screenOptions={{ headerShown: false }}
+			initialRouteName="lab.patient_intake"
+		>
 			<Stack.Screen
 				name="lab.dashboard"
 				component={withFlowContext(BasicEMRDashboardScreen, {
@@ -115,7 +119,6 @@ function MainLabComponent() {
 					},
 					actions: ({ navigation }) => ({
 						onCompleteIntake: (data) => {
-							console.log({ data });
 							setPatientIntake(data);
 							navigation.navigate("lab.assessment");
 						},
@@ -129,7 +132,7 @@ function MainLabComponent() {
 						patient: getPatientIntake(assessment),
 					},
 					actions: ({ navigation }) => ({
-						onCompleteIntake: (sure) => {
+						onCompleteAssessment: (sure) => {
 							navigation.navigate("lab.dashboard");
 						},
 					}),

@@ -28,7 +28,7 @@ import {
 } from "../../../../app/symptoms";
 import { Button } from "../../../../@libs/elsa-ui/components/input";
 import { useSymptomAssessment } from "../../../../app/context/assessment";
-import { useSymptomStore } from "../../../../app/interactionSymptoms";
+import { useSymptomInteractionContext } from "../../../../app/interactionSymptoms";
 import { useTranslation } from "react-i18next";
 import {
 	SymptomData,
@@ -41,7 +41,7 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 
 export function SymptomList() {
 	const symptoms = useSymptomsInfo();
-	const [reset, addSymptomFromId] = useSymptomStore((s) => [
+	const [reset, addSymptomFromId] = useSymptomInteractionContext((s) => [
 		s.reset,
 		s.addSymptomFromId,
 	]);
@@ -204,10 +204,9 @@ const SYMPTOMS_TO_START_WITH: SymptomId[] = [
 function MainView({ route }) {
 	const navigation = useNavigation();
 
-	const [reset, addSymptomFromDescription] = useSymptomStore((s) => [
-		s.reset,
-		s.addSymptomFromDescription,
-	]);
+	const [reset, addSymptomFromDescription] = useSymptomInteractionContext(
+		(s) => [s.reset, s.addSymptomFromDescription]
+	);
 	const symptoms = useSymptomsInfo();
 
 	React.useEffect(() => {
@@ -351,7 +350,7 @@ export function SymptomSelectable({ symptom }: { symptom: SymptomId }) {
 		return symptoms.map((s) => s.id).includes(symptom);
 	}, [symptoms]);
 
-	const [reset, addSymptomFromId] = useSymptomStore((s) => [
+	const [reset, addSymptomFromId] = useSymptomInteractionContext((s) => [
 		s.reset,
 		s.addSymptomFromId,
 	]);
