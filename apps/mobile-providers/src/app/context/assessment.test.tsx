@@ -14,7 +14,7 @@ import {
 	getDiscretized,
 	normalValueDiscretization,
 	SymptomAssessmentSequenceProvider,
-	_convertPatientForElsa,
+	convertPatientForElsa,
 	_getPatientForElsa,
 } from "./assessment";
 
@@ -131,7 +131,7 @@ describe("Context :: Assessment", () => {
 				},
 			};
 			expect(_getPatientForElsa(patient)).toEqual(
-				_convertPatientForElsa(patient)
+				convertPatientForElsa(patient)
 			);
 			expect(_getPatientForElsa(undefined)).toEqual({
 				age: 0,

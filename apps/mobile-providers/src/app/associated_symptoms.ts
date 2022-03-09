@@ -1,5 +1,5 @@
 import { concat, first } from "lodash";
-import { Symptom } from "./libs/data-fns";
+import { Symptom } from "../@libs/data-fns";
 import { symptoms } from "./symptoms";
 
 // copy(responses.map(r => r.symptoms.map(s => s.Name)).filter(a => a.length > 0)

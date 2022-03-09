@@ -12,7 +12,6 @@ import shallow from "zustand/shallow";
 import {
 	Assessment,
 	Differential,
-	Symptom,
 	SymptomData,
 	SymptomRecord,
 } from "../../../@types";
@@ -97,7 +96,7 @@ export function SymptomAssessmentSequenceProvider(props: {
 	);
 }
 
-export { useStore as useSAStore };
+export { useStore as useSymptomAssessment };
 
 export async function fetchFromElsaLambda(
 	patient: any,
@@ -332,7 +331,7 @@ export const getConditionData = (
 	};
 };
 
-export const _convertPatientForElsa = (patient: PatientIntakeData) =>
+export const convertPatientForElsa = (patient: PatientIntake) =>
 	produce({} as { age: number; sex: "male" | "female" }, (df) => {
 		if (
 			patient.age?.years !== undefined ||
@@ -366,7 +365,7 @@ export const _getPatientForElsa = (patient: PatientIntakeData | undefined) => {
 		};
 	}
 
-	const p = _convertPatientForElsa(patient);
+	const p = convertPatientForElsa(patient);
 
 	// console.log("PATIENT:", p)
 	return p;

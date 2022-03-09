@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components/native";
 import { Text as NativeText } from "react-native";
-import theme from "../theme";
+import theme from "../../../theme";
 
 type FontSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 

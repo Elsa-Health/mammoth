@@ -6,7 +6,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { View, ScrollView } from "react-native";
-import { Text } from "../../../components";
+import { Text } from "../../../@libs/elsa-ui/components";
 import { BodyViewIllustration } from "../../../assets/illustrations";
 
 // Screens

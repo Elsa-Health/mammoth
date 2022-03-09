@@ -1,8 +1,8 @@
 import React from "react";
 import { ScrollView } from "react-native";
-import { Layout } from "../../components";
-import { Button } from "../../components/input";
-import { Text } from "../../components/typography";
+import { Layout } from "../../@libs/elsa-ui/components";
+import { Button } from "../../@libs/elsa-ui/components/input";
+import { Text } from "../../@libs/elsa-ui/components/typography";
 
 const OnboardingScreen = ({
 	entry: d,

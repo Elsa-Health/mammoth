@@ -21,7 +21,7 @@ import {
 	useNavigationContainerRef,
 } from "@react-navigation/core";
 
-import { buttonStyles } from "../../components/input";
+import { buttonStyles } from "../../@libs/elsa-ui/components/input";
 import {
 	CheckIcon,
 	ElsaColorableIcon,
@@ -29,10 +29,10 @@ import {
 	LibraryIcon,
 	XIcon,
 } from "../../assets/vectors";
-import { Layout, Text } from "../../components";
+import { Layout, Text } from "../../@libs/elsa-ui/components";
 import {
 	SymptomAssessmentSequenceProvider,
-	useSAStore,
+	useSymptomAssessment,
 } from "../../app/context/assessment";
 import { SymptomInteractionProvider } from "../../app/interactionSymptoms";
 import {
@@ -41,7 +41,7 @@ import {
 	usePatientDescription,
 } from "./PatientDescriptor/context";
 import theme from "../../theme";
-import { RevealContent } from "../../components/misc";
+import { RevealContent } from "../../@libs/elsa-ui/components/misc";
 import shallow from "zustand/shallow";
 import { PatientAssessmentRecord, useMainState } from "../../app/context/main";
 import { Assessment } from "../../../@types";
@@ -255,7 +255,7 @@ function BottomNavigationComponent() {
 	const { add: addPatientRecord } = useMainState();
 	const { isTablet } = useDeviceBreak();
 
-	const [presentingSymptoms, absentSypmtoms] = useSAStore((s) => [
+	const [presentingSymptoms, absentSypmtoms] = useSymptomAssessment((s) => [
 		s.presentingSymptoms,
 		s.absentSymptoms,
 	]);

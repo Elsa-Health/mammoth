@@ -7,12 +7,15 @@ import {
 	SymptomDescription,
 	SymptomId,
 } from "../../../../../@types";
-import { useSAStore } from "../../../../app/context/assessment";
+import { useSymptomAssessment } from "../../../../app/context/assessment";
 import { symptoms, useSypmtomLocale } from "../../../../app/symptoms";
 import { CheckIcon, XIcon } from "../../../../assets/vectors";
-import { Layout, Text } from "../../../../components";
-import { SearchInput, TextInput } from "../../../../components/input";
-import { Chip, RevealContent } from "../../../../components/misc";
+import { Layout, Text } from "../../../../@libs/elsa-ui/components";
+import {
+	SearchInput,
+	TextInput,
+} from "../../../../@libs/elsa-ui/components/input";
+import { Chip, RevealContent } from "../../../../@libs/elsa-ui/components/misc";
 import theme from "../../../../theme";
 import { SearchProvider, useSearchData, useSearchInput } from "../utils/search";
 
@@ -74,7 +77,7 @@ function SearchBar({
 	);
 }
 
-import * as dataFn from "../../../../app/libs/data-fns";
+import * as dataFn from "../../../../@libs/data-fns";
 import _ from "lodash";
 import { useSymptomsInfo } from "../../../../app/utils";
 import { getAssocSymptomRecords } from "../../../../app/associated_symptoms";
@@ -83,7 +86,7 @@ import shallow from "zustand/shallow";
 export function InputHints() {
 	const { items } = useSearchData();
 	const navigation = useNavigation();
-	const [ps, as] = useSAStore((s) => [
+	const [ps, as] = useSymptomAssessment((s) => [
 		s.presentingSymptoms,
 		s.absentSymptoms,
 	]);
@@ -279,7 +282,7 @@ export default function SymptomSearchView({ route }) {
 	const { t } = useTranslation("translation", {
 		keyPrefix: "assessment.search",
 	});
-	const [psst, asst] = useSAStore(
+	const [psst, asst] = useSymptomAssessment(
 		(s) => [
 			s.presentingSymptoms.map((s) => s.id),
 			s.absentSymptoms.map((s) => s.id),

@@ -11,9 +11,9 @@ import en from "./lang/en";
 import sw from "./lang/sw";
 
 // building the maps for the texts
-import * as data from "../libs/data-fns";
+import * as data from "../../@libs/data-fns";
 
-import { Text } from "../../components";
+import { Text } from "../../@libs/elsa-ui/components";
 import { useApplication } from "../context/app";
 import shallow from "zustand/shallow";
 

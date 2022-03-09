@@ -12,9 +12,9 @@ import {
 	PlusIcon,
 	SettingsIcon,
 } from "../assets/vectors";
-import { Heading, Layout, Text } from "../components";
-import { buttonStyles } from "../components/input";
-import { Pressable } from "../components/pressable";
+import { Heading, Layout, Text } from "../@libs/elsa-ui/components";
+import { buttonStyles } from "../@libs/elsa-ui/components/input";
+import { Pressable } from "../@libs/elsa-ui/components/pressable";
 import theme from "../theme";
 
 import dayjs from "dayjs";

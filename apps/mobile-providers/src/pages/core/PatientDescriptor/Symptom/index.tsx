@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Text } from "../../../../components";
+import { Layout, Text } from "../../../../@libs/elsa-ui/components";
 import { View, Pressable, FlatList } from "react-native";
 
 import { useSymptomsInfo } from "../../../../app/utils";
@@ -12,7 +12,7 @@ import {
 	chipStyles,
 	RevealContent,
 	SelectableChip,
-} from "../../../../components/misc";
+} from "../../../../@libs/elsa-ui/components/misc";
 import {
 	CheckIcon,
 	EyeIcon,
@@ -26,8 +26,8 @@ import {
 	symptoms as symptomsBag,
 	useSypmtomLocale,
 } from "../../../../app/symptoms";
-import { Button } from "../../../../components/input";
-import { useSAStore } from "../../../../app/context/assessment";
+import { Button } from "../../../../@libs/elsa-ui/components/input";
+import { useSymptomAssessment } from "../../../../app/context/assessment";
 import { useSymptomStore } from "../../../../app/interactionSymptoms";
 import { useTranslation } from "react-i18next";
 import {
@@ -45,7 +45,7 @@ export function SymptomList() {
 		s.reset,
 		s.addSymptomFromId,
 	]);
-	const removeSymptom = useSAStore((s) => s.removeSymptomFromId);
+	const removeSymptom = useSymptomAssessment((s) => s.removeSymptomFromId);
 
 	const onSelectSymptom = React.useCallback(
 		(id: SymptomId, entry?: SymptomData) => {
@@ -344,7 +344,7 @@ function MainView({ route }) {
 }
 
 export function SymptomSelectable({ symptom }: { symptom: SymptomId }) {
-	const setSymptomToMainList = useSAStore((s) => s.setSymptom);
+	const setSymptomToMainList = useSymptomAssessment((s) => s.setSymptom);
 
 	const symptoms = useSymptomsInfo();
 	const isSelected = React.useMemo(() => {

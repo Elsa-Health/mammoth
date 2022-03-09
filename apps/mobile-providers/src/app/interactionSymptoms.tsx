@@ -20,35 +20,32 @@ import Animated, {
 
 import create from "zustand";
 import createContext from "zustand/context";
-import { symptoms as symptomsBag, useSypmtomLocale } from "./symptoms";
+import { symptoms as symptomsBag, useSymptomLocale } from "./symptoms";
 import {
 	CheckIcon,
 	ChevronDownIcon,
 	TrashIcon,
 	XIcon,
 } from "../assets/vectors";
-import { Text } from "../components";
-import { TextInput } from "../components/input";
-import { RevealContent, SelectableChip } from "../components/misc";
+import { Text } from "../@libs/elsa-ui/components";
+import { TextInput } from "../@libs/elsa-ui/components/input";
+import {
+	RevealContent,
+	SelectableChip,
+} from "../@libs/elsa-ui/components/misc";
 import theme from "../theme";
 
 import shallow from "zustand/shallow";
-import { useSAStore } from "./context/assessment";
+import { useSymptomAssessment } from "./context/assessment";
 import { getAssocSymptomRecords } from "./associated_symptoms";
 import { useTranslation } from "react-i18next";
-import {
-	SymptomData,
-	SymptomDescription,
-	SymptomId,
-	SymptomRecord,
-} from "../../@types";
-import { useApplication } from "./context/app";
+import { SymptomData, SymptomId, SymptomRecord } from "../../@types";
 
 import { useDeviceBreak, useSymptomsInfo } from "./utils";
 
 // NOTE: Temporary fix
-import donparMap from "./libs/data-fns/data/translated/donpar-map.json";
-import * as dataFn from "./libs/data-fns";
+import donparMap from "../@libs/data-fns/data/translated/donpar-map.json";
+import * as dataFn from "../@libs/data-fns";
 
 // state used to managed how the components are revealed to the user
 interface InteractionState {
@@ -218,20 +215,6 @@ const createStore =
 			},
 		}));
 
-interface SymptomInteractionProviderProps {
-	children: React.ReactNode;
-	symptoms?: InteractiveSymptomState[];
-}
-export function SymptomInteractionProvider(
-	props: SymptomInteractionProviderProps
-) {
-	return (
-		<Provider createStore={createStore(props.symptoms || [])}>
-			{props.children}
-		</Provider>
-	);
-}
-
 export const CustomBackdrop = ({
 	animatedIndex,
 	style,
@@ -264,27 +247,35 @@ export const CustomBackdrop = ({
 
 interface SymptomModalContainerProps {
 	children: React.ReactNode;
+	lang: Language;
 }
 export function SymptomModalContainer(props: SymptomModalContainerProps) {
 	return (
 		<BottomSheetModalProvider>
 			{props.children}
-			<ModalComponent />
+			<ModalComponent lang={props.lang} />
 		</BottomSheetModalProvider>
 	);
 }
 
+interface SymptomInteractionProviderProps {
+	children: React.ReactNode;
+	symptoms?: InteractiveSymptomState[];
+}
+
 function BottomSheetInteractionProvider(
-	props: SymptomInteractionProviderProps
+	props: SymptomInteractionProviderProps & { lang: Language }
 ) {
 	return (
-		<SymptomInteractionProvider>
-			<SymptomModalContainer>{props.children}</SymptomModalContainer>
-		</SymptomInteractionProvider>
+		<Provider createStore={createStore(props.symptoms || [])}>
+			<SymptomModalContainer lang={props.lang}>
+				{props.children}
+			</SymptomModalContainer>
+		</Provider>
 	);
 }
 
-export const ModalComponent = (props: {}) => {
+export const ModalComponent = ({ lang }: { lang: Language }) => {
 	const symptoms = useSymptomStore((s) => s.symptoms, shallow);
 	const mainSypmtoms = useSymptomsInfo();
 
@@ -302,7 +293,7 @@ export const ModalComponent = (props: {}) => {
 		(s) => s.associatedSymptoms,
 		shallow
 	);
-	const setSymptomToMainList = useSAStore((s) => s.setSymptom);
+	const setSymptomToMainList = useSymptomAssessment((s) => s.setSymptom);
 
 	const [
 		reset,
@@ -455,11 +446,14 @@ export const ModalComponent = (props: {}) => {
 	// );
 
 	/** RENDER COMPONENTS **/
-	const removeSymptomFromId = useSAStore((s) => s.removeSymptomFromId);
+	const removeSymptomFromId = useSymptomAssessment(
+		(s) => s.removeSymptomFromId
+	);
 	const renderSymptoms = React.useCallback(
 		(symptom: InteractiveSymptomState, ix) => (
 			<SymptomSection
 				{...symptom}
+				lang={lang}
 				index={ix}
 				data={symptoms[ix].data}
 				state={symptoms[ix].state}
@@ -472,7 +466,7 @@ export const ModalComponent = (props: {}) => {
 				stateUpdate={setMainSymptomUpdate(ix)}
 			/>
 		),
-		[setMainSymptomUpdate, removeSymptomFromId]
+		[setMainSymptomUpdate, removeSymptomFromId, lang]
 	);
 
 	const renderAssociatedSymptoms = React.useCallback(
@@ -588,10 +582,12 @@ function SymptomSection({
 	symptom,
 	mini = false,
 	index,
+	lang,
 	removeSymptom,
 	data,
 	state,
 }: {
+	lang: Language;
 	mini?: boolean;
 	index: number;
 	removeSymptom: () => void;
@@ -601,7 +597,6 @@ function SymptomSection({
 	data: InteractiveSymptomState["data"];
 	symptom: InteractiveSymptomState["symptom"];
 } & Omit<InteractiveSymptomState, "data">) {
-	const lang = useApplication((s) => s.settings.lang, shallow);
 	// data about information
 	// const [data, state] = useSymptomStore(
 	// 	(s) => [s.symptoms[index].data, s.symptoms[index].state],
@@ -610,7 +605,7 @@ function SymptomSection({
 	const [ready, setReady] = React.useState(false);
 
 	// const { t } = useTranslation('donpar-map')
-	const { getSymptomById } = useSypmtomLocale();
+	const { getSymptomById } = useSymptomLocale();
 	const content = React.useMemo(
 		() => getSymptomById(symptom.id),
 		[getSymptomById, symptom]
@@ -906,7 +901,7 @@ function AssociativeSymptomSection({
 	markAbsent: () => void;
 	markPresent: () => void;
 }) {
-	const { getSymptomById } = useSypmtomLocale();
+	const { getSymptomById } = useSymptomLocale();
 	const content = React.useMemo(
 		() => getSymptomById(id),
 		[getSymptomById, id]

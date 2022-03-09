@@ -1,10 +1,10 @@
 import React from "react";
-import { Layout, Text } from "../../../components";
+import { Layout, Text } from "../../../@libs/elsa-ui/components";
 import { Alert, Pressable, View, ScrollView, BackHandler } from "react-native";
 import {
 	normalValueDiscretization,
 	useElsaLambda,
-	useSAStore,
+	useSymptomAssessment,
 } from "../../../app/context/assessment";
 import {
 	CommonActions,
@@ -12,7 +12,7 @@ import {
 	useNavigation,
 } from "@react-navigation/native";
 import { properAgeString, useSymptomsInfo } from "../../../app/utils";
-import { Button } from "../../../components/input";
+import { Button } from "../../../@libs/elsa-ui/components/input";
 import { CircleBar, SelectedConditionSummary } from "./components";
 import {
 	CheckIcon,
@@ -27,7 +27,7 @@ import {
 	useSypmtomLocale,
 } from "../../../app/symptoms";
 import theme from "../../../theme";
-import { RevealContent } from "../../../components/misc";
+import { RevealContent } from "../../../@libs/elsa-ui/components/misc";
 import { useSymptomStore } from "../../../app/interactionSymptoms";
 import { useTranslation } from "react-i18next";
 import { Differential, SymptomData, SymptomId } from "../../../../@types";

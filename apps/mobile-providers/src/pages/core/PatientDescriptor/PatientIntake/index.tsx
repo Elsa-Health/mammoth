@@ -4,14 +4,17 @@
  */
 import { StackActions, useNavigation } from "@react-navigation/native";
 import React from "react";
-import { Layout, Text } from "../../../../components";
+import { Layout, Text } from "../../../../@libs/elsa-ui/components";
 import {
 	Button,
 	MultiInput,
 	TextInput,
 	VariableTextInput,
-} from "../../../../components/input";
-import { SectionedSelect, SelectableChip } from "../../../../components/misc";
+} from "../../../../@libs/elsa-ui/components/input";
+import {
+	SectionedSelect,
+	SelectableChip,
+} from "../../../../@libs/elsa-ui/components/misc";
 import { StyleSheet, View } from "react-native";
 
 import DatePicker from "react-native-date-picker";

@@ -4,20 +4,21 @@
  */
 import { StackActions, useNavigation } from "@react-navigation/native";
 import React from "react";
-import { Layout, Text } from "../../../components";
+import { Layout, Text } from "../../../@libs/elsa-ui/components";
 import {
 	Button,
 	MultiInput,
 	TextInput,
 	VariableTextInput,
-} from "../../../components/input";
-import { SelectableChip } from "../../../components/misc";
+} from "../../../@libs/elsa-ui/components/input";
+import { SelectableChip } from "../../../@libs/elsa-ui/components/misc";
 import { View } from "react-native";
 import produce from "immer";
 
 import DatePicker from "react-native-date-picker";
 import { ScrollView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
+import { Assessment } from "../../../../@types";
 
 const HouseRowComponent = ({
 	label,
@@ -135,31 +136,62 @@ const HeightTextInput = (props: {
 	);
 };
 
-export default function BasicIntake() {
-	const navigation = useNavigation();
-	const [data, setData] = React.useState<
-		Partial<{
-			age: Partial<{ years: string; months: string; days: string }>;
-			sex: "male" | "female";
-			pregnant: boolean;
-			dueDate: Date;
-			vitalSigns: {
-				temp: string; // in c
-				weight: {
-					input: string;
-					option: "kg" | "lb";
-				};
-				height: {
-					input: string;
-					option: "ft" | "cm";
-				};
+function transformIntakeFormData(data: any) {
+	return produce({ ...data } as PatientIntake, (df) => {
+		const newAge = {
+			years: parseInt(data.age?.years || "0"),
+			months: parseInt(data.age?.months || "0"),
+			days: parseInt(data.age?.days || "0"),
+		};
+		// format the age properly
+		df["age"] = newAge;
+		df["dueDate"] = data.dueDate?.toUTCString();
+
+		const temp = parseInt(
+			(data?.vitalSigns?.temp as unknown as string) || "0"
+		);
+		const weight = {
+			value: parseInt(
+				(data?.vitalSigns?.weight?.input as unknown as string) || "0"
+			),
+			option: df.vitalSigns?.weight?.option,
+		};
+		const height = {
+			value: parseInt(
+				(data?.vitalSigns?.height?.input as unknown as string) || "0"
+			),
+			option: df.vitalSigns?.height?.option,
+		};
+
+		if (data["vitalSigns"] !== undefined) {
+			df["vitalSigns"] = {
+				temp,
+				weight,
+				height,
 			};
-		}>
-	>(() => ({
+		}
+		return df;
+	});
+}
+
+export default function BasicIntake({
+	actions: $,
+	entry,
+}: WorkflowScreen<
+	Patient,
+	{ onCompleteIntake: (data: PatientIntake) => void }
+>) {
+	const navigation = useNavigation();
+	const [data, setData] = React.useState<Partial<PatientIntake>>(() => ({
 		sex: "male",
 		pregnant: false,
 		dueDate: new Date(),
 	}));
+
+	const handlePatientSubmit = React.useCallback(
+		() => $.onCompleteIntake(transformIntakeFormData(data)),
+		[data]
+	);
 
 	const { t } = useTranslation("translation", {
 		keyPrefix: "assessment.intake",
@@ -349,67 +381,7 @@ export default function BasicIntake() {
 							marginVertical: 6,
 						}}
 					>{t`footer_note`}</Text>
-					<Button
-						onPress={() => {
-							navigation.dispatch(
-								StackActions.push(
-									"main",
-									// dont remove {...data} needed to send data that might be useful in the future
-									produce({ ...data } as Assessment, (df) => {
-										const newAge = {
-											years: parseInt(
-												data.age?.years || "0"
-											),
-											months: parseInt(
-												data.age?.months || "0"
-											),
-											days: parseInt(
-												data.age?.days || "0"
-											),
-										};
-										// format the age properly
-										df["age"] = newAge;
-										df["dueDate"] =
-											data.dueDate?.toUTCString();
-
-										const temp = parseInt(
-											(data?.vitalSigns
-												?.temp as unknown as string) ||
-												"0"
-										);
-										const weight = {
-											value: parseInt(
-												(data?.vitalSigns?.weight
-													?.input as unknown as string) ||
-													"0"
-											),
-											option: df.vitalSigns?.weight
-												?.option,
-										};
-										const height = {
-											value: parseInt(
-												(data?.vitalSigns?.height
-													?.input as unknown as string) ||
-													"0"
-											),
-											option: df.vitalSigns?.height
-												?.option,
-										};
-
-										if (data["vitalSigns"] !== undefined) {
-											df["vitalSigns"] = {
-												temp,
-												weight,
-												height,
-											};
-										}
-										return df;
-									})
-								)
-							);
-						}}
-						title={tc`next`}
-					/>
+					<Button onPress={handlePatientSubmit} title={tc`next`} />
 				</View>
 			</ScrollView>
 		</Layout>

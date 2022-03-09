@@ -1,11 +1,11 @@
-import { useSAStore } from "./context/assessment";
+import { useSymptomAssessment } from "./context/assessment";
 import _ from "lodash";
 import { Age, Symptom, SymptomData, SymptomRecord } from "../../@types";
 import { useWindowDimensions } from "react-native";
 import React from "react";
 
 export function useSymptomsInfo() {
-	const [ps, as] = useSAStore((s) => [
+	const [ps, as] = useSymptomAssessment((s) => [
 		s.presentingSymptoms,
 		s.absentSymptoms,
 	]);

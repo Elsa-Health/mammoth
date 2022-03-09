@@ -2,8 +2,8 @@ import produce from "immer";
 import { capitalize, kebabCase } from "lodash";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Layout, Text } from "../../../../components";
-import { Button, TextInput } from "../../../../components/input";
+import { Layout, Text } from "../../../../@libs/elsa-ui/components";
+import { Button, TextInput } from "../../../../@libs/elsa-ui/components/input";
 
 import { NativeBaseProvider, Checkbox } from "native-base";
 import { StackActions, useNavigation } from "@react-navigation/native";

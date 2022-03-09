@@ -16,8 +16,8 @@ import { ApplicationProvider, useApplication } from "./app/context/app";
 import Login from "./pages/login";
 import shallow from "zustand/shallow";
 import { Modal, StyleSheet, View } from "react-native";
-import { Pressable } from "./components/pressable";
-import { Text } from "./components";
+import { Pressable } from "./@libs/elsa-ui/components/pressable";
+import { Text } from "./@libs/elsa-ui/components";
 import { useTranslation } from "react-i18next";
 import theme from "./theme";
 

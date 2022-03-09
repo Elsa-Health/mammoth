@@ -10,7 +10,7 @@ import {
 } from "react-native-paper";
 import { PlusIcon, SearchIcon, XIcon } from "../../../assets/vectors";
 // import { Text } from "react-native-paper";
-import { Layout, Text } from "../../../components";
+import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
 const dummyPatients = _.times(10, (n) => n);
 

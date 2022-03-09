@@ -13,3 +13,16 @@ type Patient = {
 	dateOfBirth: DBDateTime;
 	sex: Sex;
 };
+
+type InitialPropsType = { [field: string]: any };
+type ActionList = { [fnName: string]: (...a: any[]) => any };
+
+type WorkflowScreen<
+	InitialProps extends InitialPropsType,
+	Actions extends ActionList
+> = {
+	entry: InitialProps;
+	actions: Actions;
+};
+
+type Language = "en" | "sw";

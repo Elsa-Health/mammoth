@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Text } from "../../../components";
+import { Layout, Text } from "../../../@libs/elsa-ui/components";
 import { View, ScrollView } from "react-native";
 import { EyeIcon, PencilAltIcon } from "../../../assets/vectors";
 import theme from "../../../theme";

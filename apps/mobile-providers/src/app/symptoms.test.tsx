@@ -1,8 +1,8 @@
 import React from "react";
 import { render } from "@testing-library/react-native";
 import { useTranslation } from "react-i18next";
-import { getCondition, getSymptomIdTFunction } from "./symptoms";
-import * as data from "./libs/data-fns";
+import { getCondition, getSymptomLocalFunction } from "./symptoms";
+import * as data from "../@libs/data-fns";
 
 describe("Symptoms Utils", () => {
 	it("getCondition", () => {
@@ -18,7 +18,7 @@ describe("Symptoms Utils", () => {
 	it("getSymptomIdTFunction / with Translate Function", () => {
 		const t = (symptom: string) =>
 			data.symptomsLocale.translate("en")[symptom];
-		const getSymptomById = getSymptomIdTFunction(t);
+		const getSymptomById = getSymptomLocalFunction(t);
 		const { symptom, description } = t("fever");
 
 		expect(getSymptomById("fever")).toEqual({

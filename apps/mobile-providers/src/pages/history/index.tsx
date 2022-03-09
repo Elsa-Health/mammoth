@@ -10,10 +10,10 @@ import {
 } from "../../app/context/main";
 import { useSypmtomLocale } from "../../app/symptoms";
 import { properAgeString } from "../../app/utils";
-import { Layout, Text } from "../../components";
-import { Button } from "../../components/input";
-import { RevealContent } from "../../components/misc";
-import * as datafns from "../../app/libs/data-fns";
+import { Layout, Text } from "../../@libs/elsa-ui/components";
+import { Button } from "../../@libs/elsa-ui/components/input";
+import { RevealContent } from "../../@libs/elsa-ui/components/misc";
+import * as datafns from "../../@libs/data-fns";
 
 const dayjs = require("dayjs");
 const relativeTime = require("dayjs/plugin/relativeTime");

@@ -5,8 +5,8 @@ import {
 	SafeAreaView,
 	SafeAreaViewProps,
 } from "react-native-safe-area-context";
-import { ElsaIcon, ArrowBackIcon } from "../assets/vectors";
-import theme from "../theme";
+import { ElsaIcon, ArrowBackIcon } from "../../../assets/vectors";
+import theme from "../../../theme";
 import { RevealContent } from "./misc";
 import { Heading } from "./typography";
 

@@ -1,14 +1,14 @@
 import React, { Fragment } from "react";
 import { useSymptomAssessment } from "../../../app/context/assessment";
 import { Pressable, PressableProps, View, ViewProps } from "react-native";
-import { Text } from "../../../@libs/elsa-ui/components";
-import { RevealContent } from "../../../@libs/elsa-ui/components/misc";
 import theme from "../../../theme";
 import { symptoms, useSypmtomLocale } from "../../../app/symptoms";
 import { CheckCircleIcon } from "../../../assets/vectors";
 import { SymptomData, SymptomId } from "../../../../@types";
+import { Text } from "../../../@libs/elsa-ui/components";
+import { RevealContent } from "../../../@libs/elsa-ui/components/misc";
 
-const SymptomItem = ({
+export const SymptomItem = ({
 	symptom,
 	present,
 	...pressableProps
@@ -169,14 +169,20 @@ export function SelectedConditionSummary({
 	);
 }
 
-const Circle = ({ size }: { size: number }) => (
+const Circle = ({
+	size,
+	disabled = false,
+}: {
+	size: number;
+	disabled?: boolean;
+}) => (
 	<View
 		style={{
 			width: size,
 			height: size,
 			borderColor: theme.color.secondary.base,
 			borderRadius: 10,
-			backgroundColor: "#26a69a",
+			backgroundColor: disabled ? "#64d8cb77" : "#26a69a",
 		}}
 	/>
 );

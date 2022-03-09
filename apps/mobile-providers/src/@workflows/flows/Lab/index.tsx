@@ -2,14 +2,20 @@ import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { setDefaultNamespace } from "i18next";
 import React from "react";
-import { Text } from "../../components/typography";
-import EmailPasswordAuthenticationScreen from "../screens/EmailPasswordAuthentication";
-import DashboardScreenThatIsNav from "../screens/Dashboard";
-import OnboardingScreen from "../screens/OnboardingSettings";
-import OnboardingScreenThatIsNav from "../screens/OnboardingSettings";
-import BasicEMRDashboardScreen from "../screens/BasicEMRDashboard";
-import PatientInformationScreen from "../screens/PatientInformation";
-import BasicIntake from "../screens/BasicIntake";
+import { Text } from "../../../@libs/elsa-ui/components/typography";
+import EmailPasswordAuthenticationScreen from "../../screens/EmailPasswordAuthentication";
+import DashboardScreenThatIsNav from "../../screens/Dashboard";
+import OnboardingScreen from "../../screens/OnboardingSettings";
+import OnboardingScreenThatIsNav from "../../screens/OnboardingSettings";
+import BasicEMRDashboardScreen from "../../screens/BasicEMRDashboard";
+import PatientInformationScreen from "../../screens/PatientInformation";
+import BasicIntake from "../../screens/BasicIntake";
+
+import { withFlowContext } from "../../wrapper";
+import BasicAssessment from "../../screen-groups/BasicAssessment";
+import createContext from "zustand/context";
+import create from "zustand";
+import { getPatientIntake, LabContextProvider, useLabContext } from "./context";
 
 const Stack = createNativeStackNavigator();
 
@@ -45,42 +51,22 @@ const stack = {
 	6: "ManageProfile",
 };
 
-const GOD_LIKE_STATE = {};
-
-type FnList = { [fnName: string]: (...a: any[]) => any };
-
-// FIXME:
-const Wrapper = <T, A extends FnList>(
-	Component: (props: { entry?: T; actions?: A }) => JSX.Element,
-	k: {
-		entry?: T;
-		actions?: ({ navigation }: any) => A;
-	} = {}
-) => {
-	return ({ navigation }: any) => {
-		// console.log(navigation);
-		return (
-			<Component
-				navigation={navigation}
-				entry={k.entry}
-				actions={k.actions?.({ navigation })}
-			/>
-		);
-	};
-};
-
 // TODO: Add authcheck on app start
 
-export default function MainApp() {
-	const navigation = useNavigation();
+function MainLabComponent() {
 	const [user, setUser] = React.useState<UserObject | null>(null);
 	const isLoggedIn = user !== null;
+	const setPatientIntake = useLabContext((s) => s.updatePatientIntake);
+	const assessment = useLabContext((s) => s.assessment);
 
+	React.useEffect(() => {
+		console.log("Assessment: -->", assessment);
+	}, [assessment]);
 	return !isLoggedIn ? (
 		<Stack.Navigator screenOptions={{ headerShown: false }}>
 			<Stack.Screen
 				name="lab.auth"
-				component={Wrapper(EmailPasswordAuthenticationScreen, {
+				component={withFlowContext(EmailPasswordAuthenticationScreen, {
 					actions: ({ navigation }) => ({
 						onLogin: (data) => {
 							setUser(data);
@@ -93,12 +79,11 @@ export default function MainApp() {
 		<Stack.Navigator screenOptions={{ headerShown: false }}>
 			<Stack.Screen
 				name="lab.dashboard"
-				component={Wrapper(BasicEMRDashboardScreen, {
+				component={withFlowContext(BasicEMRDashboardScreen, {
 					entry: {
 						fullName: user.fullName,
 					},
 					actions: ({ navigation }) => {
-						console.log("--->", navigation);
 						return {
 							onNewPatient: () =>
 								navigation.navigate("lab.new_patient"),
@@ -111,7 +96,7 @@ export default function MainApp() {
 			/>
 			<Stack.Screen
 				name="lab.patient_information"
-				component={Wrapper(PatientInformationScreen, {
+				component={withFlowContext(PatientInformationScreen, {
 					entry: {
 						user,
 					},
@@ -124,17 +109,40 @@ export default function MainApp() {
 			/>
 			<Stack.Screen
 				name="lab.patient_intake"
-				component={Wrapper(BasicIntake, {
+				component={withFlowContext(BasicIntake, {
 					entry: {
 						user,
 					},
 					actions: ({ navigation }) => ({
-						onNewAssessment: (sure) => {
+						onCompleteIntake: (data) => {
+							console.log({ data });
+							setPatientIntake(data);
+							navigation.navigate("lab.assessment");
+						},
+					}),
+				})}
+			/>
+			<Stack.Screen
+				name="lab.assessment"
+				component={withFlowContext(BasicAssessment, {
+					entry: {
+						patient: getPatientIntake(assessment),
+					},
+					actions: ({ navigation }) => ({
+						onCompleteIntake: (sure) => {
 							navigation.navigate("lab.dashboard");
 						},
 					}),
 				})}
 			/>
 		</Stack.Navigator>
+	);
+}
+
+export default function LabWorkFlow() {
+	return (
+		<LabContextProvider>
+			<MainLabComponent />
+		</LabContextProvider>
 	);
 }

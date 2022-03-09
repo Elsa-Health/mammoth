@@ -22,7 +22,7 @@ import {
 import firestore from "@react-native-firebase/firestore";
 import _ from "lodash";
 import { useApplication } from "./app";
-import { LabTest, Medication } from "../libs/data-fns";
+import { LabTest, Medication } from "../../@libs/data-fns";
 import { PatientDescription } from "../../pages/core/PatientDescriptor/context";
 import { PatientIntakeData } from "../../pages/core/PatientDescriptor/PatientIntake";
 import { MedicationHistory } from "../../pages/core/PatientDescriptor/MedicalHistory";

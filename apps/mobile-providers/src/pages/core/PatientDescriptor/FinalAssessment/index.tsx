@@ -2,29 +2,32 @@ import React from "react";
 import { View } from "react-native";
 
 import { StackActions, useNavigation } from "@react-navigation/native";
-import { Layout, Text } from "../../../../components";
+import { Layout, Text } from "../../../../@libs/elsa-ui/components";
 import { CheckIcon, ExclamationIcon } from "../../../../assets/vectors";
 import { conditionsList, getCondition } from "../../../../app/symptoms";
 import theme from "../../../../theme";
-import { RevealContent, SectionedSelect } from "../../../../components/misc";
-import { TextInput } from "../../../../components/input";
+import {
+	RevealContent,
+	SectionedSelect,
+} from "../../../../@libs/elsa-ui/components/misc";
+import { TextInput } from "../../../../@libs/elsa-ui/components/input";
 import { Recommendations, useMainState } from "../../../../app/context/main";
-import { useSAStore } from "../../../../app/context/assessment";
+import { useSymptomAssessment } from "../../../../app/context/assessment";
 import CheckBox from "@react-native-community/checkbox";
 import { ScrollView } from "react-native-gesture-handler";
 import { MEDICAL_TESTS, MEDICATIONS } from "../../../../app/recommendations";
-import { Pressable } from "../../../../components/pressable";
+import { Pressable } from "../../../../@libs/elsa-ui/components/pressable";
 import { useTranslation } from "react-i18next";
 import { ConditionId, Differential, SymptomId } from "../../../../../@types";
 
 // import nextStepsBasic from '../../../../assets/data/next-steps-basic.json'
 // import nextStepsExtended from '../../../../assets/data/next-steps-extended.json'
 
-import * as data from "../../../../app/libs/data-fns";
+import * as data from "../../../../@libs/data-fns";
 import { useApplication } from "../../../../app/context/app";
 // import { Symptom } from '../../../../app/libs/data-fns';
 import produce from "immer";
-import { Medication } from "../../../../app/libs/data-fns";
+import { Medication } from "../../../../@libs/data-fns";
 import { usePatientDescription } from "../context";
 import shallow from "zustand/shallow";
 
@@ -240,7 +243,7 @@ export default function FinalAssessmentScreen() {
 
 	const [err, setErr] = React.useState<string | null>(null);
 
-	const assessmentInfo = useSAStore((s) => s);
+	const assessmentInfo = useSymptomAssessment((s) => s);
 
 	const vals = usePatientDescription((s) => s.assessment.record);
 	const setVals = usePatientDescription(

@@ -10,8 +10,8 @@ import {
 	MenuAltIcon,
 	SearchIcon,
 	XIcon,
-} from "../assets/vectors";
-import theme from "../theme";
+} from "../../../assets/vectors";
+import theme from "../../../theme";
 import { Text } from "./typography";
 
 type ChipProps = PressableProps & {

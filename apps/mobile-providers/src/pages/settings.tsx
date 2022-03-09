@@ -1,9 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
-import { Layout, Text, View } from "../components";
+import { Layout, Text, View } from "../@libs/elsa-ui/components";
 
 import { NativeBaseProvider, Radio } from "native-base";
-import { Pressable } from "../components/pressable";
+import { Pressable } from "../@libs/elsa-ui/components/pressable";
 import { useTranslation } from "react-i18next";
 import { useApplication } from "../app/context/app";
 import theme from "../theme";

@@ -6,14 +6,14 @@ import { Modal, TextProps, View, ViewProps } from "react-native";
 import { StyleSheet, Pressable, PressableProps } from "react-native";
 
 import { Text } from "./typography";
-import theme from "../theme";
+import theme from "../../../theme";
 import {
 	TextInputProps as NativeTextInputProps,
 	TextInput as NativeTextInput,
 } from "react-native";
 import { ColorValue } from "react-native";
 import { RevealContent, SelectableChip } from "./misc";
-import { PlusIcon, SearchIcon, XIcon } from "../assets/vectors";
+import { PlusIcon, SearchIcon, XIcon } from "../../../assets/vectors";
 
 import {
 	Picker,
