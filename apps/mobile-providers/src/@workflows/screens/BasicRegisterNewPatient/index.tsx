@@ -11,12 +11,44 @@ import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
 import produce from "immer";
 
+type PatientFormType = {
+	date: Date;
+	firstName: string;
+	familyName: string;
+	phoneNumber: string;
+	resident: string;
+	birthMonth: string;
+	birthDay: string;
+	birthYear: string;
+	sex: Sex;
+	pregnant: string;
+};
+
+const transformData = (data: PatientFormType): Omit<Patient, "id"> => {
+	return {
+		registerDate: data.date,
+		address: data.resident,
+		dateOfBirth: new Date(
+			parseInt(data.birthYear) || 0,
+			parseInt(data.birthMonth) || 0,
+			parseInt(data.birthDay) || 0
+		),
+		firstName: data.firstName,
+		lastName: data.familyName,
+		phone: data.phoneNumber,
+		sex: data.sex,
+	};
+};
+
 export default function BasicRegisterNewPatientScreen({
 	actions: $,
-}: WorkflowScreen<{
-	onComplete: (patient: Patient) => void;
-}>) {
-	const [patient, set] = React.useState({
+}: WorkflowScreen<
+	{},
+	{
+		onComplete: (patient: Omit<Patient, "id">) => void;
+	}
+>) {
+	const [patient, set] = React.useState<PatientFormType>({
 		date: new Date(),
 		firstName: "",
 		familyName: "",
@@ -26,7 +58,6 @@ export default function BasicRegisterNewPatientScreen({
 		birthDay: "",
 		birthYear: "",
 		sex: "male",
-		pregnant: "no",
 	});
 	const changeValue = React.useCallback(
 		(field: keyof typeof patient) => (value: string) => {
@@ -114,6 +145,7 @@ export default function BasicRegisterNewPatientScreen({
 							mode="outlined"
 							label="Phone Number"
 							value={patient.phoneNumber}
+							keyboardType="phone-pad"
 							onChangeText={changeValue("phoneNumber")}
 							style={{ marginTop: theme.spacing.sm }}
 						/>
@@ -136,12 +168,14 @@ export default function BasicRegisterNewPatientScreen({
 								mode="outlined"
 								label="Birth Month"
 								style={{ flex: 1 }}
+								keyboardType="number-pad"
 								onChangeText={changeValue("birthMonth")}
 								value={patient.birthMonth}
 							/>
 							<TextInput
 								mode="outlined"
 								label="Birth Day"
+								keyboardType="number-pad"
 								style={{
 									flex: 1,
 									marginLeft: theme.spacing.md,
@@ -155,6 +189,7 @@ export default function BasicRegisterNewPatientScreen({
 							mode="outlined"
 							label="Birth Year"
 							value={patient.birthYear}
+							keyboardType="number-pad"
 							onChangeText={changeValue("birthYear")}
 							style={{
 								width: "70%",
@@ -188,28 +223,18 @@ export default function BasicRegisterNewPatientScreen({
 							</View>
 						</RadioButton.Group>
 					</View>
-					<View>
-						<Text font="bold">Is the patient pregnant</Text>
-
-						<RadioButton.Group
-							onValueChange={changeValue("pregnant")}
-							value={patient.pregnant}
-						>
-							<View
-								style={{
-									display: "flex",
-									flexDirection: "row",
-									justifyContent: "space-evenly",
-								}}
-							>
-								<RadioButton.Item label="No" value={"no"} />
-								<RadioButton.Item label="Yes" value={"yes"} />
-							</View>
-						</RadioButton.Group>
-					</View>
 				</View>
 				<View style={{ paddingVertical: theme.spacing.md }}>
-					<Button mode="contained">Register</Button>
+					<Button
+						onPress={() => {
+							// TODO: convert `patient` to proper `Patient`
+							// onComplete()
+							$.onComplete(transformData(patient));
+						}}
+						mode="contained"
+					>
+						Register
+					</Button>
 				</View>
 			</ScrollView>
 		</Layout>

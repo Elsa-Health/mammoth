@@ -105,9 +105,10 @@ function MainLabComponent() {
 				name="lab.new_patient"
 				component={withFlowContext(BasicRegisterNewPatientScreen, {
 					actions: ({ navigation }) => ({
-						onComplete: (patient: any) => {
+						onComplete: (patient) => {
 							console.log(patient);
-							navigation.navigate("lab.patient_information", {
+							// registration happens here
+							navigation.replace("lab.patient_information", {
 								patient,
 							});
 						},
