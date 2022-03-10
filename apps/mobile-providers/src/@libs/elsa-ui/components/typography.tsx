@@ -28,8 +28,9 @@ export const Text = styled(NativeText)<{
 	font?: "light" | "normal" | "medium" | "bold" | "black" | "extra-black";
 	italic?: boolean;
 	size?: number | FontSize;
+	color?: string;
 }>`
-	color: #000;
+	color: ${({ color }) => color || "#000"};
 	font-family: ${theme.typography.fontFamilyStyle};
 	font-style: normal;
 	font-size: ${({ size = "md" }) => getFontSize(size)};

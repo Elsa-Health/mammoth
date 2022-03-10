@@ -16,6 +16,7 @@ import BasicAssessment from "../../screen-groups/BasicAssessment";
 import createContext from "zustand/context";
 import create from "zustand";
 import { getPatientIntake, LabContextProvider, useLabContext } from "./context";
+import OrderInvestigationScreen from "../../screens/OrderInvestigation";
 
 const Stack = createNativeStackNavigator();
 
@@ -38,8 +39,9 @@ const EMRPatientFile = {
 	3: "UpdateInvestigationResults",
 };
 
+// DONE!
 const AssessPatient = {
-	5: "BasicPatientHistory", //	[DONE]
+	5: "BasicPatientHistory",
 	6: "BasicAssessmentSummary", // order investigations here
 };
 
@@ -49,8 +51,9 @@ const stack = {
 	3: "OnboardingSettings", // SKIPPED: for now
 	4: "BasicEMRDashboard", // Can search for patients
 	4.5: "RegisterNewPatient",
-	5: "AssessPatient", // -> goes to the EMRPatientFile
-	6: "ManageProfile",
+	5: "AssessPatient",
+	6: "EMRPatientFile",
+	7: "ManageProfile",
 };
 
 // TODO: Add authcheck on app start
@@ -81,7 +84,7 @@ function MainLabComponent() {
 	) : (
 		<Stack.Navigator
 			screenOptions={{ headerShown: false }}
-			initialRouteName="lab.patient_intake"
+			initialRouteName="lab.order_investigation"
 		>
 			<Stack.Screen
 				name="lab.dashboard"
@@ -141,6 +144,19 @@ function MainLabComponent() {
 							navigation.navigate("lab.dashboard");
 						},
 					}),
+				})}
+			/>
+			<Stack.Screen
+				name="lab.order_investigation"
+				component={withFlowContext(OrderInvestigationScreen, {
+					entry: {
+						condition: "pneumonia",
+						recommendedTests: [
+							"full-blood-picture-fbp",
+							"chest-x-ray-cxr",
+							"cd-4-count",
+						],
+					},
 				})}
 			/>
 		</Stack.Navigator>

@@ -116,7 +116,9 @@ const BaseLayout = function ({
 							show={title !== undefined}
 							style={{ marginLeft: 10 }}
 						>
-							<Heading font="bold">{title}</Heading>
+							<Heading font="bold" color="#000">
+								{title}
+							</Heading>
 						</RevealContent>
 					</View>
 
