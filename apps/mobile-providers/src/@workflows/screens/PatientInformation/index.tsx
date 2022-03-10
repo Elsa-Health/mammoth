@@ -6,25 +6,66 @@ import theme from "../../../theme";
 import { Button, Divider } from "react-native-paper";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { differenceInYears } from "date-fns";
+import * as data from "../../../@libs/data-fns";
+import dayjs from "dayjs";
+
+type PatientInvestigation = {
+	id: data.LabTest;
+};
+type PatientVisit = {
+	date: Date;
+	condition: data.Condition;
+	investigations: PatientInvestigation[];
+};
+
+const visits: PatientVisit[] = [
+	{
+		date: new Date("2021-04-15"),
+		condition: "pneumonia",
+		investigations: [
+			{ id: "full-blood-picture-fbp" },
+			{ id: "chest-x-ray-cxr" },
+			{ id: "urinalysis" },
+		],
+	},
+	{
+		date: new Date("2021-02-18"),
+		condition: "urinary-tract-infection-uti",
+		investigations: [
+			{ id: "full-blood-picture-fbp" },
+			{ id: "chest-x-ray-cxr" },
+			{ id: "hiv-rapid-test" },
+		],
+	},
+	{
+		date: new Date("2020-12-06"),
+		condition: "pneumonia",
+		investigations: [{ id: "urinalysis" }, { id: "stool-analysis" }],
+	},
+];
 
 export default function PatientInformationScreen({
-	entry,
+	entry: { patient },
 	actions: $,
-}: {
-	entry: any;
-	actions: {
+}: WorkflowScreen<
+	{
+		patient: Patient;
+	},
+	{
 		onNewAssessment: (pid: string) => void;
-	};
-}) {
-	const patient: Patient = {
-		id: "iids",
-		firstName: "Harrison",
-		lastName: "Mariki",
-		phone: "+255 789 789 789",
-		sex: "male",
-		dateOfBirth: new Date().getTime(),
-		address: "Dar es Salaam",
-	};
+	}
+>) {
+	const patientItems = [
+		{ icon: "phone", text: patient.phone },
+		{ icon: "account", text: patient.sex === "male" ? "Male" : "Female" },
+		{
+			icon: "calendar-week",
+			text: `${differenceInYears(new Date(), patient.dateOfBirth)} years`,
+		},
+		{ icon: "map-marker", text: patient.address },
+	];
+
 	return (
 		<Layout style={{ padding: 0 }}>
 			<ScrollView style={{ paddingHorizontal: theme.spacing.lg }}>
@@ -116,14 +157,18 @@ export default function PatientInformationScreen({
 						Past Visits
 					</Text>
 					<View style={{ paddingTop: theme.spacing.md }}>
-						{Array(10)
-							.fill(1)
-							.map((_, index, array) => (
-								<React.Fragment key={index}>
-									<PastVisit />
-									{index < array.length - 1 && <Divider />}
-								</React.Fragment>
-							))}
+						{visits.map((visit, index, array) => (
+							<React.Fragment key={index}>
+								<PastVisit
+									date={visit.date}
+									condition={visit.condition}
+									investigations={visit.investigations.map(
+										(s) => s.id
+									)}
+								/>
+								{index < array.length - 1 && <Divider />}
+							</React.Fragment>
+						))}
 					</View>
 				</View>
 			</ScrollView>
@@ -131,12 +176,24 @@ export default function PatientInformationScreen({
 	);
 }
 
-function PastVisit({ visit }) {
+function PastVisit({
+	date,
+	condition,
+	investigations,
+}: {
+	date: Date;
+	condition: data.Condition;
+	investigations: data.LabTest[];
+}) {
 	return (
 		<View style={{ paddingVertical: 12 }}>
-			<Text>April 15, 2021</Text>
-			<Text>Pnemonia</Text>
-			<Text>FBF, Chest X-Ray, Urinalysis</Text>
+			<Text>{dayjs(date).format("MMMM DD, YYYY")} </Text>
+			<Text>{data.conditions.name.fromId(condition)}</Text>
+			<Text style={{ lineHeight: 20 }}>
+				{investigations
+					.map((s) => data.labTests.fromId(s).name)
+					.join(", ")}
+			</Text>
 			<View style={{ paddingTop: theme.spacing.sm }}>
 				<Button
 					// mode="outlined"
@@ -148,10 +205,3 @@ function PastVisit({ visit }) {
 		</View>
 	);
 }
-
-const patientItems = [
-	{ icon: "phone", text: "Something" },
-	{ icon: "account", text: "Male" },
-	{ icon: "calendar-week", text: "12 December" },
-	{ icon: "map-marker", text: "Dar es Salaam" },
-];

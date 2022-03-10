@@ -24,9 +24,7 @@ const Stack = createNativeStackNavigator();
 
 type BasicProps = {
 	patient: PatientIntake;
-	actions: {
-		onCancel: () => void;
-	};
+	actions: BasicAssessmentScreenGroupAction;
 };
 
 export function MainComponent({ patient, actions }: BasicProps) {
@@ -89,7 +87,10 @@ export function MainComponent({ patient, actions }: BasicProps) {
 								text: "",
 							});
 						},
-						onNext: () => {},
+						onNext: () => {
+							// TODO: add the complete assessment
+							actions.onCompleteAssessment(symptoms, []);
+						},
 					}),
 				})}
 			/>
@@ -131,28 +132,26 @@ export function MainComponent({ patient, actions }: BasicProps) {
 	);
 }
 
+type BasicAssessmentScreenGroupAction = {
+	onCancel: () => void;
+	onCompleteAssessment: (
+		symptoms: {
+			present: Array<{
+				id: string;
+				data: SymptomData;
+			}>;
+			absent: Array<string>;
+		},
+		/**
+		 * null when unable to computer the differentials
+		 */
+		elsaDifferentials: Differential[] | null
+	) => void;
+};
 export default function BasicAssessmentScreenGroup({
 	entry,
 	actions,
-}: WorkflowScreen<
-	BasicProps,
-	{
-		onCancel: () => void;
-		onCompleteAssessment: (
-			symptoms: {
-				present: Array<{
-					id: string;
-					data: SymptomData;
-				}>;
-				absent: Array<string>;
-			},
-			/**
-			 * null when unable to computer the differentials
-			 */
-			elsaDifferentials: Differential[] | null
-		) => void;
-	}
->) {
+}: WorkflowScreen<BasicProps, BasicAssessmentScreenGroupAction>) {
 	return (
 		<SymptomAssessmentSequenceProvider>
 			<BottomSheetInteractionProvider lang="en">

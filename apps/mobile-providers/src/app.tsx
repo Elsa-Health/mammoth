@@ -37,6 +37,7 @@ const paperTheme = {
 	roundness: 6,
 	colors: {
 		...DefaultTheme.colors,
+		background: "#FFF",
 		primary: theme.color.primary.base,
 		accent: theme.color.secondary.base,
 	},

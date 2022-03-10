@@ -1,4 +1,14 @@
 import React from "react";
+import create from "zustand";
+import createContext from "zustand/context";
+
+// TODO: convert the provider to be a the GODLIKE contexst
+const { Provider, useStore } = createContext();
+const createStore =
+	<E extends object>(entry: E) =>
+	() =>
+		create<E>((set, get) => entry);
+
 type FnList = { [fnName: string]: (...a: any[]) => any };
 
 // FIXME:
@@ -10,11 +20,16 @@ export const withFlowContext = <T, A extends FnList>(
 	} = {}
 ) => {
 	return ({ navigation, route }: any) => {
+		const entryData = { ...k.entry, ...(route?.params || {}) };
 		return (
-			<Component
-				entry={{ ...k.entry, ...(route?.params || {}) }}
-				actions={k.actions?.({ navigation })}
-			/>
+			<Provider createStore={createStore(entryData)}>
+				<Component
+					entry={entryData}
+					actions={k.actions?.({ navigation })}
+				/>
+			</Provider>
 		);
 	};
 };
+
+// export { useStore as useWorkflowContext };

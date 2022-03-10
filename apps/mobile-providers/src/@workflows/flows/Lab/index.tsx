@@ -13,10 +13,12 @@ import BasicIntake from "../../screens/BasicIntake";
 
 import { withFlowContext } from "../../wrapper";
 import BasicAssessment from "../../screen-groups/BasicAssessment";
+import PatientVisit from "../../screen-groups/PatientFolder";
 import createContext from "zustand/context";
 import create from "zustand";
 import { getPatientIntake, LabContextProvider, useLabContext } from "./context";
 import OrderInvestigationScreen from "../../screens/OrderInvestigation";
+import BasicRegisterNewPatientScreen from "../../screens/BasicRegisterNewPatient";
 
 const Stack = createNativeStackNavigator();
 
@@ -67,8 +69,7 @@ function MainLabComponent() {
 	const setPatientIntake = useLabContext((s) => s.updatePatientIntake);
 	const assessment = useLabContext((s) => s.assessment);
 
-	// return !isLoggedIn ? (
-	return false ? (
+	return !isLoggedIn ? (
 		<Stack.Navigator screenOptions={{ headerShown: false }}>
 			<Stack.Screen
 				name="lab.auth"
@@ -82,10 +83,7 @@ function MainLabComponent() {
 			/>
 		</Stack.Navigator>
 	) : (
-		<Stack.Navigator
-			screenOptions={{ headerShown: false }}
-			initialRouteName="lab.order_investigation"
-		>
+		<Stack.Navigator screenOptions={{ headerShown: false }}>
 			<Stack.Screen
 				name="lab.dashboard"
 				component={withFlowContext(BasicEMRDashboardScreen, {
@@ -104,10 +102,31 @@ function MainLabComponent() {
 				})}
 			/>
 			<Stack.Screen
+				name="lab.new_patient"
+				component={withFlowContext(BasicRegisterNewPatientScreen, {
+					actions: ({ navigation }) => ({
+						onComplete: (patient: any) => {
+							console.log(patient);
+							navigation.navigate("lab.patient_information", {
+								patient,
+							});
+						},
+					}),
+				})}
+			/>
+			<Stack.Screen
 				name="lab.patient_information"
 				component={withFlowContext(PatientInformationScreen, {
 					entry: {
-						user,
+						patient: {
+							id: "iids",
+							firstName: "Baraka",
+							lastName: "Mzee",
+							phone: "+255 712 734 723",
+							sex: "male",
+							dateOfBirth: new Date("1984-12-02"),
+							address: "Dar es Salaam",
+						},
 					},
 					actions: ({ navigation }) => ({
 						onNewAssessment: (pid: string) => {
@@ -141,7 +160,14 @@ function MainLabComponent() {
 							navigation.navigate("lab.patient_intake");
 						},
 						onCompleteAssessment: (sure) => {
-							navigation.navigate("lab.dashboard");
+							navigation.navigate("lab.order_investigation", {
+								condition: "pneumonia",
+								recommendedTests: [
+									"full-blood-picture-fbp",
+									"chest-x-ray-cxr",
+									"cd-4-count",
+								],
+							});
 						},
 					}),
 				})}
@@ -149,15 +175,25 @@ function MainLabComponent() {
 			<Stack.Screen
 				name="lab.order_investigation"
 				component={withFlowContext(OrderInvestigationScreen, {
-					entry: {
-						condition: "pneumonia",
-						recommendedTests: [
-							"full-blood-picture-fbp",
-							"chest-x-ray-cxr",
-							"cd-4-count",
-						],
-					},
+					// entry: {
+					// 	condition: "pneumonia",
+					// 	recommendedTests: [
+					// 		"full-blood-picture-fbp",
+					// 		"chest-x-ray-cxr",
+					// 		"cd-4-count",
+					// 	],
+					// },
+					actions: ({ navigation }) => ({
+						onOrder: (investigations) => {
+							console.log({ investigations });
+							navigation.navigate("lab.patient_visit");
+						},
+					}),
 				})}
+			/>
+			<Stack.Screen
+				name="lab.patient_visit"
+				component={withFlowContext(PatientVisit)}
 			/>
 		</Stack.Navigator>
 	);
