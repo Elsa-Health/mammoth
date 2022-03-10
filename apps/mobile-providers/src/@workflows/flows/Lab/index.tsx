@@ -19,12 +19,14 @@ import { getPatientIntake, LabContextProvider, useLabContext } from "./context";
 
 const Stack = createNativeStackNavigator();
 
+// DONE!
 const SymptomAssessment = {
 	1: "SummaryScreen",
 	2: "ManageSymptomScreen",
 	3: "SearchSymptomsScreen",
 };
 
+// DONE!
 const BasicPatientHistory = {
 	1: "BasicIntake",
 	2: "SymptomAssessment",
@@ -37,7 +39,7 @@ const EMRPatientFile = {
 };
 
 const AssessPatient = {
-	5: "BasicPatientHistory",
+	5: "BasicPatientHistory", //	[DONE]
 	6: "BasicAssessmentSummary", // order investigations here
 };
 
@@ -132,6 +134,9 @@ function MainLabComponent() {
 						patient: getPatientIntake(assessment),
 					},
 					actions: ({ navigation }) => ({
+						onCancel: () => {
+							navigation.navigate("lab.patient_intake");
+						},
 						onCompleteAssessment: (sure) => {
 							navigation.navigate("lab.dashboard");
 						},

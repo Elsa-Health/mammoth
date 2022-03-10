@@ -45,7 +45,6 @@ export function MainComponent({ patient, actions }: BasicProps) {
 	]);
 	const showSympInteract = React.useCallback((id: Symptom) => {
 		reset();
-
 		const data = queryPresentFromId(id);
 		const status = checkSymptomStatusById(id);
 		addSymptomToInt(
@@ -85,7 +84,11 @@ export function MainComponent({ patient, actions }: BasicProps) {
 						},
 						onSearchSymptom: (text) => {},
 						onSelectSymptom: ({ id, present, state }) => {},
-						onAddSymptom: () => {},
+						onAddSymptom: () => {
+							navigation.navigate("basic.searchSymptoms", {
+								text: "",
+							});
+						},
 						onNext: () => {},
 					}),
 				})}
@@ -98,9 +101,13 @@ export function MainComponent({ patient, actions }: BasicProps) {
 					},
 					actions: ({ navigation }) => ({
 						onPressSearch: () => {
-							navigation.navigate("basic.searchSymptoms");
+							navigation.navigate("basic.searchSymptoms", {
+								text: "",
+							});
 						},
-						onPressSeeInsights: () => {},
+						onPressSeeInsights: () => {
+							navigation.navigate("basic.summary");
+						},
 						onRemoveSymptom: () => {},
 						onShowSymptom: () => {},
 					}),
@@ -114,9 +121,8 @@ export function MainComponent({ patient, actions }: BasicProps) {
 					},
 					actions: ({ navigation }) => ({
 						onSelectSearchResult: (selectedSymptom) => {
-							console.log("Selected", selectedSymptom);
-							// showSympInteract(selectedSymptom);
-							// navigation.navigate("basic.summary");
+							navigation.navigate("basic.summary");
+							showSympInteract(selectedSymptom);
 						},
 					}),
 				})}

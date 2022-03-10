@@ -9,9 +9,12 @@ export const withFlowContext = <T, A extends FnList>(
 		actions?: ({ navigation }: any) => A;
 	} = {}
 ) => {
-	return ({ navigation }: any) => {
+	return ({ navigation, route }: any) => {
 		return (
-			<Component entry={k.entry} actions={k.actions?.({ navigation })} />
+			<Component
+				entry={{ ...k.entry, ...(route?.params || {}) }}
+				actions={k.actions?.({ navigation })}
+			/>
 		);
 	};
 };

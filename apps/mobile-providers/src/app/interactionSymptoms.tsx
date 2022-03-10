@@ -93,8 +93,8 @@ export interface SymptomInteractionState extends InteractionState {
 	) => void;
 	addSymptomFromId: (
 		id: SymptomId,
-		data?: SymptomData,
-		present?: boolean
+		data?: SymptomData | undefined,
+		present?: boolean | boolean
 	) => void;
 	addSymptomFromDescription: (
 		symptomDesc: SymptomDescription,
@@ -150,6 +150,7 @@ const createStore =
 				);
 			},
 			addSymptomFromId: (id, data = {}, present) => {
+				// console.log("addSymptomFromId:", { id, data, present });
 				get().addSymptomFromDescription(
 					{ id, ...dataFn.symptoms.symptom.fromId(id) },
 					data,
@@ -266,6 +267,8 @@ interface SymptomInteractionProviderProps {
 function BottomSheetInteractionProvider(
 	props: SymptomInteractionProviderProps & { lang: Language }
 ) {
+	// console.log({ props });
+	// console.log("Interaction Symptoms: ", props.symptoms || []);
 	return (
 		<Provider createStore={createStore(props.symptoms || [])}>
 			<SymptomModalContainer lang={props.lang}>
@@ -450,21 +453,21 @@ export const ModalComponent = ({ lang }: { lang: Language }) => {
 		(s) => s.removeSymptomFromId
 	);
 	const renderSymptoms = React.useCallback(
-		(symptom: InteractiveSymptomState, ix) => (
-			<SymptomSection
-				{...symptom}
-				lang={lang}
-				index={ix}
-				data={symptoms[ix].data}
-				state={symptoms[ix].state}
-				removeSymptom={() => {
-					removeSymptomFromId(symptom.symptom.id);
-					// something
-				}}
-				key={`${symptom.symptom.id}-${ix}`}
-				stateUpdate={setMainSymptomUpdate(ix)}
-			/>
-		),
+		(symptom: InteractiveSymptomState, ix) => {
+			return (
+				<SymptomSection
+					{...symptom}
+					lang={lang}
+					index={ix}
+					removeSymptom={() => {
+						removeSymptomFromId(symptom.symptom.id);
+						// something
+					}}
+					key={`${symptom.symptom.id}-${ix}`}
+					stateUpdate={setMainSymptomUpdate(ix)}
+				/>
+			);
+		},
 		[setMainSymptomUpdate, removeSymptomFromId, lang]
 	);
 

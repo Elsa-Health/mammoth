@@ -33,7 +33,11 @@ function SearchBar({
 	}, [preFilledText]);
 
 	React.useEffect(() => {
-		onShow(!(text === undefined || text === ""));
+		const shouldShow = !(text === undefined);
+		onShow(shouldShow);
+		if (shouldShow) {
+			ref.current.focus();
+		}
 	}, [text]);
 
 	const { t } = useTranslation("translation", {
