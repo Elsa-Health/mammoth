@@ -37,12 +37,12 @@ const recentPatients: Patient[] = [
 	},
 	{
 		id: "iids",
-		firstName: "Baraka",
-		lastName: "Mzee",
+		firstName: "Megan",
+		lastName: "Fox",
 		registerDate: new Date(),
-		phone: "+255 754 654 987",
-		sex: "male",
-		dateOfBirth: new Date("1984-12-02"),
+		phone: "+1 292-232-3451",
+		sex: "female",
+		dateOfBirth: new Date("1981-12-02"),
 		address: "Dar es Salaam",
 	},
 ];

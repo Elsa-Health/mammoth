@@ -19,6 +19,7 @@ import create from "zustand";
 import { getPatientIntake, LabContextProvider, useLabContext } from "./context";
 import OrderInvestigationScreen from "../../screens/OrderInvestigation";
 import BasicRegisterNewPatientScreen from "../../screens/BasicRegisterNewPatient";
+import { differenceInYears } from "date-fns";
 
 const Stack = createNativeStackNavigator();
 
@@ -62,9 +63,7 @@ const stack = {
 
 function MainLabComponent() {
 	// const [user, setUser] = React.useState<UserObject | null>(null);
-	const [user, setUser] = React.useState<UserObject | null>({
-		fullName: "Mike Mill",
-	});
+	const [user, setUser] = React.useState<UserObject | null>(null);
 	const isLoggedIn = user !== null;
 	const setPatientIntake = useLabContext((s) => s.updatePatientIntake);
 	const assessment = useLabContext((s) => s.assessment);
@@ -132,8 +131,9 @@ function MainLabComponent() {
 						},
 					},
 					actions: ({ navigation }) => ({
-						onNewAssessment: (pid: string) => {
-							navigation.navigate("lab.patient_intake");
+						onNewAssessment: (patient) => {
+							console.log({ patient });
+							navigation.navigate("lab.patient_intake", patient);
 						},
 					}),
 				})}
@@ -141,9 +141,6 @@ function MainLabComponent() {
 			<Stack.Screen
 				name="lab.patient_intake"
 				component={withFlowContext(BasicIntake, {
-					entry: {
-						user,
-					},
 					actions: ({ navigation }) => ({
 						onCompleteIntake: (data) => {
 							setPatientIntake(data);
@@ -189,7 +186,7 @@ function MainLabComponent() {
 					actions: ({ navigation }) => ({
 						onOrder: (investigations) => {
 							console.log({ investigations });
-							navigation.navigate("lab.patient_visit");
+							navigation.navigate("lab.dashboard");
 						},
 					}),
 				})}

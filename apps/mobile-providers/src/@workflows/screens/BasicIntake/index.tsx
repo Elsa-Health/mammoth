@@ -18,7 +18,6 @@ import produce from "immer";
 import DatePicker from "react-native-date-picker";
 import { ScrollView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
-import { Assessment } from "../../../../@types";
 
 const HouseRowComponent = ({
 	label,
@@ -176,17 +175,28 @@ function transformIntakeFormData(data: any) {
 
 export default function BasicIntake({
 	actions: $,
-	entry,
+	entry: patient,
 }: WorkflowScreen<
-	Patient,
+	{
+		age?: Age;
+		sex?: Sex;
+	},
 	{ onCompleteIntake: (data: PatientIntake) => void }
 >) {
 	const navigation = useNavigation();
 	const [data, setData] = React.useState<Partial<PatientIntake>>(() => ({
 		sex: "male",
+		age: {
+			years: 230,
+		},
 		pregnant: false,
-		dueDate: new Date(),
+		dueDate: null,
+		...patient,
 	}));
+
+	React.useEffect(() => {
+		setData(patient);
+	}, []);
 
 	const handlePatientSubmit = React.useCallback(
 		() => $.onCompleteIntake(transformIntakeFormData(data)),

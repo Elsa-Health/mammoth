@@ -53,15 +53,20 @@ export default function PatientInformationScreen({
 		patient: Patient;
 	},
 	{
-		onNewAssessment: (pid: string) => void;
+		onNewAssessment: (pid: Partial<PatientIntake>) => void;
 	}
 >) {
+	const ageInYears = React.useMemo(
+		() => differenceInYears(new Date(), patient.dateOfBirth),
+		[patient]
+	);
+
 	const patientItems = [
 		{ icon: "phone", text: patient.phone },
 		{ icon: "account", text: patient.sex === "male" ? "Male" : "Female" },
 		{
 			icon: "calendar-week",
-			text: `${differenceInYears(new Date(), patient.dateOfBirth)} years`,
+			text: `${ageInYears} years`,
 		},
 		{ icon: "map-marker", text: patient.address },
 	];
@@ -146,7 +151,14 @@ export default function PatientInformationScreen({
 				</View>
 				<View>
 					<Button
-						onPress={() => $.onNewAssessment(patient.id)}
+						onPress={() =>
+							$.onNewAssessment({
+								age: {
+									years: ageInYears,
+								},
+								sex: patient.sex,
+							})
+						}
 						mode="contained"
 					>
 						New Assessment
