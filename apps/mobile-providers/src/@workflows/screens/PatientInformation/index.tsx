@@ -166,7 +166,7 @@ export default function PatientInformationScreen({
 										(s) => s.id
 									)}
 								/>
-								{index < array.length - 1 && <Divider />}
+								{/* {index < array.length - 1 && <Divider />} */}
 							</React.Fragment>
 						))}
 					</View>
@@ -187,16 +187,60 @@ function PastVisit({
 }) {
 	return (
 		<View style={{ paddingVertical: 12 }}>
-			<Text>{dayjs(date).format("MMMM DD, YYYY")} </Text>
-			<Text>{data.conditions.name.fromId(condition)}</Text>
-			<Text style={{ lineHeight: 20 }}>
-				{investigations
-					.map((s) => data.labTests.fromId(s).name)
-					.join(", ")}
-			</Text>
+			<View style={{ marginBottom: 8 }}>
+				<Text
+					font="bold"
+					size="xs"
+					color={theme.color.secondary.base}
+					style={{
+						textTransform: "uppercase",
+						letterSpacing: 1,
+						lineHeight: 18,
+					}}
+				>
+					DATE
+				</Text>
+				<Text>{dayjs(date).format("MMMM DD, YYYY")} </Text>
+			</View>
+			<View style={{ marginBottom: 8 }}>
+				<Text
+					font="bold"
+					size="xs"
+					color={theme.color.secondary.base}
+					style={{
+						textTransform: "uppercase",
+						letterSpacing: 1,
+						lineHeight: 18,
+					}}
+				>
+					Condition
+				</Text>
+
+				<Text>{data.conditions.name.fromId(condition)}</Text>
+			</View>
+			<View style={{ marginBottom: 8 }}>
+				<Text
+					font="bold"
+					size="xs"
+					color={theme.color.secondary.base}
+					style={{
+						textTransform: "uppercase",
+						letterSpacing: 1,
+						lineHeight: 18,
+					}}
+				>
+					Tests
+				</Text>
+
+				<Text style={{ lineHeight: 20 }}>
+					{investigations
+						.map((s) => data.labTests.fromId(s).name)
+						.join(", ")}
+				</Text>
+			</View>
 			<View style={{ paddingTop: theme.spacing.sm }}>
 				<Button
-					// mode="outlined"
+					mode="outlined"
 					onPress={() => console.log("Pressed Viist!")}
 				>
 					View &amp; update
