@@ -8,11 +8,44 @@ import {
 	FAB,
 	Searchbar,
 } from "react-native-paper";
-import { PlusIcon, SearchIcon, XIcon } from "../../../assets/vectors";
+import { ElsaIcon, PlusIcon, SearchIcon, XIcon } from "../../../assets/vectors";
 // import { Text } from "react-native-paper";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
+import theme from "../../../theme";
+import { differenceInYears } from "date-fns";
 
-const dummyPatients = _.times(10, (n) => n);
+const recentPatients: Patient[] = [
+	{
+		id: "baraka-mzee",
+		firstName: "Baraka",
+		lastName: "Mzee",
+		phone: "+255 712 734 723",
+		sex: "male",
+		registerDate: new Date(),
+		dateOfBirth: new Date("1984-12-02"),
+		address: "Dar es Salaam",
+	},
+	{
+		id: "micheal-fisher",
+		firstName: "Micheal",
+		lastName: "Fisher",
+		registerDate: new Date(),
+		phone: "+255 678 908 123",
+		sex: "male",
+		dateOfBirth: new Date("1964-11-02"),
+		address: "Arusha, Kilimanjaro",
+	},
+	{
+		id: "iids",
+		firstName: "Baraka",
+		lastName: "Mzee",
+		registerDate: new Date(),
+		phone: "+255 754 654 987",
+		sex: "male",
+		dateOfBirth: new Date("1984-12-02"),
+		address: "Dar es Salaam",
+	},
+];
 
 function BasicEMRDashboardScreen({
 	entry,
@@ -22,7 +55,7 @@ function BasicEMRDashboardScreen({
 		fullName: string;
 	};
 	actions: {
-		onOpenFile: (pid: string) => void;
+		onOpenFile: (patient: Patient) => void;
 		onNewPatient: () => void;
 	};
 }) {
@@ -37,12 +70,20 @@ function BasicEMRDashboardScreen({
 		return null;
 	};
 
-	const recentPatients = dummyPatients;
 	return (
 		<>
 			<ScrollView style={{ position: "relative" }}>
 				<Layout hideHeader>
-					<View style={{ paddingVertical: 20 }}>
+					<View style={{ paddingVertical: 8 }}>
+						<ElsaIcon
+							width={28}
+							height={28}
+							style={{
+								color: theme.color.primary.base,
+							}}
+						/>
+					</View>
+					<View style={{ paddingVertical: 8 }}>
 						<Text font="extra-black" style={{ fontSize: 28 }}>
 							Hi,
 						</Text>
@@ -51,16 +92,16 @@ function BasicEMRDashboardScreen({
 						</Text>
 					</View>
 
-					<View style={{ paddingVertical: 20 }}>
-						<Text font="bold" style={{ fontSize: 20 }}>
+					<View style={{ paddingVertical: 10 }}>
+						<Text font="bold" size="md">
 							Find a Client
 						</Text>
-						<Text>You can search by name or telephone</Text>
+						<Text style={{ lineHeight: 24 }}>
+							You can search by name or telephone
+						</Text>
 
 						<Searchbar
-							placeholder="Juma Nasorro"
-							icon={() => <SearchIcon />}
-							clearIcon={() => <XIcon />}
+							placeholder="Ex. Juma Nasorro"
 							style={{ marginTop: 10 }}
 							onChangeText={setSearchQuery}
 							onSubmitEditing={handleSearch}
@@ -68,28 +109,21 @@ function BasicEMRDashboardScreen({
 						/>
 					</View>
 
-					<View style={{ paddingTop: 20, marginBottom: 50 }}>
-						<Text font="bold" style={{ fontSize: 20 }}>
-							Recent Clients
-						</Text>
-
-						<View style={{ height: 10 }} />
-
-						{/* <FlatList
-						data={recentPatients}
-						renderItem={({ item, index }) => (
-							<RecentPatientItem key={index} patient={item} />
-						)}
-						ItemSeparatorComponent={() => <Divider />}
-					/> */}
-
+					<View style={{ marginBottom: 50 }}>
+						<View style={{ marginVertical: 10 }}>
+							<Text font="bold" size="md">
+								Recent Clients
+							</Text>
+						</View>
 						{recentPatients.map((patient, index, array) => (
-							<View key={patient}>
+							<View key={index}>
+								{/* <Divider /> */}
 								<RecentPatientItem
 									patient={patient}
-									onOpenFile={() => $.onOpenFile(patient)}
+									onPressOpenFile={() =>
+										$.onOpenFile(patient)
+									}
 								/>
-								{index < array.length - 1 && <Divider />}
 							</View>
 						))}
 					</View>
@@ -104,7 +138,7 @@ function BasicEMRDashboardScreen({
 				}}
 				// small
 				label="New Patient"
-				icon={() => <PlusIcon style={{ color: "#fff" }} />}
+				icon="plus"
 				onPress={() => $.onNewPatient()}
 			/>
 		</>
@@ -113,19 +147,29 @@ function BasicEMRDashboardScreen({
 
 type RecentPatientItemProps = {
 	patient: Patient;
-	onOpenFile: () => void;
+	onPressOpenFile: () => void;
 };
 
-function RecentPatientItem({ patient, onOpenFile }: RecentPatientItemProps) {
+function RecentPatientItem({
+	patient,
+	onPressOpenFile,
+}: RecentPatientItemProps) {
 	return (
 		<View style={{ paddingVertical: 8 }}>
-			<Text style={{ paddingBottom: 6 }} font="medium" size={"lg"}>
-				Harrison Mariki
+			<Text style={{ paddingBottom: 6 }} font="bold">
+				{patient.firstName} {patient.lastName}
 			</Text>
-			<Text style={{ paddingBottom: 6 }}>Male, 25yrs</Text>
-			<Text style={{ paddingBottom: 0 }}>+255765899654</Text>
+			<Text style={{ paddingBottom: 6 }}>
+				{patient.sex === "male" ? "Male" : "Female"},{" "}
+				{differenceInYears(new Date(), patient.dateOfBirth)} years
+			</Text>
+			<Text>{patient.phone}</Text>
 
-			<Button mode="text" onPress={onOpenFile} compact>
+			<Button
+				mode="outlined"
+				onPress={onPressOpenFile}
+				style={{ marginTop: 8 }}
+			>
 				Open File
 			</Button>
 		</View>

@@ -94,8 +94,10 @@ function MainLabComponent() {
 						return {
 							onNewPatient: () =>
 								navigation.navigate("lab.new_patient"),
-							onOpenFile: (pid) => {
-								navigation.navigate("lab.patient_information");
+							onOpenFile: (patient) => {
+								navigation.navigate("lab.patient_information", {
+									patient,
+								});
 							},
 						};
 					},
