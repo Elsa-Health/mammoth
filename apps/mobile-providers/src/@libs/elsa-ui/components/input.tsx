@@ -584,6 +584,7 @@ export function MultiInput<T extends string>({
 
 	const onChangeComponentValue = React.useCallback(
 		(name: T) => (value: string) => {
+			console.log("###>", value);
 			set((s) =>
 				produce(s, (df) => {
 					df[name] = value;

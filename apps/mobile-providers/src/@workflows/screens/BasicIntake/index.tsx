@@ -6,11 +6,11 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 import React from "react";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 import {
-	Button,
 	MultiInput,
 	TextInput,
 	VariableTextInput,
 } from "../../../@libs/elsa-ui/components/input";
+import { Button } from "react-native-paper";
 import { SelectableChip } from "../../../@libs/elsa-ui/components/misc";
 import { View } from "react-native";
 import produce from "immer";
@@ -186,16 +186,14 @@ export default function BasicIntake({
 	const navigation = useNavigation();
 	const [data, setData] = React.useState<Partial<PatientIntake>>(() => ({
 		sex: "male",
-		age: {
-			years: 230,
-		},
 		pregnant: false,
 		dueDate: null,
 		...patient,
 	}));
 
 	React.useEffect(() => {
-		setData(patient);
+		console.log("-->", patient);
+		setData((p) => ({ ...p, ...patient }));
 	}, []);
 
 	const handlePatientSubmit = React.useCallback(
@@ -391,7 +389,10 @@ export default function BasicIntake({
 							marginVertical: 6,
 						}}
 					>{t`footer_note`}</Text>
-					<Button onPress={handlePatientSubmit} title={tc`next`} />
+					<Button
+						mode="contained"
+						onPress={handlePatientSubmit}
+					>{tc`next`}</Button>
 				</View>
 			</ScrollView>
 		</Layout>

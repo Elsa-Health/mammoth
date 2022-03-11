@@ -37,8 +37,8 @@ export function MainComponent({ patient, actions }: BasicProps) {
 		(s) => [s.queryPresentSymptomDataById, s.checkSymptomStatusById]
 	);
 
-	const [reset, setSymptomToInteract, show] = useSymptomInteractionContext(
-		(s) => [s.reset, s.setSymptomFromId, s.setShowState]
+	const setSymptomToInteract = useSymptomInteractionContext(
+		(s) => s.setSymptomFromId
 	);
 	const showSympInteract = React.useCallback((id: Symptom) => {
 		const data = queryPresentFromId(id);
