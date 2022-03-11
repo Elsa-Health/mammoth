@@ -32,14 +32,25 @@ type PatientInvestigation = {
 	results: InvestigationResult;
 };
 
+type SymptomState = {
+	Name: string;
+	Location: Array<string>;
+	Duration: number;
+	Onset: string;
+	Nature: string;
+	Periodicity: string;
+	Aggravators: Array<string>;
+	Reducers: Array<string>;
+};
+
 type PatientVisit = {
-	/**
-	 * Visit Identifier
-	 */
 	id: string;
 	date: Date;
 	condition: string;
-	symptoms: Array<{ id: string; present: boolean; data?: SymptomData }>;
+	symptoms: {
+		present: Array<{ id: string; state: object }>;
+		absent: string[];
+	};
 	investigations: PatientInvestigation[];
 };
 

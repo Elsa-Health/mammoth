@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, View } from "react-native";
-import { Button, Divider } from "react-native-paper";
+import { Button, Chip, Divider } from "react-native-paper";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
 import dayjs from "dayjs";
@@ -9,6 +9,19 @@ import theme from "../../../theme";
 
 import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
+import _ from "lodash";
+
+// as received
+type PatientVisit = {
+	id: string;
+	date: Date;
+	condition: data.Condition;
+	symptoms: {
+		present: Array<{ id: data.Symptom; state: SymptomState }>;
+		absent: data.Symptom[];
+	};
+	investigations: PatientInvestigation[];
+};
 
 export default function PatientVisitDetailsScreen({
 	entry: { visit },
@@ -58,7 +71,10 @@ export default function PatientVisitDetailsScreen({
 						marginTop: theme.spacing.md,
 					}}
 				>
-					<VisitSymptomSection symptoms={[]} />
+					<VisitSymptomSection
+						present={visit.symptoms.present}
+						absent={visit.symptoms.absent}
+					/>
 				</View>
 				<Divider />
 				<View
@@ -103,9 +119,11 @@ export default function PatientVisitDetailsScreen({
 }
 
 function VisitSymptomSection({
-	symptoms,
+	present,
+	absent,
 }: {
-	symptoms: Array<{ id: data.Symptom; present: boolean; data?: SymptomData }>;
+	present: Array<{ id: data.Symptom; state: SymptomState }>;
+	absent: data.Symptom[];
 }) {
 	return (
 		<View
@@ -129,15 +147,74 @@ function VisitSymptomSection({
 					Visit Information
 				</Text>
 			</View>
-			<View>
-				{symptoms.map((s, ix) => (
-					<View></View>
-				))}
-			</View>
+			{present.length > 0 && (
+				<View style={{ paddingVertical: 8 }}>
+					<Text
+						size={12}
+						style={{
+							textTransform: "uppercase",
+							letterSpacing: 2,
+							marginBottom: 4,
+						}}
+					>
+						Presenting Symptoms
+					</Text>
+					<View style={{ flexDirection: "row", display: "flex" }}>
+						{present.map((s, ix) => (
+							<Chip
+								style={{
+									backgroundColor: theme.color.primary.base,
+									padding: 3,
+									alignSelf: "flex-start",
+									marginRight: 4,
+								}}
+							>
+								<Text color="#FFF">
+									{_.capitalize(
+										(
+											data.symptomsLocale.translate("en")[
+												s.id
+											].name || s.id
+										).replace(/\-/g, " ")
+									)}
+								</Text>
+							</Chip>
+						))}
+					</View>
+				</View>
+			)}
+			{absent.length > 0 && (
+				<View style={{ paddingVertical: 8 }}>
+					<Text
+						size={12}
+						style={{ textTransform: "uppercase", letterSpacing: 2 }}
+					>
+						Absent Symptoms
+					</Text>
+					<View style={{ flexDirection: "row", display: "flex" }}>
+						{absent.map((s, ix) => (
+							<Chip
+								style={{
+									backgroundColor: theme.color.primary.light,
+									padding: 3,
+									alignSelf: "flex-start",
+									marginRight: 4,
+								}}
+							>
+								<Text>
+									{_.capitalize(
+										(
+											data.symptomsLocale.translate("en")[
+												s
+											].name || s
+										).replace(/\-/g, " ")
+									)}
+								</Text>
+							</Chip>
+						))}
+					</View>
+				</View>
+			)}
 		</View>
 	);
-}
-
-function InvestigationItem() {
-	return;
 }

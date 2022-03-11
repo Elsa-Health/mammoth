@@ -9,6 +9,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { differenceInYears } from "date-fns";
 import * as data from "../../../@libs/data-fns";
 import dayjs from "dayjs";
+import { Symptom } from "../../../../@types";
 
 type PatientInvestigation = {
 	id: data.LabTest;
@@ -17,6 +18,10 @@ type PatientVisit = {
 	id: string;
 	date: Date;
 	condition: data.Condition;
+	symptoms: {
+		present: Array<{ id: data.Symptom; state: Symptom }>;
+		absent: data.Symptom[];
+	};
 	investigations: PatientInvestigation[];
 };
 
@@ -25,27 +30,42 @@ const visits: PatientVisit[] = [
 		id: "0iwmcpmirf",
 		date: new Date("2021-04-15"),
 		condition: "pneumonia",
+		symptoms: {
+			present: [
+				{
+					id: "abdominal-pain",
+					state: {
+						Location: ["upper"],
+						Duration: 5,
+						Aggravators: [""],
+						Name: "abdominal-pain",
+						Nature: "localized",
+						Periodicity: "non-specific",
+						Onset: "sudden",
+						Reducers: [],
+					},
+				},
+				{
+					id: "fever",
+					state: {
+						Location: [],
+						Duration: 3,
+						Aggravators: [""],
+						Name: "fever",
+						Nature: "localized",
+						Periodicity: "non-specific",
+						Onset: "sudden",
+						Reducers: [],
+					},
+				},
+			],
+			absent: [],
+		},
 		investigations: [
 			{ id: "full-blood-picture-fbp" },
 			{ id: "chest-x-ray-cxr" },
 			{ id: "urinalysis" },
 		],
-	},
-	{
-		id: "0iwmefjirf",
-		date: new Date("2021-02-18"),
-		condition: "urinary-tract-infection-uti",
-		investigations: [
-			{ id: "full-blood-picture-fbp" },
-			{ id: "chest-x-ray-cxr" },
-			{ id: "hiv-rapid-test" },
-		],
-	},
-	{
-		id: "0iw02lmirf",
-		date: new Date("2020-12-06"),
-		condition: "pneumonia",
-		investigations: [{ id: "urinalysis" }, { id: "stool-analysis" }],
 	},
 ];
 

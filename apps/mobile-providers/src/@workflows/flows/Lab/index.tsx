@@ -70,7 +70,7 @@ const NextStepsItems = data.nextSteps.basic(
 
 function MainLabComponent() {
 	const [user, setUser] = React.useState<UserObject | null>({
-		fullName: "Something",
+		fullName: "Harrison Mariki",
 	});
 	// const [user, setUser] = React.useState<UserObject | null>(null);
 	const isLoggedIn = user !== null;
@@ -187,14 +187,11 @@ function MainLabComponent() {
 								recommendedTests: [].concat(
 									...conditionTop
 										.map((c) => {
-											console.log("**", c);
-											return (
-												NextStepsItems[
-													c as data.Condition
-												]?.testRecommendations.map(
-													(s) => s.id
-												) || []
-											);
+											return (NextStepsItems[
+												c as data.Condition
+											]?.testRecommendations.map(
+												(s) => s.id
+											) || []) as data.LabTest[];
 										})
 										.filter((s) => s !== undefined)
 								),
