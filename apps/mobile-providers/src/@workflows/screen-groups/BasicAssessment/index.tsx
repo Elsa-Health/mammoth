@@ -91,9 +91,13 @@ export function MainComponent({ patient, actions }: BasicProps) {
 								text: "",
 							});
 						},
-						onNext: () => {
+						onNext: (elsa_conditions: Differential[]) => {
+							console.log(elsa_conditions);
 							// TODO: add the complete assessment
-							actions.onCompleteAssessment(symptoms, []);
+							actions.onCompleteAssessment(
+								symptoms,
+								elsa_conditions
+							);
 						},
 					}),
 				})}

@@ -4,9 +4,6 @@ import { setDefaultNamespace } from "i18next";
 import React from "react";
 import { Text } from "../../../@libs/elsa-ui/components/typography";
 import EmailPasswordAuthenticationScreen from "../../screens/EmailPasswordAuthentication";
-import DashboardScreenThatIsNav from "../../screens/Dashboard";
-import OnboardingScreen from "../../screens/OnboardingSettings";
-import OnboardingScreenThatIsNav from "../../screens/OnboardingSettings";
 import BasicEMRDashboardScreen from "../../screens/BasicEMRDashboard";
 import PatientInformationScreen from "../../screens/PatientInformation";
 import BasicIntake from "../../screens/BasicIntake";
@@ -20,6 +17,9 @@ import { getPatientIntake, LabContextProvider, useLabContext } from "./context";
 import OrderInvestigationScreen from "../../screens/OrderInvestigation";
 import BasicRegisterNewPatientScreen from "../../screens/BasicRegisterNewPatient";
 import { differenceInYears } from "date-fns";
+
+import * as data from "../../../@libs/data-fns";
+import { NextSteps } from "../../../pages/core/PatientDescriptor/FinalAssessment";
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +60,13 @@ const stack = {
 };
 
 // TODO: Add authcheck on app start
+
+// Build the contents needed to construct the next steps
+const NextStepsItems = data.nextSteps.basic(
+	data.conditions.ids,
+	data.medications.all.ids,
+	data.labTests.ids
+);
 
 function MainLabComponent() {
 	const [user, setUser] = React.useState<UserObject | null>({
@@ -169,14 +176,28 @@ function MainLabComponent() {
 						onCancel: () => {
 							navigation.navigate("lab.patient_intake");
 						},
-						onCompleteAssessment: (sure) => {
+						onCompleteAssessment: (symptoms, elsaDifferentials) => {
+							const conditionTop =
+								elsaDifferentials
+									?.slice(0, 3)
+									.map((s) => s.id) || [];
+
 							navigation.navigate("lab.order_investigation", {
-								condition: "pneumonia",
-								recommendedTests: [
-									"full-blood-picture-fbp",
-									"chest-x-ray-cxr",
-									"cd-4-count",
-								],
+								condition: conditionTop[0] || undefined,
+								recommendedTests: [].concat(
+									...conditionTop
+										.map((c) => {
+											console.log("**", c);
+											return (
+												NextStepsItems[
+													c as data.Condition
+												]?.testRecommendations.map(
+													(s) => s.id
+												) || []
+											);
+										})
+										.filter((s) => s !== undefined)
+								),
 							});
 						},
 					}),

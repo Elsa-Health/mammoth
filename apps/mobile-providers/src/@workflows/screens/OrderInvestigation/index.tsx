@@ -10,6 +10,7 @@ import * as data from "../../../@libs/data-fns";
 import { SectionedSelect } from "../../../@libs/elsa-ui/components/misc";
 import produce from "immer";
 import { Button } from "react-native-paper";
+import _ from "lodash";
 
 function Checkbox({
 	label,
@@ -35,11 +36,12 @@ export default function OrderInvestigationScreen({
 	entry: { condition, recommendedTests },
 	actions: $,
 }: WorkflowScreen<
-	{ condition: data.Condition; recommendedTests: data.LabTest[] },
+	{ condition?: data.Condition; recommendedTests: data.LabTest[] },
 	{
 		onOrder: (investigations: data.LabTest[]) => void;
 	}
 >) {
+	console.log({ condition, recommendedTests });
 	const [investigations, set] = React.useState<data.LabTest[]>([]);
 	const setInvestigation = React.useCallback((inv: data.LabTest) => {
 		set((s) =>
@@ -55,6 +57,8 @@ export default function OrderInvestigationScreen({
 		);
 	}, []);
 
+	const showRecommendedTests = recommendedTests.length > 0;
+
 	return (
 		<Layout title="Order Inverstigations" style={{ padding: 0 }}>
 			<ScrollView
@@ -63,79 +67,60 @@ export default function OrderInvestigationScreen({
 					paddingBottom: 16,
 				}}
 			>
-				{/* Something */}
-				<View
-					style={{
-						display: "flex",
-						flexDirection: "row",
-						backgroundColor: "#EFF6FF",
-						padding: 16,
-						borderRadius: 6,
-					}}
-				>
-					<Icon name="information" size={25} color="#1E40AF" />
-
-					<Text style={{ paddingLeft: 8 }} color="#1E40AF">
-						Based on our assessment, the most likely disease for
-						your patient is{" "}
-						<Text font="bold">
-							{data.conditions.name.fromId(condition) ||
-								condition}
-						</Text>
-					</Text>
-				</View>
-				<View
-					style={{
-						marginTop: theme.spacing.md,
-						backgroundColor: "#FEF2F2",
-						padding: 16,
-						borderRadius: 6,
-					}}
-				>
+				{/* Showing information on conditions */}
+				{condition && (
 					<View
 						style={{
 							display: "flex",
 							flexDirection: "row",
-							alignItems: "center",
+							backgroundColor: "#EFF6FF",
+							padding: 16,
+							borderRadius: 6,
 						}}
 					>
-						<Icon name="close-circle" size={25} color="#991B1B" />
+						<Icon name="information" size={25} color="#1E40AF" />
 
-						<Text
-							style={{ paddingLeft: 8, color: "#991B1B" }}
-							font="bold"
-						>
-							Elsa's Recommendation
+						<Text style={{ paddingLeft: 8 }} color="#1E40AF">
+							Based on our assessment, the most likely disease for
+							your patient is{" "}
+							<Text font="bold">
+								{data.conditions.name.fromId(condition) ||
+									_.capitalize(
+										condition?.replace(/\-/i, " ")
+									)}
+							</Text>
 						</Text>
 					</View>
-					<Text style={{ color: "#991B1B" }}>
-						The patient’s condition could be severe or might become
-						severe. It is recommended that this patient is referred
-						to a hospital as soon as possible.
-					</Text>
-				</View>
-
+				)}
 				{/* Recommendations */}
 				<View>
-					<Text font="bold" style={{ paddingVertical: 12 }}>
-						Recommended Tests
-					</Text>
+					{showRecommendedTests && (
+						<>
+							<Text font="bold" style={{ paddingVertical: 12 }}>
+								Recommended Tests
+							</Text>
+							<View>
+								{recommendedTests.map((inv) => (
+									<RNPCheckbox.Item
+										key={inv}
+										label={data.labTests.fromId(inv).name}
+										status={
+											investigations.includes(inv)
+												? "checked"
+												: "unchecked"
+										}
+										onPress={() => setInvestigation(inv)}
+									/>
+								))}
+							</View>
+						</>
+					)}
 					<View>
-						{recommendedTests.map((inv) => (
-							<RNPCheckbox.Item
-								key={inv}
-								label={data.labTests.fromId(inv).name}
-								status={
-									investigations.includes(inv)
-										? "checked"
-										: "unchecked"
-								}
-								onPress={() => setInvestigation(inv)}
-							/>
-						))}
-					</View>
-					<View>
-						<Text>Order other investigations:</Text>
+						<Text>
+							{showRecommendedTests
+								? "Order other investigations:"
+								: "Select the investigations to later perform on the patient:"}
+						</Text>
 						<SectionedSelect
 							confirmText={"Confirm"}
 							items={[

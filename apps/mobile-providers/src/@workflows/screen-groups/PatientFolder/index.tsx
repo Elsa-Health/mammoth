@@ -7,9 +7,7 @@ import InvestigationResultsForm from "../../screens/InvestigationResultsForm";
 const Stack = createNativeStackNavigator();
 
 /**
- * These are the set of screens that create the patient folder
- * that's used of review information needed by the to construct
- * a proper patient profile
+ * Composition of screens for the patient visit flow
  */
 export default function PatientFolderScreenGroup({
 	entry: { visit },
