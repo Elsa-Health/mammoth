@@ -149,17 +149,8 @@ function ConditionViewSection({
 	onSearchSymptom: (symptomText: string) => void;
 	onSelectSymptom: SelectSymptomFunction;
 }) {
-	// const [addSymptom, reset, setShow] = useSymptomStore((s) => [
-	// 	s.addSymptomFromId,
-	// 	s.reset,
-	// 	s.setShowState,
-	// ]);
-
 	const selectExisting = React.useCallback(
 		(id: SymptomId, entry?: SymptomData) => {
-			// reset();
-			// addSymptom(id, entry, entry !== undefined);
-			// setShow("full");
 			onSelectSymptom({ id, state: entry });
 		},
 		[]
@@ -176,6 +167,8 @@ function ConditionViewSection({
 			</View>
 		);
 	}
+
+	console.log({ conditions });
 
 	// all the symptoms that I can present here
 	const [first, ...other] = conditions;
@@ -212,7 +205,7 @@ function ConditionViewSection({
 						}}
 					>
 						{first.condition.trim().replace("-", " ")} (
-						{(first.data.p * 100).toFixed(1)} %)
+						{(first.p * 100).toFixed(1)} %)
 					</Text>
 					<CircleBar
 						size={15}
@@ -281,7 +274,7 @@ function ConditionViewSection({
 									{condition.condition
 										.trim()
 										.replace("-", " ")}{" "}
-									({(condition.data.p * 100).toFixed(1)} %)
+									({(condition.p * 100).toFixed(1)} %)
 								</Text>
 								<CircleBar
 									count={condition.count || 0}
@@ -330,48 +323,10 @@ export default function BasicSummaryScreen({
 	entry: { patient, symptoms },
 	actions: $,
 }: Props) {
-	// const navigateToAddSymptom = React.useCallback(() => {
-	// 	navigation.navigate("symptom", {
-	// 		screen: "symptom.search",
-	// 	});
-	// }, [navigation]);
-
-	// const navigateToManageSymptom = React.useCallback(() => {
-	// 	navigation.navigate("symptom");
-	// }, [navigation]);
-
-	// const { patient, psstr, asstr, fetchFromElsaLambda } = useElsaLambda();
-
 	const [ready, setReady] = React.useState(false);
 	const [elsaDifferentials, setConditions] = React.useState<Differential[]>(
 		[]
 	);
-	// const [reset, addSymptomFromDescription] = useSymptomStore((s) => [
-	// 	s.reset,
-	// 	s.addSymptomFromDescription,
-	// ]);
-
-	// Listens if the route has received any things
-	// React.useEffect(() => {
-	// 	const {
-	// 		description: sym = undefined,
-	// 		entry,
-	// 		present,
-	// 	} = route.params ||
-	// 	({} as {
-	// 		refIndex: number;
-	// 		description: SymptomDescription;
-	// 		entry?: SymptomData;
-	// 		present?: boolean;
-	// 	});
-	// 	// console.log({sym, entry})
-	// 	reset();
-
-	// 	if (sym !== undefined) {
-	// 		// console.log("Information:", sym)
-	// 		addSymptomFromDescription(sym, entry, present);
-	// 	}
-	// }, [route]);
 
 	React.useEffect(() => {
 		if (!ready) {
@@ -512,7 +467,6 @@ export default function BasicSummaryScreen({
 							style={{ fontSize: 17 }}
 						>{t`signs_summary.text`}</Text>
 						<Pressable
-							// style={{ padding: 6, borderRadius: 100, borderColor: '#CCCCCCAA', zIndex: 1, borderWidth: 1 }}
 							style={{ padding: 6, borderRadius: 100 }}
 							hitSlop={20}
 							android_ripple={{ radius: 20, borderless: true }}
@@ -620,7 +574,7 @@ export default function BasicSummaryScreen({
 							<Text
 								font="bold"
 								style={{ paddingHorizontal: 8 }}
-							>{t`buttons.conclude`}</Text>
+							>{tc`actions.next`}</Text>
 							<NextIcon />
 						</Pressable>
 					</RevealContent>

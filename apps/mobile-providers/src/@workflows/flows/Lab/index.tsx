@@ -62,8 +62,10 @@ const stack = {
 // TODO: Add authcheck on app start
 
 function MainLabComponent() {
+	const [user, setUser] = React.useState<UserObject | null>({
+		fullName: "Something",
+	});
 	// const [user, setUser] = React.useState<UserObject | null>(null);
-	const [user, setUser] = React.useState<UserObject | null>(null);
 	const isLoggedIn = user !== null;
 	const setPatientIntake = useLabContext((s) => s.updatePatientIntake);
 	const assessment = useLabContext((s) => s.assessment);
@@ -82,7 +84,10 @@ function MainLabComponent() {
 			/>
 		</Stack.Navigator>
 	) : (
-		<Stack.Navigator screenOptions={{ headerShown: false }}>
+		<Stack.Navigator
+			screenOptions={{ headerShown: false }}
+			initialRouteName="lab.assessment"
+		>
 			<Stack.Screen
 				name="lab.dashboard"
 				component={withFlowContext(BasicEMRDashboardScreen, {

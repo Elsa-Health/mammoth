@@ -86,17 +86,17 @@ export interface SymptomInteractionState extends InteractionState {
 	 *
 	 * TODO: add checker function that prevents symptoms that were added already to be added again
 	 */
-	addSymptomFromIndex: (
+	setSymptomFromIndex: (
 		refNumber: number,
 		data?: SymptomData,
 		present?: boolean
 	) => void;
-	addSymptomFromId: (
+	setSymptomFromId: (
 		id: SymptomId,
 		data?: SymptomData | undefined,
 		present?: boolean | boolean
 	) => void;
-	addSymptomFromDescription: (
+	setSymptomFromDescription: (
 		symptomDesc: SymptomDescription,
 		data?: SymptomData,
 		present?: boolean
@@ -142,35 +142,41 @@ const createStore =
 			setVisible: (visible) => set({ visible }),
 			reset: () => set({ symptoms: [], visible: false }),
 
-			addSymptomFromIndex: (refNumber, data = {}, present) => {
-				get().addSymptomFromDescription(
+			setSymptomFromIndex: (refNumber, data = {}, present) => {
+				get().setSymptomFromDescription(
 					symptomsBag[refNumber],
 					data,
 					present
 				);
 			},
-			addSymptomFromId: (id, data = {}, present) => {
-				// console.log("addSymptomFromId:", { id, data, present });
-				get().addSymptomFromDescription(
+			setSymptomFromId: (id, data = {}, present) => {
+				console.log("setSymptomFromId:", { id, data, present });
+				get().setSymptomFromDescription(
 					{ id, ...dataFn.symptoms.symptom.fromId(id) },
 					data,
 					present
 				);
 				// get().addSymptomFromDescription(symptomJson[id], data, present)
 			},
-			addSymptomFromDescription: (desc, data = {}, present) => {
+			setSymptomFromDescription: (desc, data = {}, present) => {
 				set((s) =>
 					produce(s, (df) => {
-						df.symptoms.push({
-							data,
-							symptom: desc,
-							state:
-								present !== undefined
-									? present
-										? "present"
-										: "absent"
-									: "unknown",
-						});
+						const symIndex = df.symptoms.findIndex(
+							(s) => s.symptom.id === desc.id
+						);
+
+						if (symIndex === -1) {
+							df.symptoms.push({
+								data,
+								symptom: desc,
+								state:
+									present !== undefined
+										? present
+											? "present"
+											: "absent"
+										: "unknown",
+							});
+						}
 						return df;
 					})
 				);
@@ -309,7 +315,7 @@ export const ModalComponent = ({ lang }: { lang: Language }) => {
 		s.proper_updateSymptomState,
 		s.unsafe_updateSymptomState,
 		s.unsafe_setAssociatedSymptoms,
-		s.addSymptomFromId,
+		s.setSymptomFromId,
 	]);
 
 	// ref
@@ -1076,7 +1082,7 @@ function DonparItemOption({
 									selected={selected}
 									key={item.id}
 									style={{
-										width: isTablet ? "48%" : "30%",
+										width: isTablet ? "30%" : "48%",
 										marginBottom: 1,
 									}}
 									testID="DonparItemOptionChip"

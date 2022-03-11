@@ -311,6 +311,8 @@ export const getDiscretized = (
 	// discretization count
 	count: number;
 
+	p: number;
+
 	presentingSymptoms: string[];
 
 	absentSymptoms: string[];
@@ -318,7 +320,8 @@ export const getDiscretized = (
 	return fn(sortedConditions, asstr, topn, rangeToFit)
 		.filter((dd) => dd.data !== undefined)
 		.map((dd) => ({
-			condition: dd.data.condition,
+			condition: dd.data.id,
+			p: dd.data.p,
 			// rescale to include certainity
 			count: dd.count,
 			presentingSymptoms: dd.presentingSymptoms,

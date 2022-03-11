@@ -37,18 +37,16 @@ export function MainComponent({ patient, actions }: BasicProps) {
 		(s) => [s.queryPresentSymptomDataById, s.checkSymptomStatusById]
 	);
 
-	const [reset, addSymptomToInt] = useSymptomInteractionContext((s) => [
-		s.reset,
-		s.addSymptomFromId,
-	]);
+	const [reset, setSymptomToInteract, show] = useSymptomInteractionContext(
+		(s) => [s.reset, s.setSymptomFromId, s.setShowState]
+	);
 	const showSympInteract = React.useCallback((id: Symptom) => {
-		reset();
 		const data = queryPresentFromId(id);
 		const status = checkSymptomStatusById(id);
-		addSymptomToInt(
+		setSymptomToInteract(
 			id,
 			data,
-			status === undefined ? undefined : status === "present"
+			status === null ? undefined : status === "present"
 		);
 	}, []);
 
@@ -80,8 +78,14 @@ export function MainComponent({ patient, actions }: BasicProps) {
 						onManageSymptoms: () => {
 							navigation.navigate("basic.manageSymptoms");
 						},
-						onSearchSymptom: (text) => {},
-						onSelectSymptom: ({ id, present, state }) => {},
+						onSearchSymptom: (text) => {
+							navigation.navigate("basic.searchSymptoms", {
+								text,
+							});
+						},
+						onSelectSymptom: ({ id, present, state }) => {
+							showSympInteract(id);
+						},
 						onAddSymptom: () => {
 							navigation.navigate("basic.searchSymptoms", {
 								text: "",
@@ -122,8 +126,8 @@ export function MainComponent({ patient, actions }: BasicProps) {
 					},
 					actions: ({ navigation }) => ({
 						onSelectSearchResult: (selectedSymptom) => {
-							navigation.navigate("basic.summary");
 							showSympInteract(selectedSymptom);
+							navigation.navigate("basic.summary");
 						},
 					}),
 				})}

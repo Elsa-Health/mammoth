@@ -43,7 +43,7 @@ export function SymptomList() {
 	const symptoms = useSymptomsInfo();
 	const [reset, addSymptomFromId] = useSymptomInteractionContext((s) => [
 		s.reset,
-		s.addSymptomFromId,
+		s.setSymptomFromId,
 	]);
 	const removeSymptom = useSymptomAssessment((s) => s.removeSymptomFromId);
 
@@ -205,7 +205,7 @@ function MainView({ route }) {
 	const navigation = useNavigation();
 
 	const [reset, addSymptomFromDescription] = useSymptomInteractionContext(
-		(s) => [s.reset, s.addSymptomFromDescription]
+		(s) => [s.reset, s.setSymptomFromDescription]
 	);
 	const symptoms = useSymptomsInfo();
 
@@ -352,7 +352,7 @@ export function SymptomSelectable({ symptom }: { symptom: SymptomId }) {
 
 	const [reset, addSymptomFromId] = useSymptomInteractionContext((s) => [
 		s.reset,
-		s.addSymptomFromId,
+		s.setSymptomFromId,
 	]);
 
 	const onSelectSymptom = React.useCallback(

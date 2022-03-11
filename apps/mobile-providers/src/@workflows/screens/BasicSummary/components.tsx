@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { useSymptomAssessment } from "../../../app/context/assessment";
 import { Pressable, PressableProps, View, ViewProps } from "react-native";
 import theme from "../../../theme";
-import { symptoms, useSypmtomLocale } from "../../../app/symptoms";
+import { symptoms, useSymptomLocale } from "../../../app/symptoms";
 import { CheckCircleIcon } from "../../../assets/vectors";
 import { SymptomData, SymptomId } from "../../../../@types";
 import { Text } from "../../../@libs/elsa-ui/components";
@@ -73,7 +73,7 @@ export function SelectedConditionSummary({
 		s.presentingSymptoms,
 		s.absentSymptoms,
 	]);
-	const { getSymptomById } = useSypmtomLocale();
+	const { getSymptomById } = useSymptomLocale();
 
 	return (
 		<View

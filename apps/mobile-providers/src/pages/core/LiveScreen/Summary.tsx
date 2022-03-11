@@ -53,7 +53,7 @@ const TOTAL_CAPS_COUNT = 10;
 export function SymptomsListingSection() {
 	const symptoms = useSymptomsInfo();
 	const [addSymptom, reset, setShow] = useSymptomInteractionContext((s) => [
-		s.addSymptomFromId,
+		s.setSymptomFromId,
 		s.reset,
 		s.setShowState,
 	]);
@@ -159,7 +159,7 @@ export function ConditionViewSection({
 }) {
 	const navigation = useNavigation();
 	const [addSymptom, reset, setShow] = useSymptomInteractionContext((s) => [
-		s.addSymptomFromId,
+		s.setSymptomFromId,
 		s.reset,
 		s.setShowState,
 	]);
