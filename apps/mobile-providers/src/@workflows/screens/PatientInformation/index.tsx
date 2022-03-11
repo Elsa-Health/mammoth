@@ -14,6 +14,7 @@ type PatientInvestigation = {
 	id: data.LabTest;
 };
 type PatientVisit = {
+	id: string;
 	date: Date;
 	condition: data.Condition;
 	investigations: PatientInvestigation[];
@@ -21,6 +22,7 @@ type PatientVisit = {
 
 const visits: PatientVisit[] = [
 	{
+		id: "0iwmcpmirf",
 		date: new Date("2021-04-15"),
 		condition: "pneumonia",
 		investigations: [
@@ -30,6 +32,7 @@ const visits: PatientVisit[] = [
 		],
 	},
 	{
+		id: "0iwmefjirf",
 		date: new Date("2021-02-18"),
 		condition: "urinary-tract-infection-uti",
 		investigations: [
@@ -39,6 +42,7 @@ const visits: PatientVisit[] = [
 		],
 	},
 	{
+		id: "0iw02lmirf",
 		date: new Date("2020-12-06"),
 		condition: "pneumonia",
 		investigations: [{ id: "urinalysis" }, { id: "stool-analysis" }],
@@ -54,6 +58,7 @@ export default function PatientInformationScreen({
 	},
 	{
 		onNewAssessment: (pid: Partial<PatientIntake>) => void;
+		onOpenVisit: (visit: PatientVisit) => void;
 	}
 >) {
 	const ageInYears = React.useMemo(
@@ -177,6 +182,7 @@ export default function PatientInformationScreen({
 									investigations={visit.investigations.map(
 										(s) => s.id
 									)}
+									onOpenVisit={() => $.onOpenVisit(visit)}
 								/>
 								{/* {index < array.length - 1 && <Divider />} */}
 							</React.Fragment>
@@ -192,10 +198,12 @@ function PastVisit({
 	date,
 	condition,
 	investigations,
+	onOpenVisit: handleOpenVisit,
 }: {
 	date: Date;
 	condition: data.Condition;
 	investigations: data.LabTest[];
+	onOpenVisit: () => void;
 }) {
 	return (
 		<View style={{ paddingVertical: 12 }}>
@@ -251,10 +259,7 @@ function PastVisit({
 				</Text>
 			</View>
 			<View style={{ paddingTop: theme.spacing.sm }}>
-				<Button
-					mode="outlined"
-					onPress={() => console.log("Pressed Viist!")}
-				>
+				<Button mode="outlined" onPress={handleOpenVisit}>
 					View &amp; update
 				</Button>
 			</View>

@@ -1,6 +1,6 @@
 import React from "react";
-import { View } from "react-native";
-import { Divider } from "react-native-paper";
+import { Pressable, View } from "react-native";
+import { Button, Divider } from "react-native-paper";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
 import dayjs from "dayjs";
@@ -12,9 +12,16 @@ import { ScrollView } from "react-native-gesture-handler";
 
 export default function PatientVisitDetailsScreen({
 	entry: { visit },
-}: WorkflowScreen<{
-	visit: PatientVisit;
-}>) {
+	actions: $,
+}: WorkflowScreen<
+	{
+		visit: PatientVisit;
+	},
+	{
+		onOpenInvestigation: (investigation: PatientInvestigation) => void;
+	}
+>) {
+	console.log({ visit });
 	return (
 		<Layout title="Patient Visit" style={{ padding: 0 }}>
 			<ScrollView contentContainerStyle={{ paddingHorizontal: 24 }}>
@@ -76,7 +83,18 @@ export default function PatientVisitDetailsScreen({
 							Investigations
 						</Text>
 					</View>
-					<View></View>
+					<View>
+						{visit.investigations.map((investigation) => (
+							<Pressable
+								onPress={() =>
+									$.onOpenInvestigation(investigation)
+								}
+								key={investigation.id}
+							>
+								<Text>{investigation.id}</Text>
+							</Pressable>
+						))}
+					</View>
 				</View>
 				<View></View>
 			</ScrollView>

@@ -135,6 +135,11 @@ function MainLabComponent() {
 							console.log({ patient });
 							navigation.navigate("lab.patient_intake", patient);
 						},
+						onOpenVisit: (visit) => {
+							navigation.navigate("lab.patient_visit", {
+								visit,
+							});
+						},
 					}),
 				})}
 			/>
@@ -195,6 +200,10 @@ function MainLabComponent() {
 				name="lab.patient_visit"
 				component={withFlowContext(PatientVisit)}
 			/>
+			{/* <Stack.Screen
+				name="lab.patient_visit"
+				component={withFlowContext(PatientVisit)}
+			/> */}
 		</Stack.Navigator>
 	);
 }
