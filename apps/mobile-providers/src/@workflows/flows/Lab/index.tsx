@@ -86,7 +86,7 @@ function MainLabComponent() {
 	) : (
 		<Stack.Navigator
 			screenOptions={{ headerShown: false }}
-			initialRouteName="lab.assessment"
+			initialRouteName="lab.patient_intake"
 		>
 			<Stack.Screen
 				name="lab.dashboard"

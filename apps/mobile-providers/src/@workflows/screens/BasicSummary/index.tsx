@@ -421,9 +421,13 @@ export default function BasicSummaryScreen({
 		symptoms.absent.length + symptoms.present.length;
 
 	return (
-		<Layout hideGoBack style={{ paddingHorizontal: 0 }}>
+		<Layout
+			hideGoBack
+			style={{ paddingHorizontal: 0 }}
+			title="Elsa's Insights"
+		>
 			<ScrollView
-				style={{ marginVertical: 18 }}
+				style={{ marginBottom: 18 }}
 				alwaysBounceVertical
 				showsVerticalScrollIndicator
 			>
@@ -448,7 +452,7 @@ export default function BasicSummaryScreen({
 							})}
 						</Text>
 						<Text style={{ fontSize: 16 }}>
-							{/* {properAgeString(patient.age)} */}
+							{properAgeString(patient.age)}
 						</Text>
 					</View>
 				</View>
