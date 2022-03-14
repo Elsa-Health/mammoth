@@ -11,9 +11,6 @@ import * as data from "../../../@libs/data-fns";
 import dayjs from "dayjs";
 import { Symptom } from "../../../../@types";
 
-type PatientInvestigation = {
-	id: data.LabTest;
-};
 type PatientVisit = {
 	id: string;
 	date: Date;
@@ -62,9 +59,37 @@ const visits: PatientVisit[] = [
 			absent: [],
 		},
 		investigations: [
-			{ id: "full-blood-picture-fbp" },
-			{ id: "chest-x-ray-cxr" },
-			{ id: "urinalysis" },
+			{
+				id: "123412",
+				investigationId: "urinalysis",
+				obj: data.investigation.fromId("urinalysis"),
+				result: {
+					values: {
+						appearance: "Clear",
+					},
+				},
+			},
+
+			{
+				id: "343124",
+				investigationId: "x-ray",
+				obj: data.investigation.fromId("x-ray"),
+				result: {
+					values: {
+						appearance: "Clear",
+					},
+				},
+			},
+			{
+				id: "199312",
+				investigationId: "mrdt-rapid-test",
+				obj: data.investigation.fromId("mrdt-rapid-test"),
+				result: {
+					values: {
+						appearance: "Clear",
+					},
+				},
+			},
 		],
 	},
 ];
@@ -200,7 +225,7 @@ export default function PatientInformationScreen({
 									date={visit.date}
 									condition={visit.condition}
 									investigations={visit.investigations.map(
-										(s) => s.id
+										(s) => s.investigationId
 									)}
 									onOpenVisit={() => $.onOpenVisit(visit)}
 								/>
@@ -274,7 +299,7 @@ function PastVisit({
 
 				<Text style={{ lineHeight: 20 }}>
 					{investigations
-						.map((s) => data.labTests.fromId(s).name)
+						.map((s) => data.investigation.name.fromId(s))
 						.join(", ")}
 				</Text>
 			</View>

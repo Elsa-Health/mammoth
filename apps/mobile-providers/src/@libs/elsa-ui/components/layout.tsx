@@ -65,7 +65,7 @@ const BaseLayout = function ({
 						flexDirection: "row",
 						justifyContent: "space-between",
 						alignItems: "center",
-						paddingVertical: 16,
+						paddingVertical: 12,
 						paddingHorizontal: 16,
 						backgroundColor: "#FFF",
 						// backgroundColor: 'pink',

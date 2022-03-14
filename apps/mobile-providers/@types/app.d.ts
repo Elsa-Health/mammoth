@@ -17,19 +17,32 @@ type Patient = {
 
 type PatientInvestigation = {
 	/**
-	 * Used to identify the investigation
+	 * Used to identify the investigation as stored in DB
 	 */
 	id: string;
 
 	/**
 	 * Similar to LabTest ID
 	 */
-	investigation: string;
+	obj: data.InvestigationTypeRecord<string>;
+
+	/**
+	 * Name of the investigation
+	 */
+	investigationId: "urinalysis";
 
 	/**
 	 * Results from the investigation. as expected, depends on the investigation
 	 */
-	results: InvestigationResult;
+	result:
+		| undefined
+		| string
+		| string[]
+		| {
+				values: {
+					[id in data.Investigation]?: string | string;
+				};
+		  };
 };
 
 type SymptomState = {

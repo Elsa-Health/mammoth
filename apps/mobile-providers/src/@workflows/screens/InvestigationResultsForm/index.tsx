@@ -1,173 +1,226 @@
 import React from "react";
 import { Pressable, View } from "react-native";
-import { Button, Divider } from "react-native-paper";
+import {
+	Button,
+	Divider,
+	ProgressBar,
+	RadioButton,
+	TextInput,
+} from "react-native-paper";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
-import dayjs from "dayjs";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import theme from "../../../theme";
 
 import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
-
-// text | numeric-units | option | select
-
-type ValOptions = "text" | "numeric-units" | "option" | "select";
-
-type ValType<Items extends string> =
-	| {
-			type: "text";
-	  }
-	| { type: "option"; options: Items[] }
-	| { type: "select"; options: Items[] }
-	| { type: "numeric-units"; units: Items }
-	| {
-			type: "panel";
-			items: {
-				[name: string]: ValType<Items>;
-			};
-	  };
-
-type ValResultType = { testId: string } & (
-	| {
-			type: "text";
-			result: string;
-	  }
-	| { type: "option"; result: string }
-	| { type: "numeric-units"; result: number }
-	| { type: "select"; result: string[] }
-	| {
-			type: "panel";
-			results: {
-				[name: string]: ValResultType;
-			};
-	  }
-);
-
-type ValTest = {};
-
-type PosNegTest = ValType<"positive" | "negative" | "inconclusive">;
-
-const posNegTest: PosNegTest = {
-	type: "option",
-	options: ["positive", "negative", "inconclusive"],
-};
-
-const hPyResult = {
-	testId: "hpy",
-	result: "negative",
-};
-
-const urinalysis: ValType<string> = {
-	type: "panel",
-	items: {
-		ph: {
-			type: "numeric-units",
-			units: "",
-		},
-	},
-};
-
-const ironSerumResult = {
-	testId: "iron-serum",
-	result: "",
-};
-
-const urinalysisResult = {
-	invId: "unrinalysis",
-	type: "",
-	results: {},
-};
-
-// -------------------------------
-
-type BooleanTest = {
-	name: string;
-	type: "option";
-	result: "positive" | "nevative" | "inconclusive";
-};
-
-type RangeTest = {
-	name: string;
-	type: "range";
-	result: "low" | "normal" | "high";
-};
-
-type NumericTest = {
-	name: string;
-	type: "numeric";
-	result: number;
-	units: string;
-};
-
-type NormalityTest = {
-	name: string;
-	type: "normality";
-	result: "normal" | "abnormal" | "inconclusive";
-};
-
-type DescriptiveTest = {
-	name: string;
-	type: "text";
-	result: string;
-};
-
-type SingleTests =
-	| BooleanTest
-	| RangeTest
-	| NumericTest
-	| NormalityTest
-	| DescriptiveTest;
-
-type PanelTest = {
-	name: string;
-	type: "panel";
-	result: {
-		[testId: string]: SingleTests;
-	};
-};
-
-type TestType = "numeric" | "boolean" | "range";
-
-type Test = {
-	name: string;
-	type: TestType;
-};
-
-const tests = [
-	{
-		name: "C-Reactive Protein",
-		type: "numeric",
-		units: "mg/dL",
-	},
-	{
-		name: "Urinalysis",
-	},
-];
+import produce from "immer";
 
 export default function InvestigationResultsForm({
-	entry: { investigation },
+	entry: { investigation: investigation },
 	actions: $,
-}: WorkflowScreen<
-	{
-		investigation: PatientInvestigation;
-	},
-	{
-		onOpenInvestigation: (investigation: PatientInvestigation) => void;
+}: WorkflowScreen<{
+	investigation: PatientInvestigation;
+}>) {
+	const [value, set] = React.useState(() => {
+		if (investigation.result?.values === undefined) {
+			return investigation.result;
+		}
+
+		return investigation.result?.values || {};
+	});
+
+	const obj = investigation.obj;
+	const name = data.investigation.name.fromId(investigation.investigationId);
+
+	console.log({ investigation, obj, value });
+
+	React.useEffect(() => {
+		console.log({ value });
+	}, [value]);
+
+	if (obj === undefined) {
+		return (
+			<View>
+				<Text>Obj is undefined</Text>
+			</View>
+		);
 	}
->) {
-	console.log({ investigation });
 	return (
-		<Layout title="Patient Visit" style={{ padding: 0 }}>
-			<ScrollView contentContainerStyle={{ paddingHorizontal: 24 }}>
-				<Text>
-					Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-					Aspernatur minima quod officiis placeat, excepturi
-					reprehenderit ullam voluptates. Officiis sapiente vel odio
-					architecto assumenda, magnam est corporis non ducimus
-					eligendi rerum.
-				</Text>
-			</ScrollView>
-		</Layout>
+		<>
+			<ProgressBar progress={0.5} color={theme.color.primary.dark} />
+			<Layout
+				title={`Investigation: #${investigation.id}`}
+				style={{ padding: 0 }}
+			>
+				<ScrollView
+					showsVerticalScrollIndicator
+					contentContainerStyle={{
+						paddingHorizontal: 24,
+						paddingVertical: 16,
+						flexGrow: 1,
+					}}
+				>
+					<View>
+						{obj?.type !== "panel" ? (
+							<>
+								<Text style={{ marginBottom: 10 }}>
+									Entering value for the '{name}'
+									investigation
+								</Text>
+								<InvestigationField
+									shape={obj}
+									name={data.investigation.name.fromId(
+										investigation.obj
+									)}
+									value={value}
+									set={set}
+								/>
+							</>
+						) : (
+							<>
+								<Text
+									font="bold"
+									style={{
+										marginBottom: 10,
+										lineHeight: 18,
+									}}
+								>
+									{name} Investigation
+								</Text>
+								{Object.entries(obj.items)
+									.map((v) => {
+										const [key, val] = v;
+										return {
+											key,
+											shape: val,
+											name: data.investigation.name.fromId(
+												key
+											),
+										};
+									})
+									.filter((v) => v.shape !== null)
+									.map((v) => {
+										return (
+											<View
+												style={{ marginBottom: 6 }}
+												key={v.key}
+											>
+												<InvestigationField
+													shape={v.shape}
+													name={v.name}
+													value={value[v.key]}
+													title={
+														v.shape?.type ===
+														"options"
+															? `Choose ${v.name}`
+															: undefined
+													}
+													set={(val) =>
+														set((s) =>
+															produce(s, (df) => {
+																df[v.key] = val;
+																return df;
+															})
+														)
+													}
+												/>
+											</View>
+										);
+									})}
+							</>
+						)}
+					</View>
+				</ScrollView>
+				<View
+					style={{
+						display: "flex",
+						flexDirection: "row",
+						justifyContent: "center",
+						paddingHorizontal: 24,
+						marginBottom: 16,
+					}}
+				>
+					<Button
+						style={{ flex: 1, marginRight: 8 }}
+						mode="outlined"
+						onPress={() => console.log("UDPATED", value)}
+					>
+						Close
+					</Button>
+					<Button
+						style={{ flex: 1 }}
+						mode="contained"
+						onPress={() => console.log("UDPATED", value)}
+					>
+						Update
+					</Button>
+				</View>
+			</Layout>
+		</>
+	);
+}
+
+function InvestigationField<T extends string>({
+	shape,
+	name,
+	value,
+	title,
+	set,
+}: {
+	shape: data.InvestigationTypeRecord<T>;
+	value: string;
+	set: (text: string) => void;
+}) {
+	return (
+		<View style={{ paddingVertical: 4 }}>
+			{title !== undefined && <Text>{title}</Text>}
+			{shape.type === "options" && (
+				<View>
+					<RadioButton.Group
+						onValueChange={(s) => set(s)}
+						value={value}
+					>
+						<View
+							style={{
+								display: "flex",
+								flexDirection: "row",
+								justifyContent: "flex-start",
+								flexWrap: "wrap",
+							}}
+						>
+							{shape.options.map((s) => {
+								return <RadioButton.Item label={s} value={s} />;
+							})}
+						</View>
+					</RadioButton.Group>
+				</View>
+			)}
+			{shape.type === "text" && (
+				<View>
+					<TextInput
+						mode="outlined"
+						value={value}
+						onChangeText={(text) => set(text)}
+						label={"Type Text"}
+					/>
+				</View>
+			)}
+			{shape.type === "numeric-units" && (
+				<View>
+					<TextInput
+						mode="outlined"
+						label={name}
+						value={value}
+						keyboardType="decimal-pad"
+						onChangeText={(text) => set(text)}
+						right={
+							shape.units !== null && (
+								<TextInput.Affix text={shape.units} />
+							)
+						}
+					/>
+				</View>
+			)}
+		</View>
 	);
 }

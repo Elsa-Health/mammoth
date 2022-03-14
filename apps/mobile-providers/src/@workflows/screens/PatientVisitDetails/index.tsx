@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, View } from "react-native";
-import { Button, Chip, Divider } from "react-native-paper";
+import { Button, Chip, Divider, List } from "react-native-paper";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
 import dayjs from "dayjs";
@@ -10,18 +10,6 @@ import theme from "../../../theme";
 import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
 import _ from "lodash";
-
-// as received
-type PatientVisit = {
-	id: string;
-	date: Date;
-	condition: data.Condition;
-	symptoms: {
-		present: Array<{ id: data.Symptom; state: SymptomState }>;
-		absent: data.Symptom[];
-	};
-	investigations: PatientInvestigation[];
-};
 
 export default function PatientVisitDetailsScreen({
 	entry: { visit },
@@ -34,7 +22,8 @@ export default function PatientVisitDetailsScreen({
 		onOpenInvestigation: (investigation: PatientInvestigation) => void;
 	}
 >) {
-	console.log({ visit });
+	const { investigations } = visit;
+	console.log({ investigations });
 	return (
 		<Layout title="Patient Visit" style={{ padding: 0 }}>
 			<ScrollView contentContainerStyle={{ paddingHorizontal: 24 }}>
@@ -96,25 +85,148 @@ export default function PatientVisitDetailsScreen({
 							name="folder-open-outline"
 						/>
 						<Text font="bold" style={{ marginLeft: 8 }}>
-							Investigations
+							Investigations (Long press to inspect)
 						</Text>
 					</View>
 					<View>
 						{visit.investigations.map((investigation) => (
-							<Pressable
+							<InvestigationItem
+								{...investigation}
+								key={investigation.id}
 								onPress={() =>
 									$.onOpenInvestigation(investigation)
 								}
-								key={investigation.id}
-							>
-								<Text>{investigation.id}</Text>
-							</Pressable>
+							/>
 						))}
 					</View>
 				</View>
 				<View></View>
 			</ScrollView>
 		</Layout>
+	);
+}
+
+function SingleInvestigationItem<T extends string>(
+	props: data.InvestigationTypeRecord<T> & {
+		name: string;
+		result?: string | string[];
+	}
+) {
+	if (props.type === "numeric-units") {
+		<View>
+			<Text>Here</Text>
+		</View>;
+	}
+
+	return (
+		<View
+			style={{
+				alignItems: "center",
+				display: "flex",
+				flexDirection: "row",
+				justifyContent: "space-between",
+				paddingVertical: 6,
+			}}
+		>
+			<Text>{props.name}</Text>
+			<View
+				style={{
+					display: "flex",
+					alignItems: "flex-end",
+					flexDirection: "column",
+				}}
+			>
+				<Text size="xs">Result</Text>
+				<View
+					style={{
+						display: "flex",
+						flexDirection: "row",
+						justifyContent: "flex-end",
+					}}
+				>
+					{props.type === "numeric-units" && (
+						<>
+							<Text style={{ paddingHorizontal: 16 }}>
+								{props.result || "-"}
+							</Text>
+							<Text size="sm" color="#888">
+								{props.units}
+							</Text>
+						</>
+					)}
+
+					{props.type === "options" && (
+						<>
+							<Text
+								style={{
+									paddingHorizontal: 16,
+									borderWidth: 1,
+									borderRadius: 6,
+								}}
+							>
+								{props.result || "-"}
+							</Text>
+						</>
+					)}
+				</View>
+			</View>
+		</View>
+	);
+}
+
+function InvestigationItem({
+	investigationId,
+	id,
+	obj,
+	onPress,
+}: PatientInvestigation & { onPress: () => void }) {
+	const invName = data.investigation.name.fromId(investigationId);
+	if (obj.type !== "panel") {
+		return (
+			<Pressable onLongPress={onPress}>
+				<List.Section title={invName}>
+					<SingleInvestigationItem {...obj} />
+				</List.Section>
+			</Pressable>
+		);
+	}
+
+	return (
+		<List.Accordion
+			title={invName}
+			onLongPress={onPress}
+			// right={() => (
+			// 	<Pressable
+			// 		style={{
+			// 			alignItems: "center",
+			// 			display: "flex",
+			// 			flexDirection: "row",
+			// 			justifyContent: "space-between",
+			// 			paddingVertical: 6,
+			// 		}}
+			// 		onPress={}
+			// 	>
+			// 		<Icon name="pencil" size={16} />
+			// 		<Text>Edit</Text>
+			// 	</Pressable>
+			// )}
+		>
+			<View>
+				<View>
+					{Object.entries(obj.items)
+						.map((s) => {
+							const [key, shape] = s;
+							return {
+								name: data.investigation.name.fromId(key),
+								...shape,
+							};
+						})
+						.map((s) => (
+							<SingleInvestigationItem {...s} />
+						))}
+				</View>
+			</View>
+		</List.Accordion>
 	);
 }
 

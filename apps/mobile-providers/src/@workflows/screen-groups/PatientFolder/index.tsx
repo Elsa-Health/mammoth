@@ -6,6 +6,8 @@ import InvestigationResultsForm from "../../screens/InvestigationResultsForm";
 
 const Stack = createNativeStackNavigator();
 
+import * as data from "../../../@libs/data-fns";
+
 /**
  * Composition of screens for the patient visit flow
  */
@@ -26,7 +28,9 @@ export default function PatientFolderScreenGroup({
 							console.log("investigation", investigation);
 							navigation.navigate(
 								"patient.investigationResultsForm",
-								{ investigation }
+								{
+									investigation,
+								}
 							);
 						},
 					}),
@@ -35,10 +39,7 @@ export default function PatientFolderScreenGroup({
 			<Stack.Screen
 				name="patient.investigationResultsForm"
 				component={withFlowContext(InvestigationResultsForm, {
-					entry: {
-						// investigation,
-						investigation: { id: "full-blood-picture-fbp" },
-					},
+					entry: {},
 					actions: ({ navigation }) => ({
 						onOpenInvestigation: (investigation) => {
 							console.log("investigation", investigation);
