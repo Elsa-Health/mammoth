@@ -1,9 +1,5 @@
-import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { setDefaultNamespace } from "i18next";
 import React from "react";
-import { Text } from "../../../@libs/elsa-ui/components/typography";
-import EmailPasswordAuthenticationScreen from "../../screens/EmailPasswordAuthentication";
 import BasicEMRDashboardScreen from "../../screens/BasicEMRDashboard";
 import PatientInformationScreen from "../../screens/PatientInformation";
 import BasicIntake from "../../screens/BasicIntake";
@@ -11,73 +7,59 @@ import BasicIntake from "../../screens/BasicIntake";
 import { withFlowContext } from "../../wrapper";
 import BasicAssessment from "../../screen-groups/BasicAssessment";
 import PatientVisit from "../../screen-groups/PatientFolder";
-import createContext from "zustand/context";
-import create from "zustand";
-import { getPatientIntake, LabContextProvider, useLabContext } from "./context";
+import { LabContextProvider } from "./context";
 import OrderInvestigationScreen from "../../screens/OrderInvestigation";
 import BasicRegisterNewPatientScreen from "../../screens/BasicRegisterNewPatient";
-import { differenceInYears } from "date-fns";
 
 import * as data from "../../../@libs/data-fns";
-import { NextSteps } from "../../../pages/core/PatientDescriptor/FinalAssessment";
 import { Store } from "../../../@libs/storage-core";
+import produce from "immer";
+import ConfirmPatientVisitScreen from "../../screens/ConfirmPatientVisit";
 
 const Stack = createNativeStackNavigator();
 
-// DONE!
-const SymptomAssessment = {
-	1: "SummaryScreen",
-	2: "ManageSymptomScreen",
-	3: "SearchSymptomsScreen",
-};
-
-// DONE!
-const BasicPatientHistory = {
-	1: "BasicIntake",
-	2: "SymptomAssessment",
-};
-
-const EMRPatientFile = {
-	1: "PatientProfieAndVisits",
-	2: "PatientVisitDetails",
-	3: "UpdateInvestigationResults",
-};
-
-// DONE!
-const AssessPatient = {
-	5: "BasicPatientHistory",
-	6: "BasicAssessmentSummary", // order investigations here
-};
-
-const stack = {
-	1: "WelcomeToApp/OURAPPDOESXANDY", // Welcom Text / Splash
-	2: "Authentication",
-	3: "OnboardingSettings", // SKIPPED: for now
-	4: "BasicEMRDashboard", // Can search for patients
-	4.5: "RegisterNewPatient",
-	5: "AssessPatient",
-	6: "EMRPatientFile",
-	7: "ManageProfile",
-};
-
 // TODO: Add authcheck on app start
-
+// TODO: fix the dateOfBirth parsing... converts to invalid date (try: date: 06, month: 21, year: 1994)
 // Build the contents needed to construct the next steps
 const NextStepsItems = data.nextSteps.basic(
 	data.conditions.ids,
 	data.medications.all.ids,
-	data.labTests.ids
+	data.investigation.ids
 );
+
+type VisitSession = PatientVisit;
 
 function MainLabComponent({
 	user,
-	store,
+	emr,
 }: {
 	user: { fullName: string };
-	store: Store;
+	emr: Store;
 }) {
-	// const setPatientIntake = useLabContext((s) => s.updatePatientIntake);
-	// const assessment = useLabContext((s) => s.assessment);
+	const [visit, set] = React.useState<Partial<VisitSession>>({});
+	const update = React.useCallback(
+		<T extends keyof VisitSession>(field: T, value: VisitSession[T]) => {
+			set((s) =>
+				produce(s, (df) => {
+					df[field] = value;
+				})
+			);
+		},
+		[set]
+	);
+
+	const reset = React.useCallback(() => {
+		set({});
+	}, [set]);
+
+	const getInvestigationResult = async (id: string) => {
+		const results = await emr
+			.collection("investigation.results")
+			.doc(id)
+			.query();
+
+		return results === null ? undefined : results;
+	};
 
 	return (
 		<Stack.Navigator
@@ -89,7 +71,7 @@ function MainLabComponent({
 				component={withFlowContext(BasicEMRDashboardScreen, {
 					entry: {
 						fullName: user.fullName,
-						store,
+						store: emr,
 					},
 					actions: ({ navigation }) => {
 						return {
@@ -109,11 +91,32 @@ function MainLabComponent({
 				component={withFlowContext(BasicRegisterNewPatientScreen, {
 					actions: ({ navigation }) => ({
 						onComplete: (patient) => {
-							console.log(patient);
 							// registration happens here
-							navigation.replace("lab.patient_information", {
-								patient,
-							});
+							emr.collection("patients")
+								.addDoc(patient)
+								.then((s) => {
+									console.log("patientID:", s);
+									emr.collection("patients")
+										.queryDoc<Patient>({ $id: s })
+										.then((patient) => {
+											console.log(
+												"THIS IS THE CREATED PATIENT:",
+												patient
+											);
+											navigation.replace(
+												"lab.patient_information",
+												{
+													patient,
+												}
+											);
+										});
+								})
+								.catch((err) => {
+									console.warn(
+										"Unable to create new patient"
+									);
+									console.log(err);
+								});
 						},
 					}),
 				})}
@@ -122,12 +125,18 @@ function MainLabComponent({
 				name="lab.patient_information"
 				component={withFlowContext(PatientInformationScreen, {
 					entry: {
-						store,
+						store: emr,
 					},
 					actions: ({ navigation }) => ({
-						onNewAssessment: (patient) => {
-							console.log({ patient });
-							navigation.navigate("lab.patient_intake", patient);
+						getInvestigationResult,
+						onNewAssessment: (patientId, patient) => {
+							console.log("onNewAssessment@patient:", {
+								patient,
+							});
+							navigation.navigate("lab.patient_intake", {
+								patient,
+								id: patientId,
+							});
 						},
 						onOpenVisit: (visit) => {
 							navigation.navigate("lab.patient_visit", {
@@ -137,12 +146,18 @@ function MainLabComponent({
 					}),
 				})}
 			/>
+			{/* Start of taking the patient patient information */}
 			<Stack.Screen
 				name="lab.patient_intake"
 				component={withFlowContext(BasicIntake, {
 					actions: ({ navigation }) => ({
-						onCompleteIntake: (data) => {
-							// setPatientIntake(data);
+						onCompleteIntake: (id, data) => {
+							// update the intake data
+							update("intake", data);
+
+							// set the ID.. .IMPORTANT
+							update("patientId", id);
+
 							navigation.navigate("lab.assessment", {
 								patient: data,
 							});
@@ -153,9 +168,15 @@ function MainLabComponent({
 			<Stack.Screen
 				name="lab.assessment"
 				component={withFlowContext(BasicAssessment, {
+					entry: {
+						// added as fallback
+						patient: visit.intake,
+					},
 					actions: ({ navigation }) => ({
 						onCancel: () => {
-							navigation.navigate("lab.patient_intake");
+							// reset the visit
+							reset();
+							navigation.navigate("lab.patient_information");
 						},
 						onCompleteAssessment: (symptoms, elsaDifferentials) => {
 							const conditionTop =
@@ -163,19 +184,26 @@ function MainLabComponent({
 									?.slice(0, 3)
 									.map((s) => s.id) || [];
 
+							const condition = conditionTop[0] || undefined;
+							const recommendedTests = [].concat(
+								...conditionTop
+									.map((c) => {
+										return (NextStepsItems[
+											c as data.Condition
+										]?.testRecommendations.map(
+											(s) => s.id
+										) || []) as data.LabTest[];
+									})
+									.filter((s) => s !== undefined)
+							);
+
+							update("symptoms", symptoms);
+							update("condition", condition);
+							update("recommendedTests", recommendedTests);
+
 							navigation.navigate("lab.order_investigation", {
-								condition: conditionTop[0] || undefined,
-								recommendedTests: [].concat(
-									...conditionTop
-										.map((c) => {
-											return (NextStepsItems[
-												c as data.Condition
-											]?.testRecommendations.map(
-												(s) => s.id
-											) || []) as data.LabTest[];
-										})
-										.filter((s) => s !== undefined)
-								),
+								condition,
+								recommendedTests,
 							});
 						},
 					}),
@@ -184,30 +212,102 @@ function MainLabComponent({
 			<Stack.Screen
 				name="lab.order_investigation"
 				component={withFlowContext(OrderInvestigationScreen, {
-					// entry: {
-					// 	condition: "pneumonia",
-					// 	recommendedTests: [
-					// 		"full-blood-picture-fbp",
-					// 		"chest-x-ray-cxr",
-					// 		"cd-4-count",
-					// 	],
-					// },
+					entry: {
+						condition: visit.condition,
+						recommendedTests: visit.recommendedTests || [],
+					},
 					actions: ({ navigation }) => ({
-						onOrder: (investigations) => {
-							console.log({ investigations });
-							navigation.navigate("lab.dashboard");
+						onOrder: (investigations, err) => {
+							const invObjs = investigations.map((inv) => {
+								return {
+									obj: data.investigation.fromId(inv),
+									investigationId: inv,
+								};
+							});
+
+							// store the investigations
+							emr.collection("investigations")
+								.addMult(invObjs)
+								.then((ids) => {
+									// query documents
+									emr.collection("investigations")
+										.queryDocs<PatientInvestigation>({
+											$id: ids,
+										})
+										.then((invs) => {
+											update(
+												"investigations",
+												invs.map((s) => ({
+													obj: s.obj,
+													investigationId:
+														s.investigationId,
+													id: s.$id,
+												}))
+											);
+										})
+										.then(() =>
+											navigation.navigate(
+												"lab.confirm_visit"
+											)
+										)
+										.catch(() => {
+											console.warn(
+												"FAILED TO FETCH THE INVESTIGATIONS"
+											);
+											err &&
+												err(
+													"FAILED TO FETCH THE INVESTIGATIONS"
+												);
+										});
+								})
+								.catch(() => {
+									console.warn(
+										"FAILED TO ORDER INVESTIGATIONS"
+									);
+									err &&
+										err("FAILED TO ORDER INVESTIGATIONS");
+								});
+						},
+					}),
+				})}
+			/>
+			<Stack.Screen
+				name="lab.confirm_visit"
+				component={withFlowContext(ConfirmPatientVisitScreen, {
+					entry: {
+						visit,
+					},
+					actions: ({ navigation }) => ({
+						onConfirmAppointment: (visit) => {
+							console.log("CONFIRMING:", visit);
+							if (visit.patientId !== undefined) {
+								emr.collection("visits")
+									.addDoc({
+										...visit,
+										date: new Date().toUTCString(),
+									})
+									.then((id) => {
+										console.log("VISIT $id:", id);
+										navigation.navigate("lab.dashboard");
+									});
+							} else {
+								throw Error("Patient ID MISSING");
+							}
 						},
 					}),
 				})}
 			/>
 			<Stack.Screen
 				name="lab.patient_visit"
-				component={withFlowContext(PatientVisit)}
+				component={withFlowContext(PatientVisit, {
+					entry: {
+						emr,
+					},
+					actions: (_) => ({
+						getInvestigationResult: getInvestigationResult,
+					}),
+				})}
 			/>
-			{/* <Stack.Screen
-				name="lab.patient_visit"
-				component={withFlowContext(PatientVisit)}
-			/> */}
 		</Stack.Navigator>
 	);
 }
@@ -221,7 +321,7 @@ export default function LabWorkFlow({
 }) {
 	return (
 		<LabContextProvider>
-			<MainLabComponent user={user} store={store} />
+			<MainLabComponent user={user} emr={store} />
 		</LabContextProvider>
 	);
 }

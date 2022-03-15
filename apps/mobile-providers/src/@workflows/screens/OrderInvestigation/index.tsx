@@ -12,38 +12,21 @@ import produce from "immer";
 import { Button } from "react-native-paper";
 import _ from "lodash";
 
-function Checkbox({
-	label,
-	onChangeCheck,
-}: {
-	label: string;
-	onChangeCheck: (checked: boolean) => void;
-}) {
-	const [checked, setChecked] = React.useState(false);
-	React.useEffect(() => {
-		onChangeCheck && onChangeCheck(checked);
-	}, [checked]);
-	return (
-		<RNPCheckbox.Item
-			label={label}
-			status={checked ? "checked" : "unchecked"}
-			onPress={() => setChecked((s) => !s)}
-		/>
-	);
-}
-
 export default function OrderInvestigationScreen({
 	entry: { condition, recommendedTests },
 	actions: $,
 }: WorkflowScreen<
-	{ condition?: data.Condition; recommendedTests: data.LabTest[] },
+	{ condition?: data.Condition; recommendedTests: data.Investigation[] },
 	{
-		onOrder: (investigations: data.LabTest[]) => void;
+		onOrder: (
+			investigations: data.Investigation[],
+			err?: (message: string) => void
+		) => void;
 	}
 >) {
 	console.log({ condition, recommendedTests });
-	const [investigations, set] = React.useState<data.LabTest[]>([]);
-	const setInvestigation = React.useCallback((inv: data.LabTest) => {
+	const [investigations, set] = React.useState<data.Investigation[]>([]);
+	const setInvestigation = React.useCallback((inv: data.Investigation) => {
 		set((s) =>
 			produce(s, (df) => {
 				const invIndex = df.findIndex((s) => s === inv);
@@ -127,7 +110,7 @@ export default function OrderInvestigationScreen({
 								{
 									name: "Investigations",
 									id: 1,
-									children: data.labTests.values(),
+									children: data.investigation.name.values(),
 								},
 							]}
 							uniqueKey="id"

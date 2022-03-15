@@ -328,6 +328,8 @@ export default function BasicSummaryScreen({
 		[]
 	);
 
+	console.log(patient);
+
 	React.useEffect(() => {
 		if (!ready) {
 			fetchFromElsaLambda(

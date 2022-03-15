@@ -13,46 +13,97 @@ import { ElsaIcon, PlusIcon, SearchIcon, XIcon } from "../../../assets/vectors";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 import theme from "../../../theme";
 import { differenceInYears } from "date-fns";
+import { Store } from "../../../@libs/storage-core";
 
-const recentPatients: Patient[] = [
-	{
-		id: "baraka-mzee",
-		firstName: "Baraka",
-		lastName: "Mzee",
-		phone: "+255 712 734 723",
-		sex: "male",
-		registerDate: new Date().toUTCString(),
-		dateOfBirth: "1984-12-02",
-		address: "Dar es Salaam",
-	},
-	{
-		id: "micheal-fisher",
-		firstName: "Micheal",
-		lastName: "Fisher",
-		registerDate: new Date().toUTCString(),
-		phone: "+255 678 908 123",
-		sex: "male",
-		dateOfBirth: "1964-11-02",
-		address: "Arusha, Kilimanjaro",
-	},
-	{
-		id: "iids",
-		firstName: "Megan",
-		lastName: "Fox",
-		registerDate: new Date().toUTCString(),
-		phone: "+1 292-232-3451",
-		sex: "female",
-		dateOfBirth: "1981-12-02",
-		address: "Dar es Salaam",
-	},
-];
+// const recentPatients: Patient[] = [
+// 	{
+// 		id: "baraka-mzee",
+// 		firstName: "Baraka",
+// 		lastName: "Mzee",
+// 		phone: "+255 712 734 723",
+// 		sex: "male",
+// 		registerDate: new Date().toUTCString(),
+// 		dateOfBirth: "1984-12-02",
+// 		address: "Dar es Salaam",
+// 	},
+// 	{
+// 		id: "micheal-fisher",
+// 		firstName: "Micheal",
+// 		lastName: "Fisher",
+// 		registerDate: new Date().toUTCString(),
+// 		phone: "+255 678 908 123",
+// 		sex: "male",
+// 		dateOfBirth: "1964-11-02",
+// 		address: "Arusha, Kilimanjaro",
+// 	},
+// 	{
+// 		id: "iids",
+// 		firstName: "Megan",
+// 		lastName: "Fox",
+// 		registerDate: new Date().toUTCString(),
+// 		phone: "+1 292-232-3451",
+// 		sex: "female",
+// 		dateOfBirth: "1981-12-02",
+// 		address: "Dar es Salaam",
+// 	},
+// ];
+
+function RecentPatientSection({
+	patients,
+	onOpenFile,
+}: {
+	patients: Patient[] | undefined;
+	onOpenFile: (patient: Patient) => void;
+}) {
+	if (patients === undefined) {
+		return (
+			<View>
+				<Text>Loading</Text>
+			</View>
+		);
+	}
+
+	return (
+		<View style={{ marginBottom: 50 }}>
+			<View style={{ marginVertical: 10 }}>
+				<Text font="bold" size="md">
+					Recent Patients
+				</Text>
+			</View>
+			{patients.length === 0 ? (
+				<View style={{ flex: 1, paddingVertical: 14 }}>
+					<Text
+						style={{
+							textAlign: "center",
+						}}
+						italic
+						color="#555"
+					>
+						No patients have been recorded in this system.
+					</Text>
+				</View>
+			) : (
+				patients.map((patient, index, array) => (
+					<View key={index}>
+						{/* <Divider /> */}
+						<RecentPatientItem
+							patient={patient}
+							onPressOpenFile={() => onOpenFile(patient)}
+						/>
+					</View>
+				))
+			)}
+		</View>
+	);
+}
 
 function BasicEMRDashboardScreen({
-	entry,
+	entry: { fullName, store: emr },
 	actions: $,
 }: {
 	entry: {
 		fullName: string;
+		store: Store;
 	};
 	actions: {
 		onOpenFile: (patient: Patient) => void;
@@ -69,6 +120,26 @@ function BasicEMRDashboardScreen({
 		// console.warn(searchQuery);
 		return null;
 	};
+
+	const [recentPatients, setRecent] = React.useState<Patient[] | undefined>(
+		undefined
+	);
+
+	React.useEffect(() => {
+		emr.collection("patients")
+			.queryDocs<Patient>()
+			.then((ps) => {
+				// transform the data
+				return ps.map((p) => {
+					const { $id, ...other } = p;
+					return { ...other, id: $id };
+				});
+			})
+			.then((p) => {
+				console.log(p);
+				setRecent(p);
+			});
+	}, []);
 
 	return (
 		<>
@@ -88,7 +159,7 @@ function BasicEMRDashboardScreen({
 							Hi,
 						</Text>
 						<Text font="extra-black" style={{ fontSize: 28 }}>
-							{entry.fullName}
+							{fullName}
 						</Text>
 					</View>
 
@@ -108,25 +179,10 @@ function BasicEMRDashboardScreen({
 							value={searchQuery}
 						/>
 					</View>
-
-					<View style={{ marginBottom: 50 }}>
-						<View style={{ marginVertical: 10 }}>
-							<Text font="bold" size="md">
-								Recent Clients
-							</Text>
-						</View>
-						{recentPatients.map((patient, index, array) => (
-							<View key={index}>
-								{/* <Divider /> */}
-								<RecentPatientItem
-									patient={patient}
-									onPressOpenFile={() =>
-										$.onOpenFile(patient)
-									}
-								/>
-							</View>
-						))}
-					</View>
+					<RecentPatientSection
+						patients={recentPatients}
+						onOpenFile={$.onOpenFile}
+					/>
 				</Layout>
 			</ScrollView>
 			<FAB

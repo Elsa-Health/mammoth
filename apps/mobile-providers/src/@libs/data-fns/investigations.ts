@@ -47,11 +47,10 @@ export type InvestigationTypeRecord<InvestigationParams extends string> =
 				[investigation in Investigation]?: InvestigationTypeRecord<InvestigationParams>;
 			};
 	  };
-function constructInvestigation<T extends string, K extends string>(
-	id: Investigation
-): InvestigationTypeRecord<K> | null {
-	const obj = _investigations[id] as InvestigationType<T>;
 
+function constructInvestigationFromObj<T extends string, K extends string>(
+	obj: InvestigationType<T> | undefined
+): InvestigationTypeRecord<K> | null {
 	if (obj === undefined) {
 		return null;
 	}
@@ -71,6 +70,14 @@ function constructInvestigation<T extends string, K extends string>(
 	};
 }
 
+function constructInvestigation<T extends string, K extends string>(
+	id: Investigation
+): InvestigationTypeRecord<K> | null {
+	const obj = _investigations[id] as InvestigationType<T>;
+
+	return constructInvestigationFromObj<T, K>(obj);
+}
+
 export const investigation = {
 	ids: () =>
 		Object.keys(_investigationNameMap).sort((a, b) =>
@@ -83,7 +90,7 @@ export const investigation = {
 				const [key, obj] = s;
 				return {
 					id: key,
-					...constructInvestigation(key as Investigation),
+					...constructInvestigationFromObj(obj),
 				};
 			});
 	},
@@ -92,6 +99,17 @@ export const investigation = {
 	name: {
 		fromId: (id: Investigation) => {
 			return _investigationNameMap[id] || id;
+		},
+		values: () => {
+			return Object.entries(_investigationNameMap)
+				.sort((a, b) => a[1].localeCompare(b[1]))
+				.map((s) => {
+					const [id, name] = s;
+					return {
+						id,
+						name,
+					};
+				});
 		},
 	},
 };

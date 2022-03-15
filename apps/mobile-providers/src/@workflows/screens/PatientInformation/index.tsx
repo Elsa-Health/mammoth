@@ -9,6 +9,7 @@ import { differenceInYears } from "date-fns";
 import * as data from "../../../@libs/data-fns";
 import dayjs from "dayjs";
 import { Store } from "../../../@libs/storage-core";
+import _ from "lodash";
 
 // const visits: PatientVisit[] = [
 // 	{
@@ -76,8 +77,14 @@ export default function PatientInformationScreen({
 		store: Store;
 	},
 	{
-		onNewAssessment: (pid: Partial<PatientIntake>) => void;
-		onOpenVisit: (visit: PatientVisit) => void;
+		getInvestigationResult: (
+			id: string
+		) => Promise<PatientInvestigationResult>;
+		onNewAssessment: (
+			patientId: string,
+			patient: Partial<PatientIntake>
+		) => void;
+		onOpenVisit: (visit: PatientVisit, results: any) => void;
 	}
 >) {
 	const ageInYears = React.useMemo(
@@ -100,15 +107,24 @@ export default function PatientInformationScreen({
 	);
 
 	React.useEffect(() => {
+		console.log("PatientInformation@PATIENT:", patient);
 		store
 			.collection("visits")
-			.queryDocs<PatientVisit>({
-				patientId: patient.id,
+			.queryDocs<PatientVisit>({ patientId: patient.id })
+			.then((docs) => {
+				setVisits(docs);
 			})
-			.then(setVisits)
 			.then(() => console.log("Visits loaded"));
 	}, [store]);
 
+	// React.useEffect(() => {
+	// 	const investigations: string[] = _.concat(
+	// 		...visits?.map((s) => s.investigations.map((i) => i.id))
+	// 	);
+	// 	console.log("PatientInformation@investigations", {
+	// 		inv: investigations,
+	// 	});
+	// }, [visits]);
 	return (
 		<Layout style={{ padding: 0 }}>
 			<ScrollView style={{ paddingHorizontal: theme.spacing.lg }}>
@@ -190,7 +206,7 @@ export default function PatientInformationScreen({
 				<View>
 					<Button
 						onPress={() =>
-							$.onNewAssessment({
+							$.onNewAssessment(patient.id, {
 								age: {
 									years: ageInYears,
 								},
@@ -229,12 +245,13 @@ export default function PatientInformationScreen({
 										<PastVisit
 											date={new Date(visit.date)}
 											condition={visit.condition}
-											investigations={visit.investigations.map(
-												(s) => s.investigationId
-											)}
-											onOpenVisit={() =>
-												$.onOpenVisit(visit)
+											investigations={
+												visit.investigations
 											}
+											getResult={$.getInvestigationResult}
+											onOpenVisit={(results) => {
+												$.onOpenVisit(visit, results);
+											}}
 										/>
 										{/* {index < array.length - 1 && <Divider />} */}
 									</React.Fragment>
@@ -253,11 +270,13 @@ function PastVisit({
 	condition,
 	investigations,
 	onOpenVisit: handleOpenVisit,
+	getResult,
 }: {
 	date: Date;
 	condition: data.Condition;
-	investigations: data.LabTest[];
-	onOpenVisit: () => void;
+	investigations: Array<{ id: string } & PatientInvestigation>;
+	onOpenVisit: (results: PatientInvestigationResult[]) => void;
+	getResult: (invResultId: string) => Promise<PatientInvestigationResult>;
 }) {
 	return (
 		<View style={{ paddingVertical: 12 }}>
@@ -308,12 +327,23 @@ function PastVisit({
 
 				<Text style={{ lineHeight: 20 }}>
 					{investigations
-						.map((s) => data.investigation.name.fromId(s))
+						.map((s) =>
+							data.investigation.name.fromId(s.investigationId)
+						)
 						.join(", ")}
 				</Text>
 			</View>
 			<View style={{ paddingTop: theme.spacing.sm }}>
-				<Button mode="outlined" onPress={handleOpenVisit}>
+				<Button
+					mode="outlined"
+					onPress={() => {
+						Promise.all(
+							investigations.map((s) => s.id).map(getResult)
+						).then((results) => {
+							handleOpenVisit(results);
+						});
+					}}
+				>
 					View &amp; update
 				</Button>
 			</View>

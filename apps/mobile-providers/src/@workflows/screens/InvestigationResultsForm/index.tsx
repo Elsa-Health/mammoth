@@ -16,12 +16,22 @@ import { ScrollView } from "react-native-gesture-handler";
 import produce from "immer";
 
 export default function InvestigationResultsForm({
-	entry: { investigation: investigation, result },
+	entry: { investigation: investigation_, result },
 	actions: $,
-}: WorkflowScreen<{
-	investigation: PatientInvestigation;
-	result: PatientInvestigationResult;
-}>) {
+}: WorkflowScreen<
+	{
+		investigation: { id: string } & PatientInvestigation;
+		result: PatientInvestigationResult;
+	},
+	{
+		onClose: () => void;
+		onUpdateInvestigation: (
+			id: string,
+			newResult: PatientInvestigation
+		) => void;
+	}
+>) {
+	const { id, ...investigation } = investigation_;
 	const [value, set] = React.useState(() => {
 		if (result?.values === undefined) {
 			return result;
@@ -30,14 +40,10 @@ export default function InvestigationResultsForm({
 		return result?.values || {};
 	});
 
+	console.log("XXX", investigation_);
+
 	const obj = investigation.obj;
 	const name = data.investigation.name.fromId(investigation.investigationId);
-
-	console.log({ investigation, obj, value });
-
-	React.useEffect(() => {
-		console.log({ value });
-	}, [value]);
 
 	if (obj === undefined) {
 		return (
@@ -46,13 +52,12 @@ export default function InvestigationResultsForm({
 			</View>
 		);
 	}
+
+	console.log("*** OBJ", obj);
 	return (
 		<>
 			<ProgressBar progress={0.5} color={theme.color.primary.dark} />
-			<Layout
-				title={`Investigation: #${investigation.id}`}
-				style={{ padding: 0 }}
-			>
+			<Layout title={`Investigation: #${id}`} style={{ padding: 0 }}>
 				<ScrollView
 					showsVerticalScrollIndicator
 					contentContainerStyle={{
@@ -70,9 +75,7 @@ export default function InvestigationResultsForm({
 								</Text>
 								<InvestigationField
 									shape={obj}
-									name={data.investigation.name.fromId(
-										investigation.obj
-									)}
+									name={name}
 									value={value}
 									set={set}
 								/>
@@ -144,14 +147,19 @@ export default function InvestigationResultsForm({
 					<Button
 						style={{ flex: 1, marginRight: 8 }}
 						mode="outlined"
-						onPress={() => console.log("UDPATED", value)}
+						onPress={$.onClose}
 					>
 						Close
 					</Button>
 					<Button
 						style={{ flex: 1 }}
 						mode="contained"
-						onPress={() => console.log("UDPATED", value)}
+						onPress={() =>
+							$.onUpdateInvestigation(id, {
+								...investigation,
+								result: value,
+							})
+						}
 					>
 						Update
 					</Button>
@@ -170,8 +178,12 @@ function InvestigationField<T extends string>({
 }: {
 	shape: data.InvestigationTypeRecord<T>;
 	value: string;
+	name: string;
+	title: string;
 	set: (text: string) => void;
 }) {
+	console.log("SHAPE", shape);
+	console.log("*** NAME", name);
 	return (
 		<View style={{ paddingVertical: 4 }}>
 			{title !== undefined && <Text>{title}</Text>}
@@ -190,7 +202,13 @@ function InvestigationField<T extends string>({
 							}}
 						>
 							{shape.options.map((s) => {
-								return <RadioButton.Item label={s} value={s} />;
+								return (
+									<RadioButton.Item
+										key={s}
+										label={s}
+										value={s}
+									/>
+								);
 							})}
 						</View>
 					</RadioButton.Group>

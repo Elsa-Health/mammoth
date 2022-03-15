@@ -11,20 +11,6 @@ import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
 import _ from "lodash";
 
-const results = {
-	"123412": {
-		values: {
-			appearance: "Clear",
-		},
-	},
-	"343124": {
-		values: {
-			options: "normal",
-		},
-	},
-	"199312": "positive",
-};
-
 export default function PatientVisitDetailsScreen({
 	entry: { visit },
 	actions: $,
@@ -33,16 +19,12 @@ export default function PatientVisitDetailsScreen({
 		visit: PatientVisit;
 	},
 	{
-		onOpenInvestigation: (investigation: PatientInvestigation) => void;
+		getResult: (id: string) => Promise<PatientInvestigationResult>;
+		onOpenInvestigation: (
+			investigation: { id: string } & PatientInvestigation
+		) => void;
 	}
 >) {
-	// const { investigations } = visit;
-	// console.log({ investigations });
-
-	// // Investigation results
-	// console.log(results);
-	// console.log(results[199312]);
-
 	return (
 		<Layout title="Patient Visit" style={{ padding: 0 }}>
 			<ScrollView contentContainerStyle={{ paddingHorizontal: 24 }}>
@@ -108,16 +90,19 @@ export default function PatientVisitDetailsScreen({
 						</Text>
 					</View>
 					<View>
-						{visit.investigations.map((investigation) => (
-							<InvestigationItem
-								{...investigation}
-								result={results[investigation.id as string]}
-								key={investigation.id}
-								onPress={() =>
-									$.onOpenInvestigation(investigation)
-								}
-							/>
-						))}
+						{visit.investigations
+							.map((s) => ({
+								...s,
+								name: data.investigation.name.fromId(
+									s.investigationId
+								),
+								obj: s.obj,
+								getResult: () => $.getResult(s.id),
+								onPress: () => $.onOpenInvestigation(s),
+							}))
+							.map((props) => (
+								<InvestigationItem {...props} key={props.id} />
+							))}
 					</View>
 				</View>
 				<View></View>
@@ -132,7 +117,6 @@ function SingleInvestigationItem<T extends string>(
 		result?: string | string[];
 	}
 ) {
-	console.log("PROPS' => ", props);
 	return (
 		<View
 			style={{
@@ -189,16 +173,32 @@ function SingleInvestigationItem<T extends string>(
 	);
 }
 
+import { useAsync } from "react-async";
+import { investigation } from "../../../@libs/data-fns";
 function InvestigationItem({
-	investigationId,
-	id,
-	result,
+	name,
 	obj,
 	onPress,
-}: PatientInvestigation & { onPress: () => void }) {
-	const invName = data.investigation.name.fromId(investigationId);
+	getResult,
+}: PatientInvestigation & {
+	name: string;
+	onPress: () => void;
+	getResult: () => Promise<PatientInvestigationResult>;
+}) {
+	const invName = name;
+	const {
+		data: result,
+		error,
+		isLoading,
+	} = useAsync({ promiseFn: getResult });
 
-	console.log({ result });
+	if (isLoading) {
+		return (
+			<View>
+				<Text>Loading</Text>
+			</View>
+		);
+	}
 
 	if (obj.type !== "panel") {
 		return (
@@ -300,6 +300,7 @@ function VisitSymptomSection({
 					<View style={{ flexDirection: "row", display: "flex" }}>
 						{present.map((s, ix) => (
 							<Chip
+								key={s.id}
 								style={{
 									backgroundColor: theme.color.primary.base,
 									padding: 3,
@@ -332,6 +333,7 @@ function VisitSymptomSection({
 					<View style={{ flexDirection: "row", display: "flex" }}>
 						{absent.map((s, ix) => (
 							<Chip
+								key={s}
 								style={{
 									backgroundColor: theme.color.primary.light,
 									padding: 3,

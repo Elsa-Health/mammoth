@@ -29,8 +29,9 @@ export declare namespace Store {
 	 */
 	type QueryFilter = {
 		// search by id(s)
-		$id?: string[] | string;
-		[field: string]: any;
+		$id?: SearchItem | string | string[];
+	} & {
+		[field: string]: SearchItem | string;
 	};
 
 	type SearchItem = { $text?: string; $eq?: string };
@@ -48,7 +49,7 @@ export declare namespace Store {
 		addMult: <T extends DocumentData>(docData: T[]) => Promise<string[]>;
 		queryDocs: <T extends DocumentData>(
 			queryOptions?: QueryFilter | undefined
-		) => Promise<T[]>;
+		) => Promise<Array<{ $id: string } & T>>;
 		queryDoc: <T extends ProperDocumentData>(
 			queryOptions?: QueryFilter | undefined
 		) => Promise<T | null>;

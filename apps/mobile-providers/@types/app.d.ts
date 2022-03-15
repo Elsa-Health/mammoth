@@ -7,6 +7,7 @@ type YYYYMMDDDate = string;
 type UserObject = { fullName: string; id: string; email: string };
 
 type Patient = {
+	// added at runtime
 	id: string;
 	registerDate: UTCDateTime;
 	firstName: string;
@@ -29,11 +30,6 @@ type PatientInvestigationResult =
 
 type PatientInvestigation = {
 	/**
-	 * Used to identify the investigation as stored in DB
-	 */
-	id: string;
-
-	/**
 	 * Similar to LabTest ID
 	 */
 	obj: data.InvestigationTypeRecord<string>;
@@ -42,6 +38,8 @@ type PatientInvestigation = {
 	 * Name of the investigation
 	 */
 	investigationId: "urinalysis";
+
+	result: PatientInvestigationResult;
 };
 
 type SymptomState = {
@@ -58,12 +56,21 @@ type SymptomState = {
 type PatientVisit = {
 	id: string;
 	date: UTCDateTime;
-	condition: string;
+	intake: PatientIntake;
+	patientId: string;
+
+	/**
+	 * Top condition that present from Elsa's Insight.
+	 * undefined if unable to get the conditions (e.g. when there's no internet)
+	 */
+	condition: string | undefined;
+	recommendedTests: data.Investigation[];
+
 	symptoms: {
-		present: Array<{ id: string; state: object }>;
+		present: Array<{ id: string; data: object }>;
 		absent: string[];
 	};
-	investigations: PatientInvestigation[];
+	investigations: Array<{ id: string } & PatientInvestigation>;
 };
 
 type InitialPropsType = { [field: string]: any };

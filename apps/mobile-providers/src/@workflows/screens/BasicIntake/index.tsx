@@ -175,13 +175,16 @@ function transformIntakeFormData(data: any) {
 
 export default function BasicIntake({
 	actions: $,
-	entry: patient,
+	entry: { id: patientId, patient },
 }: WorkflowScreen<
 	{
-		age?: Age;
-		sex?: Sex;
+		patient: {
+			age?: Age;
+			sex?: Sex;
+		};
+		id: string;
 	},
-	{ onCompleteIntake: (data: PatientIntake) => void }
+	{ onCompleteIntake: (patientId: string, data: PatientIntake) => void }
 >) {
 	const navigation = useNavigation();
 	const [data, setData] = React.useState<Partial<PatientIntake>>(() => ({
@@ -192,13 +195,12 @@ export default function BasicIntake({
 	}));
 
 	React.useEffect(() => {
-		console.log("-->", patient);
 		setData((p) => ({ ...p, ...patient }));
 	}, []);
 
 	const handlePatientSubmit = React.useCallback(
-		() => $.onCompleteIntake(transformIntakeFormData(data)),
-		[data]
+		() => $.onCompleteIntake(patientId, transformIntakeFormData(data)),
+		[data, patientId]
 	);
 
 	const { t } = useTranslation("translation", {

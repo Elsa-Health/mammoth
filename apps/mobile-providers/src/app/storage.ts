@@ -5,14 +5,11 @@ import { MMKV } from "react-native-mmkv";
 import uuid from "react-native-uuid";
 
 // TODO: To change the name of the store to something more meaningful
-const rawMMKVStore = new MMKV({ id: "user-something" });
+const rawMMKVStore = new MMKV({ id: "$DEV_STORAGE" });
 const store = buildStore(
-	MMKVStore(rawMMKVStore, (id) => {
-		const $id = id || uuid.v4().toString();
-		console.log({ $id });
-		return $id;
-	})
+	MMKVStore(rawMMKVStore, (id) => id || uuid.v4().toString())
 );
-const deviceStorage = () => store;
 
+// rawMMKVStore.clearAll();
+const deviceStorage = () => store;
 export default deviceStorage;
