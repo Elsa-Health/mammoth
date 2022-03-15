@@ -20,6 +20,7 @@ import { differenceInYears } from "date-fns";
 
 import * as data from "../../../@libs/data-fns";
 import { NextSteps } from "../../../pages/core/PatientDescriptor/FinalAssessment";
+import { Store } from "../../../@libs/storage-core";
 
 const Stack = createNativeStackNavigator();
 
@@ -68,38 +69,27 @@ const NextStepsItems = data.nextSteps.basic(
 	data.labTests.ids
 );
 
-function MainLabComponent() {
-	const [user, setUser] = React.useState<UserObject | null>({
-		fullName: "Harrison Mariki",
-	});
-	// const [user, setUser] = React.useState<UserObject | null>(null);
-	const isLoggedIn = user !== null;
-	const setPatientIntake = useLabContext((s) => s.updatePatientIntake);
-	const assessment = useLabContext((s) => s.assessment);
+function MainLabComponent({
+	user,
+	store,
+}: {
+	user: { fullName: string };
+	store: Store;
+}) {
+	// const setPatientIntake = useLabContext((s) => s.updatePatientIntake);
+	// const assessment = useLabContext((s) => s.assessment);
 
-	return !isLoggedIn ? (
-		<Stack.Navigator screenOptions={{ headerShown: false }}>
-			<Stack.Screen
-				name="lab.auth"
-				component={withFlowContext(EmailPasswordAuthenticationScreen, {
-					actions: ({ navigation }) => ({
-						onLogin: (data) => {
-							setUser(data);
-						},
-					}),
-				})}
-			/>
-		</Stack.Navigator>
-	) : (
+	return (
 		<Stack.Navigator
 			screenOptions={{ headerShown: false }}
-			initialRouteName="lab.patient_information"
+			// initialRouteName="lab.patient_information"
 		>
 			<Stack.Screen
 				name="lab.dashboard"
 				component={withFlowContext(BasicEMRDashboardScreen, {
 					entry: {
 						fullName: user.fullName,
+						store,
 					},
 					actions: ({ navigation }) => {
 						return {
@@ -132,15 +122,7 @@ function MainLabComponent() {
 				name="lab.patient_information"
 				component={withFlowContext(PatientInformationScreen, {
 					entry: {
-						patient: {
-							id: "iids",
-							firstName: "Baraka",
-							lastName: "Mzee",
-							phone: "+255 712 734 723",
-							sex: "male",
-							dateOfBirth: new Date("1984-12-02"),
-							address: "Dar es Salaam",
-						},
+						store,
 					},
 					actions: ({ navigation }) => ({
 						onNewAssessment: (patient) => {
@@ -160,8 +142,10 @@ function MainLabComponent() {
 				component={withFlowContext(BasicIntake, {
 					actions: ({ navigation }) => ({
 						onCompleteIntake: (data) => {
-							setPatientIntake(data);
-							navigation.navigate("lab.assessment");
+							// setPatientIntake(data);
+							navigation.navigate("lab.assessment", {
+								patient: data,
+							});
 						},
 					}),
 				})}
@@ -169,9 +153,6 @@ function MainLabComponent() {
 			<Stack.Screen
 				name="lab.assessment"
 				component={withFlowContext(BasicAssessment, {
-					entry: {
-						patient: getPatientIntake(assessment),
-					},
 					actions: ({ navigation }) => ({
 						onCancel: () => {
 							navigation.navigate("lab.patient_intake");
@@ -231,10 +212,16 @@ function MainLabComponent() {
 	);
 }
 
-export default function LabWorkFlow() {
+export default function LabWorkFlow({
+	user,
+	store,
+}: {
+	user: { fullName: string };
+	store: Store;
+}) {
 	return (
 		<LabContextProvider>
-			<MainLabComponent />
+			<MainLabComponent user={user} store={store} />
 		</LabContextProvider>
 	);
 }

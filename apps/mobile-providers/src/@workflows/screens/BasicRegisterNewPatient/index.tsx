@@ -7,12 +7,10 @@ import dayjs from "dayjs";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import theme from "../../../theme";
 
-import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
 import produce from "immer";
 
 type PatientFormType = {
-	date: Date;
 	firstName: string;
 	familyName: string;
 	phoneNumber: string;
@@ -21,18 +19,19 @@ type PatientFormType = {
 	birthDay: string;
 	birthYear: string;
 	sex: Sex;
-	pregnant: string;
 };
 
 const transformData = (data: PatientFormType): Omit<Patient, "id"> => {
 	return {
-		registerDate: data.date,
+		registerDate: new Date().toUTCString(),
 		address: data.resident,
-		dateOfBirth: new Date(
-			parseInt(data.birthYear) || 0,
-			parseInt(data.birthMonth) || 0,
-			parseInt(data.birthDay) || 0
-		),
+		dateOfBirth: dayjs(
+			new Date(
+				parseInt(data.birthYear) || 0,
+				parseInt(data.birthMonth) || 0,
+				parseInt(data.birthDay) || 0
+			)
+		).format("YYYY-MM-DD"),
 		firstName: data.firstName,
 		lastName: data.familyName,
 		phone: data.phoneNumber,
@@ -49,7 +48,6 @@ export default function BasicRegisterNewPatientScreen({
 	}
 >) {
 	const [patient, set] = React.useState<PatientFormType>({
-		date: new Date(),
 		firstName: "",
 		familyName: "",
 		phoneNumber: "",
@@ -79,6 +77,7 @@ export default function BasicRegisterNewPatientScreen({
 						flexDirection: "row",
 						alignItems: "center",
 						justifyContent: "space-between",
+						paddingVertical: 10,
 					}}
 				>
 					<View
@@ -97,9 +96,7 @@ export default function BasicRegisterNewPatientScreen({
 							Date
 						</Text>
 					</View>
-					<Text>
-						{dayjs(patient.registerDate).format("DD MMMM YYYY")}
-					</Text>
+					<Text>{dayjs(new Date()).format("DD MMMM YYYY")}</Text>
 				</View>
 				<Divider />
 

@@ -16,17 +16,18 @@ import { ScrollView } from "react-native-gesture-handler";
 import produce from "immer";
 
 export default function InvestigationResultsForm({
-	entry: { investigation: investigation },
+	entry: { investigation: investigation, result },
 	actions: $,
 }: WorkflowScreen<{
 	investigation: PatientInvestigation;
+	result: PatientInvestigationResult;
 }>) {
 	const [value, set] = React.useState(() => {
-		if (investigation.result?.values === undefined) {
-			return investigation.result;
+		if (result?.values === undefined) {
+			return result;
 		}
 
-		return investigation.result?.values || {};
+		return result?.values || {};
 	});
 
 	const obj = investigation.obj;

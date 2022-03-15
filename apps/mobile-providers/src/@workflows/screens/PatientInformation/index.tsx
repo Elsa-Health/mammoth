@@ -1,105 +1,79 @@
 import React from "react";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 import { View, ScrollView } from "react-native";
-import { EyeIcon, PencilAltIcon } from "../../../assets/vectors";
 import theme from "../../../theme";
-import { Button, Divider } from "react-native-paper";
+import { Button } from "react-native-paper";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { differenceInYears } from "date-fns";
 import * as data from "../../../@libs/data-fns";
 import dayjs from "dayjs";
-import { Symptom } from "../../../../@types";
+import { Store } from "../../../@libs/storage-core";
 
-type PatientVisit = {
-	id: string;
-	date: Date;
-	condition: data.Condition;
-	symptoms: {
-		present: Array<{ id: data.Symptom; state: Symptom }>;
-		absent: data.Symptom[];
-	};
-	investigations: PatientInvestigation[];
-};
+// const visits: PatientVisit[] = [
+// 	{
+// 		id: "0iwmcpmirf",
+// 		date: new Date("2021-04-15").toUTCString(),
+// 		condition: "pneumonia",
+// 		symptoms: {
+// 			present: [
+// 				{
+// 					id: "abdominal-pain",
+// 					state: {
+// 						Location: ["upper"],
+// 						Duration: 5,
+// 						Aggravators: [""],
+// 						Name: "abdominal-pain",
+// 						Nature: "localized",
+// 						Periodicity: "non-specific",
+// 						Onset: "sudden",
+// 						Reducers: [],
+// 					},
+// 				},
+// 				{
+// 					id: "fever",
+// 					state: {
+// 						Location: [],
+// 						Duration: 3,
+// 						Aggravators: [""],
+// 						Name: "fever",
+// 						Nature: "localized",
+// 						Periodicity: "non-specific",
+// 						Onset: "sudden",
+// 						Reducers: [],
+// 					},
+// 				},
+// 			],
+// 			absent: [],
+// 		},
+// 		investigations: [
+// 			{
+// 				id: "123412",
+// 				investigationId: "urinalysis",
+// 				obj: data.investigation.fromId("urinalysis"),
+// 			},
 
-const visits: PatientVisit[] = [
-	{
-		id: "0iwmcpmirf",
-		date: new Date("2021-04-15"),
-		condition: "pneumonia",
-		symptoms: {
-			present: [
-				{
-					id: "abdominal-pain",
-					state: {
-						Location: ["upper"],
-						Duration: 5,
-						Aggravators: [""],
-						Name: "abdominal-pain",
-						Nature: "localized",
-						Periodicity: "non-specific",
-						Onset: "sudden",
-						Reducers: [],
-					},
-				},
-				{
-					id: "fever",
-					state: {
-						Location: [],
-						Duration: 3,
-						Aggravators: [""],
-						Name: "fever",
-						Nature: "localized",
-						Periodicity: "non-specific",
-						Onset: "sudden",
-						Reducers: [],
-					},
-				},
-			],
-			absent: [],
-		},
-		investigations: [
-			{
-				id: "123412",
-				investigationId: "urinalysis",
-				obj: data.investigation.fromId("urinalysis"),
-				result: {
-					values: {
-						appearance: "Clear",
-					},
-				},
-			},
-
-			{
-				id: "343124",
-				investigationId: "x-ray",
-				obj: data.investigation.fromId("x-ray"),
-				result: {
-					values: {
-						appearance: "Clear",
-					},
-				},
-			},
-			{
-				id: "199312",
-				investigationId: "mrdt-rapid-test",
-				obj: data.investigation.fromId("mrdt-rapid-test"),
-				result: {
-					values: {
-						appearance: "Clear",
-					},
-				},
-			},
-		],
-	},
-];
+// 			{
+// 				id: "343124",
+// 				investigationId: "x-ray",
+// 				obj: data.investigation.fromId("x-ray"),
+// 			},
+// 			{
+// 				id: "199312",
+// 				investigationId: "mrdt-rapid-test",
+// 				obj: data.investigation.fromId("mrdt-rapid-test"),
+// 			},
+// 		],
+// 	},
+// ];
 
 export default function PatientInformationScreen({
-	entry: { patient },
+	entry: { patient, store },
 	actions: $,
 }: WorkflowScreen<
 	{
 		patient: Patient;
+		store: Store;
 	},
 	{
 		onNewAssessment: (pid: Partial<PatientIntake>) => void;
@@ -107,7 +81,7 @@ export default function PatientInformationScreen({
 	}
 >) {
 	const ageInYears = React.useMemo(
-		() => differenceInYears(new Date(), patient.dateOfBirth),
+		() => differenceInYears(new Date(), new Date(patient.dateOfBirth)),
 		[patient]
 	);
 
@@ -120,6 +94,20 @@ export default function PatientInformationScreen({
 		},
 		{ icon: "map-marker", text: patient.address },
 	];
+
+	const [visits, setVisits] = React.useState<PatientVisit[] | undefined>(
+		undefined
+	);
+
+	React.useEffect(() => {
+		store
+			.collection("visits")
+			.queryDocs<PatientVisit>({
+				patientId: patient.id,
+			})
+			.then(setVisits)
+			.then(() => console.log("Visits loaded"));
+	}, [store]);
 
 	return (
 		<Layout style={{ padding: 0 }}>
@@ -214,26 +202,47 @@ export default function PatientInformationScreen({
 						New Assessment
 					</Button>
 				</View>
-				<View style={{ marginTop: theme.spacing.md }}>
-					<Text font="bold" size="xl">
-						Past Visits
-					</Text>
-					<View style={{ paddingTop: theme.spacing.md }}>
-						{visits.map((visit, index, array) => (
-							<React.Fragment key={index}>
-								<PastVisit
-									date={visit.date}
-									condition={visit.condition}
-									investigations={visit.investigations.map(
-										(s) => s.investigationId
-									)}
-									onOpenVisit={() => $.onOpenVisit(visit)}
-								/>
-								{/* {index < array.length - 1 && <Divider />} */}
-							</React.Fragment>
-						))}
+				{visits === undefined ? (
+					<Text>Loading</Text>
+				) : (
+					<View style={{ marginTop: theme.spacing.md }}>
+						<Text font="bold" size="xl">
+							Past Visits
+						</Text>
+						{visits.length === 0 ? (
+							<View style={{ flex: 1, paddingVertical: 14 }}>
+								<Text
+									style={{
+										textAlign: "center",
+									}}
+									italic
+									color="#555"
+								>
+									No appointments have been recorded for this
+									patient.
+								</Text>
+							</View>
+						) : (
+							<View style={{ paddingTop: theme.spacing.md }}>
+								{visits.map((visit, index, array) => (
+									<React.Fragment key={index}>
+										<PastVisit
+											date={new Date(visit.date)}
+											condition={visit.condition}
+											investigations={visit.investigations.map(
+												(s) => s.investigationId
+											)}
+											onOpenVisit={() =>
+												$.onOpenVisit(visit)
+											}
+										/>
+										{/* {index < array.length - 1 && <Divider />} */}
+									</React.Fragment>
+								))}
+							</View>
+						)}
 					</View>
-				</View>
+				)}
 			</ScrollView>
 		</Layout>
 	);

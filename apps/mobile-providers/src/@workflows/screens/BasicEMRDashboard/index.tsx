@@ -21,28 +21,28 @@ const recentPatients: Patient[] = [
 		lastName: "Mzee",
 		phone: "+255 712 734 723",
 		sex: "male",
-		registerDate: new Date(),
-		dateOfBirth: new Date("1984-12-02"),
+		registerDate: new Date().toUTCString(),
+		dateOfBirth: "1984-12-02",
 		address: "Dar es Salaam",
 	},
 	{
 		id: "micheal-fisher",
 		firstName: "Micheal",
 		lastName: "Fisher",
-		registerDate: new Date(),
+		registerDate: new Date().toUTCString(),
 		phone: "+255 678 908 123",
 		sex: "male",
-		dateOfBirth: new Date("1964-11-02"),
+		dateOfBirth: "1964-11-02",
 		address: "Arusha, Kilimanjaro",
 	},
 	{
 		id: "iids",
 		firstName: "Megan",
 		lastName: "Fox",
-		registerDate: new Date(),
+		registerDate: new Date().toUTCString(),
 		phone: "+1 292-232-3451",
 		sex: "female",
-		dateOfBirth: new Date("1981-12-02"),
+		dateOfBirth: "1981-12-02",
 		address: "Dar es Salaam",
 	},
 ];
@@ -161,7 +161,8 @@ function RecentPatientItem({
 			</Text>
 			<Text style={{ paddingBottom: 6 }}>
 				{patient.sex === "male" ? "Male" : "Female"},{" "}
-				{differenceInYears(new Date(), patient.dateOfBirth)} years
+				{differenceInYears(new Date(), new Date(patient.dateOfBirth))}{" "}
+				years
 			</Text>
 			<Text>{patient.phone}</Text>
 

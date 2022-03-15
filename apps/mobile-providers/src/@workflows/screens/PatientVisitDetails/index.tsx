@@ -11,6 +11,20 @@ import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
 import _ from "lodash";
 
+const results = {
+	"123412": {
+		values: {
+			appearance: "Clear",
+		},
+	},
+	"343124": {
+		values: {
+			options: "normal",
+		},
+	},
+	"199312": "positive",
+};
+
 export default function PatientVisitDetailsScreen({
 	entry: { visit },
 	actions: $,
@@ -22,8 +36,13 @@ export default function PatientVisitDetailsScreen({
 		onOpenInvestigation: (investigation: PatientInvestigation) => void;
 	}
 >) {
-	const { investigations } = visit;
-	console.log({ investigations });
+	// const { investigations } = visit;
+	// console.log({ investigations });
+
+	// // Investigation results
+	// console.log(results);
+	// console.log(results[199312]);
+
 	return (
 		<Layout title="Patient Visit" style={{ padding: 0 }}>
 			<ScrollView contentContainerStyle={{ paddingHorizontal: 24 }}>
@@ -92,6 +111,7 @@ export default function PatientVisitDetailsScreen({
 						{visit.investigations.map((investigation) => (
 							<InvestigationItem
 								{...investigation}
+								result={results[investigation.id as string]}
 								key={investigation.id}
 								onPress={() =>
 									$.onOpenInvestigation(investigation)
@@ -112,12 +132,7 @@ function SingleInvestigationItem<T extends string>(
 		result?: string | string[];
 	}
 ) {
-	if (props.type === "numeric-units") {
-		<View>
-			<Text>Here</Text>
-		</View>;
-	}
-
+	console.log("PROPS' => ", props);
 	return (
 		<View
 			style={{
@@ -177,19 +192,25 @@ function SingleInvestigationItem<T extends string>(
 function InvestigationItem({
 	investigationId,
 	id,
+	result,
 	obj,
 	onPress,
 }: PatientInvestigation & { onPress: () => void }) {
 	const invName = data.investigation.name.fromId(investigationId);
+
+	console.log({ result });
+
 	if (obj.type !== "panel") {
 		return (
 			<Pressable onLongPress={onPress}>
 				<List.Section title={invName}>
-					<SingleInvestigationItem {...obj} />
+					<SingleInvestigationItem {...obj} result={result} />
 				</List.Section>
 			</Pressable>
 		);
 	}
+
+	const results = result?.values || {};
 
 	return (
 		<List.Accordion
@@ -215,14 +236,19 @@ function InvestigationItem({
 				<View>
 					{Object.entries(obj.items)
 						.map((s) => {
-							const [key, shape] = s;
+							const [id, shape] = s;
 							return {
-								name: data.investigation.name.fromId(key),
+								id,
+								name: data.investigation.name.fromId(id),
 								...shape,
 							};
 						})
 						.map((s) => (
-							<SingleInvestigationItem {...s} />
+							<SingleInvestigationItem
+								{...s}
+								key={s.id}
+								result={results[s.id]}
+							/>
 						))}
 				</View>
 			</View>

@@ -1,19 +1,31 @@
 type Sex = "male" | "female";
 
 type DBDateTime = number;
+type UTCDateTime = string;
+type YYYYMMDDDate = string;
 
 type UserObject = { fullName: string; id: string; email: string };
 
 type Patient = {
 	id: string;
-	registerDate: Date;
+	registerDate: UTCDateTime;
 	firstName: string;
 	lastName: string;
 	phone: string;
 	address: string;
-	dateOfBirth: Date;
+	dateOfBirth: YYYYMMDDDate;
 	sex: Sex;
 };
+
+type PatientInvestigationResult =
+	| undefined
+	| string
+	| string[]
+	| {
+			values: {
+				[id in data.Investigation]?: string | string[];
+			};
+	  };
 
 type PatientInvestigation = {
 	/**
@@ -30,19 +42,6 @@ type PatientInvestigation = {
 	 * Name of the investigation
 	 */
 	investigationId: "urinalysis";
-
-	/**
-	 * Results from the investigation. as expected, depends on the investigation
-	 */
-	result:
-		| undefined
-		| string
-		| string[]
-		| {
-				values: {
-					[id in data.Investigation]?: string | string;
-				};
-		  };
 };
 
 type SymptomState = {
@@ -58,7 +57,7 @@ type SymptomState = {
 
 type PatientVisit = {
 	id: string;
-	date: Date;
+	date: UTCDateTime;
 	condition: string;
 	symptoms: {
 		present: Array<{ id: string; state: object }>;
