@@ -61,7 +61,7 @@ store.collection("patients").create({ checkIfExists: true });
 store.collection("investigations").create({ checkIfExists: true });
 store.collection("investigation.results").create({ checkIfExists: true });
 
-export default function () {
+export default function App() {
 	const [user, setUser] = React.useState<UserObject | null>({
 		fullName: "Harrison Mariki",
 	});
