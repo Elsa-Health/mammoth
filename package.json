@@ -15,7 +15,9 @@
 			"**/mobile-ctc/",
 			"**/mobile-ctc/**",
 			"**/@elsa-ui/react-native/",
-			"**/@elsa-ui/react-native/**"
+			"**/@elsa-ui/react-native/**",
+			"**/@elsa-ui/utils/",
+			"**/@elsa-ui/utils/**"
 		]
 	},
 	"scripts": {

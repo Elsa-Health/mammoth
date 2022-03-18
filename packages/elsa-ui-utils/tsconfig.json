@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"jsx": "react-native",
+		"noEmit": true,
+		"declaration": true,
+		"declarationDir": "./",
+		"isolatedModules": true,
+		"strict": true,
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": false,
+		"resolveJsonModule": true,
+		"outDir": "./dist"
+	},
+	"exclude": ["node_modules"],
+	"extends": "tsconfig/base.json",
+	"include": ["./src/*"]
+}

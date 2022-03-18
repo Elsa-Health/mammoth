@@ -1,0 +1,37 @@
+{
+	"name": "@elsa-ui/utils",
+	"version": "1.0.0",
+	"sideEffects": false,
+	"license": "MIT",
+	"files": [
+		"locale/**"
+	],
+	"scripts": {
+		"test": "jest -u",
+		"build": "tsup ./src --format cjs --dts --external react-native --out-dir ./locale",
+		"dev": "tsup ./src --format cjs --watch --dts --external react-native --out-dir ./locale",
+		"lint": "TIMING=1 eslint src --fix",
+		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+	},
+	"devDependencies": {
+		"@babel/preset-react": "^7.16.7",
+		"@testing-library/react-native": "^9.0.0",
+		"@types/jest": "^27.4.1",
+		"@types/lodash": "^4.14.178",
+		"@types/react": "^17.0.13",
+		"@types/react-dom": "^17.0.8",
+		"@types/react-native": "^0.66.4",
+		"jest": "^27.5.1",
+		"metro-react-native-babel-preset": "^0.69.1",
+		"react-native-svg": "^12.3.0",
+		"scripts": "*",
+		"tsup": "^5.10.1",
+		"typescript": "^4.2.4",
+		"@elsa-health/data-fns": "*"
+	},
+	"dependencies": {
+		"i18next": "^21.6.14",
+		"immer": "^9.0.12",
+		"react-i18next": "^11.16.1"
+	}
+}

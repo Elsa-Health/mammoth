@@ -15,7 +15,9 @@ import { View } from "react-native";
 import { Chip, Text } from "@elsa-ui/react-native/components";
 import * as data from "@elsa-health/data-fns";
 
-import { LanguageProvider } from "./app/locale/config";
+import { LanguageProvider } from "@elsa-ui/utils/locale";
+
+// import { LanguageProvider } from "./app/locale/config";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import EmailPasswordAuthenticationScreen from "./@workflows/screens/EmailPasswordAuthentication";
 import { withFlowContext } from "./@workflows/wrapper";
@@ -59,7 +61,7 @@ const paperTheme = {
 	},
 };
 
-export default function App() {
+function App() {
 	React.useEffect(() => {
 		SplashScreen.hide();
 	}, []);
@@ -76,6 +78,14 @@ export default function App() {
 			<Chip text="asdasdsa" style={{ alignSelf: "center" }} />
 			<Text>Hello There {data.conditions.name.fromId("asthma")}</Text>
 		</View>
+	);
+}
+
+export default function A() {
+	return (
+		// <LanguageProvider>
+		<App />
+		// </LanguageProvider>
 	);
 }
 
