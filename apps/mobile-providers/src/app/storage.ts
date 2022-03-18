@@ -1,4 +1,4 @@
-import { buildStore } from "../@libs/storage-core";
+import { buildStore } from "@sabertooth/storage";
 import MMKVStore from "../@libs/storage-stores/local/react-native-mmkv";
 
 import { MMKV } from "react-native-mmkv";
