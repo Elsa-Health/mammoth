@@ -71,7 +71,7 @@ export default function App() {
 				justifyContent: "center",
 			}}
 		>
-			<Chip text="asdasdsa" />
+			<Chip text="asdasdsa" style={{ alignSelf: "center" }} />
 			<Text>Hello There {data.conditions.name.fromId("asthma")}</Text>
 		</View>
 	);
