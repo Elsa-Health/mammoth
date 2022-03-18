@@ -13,6 +13,8 @@
 		"lint": "eslint ."
 	},
 	"dependencies": {
+		"@sabertooth/storage-stores": "*",
+		"@sabertooth/storage-sync": "*",
 		"@sabertooth/storage": "*",
 		"@elsa-health/data-fns": "*",
 		"@elsa-ui/react-native": "*",

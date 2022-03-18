@@ -1,5 +1,6 @@
 import { buildStore } from "@sabertooth/storage";
-import MMKVStore from "../@libs/storage-stores/local/react-native-mmkv";
+import MMKVStore from "@sabertooth/storage-stores/local/react-native-mmkv";
+// import MMKVStore from "../@libs/storage-stores/local/react-native-mmkv";
 
 import { MMKV } from "react-native-mmkv";
 import uuid from "react-native-uuid";

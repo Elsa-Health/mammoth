@@ -14,7 +14,6 @@ import theme, { fontFamilyStyle } from "./theme";
 import { View } from "react-native";
 import { Chip, Text } from "@elsa-ui/react-native/components";
 import * as data from "@elsa-health/data-fns";
-import { buildStore } from "@sabertooth/storage";
 
 import { LanguageProvider } from "./app/locale/config";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -25,7 +24,9 @@ import MMKV from "react-native-mmkv";
 
 // import { buildStore } from "./@libs/storage-core";
 import MMKVStore from "./@libs/storage-stores/local/react-native-mmkv";
-import deviceStorage from "./app/storage";
+// import deviceStorage from "./app/storage";
+
+// const store = deviceStorage();
 
 const fontConfig = {
 	regular: {

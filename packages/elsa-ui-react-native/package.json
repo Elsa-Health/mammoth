@@ -11,8 +11,8 @@
 	],
 	"scripts": {
 		"test": "jest -u",
-		"build": "tsup ./src --format cjs --dts --external react-native  --out-dir ./",
-		"dev": "tsup ./src --format cjs --watch --dts --external react-native --out-dir ./",
+		"build": "tsup ./src --format cjs --dts --external react-native --external react-native-svg  --out-dir ./",
+		"dev": "tsup ./src --format cjs --watch --dts --external react-native  --external react-native-svg --out-dir ./",
 		"lint": "TIMING=1 eslint src --fix",
 		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
 	},
