@@ -4,17 +4,11 @@
  *
  * @format
  */
+
 const fs = require("fs");
 const path = require("path");
 const getDevPaths = require("get-dev-paths");
-
 const projectRoot = __dirname;
-const watchFolders = Array.from(
-	new Set(getDevPaths(projectRoot).map(($) => fs.realpathSync($)))
-);
-
-// Seeing the folders to watch
-console.log(watchFolders);
 
 module.exports = {
 	transformer: {
@@ -24,25 +18,26 @@ module.exports = {
 				inlineRequires: true,
 			},
 		}),
-		resolver: {
-			extraNodeModules: {
-				"react-native": path.resolve(
-					__dirname,
-					"node_modules/react-native"
-				),
-				"@react-navigation/native": path.resolve(
-					__dirname,
-					"../../node_modules/@react-navigation/native"
-				),
-
-				"@react-navigation/native-stack": path.resolve(
-					__dirname,
-					"../../node_modules/@react-navigation/native-stack"
-				),
-			},
-		},
-		watchFolders: Array.from(
-			new Set(getDevPaths(projectRoot).map(($) => fs.realpathSync($)))
-		),
 	},
+	resolver: {
+		extraNodeModules: {
+			"react-native": path.resolve(
+				__dirname,
+				"node_modules/react-native"
+			),
+			"@react-navigation/native": path.resolve(
+				__dirname,
+				"../../node_modules/@react-navigation/native"
+			),
+
+			"@react-navigation/native-stack": path.resolve(
+				__dirname,
+				"../../node_modules/@react-navigation/native-stack"
+			),
+		},
+	},
+	// New way
+	watchFolders: Array.from(
+		new Set(getDevPaths(projectRoot).map(($) => fs.realpathSync($)))
+	),
 };

@@ -1,0 +1,2227 @@
+{
+  "abdominal-distension": {
+    "location": [],
+    "duration": [],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [
+      "symmetrical",
+      "asymmetrical"
+    ],
+    "periodicity": [],
+    "aggravators": [
+      "constipation"
+    ],
+    "reducers": []
+  },
+  "abdominal-pain": {
+    "location": [
+      "lower",
+      "upper"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "generalized",
+      "localized"
+    ],
+    "periodicity": [
+      "non-specific"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "abdominal-tenderness": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [
+      "intermittent",
+      "sustained"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "ageusia": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific",
+      "morning"
+    ],
+    "aggravators": [
+      "cold-weather"
+    ],
+    "reducers": []
+  },
+  "angular-cheilitis": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "anosmia": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "mild"
+    ],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific",
+      "morning"
+    ],
+    "aggravators": [
+      "cold-weather"
+    ],
+    "reducers": []
+  },
+  "ascites": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "mild",
+      "moderate",
+      "severe"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "blood-pressure": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "low",
+      "high"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "bow-legs": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "brudzinskis-sign": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "capillary-refill": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "two-to-three-seconds",
+      "three-to-four-seconds",
+      "more-than-four-seconds"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "cardiomegaly": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "chest-pain": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "sharp",
+      "stabbing",
+      "dull",
+      "aching",
+      "colic"
+    ],
+    "periodicity": [
+      "non-specific",
+      "intermittent",
+      "morning"
+    ],
+    "aggravators": [
+      "deep-breathing",
+      "coughing",
+      "exercise",
+      "light-activity"
+    ],
+    "reducers": [
+      "rest",
+      "laying-down"
+    ]
+  },
+  "chest-tightness": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "non-specific",
+      "intermittent",
+      "morning",
+      "night"
+    ],
+    "aggravators": [
+      "deep-breathing",
+      "light-activity",
+      "laying-down"
+    ],
+    "reducers": [
+      "rest",
+      "laying-down",
+      "sleeping"
+    ]
+  },
+  "clubbing": {
+    "location": [
+      "hands",
+      "feet"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "constipation": {
+    "location": [],
+    "duration": [
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [
+      "hard-stool",
+      "blood-stool",
+      "melena-stool"
+    ],
+    "periodicity": [
+      "non-specific"
+    ],
+    "aggravators": [],
+    "reducers": [
+      "stool-softeners"
+    ]
+  },
+  "convulsions": {
+    "location": [],
+    "duration": [
+      "less-than-two-days",
+      "more-than-two-days"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "sustained",
+      "night"
+    ],
+    "aggravators": [],
+    "reducers": [
+      "sleeping"
+    ]
+  },
+  "cough": {
+    "location": [],
+    "duration": [
+      "less-than-five-days",
+      "five-days-to-three-weeks",
+      "three-to-eight-weeks",
+      "more-than-eight-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "dry",
+      "yellow-sputum",
+      "green-sputum",
+      "clear-sputum",
+      "jelly-like-sputum",
+      "blood-stained",
+      "rusty-red-sputum"
+    ],
+    "periodicity": [
+      "morning",
+      "night",
+      "intermittent",
+      "non-specific"
+    ],
+    "aggravators": [
+      "dust",
+      "pollen",
+      "smoke",
+      "laying-down",
+      "bright-lights",
+      "exercise",
+      "cold-weather",
+      "non-steroidal-anti-inflammatory-drugs"
+    ],
+    "reducers": [
+      "antihistamines",
+      "sleeping",
+      "cough-suppressants"
+    ]
+  },
+  "crying": {
+    "location": [],
+    "duration": [
+      "less-than-two-days"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "high-pitched"
+    ],
+    "periodicity": [
+      "intermittent",
+      "non-specific"
+    ],
+    "aggravators": [],
+    "reducers": [
+      "pain-relievers"
+    ]
+  },
+  "cyanosis": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "central",
+      "peripheral"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "dactylitis": {
+    "location": [
+      "hand",
+      "foot"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "dehydration": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "mild",
+      "severe"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "dental-pain": {
+    "location": [],
+    "duration": [
+      "less-than-two-days",
+      "more-than-two-days"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific"
+    ],
+    "aggravators": [
+      "chewing"
+    ],
+    "reducers": [
+      "sleeping"
+    ]
+  },
+  "diarrhoea": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "watery",
+      "bloody",
+      "mucoid",
+      "severe"
+    ],
+    "periodicity": [
+      "non-specific",
+      "intermittent"
+    ],
+    "aggravators": [
+      "food"
+    ],
+    "reducers": [
+      "antidiarrheal",
+      "hunger",
+      "laying-down",
+      "sleeping"
+    ]
+  },
+  "drinking-ability": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "eagerly",
+      "unable-to-drink"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "dry-mucosa": {
+    "location": [
+      "eyes",
+      "nose",
+      "mouth"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [],
+    "nature": [
+      "normal",
+      "dry",
+      "very-dry"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "dysphagia": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks"
+    ],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [
+      "mild"
+    ],
+    "periodicity": [
+      "non-specific",
+      "intermitted",
+      "sustained"
+    ],
+    "aggravators": [
+      "drinking-cold-water"
+    ],
+    "reducers": [
+      "pain-relievers"
+    ]
+  },
+  "dysphonia": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "mild"
+    ],
+    "periodicity": [
+      "intermittent",
+      "sustained"
+    ],
+    "aggravators": [
+      "smoke",
+      "cold-weather",
+      "speaking"
+    ],
+    "reducers": [
+      "sleeping"
+    ]
+  },
+  "dyspnoea": {
+    "location": [],
+    "duration": [
+      "less-than-three-weeks",
+      "three-to-eight-weeks",
+      "more-than-eight-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "progressive",
+      "non-progressive"
+    ],
+    "periodicity": [
+      "early-morning",
+      "night",
+      "non-specific",
+      "sustained",
+      "intermittent"
+    ],
+    "aggravators": [
+      "lying-flat",
+      "standing-or-sitting",
+      "lying-on-one-side",
+      "sleeping",
+      "light-exercise",
+      "cold"
+    ],
+    "reducers": [
+      "rest",
+      "sitting",
+      "laying-down",
+      "pain-relievers"
+    ]
+  },
+  "dysuria": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [
+      "burning-sensation"
+    ],
+    "periodicity": [
+      "non-specific"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "ear-pressure": {
+    "location": [
+      "lateral-right",
+      "lateral-left",
+      "bilateral"
+    ],
+    "duration": [],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [
+      "mild"
+    ],
+    "periodicity": [
+      "intermittent",
+      "sustained"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "ecchymosis": {
+    "location": [
+      "face",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "large-confluent-lesion"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "edema": {
+    "location": [
+      "facial",
+      "periorbital",
+      "hands",
+      "lower-limbs",
+      "abdomen"
+    ],
+    "duration": [],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [
+      "progressive-decrease-during-day"
+    ],
+    "periodicity": [
+      "early-morning",
+      "non-specific",
+      "intermittent"
+    ],
+    "aggravators": [
+      "increased-fluid-intake",
+      "laying-down"
+    ],
+    "reducers": []
+  },
+  "enlarged-tonsils": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "enlarged-tympanic-membrane": {
+    "location": [
+      "lateral-right",
+      "lateral-left",
+      "bilateral"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "enurisis": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [],
+    "nature": [
+      "persistent"
+    ],
+    "periodicity": [
+      "night"
+    ],
+    "aggravators": [
+      "increased-fluid-intake"
+    ],
+    "reducers": [
+      "bladder-training"
+    ]
+  },
+  "epitastaxis": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "excessive-sweating": {
+    "location": [],
+    "duration": [
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [],
+    "periodicity": [
+      "during-meals"
+    ],
+    "aggravators": [
+      "eating"
+    ],
+    "reducers": [
+      "rest"
+    ]
+  },
+  "facial-pain": {
+    "location": [],
+    "duration": [
+      "less-than-two-days",
+      "more-than-two-days"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "mild",
+      "severe"
+    ],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific",
+      "morning",
+      "afternoon"
+    ],
+    "aggravators": [
+      "light-exercise"
+    ],
+    "reducers": [
+      "laying-down"
+    ]
+  },
+  "facial-pressure": {
+    "location": [],
+    "duration": [
+      "less-than-two-days",
+      "more-than-two-days"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "mild",
+      "severe"
+    ],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific",
+      "morning",
+      "afternoon"
+    ],
+    "aggravators": [
+      "light-exercise"
+    ],
+    "reducers": [
+      "laying-down"
+    ]
+  },
+  "fever": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "low-grade",
+      "high-grade"
+    ],
+    "periodicity": [
+      "persistent",
+      "intermittent",
+      "relapsing",
+      "step-ladder",
+      "remittent",
+      "non-specific",
+      "night"
+    ],
+    "aggravators": [
+      "pollen",
+      "crying",
+      "light-activity",
+      "cold-weather",
+      "standing-up"
+    ],
+    "reducers": [
+      "antipyretics",
+      "anti-inflammatories",
+      "pain-relievers",
+      "antibiotics",
+      "sleeping"
+    ]
+  },
+  "foamy-urine": {
+    "location": [],
+    "duration": [
+      "chronic"
+    ],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [
+      "intermittent",
+      "persistent"
+    ],
+    "periodicity": [
+      "early-morning"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "frontal-bossing": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "growth-failure": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "haemoptysis": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hair-changes": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "dyspigmentation",
+      "easily-pluckable"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hair-loss": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "halitosis": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific",
+      "morning"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "headache": {
+    "location": [
+      "generalized",
+      "frontal",
+      "top-of-head",
+      "temples",
+      "both-eyes",
+      "one-eye",
+      "unilateral"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "throbbing",
+      "tight-band-around-head",
+      "stabbing",
+      "pulsing",
+      "mild"
+    ],
+    "periodicity": [
+      "non-specific",
+      "intermittent",
+      "night",
+      "afternoon"
+    ],
+    "aggravators": [
+      "stress",
+      "emotional-conflict",
+      "bending-forward",
+      "light-exercise",
+      "bright-lights",
+      "standing-up"
+    ],
+    "reducers": [
+      "rest",
+      "sleeping",
+      "pain-relievers"
+    ]
+  },
+  "hearing-loss": {
+    "location": [
+      "lateral-right",
+      "lateral-left",
+      "bilateral"
+    ],
+    "duration": [
+      "less-than-six-weeks",
+      "more-than-six-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "partial",
+      "full"
+    ],
+    "periodicity": [
+      "non-specific",
+      "recurrent",
+      "intermittent",
+      "sustained"
+    ],
+    "aggravators": [
+      "fever"
+    ],
+    "reducers": []
+  },
+  "heart-murmur": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "systolic-murmur",
+      "diastolic-murmur"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hemarthrosis": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hematoma": {
+    "location": [
+      "head",
+      "hands",
+      "feet",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hematuria": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "continuous",
+      "intermittent",
+      "painless",
+      "painful",
+      "microscopic",
+      "macroscopic"
+    ],
+    "periodicity": [
+      "non-specific"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hepatomegaly": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "smooth",
+      "tender",
+      "craggy"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hyperemic-larynx": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hyperemic-pharynx": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hyperemic-tonsils": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hyperemic-tympanic-membrane": {
+    "location": [
+      "lateral-right",
+      "lateral-left",
+      "bilateral"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hyperpigmentation": {
+    "location": [
+      "face",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hypopigmentation": {
+    "location": [
+      "face",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "hypothermia": {
+    "location": [],
+    "duration": [
+      "less-than-24-hours"
+    ],
+    "onset": [
+      "sudden"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "indrawing": {
+    "location": [
+      "lower-chest-wall"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "intercostal-recession": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "irritability": {
+    "location": [],
+    "duration": [],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "normal",
+      "irritable",
+      "lethargic",
+      "comatose"
+    ],
+    "periodicity": [
+      "intermittent"
+    ],
+    "aggravators": [],
+    "reducers": [
+      "pain-relievers"
+    ]
+  },
+  "jaundice": {
+    "location": [],
+    "duration": [],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "progressive",
+      "non-progressive"
+    ],
+    "periodicity": [
+      "non-specific",
+      "sustained"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "joint-pain": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "monoarthritis",
+      "oligoarthritis",
+      "polyarthritis"
+    ],
+    "periodicity": [],
+    "aggravators": [
+      "joint-movement"
+    ],
+    "reducers": [
+      "corticosteroids"
+    ]
+  },
+  "joint-swelling": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "between-two-and-six-weeks",
+      "more-than-six-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "monoarthritis",
+      "oligoarthritis",
+      "polyarthritis"
+    ],
+    "periodicity": [],
+    "aggravators": [
+      "joint-movement"
+    ],
+    "reducers": [
+      "corticosteroids"
+    ]
+  },
+  "kernigs-sign": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "limited-range-of-motion": {
+    "location": [
+      "knee",
+      "elbow",
+      "hip",
+      "wrist",
+      "ankle"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "between-two-and-six-weeks",
+      "more-than-six-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "monoarthritis",
+      "oligoarthritis",
+      "polyarthritis"
+    ],
+    "periodicity": [],
+    "aggravators": [
+      "joint-movement"
+    ],
+    "reducers": [
+      "corticosteroids"
+    ]
+  },
+  "malnutrition": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "mental-status": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "irritable",
+      "lethargic",
+      "comatose"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "mid-upper-arm-circumference": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "mild",
+      "moderate",
+      "severe"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "muscle-tone": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "hypotonia",
+      "hypertonia"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "muscle-weakness": {
+    "location": [],
+    "duration": [],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "progressive"
+    ],
+    "periodicity": [
+      "non-periodic"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "nasal-congestion": {
+    "location": [],
+    "duration": [
+      "less-than-two-days",
+      "more-than-two-days"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "watery",
+      "mild"
+    ],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific"
+    ],
+    "aggravators": [
+      "cold-weather",
+      "pollen"
+    ],
+    "reducers": [
+      "antihistamines",
+      "drinking-hot-water"
+    ]
+  },
+  "nasal-discharge": {
+    "location": [],
+    "duration": [
+      "less-than-two-days",
+      "more-than-two-days"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "thick",
+      "foul-smelling",
+      "colored",
+      "purulent",
+      "mild",
+      "severe"
+    ],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific",
+      "morning",
+      "afternoon"
+    ],
+    "aggravators": [
+      "cold-weather",
+      "pollen",
+      "smoke"
+    ],
+    "reducers": [
+      "sleeping"
+    ]
+  },
+  "nasal-polyps": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "night-sweats": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "oliguria": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "prgoressive-worsening"
+    ],
+    "periodicity": [
+      "non-periodic"
+    ],
+    "aggravators": [
+      "decreased-fluid-intake"
+    ],
+    "reducers": [
+      "diuretics"
+    ]
+  },
+  "orthopnea": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": [
+      "standing",
+      "sitting"
+    ]
+  },
+  "otalgia": {
+    "location": [
+      "lower",
+      "upper"
+    ],
+    "duration": [
+      "less-than-six-weeks",
+      "more-than-six-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "mild"
+    ],
+    "periodicity": [
+      "non-specific",
+      "recurrent",
+      "intermittent"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "otorrhea": {
+    "location": [
+      "lateral-right",
+      "lateral-left",
+      "bilateral"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "purulent",
+      "serous",
+      "blood"
+    ],
+    "periodicity": [
+      "non-specific",
+      "intermittent"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "pallor": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "mild",
+      "moderate",
+      "severe"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "peritonsillar-abscess": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "petechiae": {
+    "location": [
+      "face",
+      "mouth",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "pin-point-hemmorhage"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "photosensitivity": {
+    "location": [],
+    "duration": [
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [
+      "exposure-to-sunlight"
+    ],
+    "reducers": []
+  },
+  "polyuria": {
+    "location": [],
+    "duration": [
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "night-time"
+    ],
+    "aggravators": [
+      "increased-fluid-intake",
+      "diuretics"
+    ],
+    "reducers": []
+  },
+  "poor-feeding": {
+    "location": [],
+    "duration": [],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific"
+    ],
+    "aggravators": [],
+    "reducers": [
+      "pain-relievers"
+    ]
+  },
+  "pruritis": {
+    "location": [
+      "face",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [],
+    "periodicity": [
+      "more-intense-at-night"
+    ],
+    "aggravators": [],
+    "reducers": [
+      "antihistamines"
+    ]
+  },
+  "pulling-on-ear": {
+    "location": [
+      "lateral-right",
+      "lateral-left",
+      "bilateral"
+    ],
+    "duration": [
+      "less-than-two-days",
+      "more-than-two-days"
+    ],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [],
+    "periodicity": [
+      "intermittent",
+      "sustained"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "pulse-rate": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "slightly-increased",
+      "tachycardia"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "purpura": {
+    "location": [
+      "face",
+      "mouth",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "large-raised-lesion"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "reduced-appetite": {
+    "location": [],
+    "duration": [
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "rhinorrhea": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "thick",
+      "clear-colored",
+      "nasal-obstruction",
+      "mild"
+    ],
+    "periodicity": [
+      "seasonal",
+      "intermittent",
+      "sustained",
+      "morning",
+      "non-specific"
+    ],
+    "aggravators": [
+      "cold-weather",
+      "pollen",
+      "spores",
+      "dust-mites",
+      "chemical-irritants",
+      "light-exercise"
+    ],
+    "reducers": [
+      "sleeping",
+      "antihistamines"
+    ]
+  },
+  "seizures": {
+    "location": [],
+    "duration": [
+      "less-than-five-minutes",
+      "more-than-five-minutes"
+    ],
+    "onset": [
+      "focol",
+      "generalized"
+    ],
+    "nature": [
+      "tonic-seizures",
+      "clonic-seizures",
+      "tonic-clonic-seizures",
+      "myoclonic-seizures",
+      "atonic-seizures",
+      "absence-seizures",
+      "febrile-seizures"
+    ],
+    "periodicity": [
+      "non-specific"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "sinus-tenderness": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [
+      "intermittent",
+      "sustained"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "skin-desquamation": {
+    "location": [
+      "face",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "skin-lesions": {
+    "location": [
+      "face",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [
+      "macules",
+      "papules",
+      "nodules",
+      "plaques",
+      "wheal",
+      "blisters",
+      "scales",
+      "crust",
+      "erosions",
+      "ulcers",
+      "atrophy",
+      "lichenification",
+      "burrow",
+      "comedones"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "skin-rash": {
+    "location": [
+      "face",
+      "hands",
+      "feet",
+      "scalp",
+      "trunk",
+      "back",
+      "legs",
+      "arms",
+      "genitals",
+      "generalized"
+    ],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [
+      "malar",
+      "discoid"
+    ],
+    "periodicity": [],
+    "aggravators": [
+      "exposure-to-sunlight"
+    ],
+    "reducers": []
+  },
+  "skin-turgor": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "mild-delay-less-than-2-seconds",
+      "severe-delay-more-than-2-seconds"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "sneezing": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "intermittent",
+      "sustained",
+      "non-specific",
+      "morning"
+    ],
+    "aggravators": [
+      "cold-weather",
+      "pollen"
+    ],
+    "reducers": [
+      "sleeping"
+    ]
+  },
+  "snoring": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "sore-throat": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "intermittent"
+    ],
+    "aggravators": [
+      "eating-or-drinking"
+    ],
+    "reducers": []
+  },
+  "splenomegaly": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "stridor": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [],
+    "nature": [
+      "expiratory",
+      "inspiratory"
+    ],
+    "periodicity": [
+      "early-morning",
+      "night"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "stunting": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "mild",
+      "moderate",
+      "severe"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "sunken-eyes": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [],
+    "nature": [
+      "normal",
+      "moderate",
+      "severe"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "syncope": {
+    "location": [],
+    "duration": [],
+    "onset": [
+      "sudden"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "tachycardia": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "tachypnoea": {
+    "location": [],
+    "duration": [],
+    "onset": [
+      "sudden",
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "teeth-malocclusion": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "tet-spell": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "sudden"
+    ],
+    "nature": [],
+    "periodicity": [
+      "waking-up",
+      "feeding",
+      "exertion",
+      "crying"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "underweight": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "mild",
+      "moderate",
+      "severe"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "vomiting": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual",
+      "sudden"
+    ],
+    "nature": [
+      "projectile",
+      "non-projectile",
+      "bile-stained-yellow",
+      "bile-stained-green",
+      "blood-stained",
+      "clear-with-food"
+    ],
+    "periodicity": [
+      "non-specific",
+      "recurrent",
+      "morning",
+      "intermittent"
+    ],
+    "aggravators": [
+      "eating",
+      "drinking water"
+    ],
+    "reducers": [
+      "not-eating",
+      "sleeping",
+      "antiemetic",
+      "water-intake",
+      "laying down"
+    ]
+  },
+  "wasting": {
+    "location": [],
+    "duration": [],
+    "onset": [],
+    "nature": [
+      "normal",
+      "mild",
+      "moderate",
+      "severe"
+    ],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "weight-faltering": {
+    "location": [],
+    "duration": [
+      "less-than-six-weeks",
+      "more-than-six-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "weight-gain": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [],
+    "aggravators": [],
+    "reducers": []
+  },
+  "weight-loss": {
+    "location": [],
+    "duration": [
+      "more-than-two-weeks"
+    ],
+    "onset": [
+      "gradual"
+    ],
+    "nature": [],
+    "periodicity": [
+      "non-specific"
+    ],
+    "aggravators": [],
+    "reducers": []
+  },
+  "wheezing": {
+    "location": [],
+    "duration": [
+      "less-than-two-weeks",
+      "more-than-two-weeks"
+    ],
+    "onset": [],
+    "nature": [
+      "expiratory",
+      "inspiratory"
+    ],
+    "periodicity": [
+      "early-morning",
+      "night"
+    ],
+    "aggravators": [
+      "dust",
+      "pollen",
+      "exercise",
+      "cold-air",
+      "aspirin",
+      "non-steroidal-anti-inflammatory-drugs"
+    ],
+    "reducers": [
+      "rest",
+      "bronchodilators"
+    ]
+  }
+}

@@ -10,6 +10,11 @@ import {
 	configureFonts,
 } from "react-native-paper";
 import theme, { fontFamilyStyle } from "./theme";
+
+import { View } from "react-native";
+import { Chip, Text } from "@elsa-ui/react-native/components";
+import * as data from "@elsa-health/data-fns";
+
 import { LanguageProvider } from "./app/locale/config";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import EmailPasswordAuthenticationScreen from "./@workflows/screens/EmailPasswordAuthentication";
@@ -52,50 +57,70 @@ const paperTheme = {
 	},
 };
 
-const Stack = createNativeStackNavigator();
-const store = deviceStorage();
-
-// Creating the collections if they don't exist
-store.collection("visits").create({ checkIfExists: true });
-store.collection("patients").create({ checkIfExists: true });
-store.collection("investigations").create({ checkIfExists: true });
-store.collection("investigation.results").create({ checkIfExists: true });
-
 export default function App() {
-	const [user, setUser] = React.useState<UserObject | null>({
-		fullName: "Harrison Mariki",
-	});
-	// const [user, setUser] = React.useState<UserObject | null>(null);
-	const isLoggedIn = user !== null;
 	React.useEffect(() => {
 		SplashScreen.hide();
 	}, []);
 
 	return (
-		<LanguageProvider>
-			<PaperProvider theme={paperTheme}>
-				<NavigationContainer theme={{ colors: { background: "#FFF" } }}>
-					{isLoggedIn ? (
-						<LabFlow user={user} store={store} />
-					) : (
-						<Stack.Navigator screenOptions={{ headerShown: false }}>
-							<Stack.Screen
-								name="lab.auth"
-								component={withFlowContext(
-									EmailPasswordAuthenticationScreen,
-									{
-										actions: ({ navigation }) => ({
-											onLogin: (data) => {
-												setUser(data);
-											},
-										}),
-									}
-								)}
-							/>
-						</Stack.Navigator>
-					)}
-				</NavigationContainer>
-			</PaperProvider>
-		</LanguageProvider>
+		<View
+			style={{
+				display: "flex",
+				flex: 1,
+				alignItems: "center",
+				justifyContent: "center",
+			}}
+		>
+			<Chip text="asdasdsa" />
+			<Text>Hello There {data.conditions.name.fromId("asthma")}</Text>
+		</View>
 	);
 }
+
+// const Stack = createNativeStackNavigator();
+// const store = deviceStorage();
+
+// // Creating the collections if they don't exist
+// store.collection("visits").create({ checkIfExists: true });
+// store.collection("patients").create({ checkIfExists: true });
+// store.collection("investigations").create({ checkIfExists: true });
+// // store.collection("investigation.results").create({ checkIfExists: true });
+
+// export default function App() {
+// 	const [user, setUser] = React.useState<UserObject | null>({
+// 		fullName: "Harrison Mariki",
+// 	});
+// 	// const [user, setUser] = React.useState<UserObject | null>(null);
+// 	const isLoggedIn = user !== null;
+// 	React.useEffect(() => {
+// 		SplashScreen.hide();
+// 	}, []);
+
+// 	return (
+// 		<LanguageProvider>
+// 			<PaperProvider theme={paperTheme}>
+// 				<NavigationContainer theme={{ colors: { background: "#FFF" } }}>
+// 					{isLoggedIn ? (
+// 						<LabFlow user={user} store={store} />
+// 					) : (
+// 						<Stack.Navigator screenOptions={{ headerShown: false }}>
+// 							<Stack.Screen
+// 								name="lab.auth"
+// 								component={withFlowContext(
+// 									EmailPasswordAuthenticationScreen,
+// 									{
+// 										actions: ({ navigation }) => ({
+// 											onLogin: (data) => {
+// 												setUser(data);
+// 											},
+// 										}),
+// 									}
+// 								)}
+// 							/>
+// 						</Stack.Navigator>
+// 					)}
+// 				</NavigationContainer>
+// 			</PaperProvider>
+// 		</LanguageProvider>
+// 	);
+// }
