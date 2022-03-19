@@ -95,16 +95,23 @@ function MainLabComponent({
 									emr.collection("patients")
 										.queryDoc<Patient>({ $id: s })
 										.then((patient) => {
-											console.log(
-												"THIS IS THE CREATED PATIENT:",
-												patient
-											);
-											navigation.replace(
-												"lab.patient_information",
-												{
-													patient,
-												}
-											);
+											if (patient !== null) {
+												const { $id, ...ppt } = patient;
+												console.log(
+													"THIS IS THE CREATED PATIENT:",
+													patient
+												);
+												navigation.replace(
+													"lab.patient_information",
+													{
+														patient: {
+															...ppt,
+															id: $id || s,
+														},
+														store: emr,
+													}
+												);
+											}
 										});
 								})
 								.catch((err) => {

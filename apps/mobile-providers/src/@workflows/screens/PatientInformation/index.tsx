@@ -107,7 +107,7 @@ export default function PatientInformationScreen({
 	);
 
 	React.useEffect(() => {
-		console.log("PatientInformation@PATIENT:", patient);
+		console.log({ patientId: patient.id });
 		store
 			.collection("visits")
 			.queryDocs<PatientVisit>({ patientId: patient.id })
