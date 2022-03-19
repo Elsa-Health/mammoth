@@ -19,24 +19,23 @@ module.exports = {
 			},
 		}),
 	},
-	// resolver: {
-	// 	extraNodeModules: {
-	// 		"react-native": path.resolve(
-	// 			__dirname,
-	// 			"node_modules/react-native"
-	// 		),
-	// 		"@react-navigation/native": path.resolve(
-	// 			__dirname,
-	// 			"../../node_modules/@react-navigation/native"
-	// 		),
+	resolver: {
+		extraNodeModules: {
+			"react-native": path.resolve(
+				__dirname,
+				"node_modules/react-native"
+			),
+			"@react-navigation/native": path.resolve(
+				__dirname,
+				"../../node_modules/@react-navigation/native"
+			),
 
-	// 		"@react-navigation/native-stack": path.resolve(
-	// 			__dirname,
-	// 			"../../node_modules/@react-navigation/native-stack"
-	// 		),
-	// 	},
-	// },
-	// New way
+			"@react-navigation/native-stack": path.resolve(
+				__dirname,
+				"../../node_modules/@react-navigation/native-stack"
+			),
+		},
+	},
 	watchFolders: Array.from(
 		new Set(getDevPaths(projectRoot).map(($) => fs.realpathSync($)))
 	),

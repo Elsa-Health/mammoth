@@ -18,7 +18,6 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
-		"@babel/runtime": "^7.17.7",
 		"@sabertooth/storage": "*",
 		"@types/jest": "^27.4.1",
 		"@types/mongodb": "^4.0.7",

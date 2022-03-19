@@ -15,7 +15,6 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
-		"@babel/runtime": "^7.17.7",
 		"@types/jest": "^27.4.1",
 		"@types/lodash.isequal": "^4.5.5",
 		"@types/lodash.omit": "^4.5.6",

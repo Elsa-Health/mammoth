@@ -53,8 +53,7 @@ type SymptomState = {
 	Reducers: Array<string>;
 };
 
-type PatientVisit = {
-	id: string;
+type BaseVisitType = {
 	date: UTCDateTime;
 	intake: PatientIntake;
 	patientId: string;
@@ -70,7 +69,15 @@ type PatientVisit = {
 		present: Array<{ id: string; data: object }>;
 		absent: string[];
 	};
+};
+
+type PatientVisit = BaseVisitType & {
+	id: string;
 	investigations: Array<{ id: string } & PatientInvestigation>;
+};
+
+type VisitSession = BaseVisitType & {
+	investigations: PatientInvestigation[];
 };
 
 type InitialPropsType = { [field: string]: any };

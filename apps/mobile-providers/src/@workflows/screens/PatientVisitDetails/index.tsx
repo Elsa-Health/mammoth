@@ -97,7 +97,7 @@ export default function PatientVisitDetailsScreen({
 									s.investigationId
 								),
 								obj: s.obj,
-								getResult: () => $.getResult(s.id),
+								result: s.result,
 								onPress: () => $.onOpenInvestigation(s),
 							}))
 							.map((props) => (
@@ -173,32 +173,17 @@ function SingleInvestigationItem<T extends string>(
 	);
 }
 
-import { useAsync } from "react-async";
-import { investigation } from "../../../@libs/data-fns";
 function InvestigationItem({
 	name,
 	obj,
 	onPress,
-	getResult,
+	result,
 }: PatientInvestigation & {
 	name: string;
 	onPress: () => void;
-	getResult: () => Promise<PatientInvestigationResult>;
+	result: PatientInvestigationResult;
 }) {
 	const invName = name;
-	const {
-		data: result,
-		error,
-		isLoading,
-	} = useAsync({ promiseFn: getResult });
-
-	if (isLoading) {
-		return (
-			<View>
-				<Text>Loading</Text>
-			</View>
-		);
-	}
 
 	if (obj.type !== "panel") {
 		return (

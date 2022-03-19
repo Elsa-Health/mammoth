@@ -27,8 +27,6 @@ const NextStepsItems = data.nextSteps.basic(
 	data.investigation.ids
 );
 
-type VisitSession = PatientVisit;
-
 function MainLabComponent({
 	user,
 	emr,
@@ -37,6 +35,7 @@ function MainLabComponent({
 	emr: Store;
 }) {
 	const [visit, set] = React.useState<Partial<VisitSession>>({});
+
 	const update = React.useCallback(
 		<T extends keyof VisitSession>(field: T, value: VisitSession[T]) => {
 			set((s) =>
@@ -53,12 +52,9 @@ function MainLabComponent({
 	}, [set]);
 
 	const getInvestigationResult = async (id: string) => {
-		const results = await emr
-			.collection("investigation.results")
-			.doc(id)
-			.query();
+		const results = await emr.collection("investigation").doc(id).query();
 
-		return results === null ? undefined : results;
+		return results === null ? undefined : results.result;
 	};
 
 	return (
@@ -222,12 +218,29 @@ function MainLabComponent({
 								return {
 									obj: data.investigation.fromId(inv),
 									investigationId: inv,
+									result: undefined,
 								};
 							});
 
-							// store the investigations
+							update("investigations", invObjs);
+
+							navigation.navigate("lab.confirm_visit");
+						},
+					}),
+				})}
+			/>
+			<Stack.Screen
+				name="lab.confirm_visit"
+				component={withFlowContext(ConfirmPatientVisitScreen, {
+					entry: {
+						visit,
+					},
+					actions: ({ navigation }) => ({
+						onConfirmAppointment: (visit, err) => {
+							console.log("CONFIRMING:", visit);
+							const { investigations, ...rest } = visit;
 							emr.collection("investigations")
-								.addMult(invObjs)
+								.addMult(investigations)
 								.then((ids) => {
 									// query documents
 									emr.collection("investigations")
@@ -235,15 +248,37 @@ function MainLabComponent({
 											$id: ids,
 										})
 										.then((invs) => {
-											update(
-												"investigations",
-												invs.map((s) => ({
-													obj: s.obj,
-													investigationId:
-														s.investigationId,
-													id: s.$id,
-												}))
-											);
+											console.log("INve:", invs);
+											if (visit.patientId !== undefined) {
+												emr.collection("visits")
+													.addDoc({
+														...rest,
+														investigations:
+															invs.map(
+																({
+																	$id,
+																	...others
+																}) => ({
+																	id: $id,
+																	...others,
+																})
+															),
+														date: new Date().toUTCString(),
+													})
+													.then((id) => {
+														console.log(
+															"VISIT $id:",
+															id
+														);
+														navigation.navigate(
+															"lab.dashboard"
+														);
+													});
+											} else {
+												throw Error(
+													"Patient ID MISSING"
+												);
+											}
 										})
 										.then(() =>
 											navigation.navigate(
@@ -267,32 +302,6 @@ function MainLabComponent({
 									err &&
 										err("FAILED TO ORDER INVESTIGATIONS");
 								});
-						},
-					}),
-				})}
-			/>
-			<Stack.Screen
-				name="lab.confirm_visit"
-				component={withFlowContext(ConfirmPatientVisitScreen, {
-					entry: {
-						visit,
-					},
-					actions: ({ navigation }) => ({
-						onConfirmAppointment: (visit) => {
-							console.log("CONFIRMING:", visit);
-							if (visit.patientId !== undefined) {
-								emr.collection("visits")
-									.addDoc({
-										...visit,
-										date: new Date().toUTCString(),
-									})
-									.then((id) => {
-										console.log("VISIT $id:", id);
-										navigation.navigate("lab.dashboard");
-									});
-							} else {
-								throw Error("Patient ID MISSING");
-							}
 						},
 					}),
 				})}

@@ -11523,6 +11523,11 @@ proxy-agent@^5.0.0:
     proxy-from-env "^1.0.0"
     socks-proxy-agent "^5.0.0"
 
+proxy-compare@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/proxy-compare/-/proxy-compare-2.1.0.tgz#5f99b3ed6a265135ce7ec145ce304e6f89b6511b"
+  integrity sha512-wapJ3h/w8fRSyPEG0y2WMV+tf9xwvj3nxM6aHVuPEOwKs/t5xLSKZb44ubNTiqq2T6lmEMHEWGMTaU2L6ddaFA==
+
 proxy-from-env@^1.0.0, proxy-from-env@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
@@ -14139,6 +14144,13 @@ validate-npm-package-license@^3.0.1:
   dependencies:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
+
+valtio@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/valtio/-/valtio-1.4.0.tgz#361deb6aefaf28a607c691bf6de8580e319fa0f3"
+  integrity sha512-mKFSkBwHjmspIfaoLwAElSZvNC0A6eRbA7iM7Tx8kIxnrLYBIaaOMcztdIPLVrG4QHUQov0XwmoxeJIvqKFoWA==
+  dependencies:
+    proxy-compare "2.1.0"
 
 value-equal@^1.0.1:
   version "1.0.1"

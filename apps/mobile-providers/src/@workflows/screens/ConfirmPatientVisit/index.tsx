@@ -7,8 +7,13 @@ export default function ConfirmPatientVisitScreen({
 	entry: { visit },
 	actions: $,
 }: WorkflowScreen<
-	{ visit: PatientVisit },
-	{ onConfirmAppointment: (visit: Omit<PatientVisit, "id">) => void }
+	{ visit: VisitSession },
+	{
+		onConfirmAppointment: (
+			visit: VisitSession,
+			err?: (err: any) => void
+		) => void;
+	}
 >) {
 	return (
 		<Layout>

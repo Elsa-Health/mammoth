@@ -8,6 +8,8 @@ const Stack = createNativeStackNavigator();
 
 import * as data from "../../../@libs/data-fns";
 import { Store } from "../../../@libs/storage-core";
+import { ToastAndroid } from "react-native";
+import produce from "immer";
 
 /**
  * Composition of screens for the patient visit flow
@@ -21,13 +23,68 @@ export default function PatientFolderScreenGroup({
 		getInvestigationResult: (id: string) => Promise<PatientInvestigation>;
 	}
 >) {
+	// This will be replace when adding observables to stores
+	const [invs, setInvs] = React.useState<{
+		[id: string]: PatientInvestigation;
+	}>(() => {
+		const invM: { [id: string]: PatientInvestigation } = {};
+		visit.investigations.forEach((inv) => {
+			const { id, ...other } = inv;
+			invM[id] = other;
+		});
+		return invM;
+	});
+
+	React.useEffect(() => {}, []);
+
+	React.useEffect(() => {
+		Promise.all(
+			Object.entries(invs)
+				.filter((s) => s[1] !== undefined)
+				.map(
+					(d) =>
+						new Promise((res, rej) => {
+							const [invId, obj] = d;
+
+							// update the investigation with the results
+							emr.collection("investigations")
+								.doc(invId)
+								.set(obj)
+								.then(res)
+								.catch(rej);
+						})
+				)
+		)
+			.then((ids) =>
+				ToastAndroid.show(
+					`Investigations updated ${ids}`,
+					ToastAndroid.LONG
+				)
+			)
+			.catch((err) => {
+				ToastAndroid.show(
+					`Failed to updated Investigations`,
+					ToastAndroid.LONG
+				);
+				console.log(err);
+			});
+	}, [invs]);
+
 	return (
 		<Stack.Navigator screenOptions={{ headerShown: false }}>
 			<Stack.Screen
 				name="patient.visitProfile"
 				component={withFlowContext(PatientVisitDetailsScreen, {
 					entry: {
-						visit,
+						visit: {
+							...visit,
+							investigations: Object.entries(invs)
+								.filter((s) => s[1] !== undefined)
+								.map((i) => {
+									const [key, val] = i;
+									return { id: key, ...val };
+								}),
+						},
 					},
 					actions: ({ navigation }) => ({
 						getResult: $.getInvestigationResult,
@@ -40,10 +97,10 @@ export default function PatientFolderScreenGroup({
 										result,
 									};
 
-									console.log(
-										"PatientVisitDetailsScreen@onOpenInvestigation",
-										obj
-									);
+									// console.log(
+									// 	"PatientVisitDetailsScreen@onOpenInvestigation",
+									// 	obj
+									// );
 									navigation.navigate(
 										"patient.investigationResultsForm",
 										obj
@@ -62,18 +119,16 @@ export default function PatientFolderScreenGroup({
 							navigation.goBack();
 						},
 						onUpdateInvestigation: (id, newInvestigationObj) => {
-							console.log({ newInvestigationObj });
-							emr.collection("investigations")
-								.doc(id)
-								.set(newInvestigationObj)
-								.then((d) => {
-									console.log(d);
-
-									navigation.goBack();
+							// console.log("**** ==>", {
+							// 	id,
+							// 	newInvestigationObj,
+							// });
+							setInvs((s) =>
+								produce(s, (df) => {
+									df[id] = newInvestigationObj;
 								})
-								.catch((err) => {
-									console.log(err);
-								});
+							);
+							navigation.navigate("patient.visitProfile");
 						},
 					}),
 				})}
