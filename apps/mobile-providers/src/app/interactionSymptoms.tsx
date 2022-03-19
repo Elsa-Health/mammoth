@@ -324,7 +324,7 @@ export const ModalComponent = ({ lang }: { lang: Language }) => {
 	// variables
 	const snapPoints = React.useMemo(
 		() => [
-			"30%", // This is for the parital view
+			"35%", // This is for the parital view
 			"90%", // this is for the full view of the symptom (with associated symptoms)
 		],
 		[]
