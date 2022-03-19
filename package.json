@@ -28,7 +28,7 @@
 		"coverage": "turbo run coverage",
 		"coverage:ci": "turbo run coverage:ci",
 		"clean": "yarn clean:turbo && yarn clean:watchman",
-		"clean:turbo": "turbo run clean && rm -rf node_modules",
+		"clean:turbo": "turbo run clean && rm -rf node_modules && rm -rf yarn.lock",
 		"clean:watchman": "watchman watch-del-all && yarn cache clean",
 		"format": "prettier --write \"**/*.{ts,tsx,md}\""
 	},
