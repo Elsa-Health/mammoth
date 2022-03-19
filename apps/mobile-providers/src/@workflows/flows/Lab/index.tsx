@@ -243,6 +243,9 @@ function MainLabComponent({
 						visit,
 					},
 					actions: ({ navigation }) => ({
+						onCancel: () => {
+							reset(), navigation.navigate("lab.dashboard");
+						},
 						onConfirmAppointment: (visit, err) => {
 							console.log("CONFIRMING:", visit);
 							const { investigations, ...rest } = visit;

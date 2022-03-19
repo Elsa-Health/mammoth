@@ -13,6 +13,7 @@ export default function ConfirmPatientVisitScreen({
 }: WorkflowScreen<
 	{ visit: VisitSession },
 	{
+		onCancel: () => void;
 		onConfirmAppointment: (
 			visit: VisitSession,
 			err?: (err: any) => void
@@ -60,12 +61,17 @@ export default function ConfirmPatientVisitScreen({
 				</View>
 			</View>
 			{/* <Text>{JSON.stringify(visit)}</Text> */}
-			<Button
-				mode="contained"
-				onPress={() => $.onConfirmAppointment(visit)}
-			>
-				Complete Session
-			</Button>
+			<View>
+				<Button mode="outlined" onPress={() => $.onCancel()}>
+					Discard
+				</Button>
+				<Button
+					mode="contained"
+					onPress={() => $.onConfirmAppointment(visit)}
+				>
+					Complete Session
+				</Button>
+			</View>
 		</Layout>
 	);
 }
