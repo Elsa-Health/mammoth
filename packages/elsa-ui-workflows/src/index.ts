@@ -1,3 +1,5 @@
+import type * as data from "@elsa-health/data-fns";
+
 type DBDateTime = number;
 type UTCDateTime = string;
 type YYYYMMDDDate = string;
@@ -42,7 +44,7 @@ type PatientInvestigation = {
 	result: PatientInvestigationResult;
 };
 
-type SymptomState = {
+export type SymptomState = {
 	Name: string;
 	Location: Array<string>;
 	Duration: number;
@@ -73,19 +75,19 @@ type BaseVisitType = {
 	};
 };
 
-type PatientVisit = BaseVisitType & {
+export type PatientVisit = BaseVisitType & {
 	id: string;
 	investigations: Array<{ id: string } & PatientInvestigation>;
 };
 
-type VisitSession = BaseVisitType & {
+export type VisitSession = BaseVisitType & {
 	investigations: PatientInvestigation[];
 };
 
 type InitialPropsType = { [field: string]: any };
 type ActionList = { [fnName: string]: (...a: any[]) => any };
 
-type WorkflowScreen<
+export type WorkflowScreen<
 	InitialProps extends InitialPropsType,
 	Actions extends ActionList = {}
 > = {
@@ -93,7 +95,7 @@ type WorkflowScreen<
 	actions: Actions;
 };
 
-type Language = "en" | "sw";
+export type Language = "en" | "sw";
 
 // ------------------------
 type Age = Partial<{
@@ -140,7 +142,7 @@ type PatientIntake = {
 	vitalSigns?: VitalSignType;
 };
 
-type BasicAssessment = PatientIntake & {
+export type BasicAssessment = PatientIntake & {
 	/**
 	 * Containing the list of present symptoms
 	 */
@@ -156,7 +158,7 @@ type BasicAssessment = PatientIntake & {
 	absentSymptoms: SymptomRecord[];
 };
 
-type SymptomProps = {
+export type SymptomProps = {
 	location: string[];
 	duration: string[];
 	onset: string[];
@@ -167,21 +169,21 @@ type SymptomProps = {
 };
 
 // -----------------------------------
-type SelectInvestigationResult<T extends string> = {
+export type SelectInvestigationResult<T extends string> = {
 	options: T[];
 };
 
-type OptionInvestigationResult<T extends string> = {
+export type OptionInvestigationResult<T extends string> = {
 	// options: T[];
 	selected: T;
 };
 
-type FieldInvestigationResult = {
+export type FieldInvestigationResult = {
 	input: string;
 };
 
-type NumberInvestigationResult = {
+export type NumberInvestigationResult = {
 	value: number;
 };
 
-type Investigation = { type: "polar" };
+export type Investigation = { type: "polar" };

@@ -320,6 +320,7 @@ export const SearchInput = React.forwardRef<{}, SearchInputProps>(
 						testID={`search-input${
 							props.testID !== undefined ? "-" + props.testID : ""
 						}`}
+						// @ts-ignore
 						ref={textInputRef}
 						onFocus={onFocus}
 						onBlur={onBlur}

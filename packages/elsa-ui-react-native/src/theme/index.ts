@@ -5,6 +5,7 @@ export type fontFamiliStyleType =
 	| "bold"
 	| "black"
 	| "extra-black";
+
 export const fontFamilyStyle = (
 	props: { italic?: boolean; font?: fontFamiliStyleType } = {}
 ) => {
