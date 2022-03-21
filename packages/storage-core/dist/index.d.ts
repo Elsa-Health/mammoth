@@ -1,63 +1,8 @@
 /**
- * Make reference able to make permissions
- */
-declare type PermittableRef<Ref> = {} & Ref;
-/**
- * Object to identify the person
- *  who does and action
- */
-declare type ActionCredentials = {
-    user: string;
-};
-/**
- * Default node reference
- */
-declare type NodeReference = {};
-declare namespace StoreQuery {
-    /**
-     * Options for making pull request
-     */
-    type PullRequestParams = {
-        /**
-         * String of the item requested
-         */
-        limit?: number;
-    };
-    /**
-     * Options for making a push request
-     */
-    type PushRequestParams = {};
-    /**
-     * All posible action that can be done from storage reference
-     */
-    type Actionable<Ref> = Ref & FetchAction & SetAction & CreateAction;
-    type FetchAction = {
-        /**
-         * performing actual query string for the data
-         */
-        get: <T>(credentials: ActionCredentials, query?: PullRequestParams) => Promise<T>;
-    };
-    type SetAction = {
-        /**
-         * Sets the data from one form to another
-         */
-        set: <T>(conv: (data: T) => T, credentials: ActionCredentials, pushQuery?: PushRequestParams) => Promise<void>;
-    };
-    type CreateAction = {
-        /**
-         * Creates new data, while converting from one version to another
-         */
-        create: <T>(data: T, credentials: any, docPermFn?: (permission: Permission<string>) => Permission<string>, options?: {
-            isCreateCollectionIfMissing: boolean;
-        }) => Promise<void>;
-    };
-    type Constraint = {};
-}
-/**
  * Referencing point to the actions that are
  *  doable and are associated with the store
  */
-declare namespace Store {
+export declare namespace Store {
     /**
      * Options for creating a store
      */
@@ -157,7 +102,62 @@ declare namespace Store {
         key: string;
     }>;
 }
-declare type Store = {
+/**
+ * Make reference able to make permissions
+ */
+declare type PermittableRef<Ref> = {} & Ref;
+/**
+ * Object to identify the person
+ *  who does and action
+ */
+declare type ActionCredentials = {
+    user: string;
+};
+/**
+ * Default node reference
+ */
+declare type NodeReference = {};
+export declare namespace StoreQuery {
+    /**
+     * Options for making pull request
+     */
+    type PullRequestParams = {
+        /**
+         * String of the item requested
+         */
+        limit?: number;
+    };
+    /**
+     * Options for making a push request
+     */
+    type PushRequestParams = {};
+    /**
+     * All posible action that can be done from storage reference
+     */
+    type Actionable<Ref> = Ref & FetchAction & SetAction & CreateAction;
+    type FetchAction = {
+        /**
+         * performing actual query string for the data
+         */
+        get: <T>(credentials: ActionCredentials, query?: PullRequestParams) => Promise<T>;
+    };
+    type SetAction = {
+        /**
+         * Sets the data from one form to another
+         */
+        set: <T>(conv: (data: T) => T, credentials: ActionCredentials, pushQuery?: PushRequestParams) => Promise<void>;
+    };
+    type CreateAction = {
+        /**
+         * Creates new data, while converting from one version to another
+         */
+        create: <T>(data: T, credentials: any, docPermFn?: (permission: Permission<string>) => Permission<string>, options?: {
+            isCreateCollectionIfMissing: boolean;
+        }) => Promise<void>;
+    };
+    type Constraint = {};
+}
+export declare type Store = {
     collection: (name: string) => Store.CollectionActions<{}, Store.DocumentAction>;
     collections: () => Promise<string[]>;
 };
@@ -176,9 +176,8 @@ declare type AllowableAction = "read" | "write";
 declare type Permission<U extends string> = {
     [user in User<U>]?: AllowableAction[];
 };
-declare function buildStore<StoreOptions>(sbc: Store.BuildConfig<StoreOptions>): {
+export declare function buildStore<StoreOptions>(sbc: Store.BuildConfig<StoreOptions>): {
     collection: (name: string) => Store.CollectionActions<StoreOptions, Store.DocumentAction>;
     collections: () => Promise<string[]>;
 };
-
-export { Store, StoreQuery, buildStore };
+export {};

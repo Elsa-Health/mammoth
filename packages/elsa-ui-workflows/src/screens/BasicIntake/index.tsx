@@ -16,6 +16,7 @@ import produce from "immer";
 
 import DatePicker from "react-native-date-picker";
 import { useTranslation } from "react-i18next";
+import { WorkflowScreen, Patient, PatientIntake } from "../..";
 
 const HouseRowComponent = ({
 	label,
@@ -186,8 +187,8 @@ export default function BasicIntake({
 }: WorkflowScreen<
 	{
 		patient: {
-			age?: Age;
-			sex?: Sex;
+			age?: Patient.Age;
+			sex?: Patient.Sex;
 		};
 		id: string;
 	},

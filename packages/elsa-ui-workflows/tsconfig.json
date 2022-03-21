@@ -2,16 +2,15 @@
 	"compilerOptions": {
 		"target": "esnext",
 		"jsx": "react-native",
-		"noEmit": true,
 		"declaration": true,
-		"declarationDir": "./",
+		"declarationDir": "./@types",
 		"isolatedModules": true,
 		"strict": true,
 		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,
-		"skipLibCheck": false,
+		"skipLibCheck": true,
 		"resolveJsonModule": true,
-		"outDir": "./dist"
+		"outDir": "./"
 	},
 	"include": ["@types", "./src"],
 	"exclude": [

@@ -4,9 +4,9 @@ type DBDateTime = number;
 type UTCDateTime = string;
 type YYYYMMDDDate = string;
 
-type UserObject = { fullName: string; id: string; email: string };
+export type UserObject = { fullName: string; id: string; email: string };
 
-type Patient = {
+export type Patient = {
 	// added at runtime
 	id: string;
 	registerDate: UTCDateTime;
@@ -15,7 +15,7 @@ type Patient = {
 	phone: string;
 	address: string;
 	dateOfBirth: YYYYMMDDDate;
-	sex: Sex;
+	sex: Patient.Sex;
 };
 
 type PatientInvestigationResult =
@@ -24,7 +24,6 @@ type PatientInvestigationResult =
 	| string[]
 	| {
 			values: {
-				// @ts-ignore
 				[id in data.Investigation]?: string | string[];
 			};
 	  };
@@ -33,7 +32,6 @@ type PatientInvestigation = {
 	/**
 	 * Similar to LabTest ID
 	 */
-	// @ts-ignore
 	obj: data.InvestigationTypeRecord<string>;
 
 	/**
@@ -66,7 +64,6 @@ type BaseVisitType = {
 	 */
 	condition: string | undefined;
 
-	// @ts-ignore
 	recommendedTests: data.Investigation[];
 
 	symptoms: {
@@ -84,6 +81,7 @@ export type VisitSession = BaseVisitType & {
 	investigations: PatientInvestigation[];
 };
 
+// Workflow configuration
 type InitialPropsType = { [field: string]: any };
 type ActionList = { [fnName: string]: (...a: any[]) => any };
 
@@ -95,27 +93,29 @@ export type WorkflowScreen<
 	actions: Actions;
 };
 
+// Language
 export type Language = "en" | "sw";
 
 // ------------------------
-type Age = Partial<{
-	years: number;
-	months: number;
-	days: number;
-}>;
-type Sex = "male" | "female";
-
-type VitalSignType = {
-	temp?: number; // in c
-	weight?: {
-		value: number;
-		option: "kg" | "lb";
+export declare namespace Patient {
+	type Age = Partial<{
+		years: number;
+		months: number;
+		days: number;
+	}>;
+	type Sex = "male" | "female";
+	type VitalSignType = {
+		temp?: number; // in c
+		weight?: {
+			value: number;
+			option: "kg" | "lb";
+		};
+		height?: {
+			value: number;
+			option: "ft" | "cm";
+		};
 	};
-	height?: {
-		value: number;
-		option: "ft" | "cm";
-	};
-};
+}
 
 type _CompleteSymptomData = {
 	/**
@@ -131,15 +131,14 @@ type _CompleteSymptomData = {
 };
 
 type SymptomRecord = { id: string };
+export type SymptomData = Partial<_CompleteSymptomData>;
 
-type SymptomData = Partial<_CompleteSymptomData>;
-
-type PatientIntake = {
-	sex: Sex;
-	age: Age;
+export type PatientIntake = {
+	sex: Patient.Sex;
+	age: Patient.Age;
 	pregnant: boolean;
 	dueDate: Date | null;
-	vitalSigns?: VitalSignType;
+	vitalSigns?: Patient.VitalSignType;
 };
 
 export type BasicAssessment = PatientIntake & {
@@ -167,23 +166,3 @@ export type SymptomProps = {
 	aggravators: string[];
 	reducers: string[];
 };
-
-// -----------------------------------
-export type SelectInvestigationResult<T extends string> = {
-	options: T[];
-};
-
-export type OptionInvestigationResult<T extends string> = {
-	// options: T[];
-	selected: T;
-};
-
-export type FieldInvestigationResult = {
-	input: string;
-};
-
-export type NumberInvestigationResult = {
-	value: number;
-};
-
-export type Investigation = { type: "polar" };
