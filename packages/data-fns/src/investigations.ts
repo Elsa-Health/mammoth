@@ -1,5 +1,5 @@
-import _investigationNameMap from "../data/core/investigation-name-map.json";
-import _investigations from "../data/core/investigations.json";
+import _investigationNameMap from "./data/core/investigation-name-map.json";
+import _investigations from "./data/core/investigations.json";
 
 export type Investigation = keyof typeof _investigations;
 

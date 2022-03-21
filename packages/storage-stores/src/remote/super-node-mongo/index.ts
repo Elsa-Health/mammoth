@@ -14,6 +14,7 @@ export default function superNodeMongoBuildConfig(
 	const snAxios = createSuperNodeAxios(SUPER_NODE_API_URL);
 
 	return {
+		// @ts-ignore
 		collection: collection(snAxios),
 		collectionDocument: collectionDocument(snAxios),
 		getCollections: async () => {

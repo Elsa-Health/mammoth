@@ -4,6 +4,7 @@
 	"description": "",
 	"sideEffects": false,
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "jest -u",
 		"build": "tsup ./src --format cjs --dts  --out-dir ./dist",

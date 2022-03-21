@@ -2,7 +2,7 @@ import { Store } from '@sabertooth/storage';
 import { CreateCollectionOptions } from 'mongodb';
 import { AxiosInstance } from 'axios';
 
-declare const collectionDocument: (snAxios: AxiosInstance) => (collName: string) => (docName: string) => Store.DocumentAction;
+declare const collectionDocument: (snAxios: AxiosInstance) => (collName: string) => (docName: string, docRefFn: (id: string) => string) => Store.DocumentAction;
 declare type SuperNodeMongoStoreOptions = {
     checkIfExists?: boolean;
     createOpts?: CreateCollectionOptions;

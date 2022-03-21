@@ -53,7 +53,7 @@ __export(api_exports, {
 });
 module.exports = __toCommonJS(api_exports);
 var qs = __toESM(require("query-string"));
-var collectionDocument = (snAxios) => (collName) => (docName) => {
+var collectionDocument = (snAxios) => (collName) => (docName, docRefFn) => {
   const collectionRef = collName;
   const docId = docName;
   return {
@@ -64,7 +64,6 @@ var collectionDocument = (snAxios) => (collName) => (docName) => {
     },
     query: async () => {
       const res = await snAxios.post(`/col/${collectionRef}/doc/${docId}/query`);
-      console.log(`/col/${collectionRef}/doc/${docId}/query`);
       return res.data.data;
     },
     set: async (data) => {

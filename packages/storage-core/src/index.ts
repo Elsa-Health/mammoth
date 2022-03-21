@@ -16,10 +16,16 @@ export declare namespace Store {
 	type BuildConfig<StoreOptions> = {
 		collectionDocument: (
 			collName: string
-		) => (documentName: string) => DocumentAction;
+		) => (
+			documentName: string,
+			docRefFn: (id: string) => string
+		) => DocumentAction;
 		collection: (
 			name: string,
-			documentAction: (name: string) => DocumentAction
+			documentAction: (
+				name: string,
+				docRefFn: (id: string) => string
+			) => DocumentAction
 		) => CollectionActions<StoreOptions, DocumentAction>;
 		getCollections: () => Promise<string[]>;
 	};
@@ -30,6 +36,12 @@ export declare namespace Store {
 	type QueryFilter = {
 		// search by id(s)
 		$id?: SearchItem | string | string[];
+	} & {
+		[field: string]: SearchItem | string;
+	};
+	type SingleQueryFilter = {
+		// search by id(s)
+		$id?: SearchItem | string;
 	} & {
 		[field: string]: SearchItem | string;
 	};
@@ -50,15 +62,11 @@ export declare namespace Store {
 		queryDocs: <T extends DocumentData>(
 			queryOptions?: QueryFilter | undefined
 		) => Promise<Array<{ $id: string } & T>>;
-		queryDoc: <T extends ProperDocumentData>(
-			queryOptions?: QueryFilter | undefined
-		) => Promise<T | null>;
+		queryDoc: <T extends DocumentData>(
+			queryOptions?: SingleQueryFilter | undefined
+		) => Promise<({ $id: string } & T) | null>;
 		doc: (name: string) => DA;
 		docs: () => Promise<Array<{ docId: string } & DA>>;
-		// search: <T>(
-		// 	query: SearchFilter,
-		// 	onResult?: SearchCallback<T>
-		// ) => Promise<T[]>;
 	};
 
 	type WatchableCollectionActions<
@@ -76,7 +84,9 @@ export declare namespace Store {
 		create: <T extends Omit<DocumentData, "$id">>(
 			docData: T
 		) => Promise<void>;
-		query: <T extends Omit<DocumentData, "$id">>() => Promise<T | null>;
+		query: <T extends Omit<DocumentData, "$id">>() => Promise<
+			({ $id: string } & T) | null
+		>;
 		set: <T extends Omit<DocumentData, "$id">>(docData: T) => Promise<void>;
 	};
 

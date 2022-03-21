@@ -1,8 +1,8 @@
-import _symptoms from "../data/core/symptoms-base.json";
-import _conditions from "../data/core/conditions.json";
+import _symptoms from "./data/core/symptoms-base.json";
+import _conditions from "./data/core/conditions.json";
 
-import translatedDonparMap from "../data/translated/donpar-map.json";
-import symptomTranslation from "../data/translated/symptoms-translations.json";
+import translatedDonparMap from "./data/translated/donpar-map.json";
+import symptomTranslation from "./data/translated/symptoms-translations.json";
 
 import { build, buildObject } from "./_utils";
 

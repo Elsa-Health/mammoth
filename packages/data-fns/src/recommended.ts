@@ -1,6 +1,6 @@
-import _labTests from "../data/core/lab-tests.json";
-import medicationAddo from "../data/core/medications-addo.json";
-import medicationGeneralSales from "../data/core/medications-general-sales.json";
+import _labTests from "./data/core/lab-tests.json";
+import medicationAddo from "./data/core/medications-addo.json";
+import medicationGeneralSales from "./data/core/medications-general-sales.json";
 import { build } from "./_utils";
 
 /**

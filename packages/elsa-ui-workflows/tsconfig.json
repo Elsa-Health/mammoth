@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "esnext",
-		"jsx": "preserve",
+		"jsx": "react-native",
 		"noEmit": true,
 		"declaration": true,
 		"declarationDir": "./",
@@ -13,7 +13,12 @@
 		"resolveJsonModule": true,
 		"outDir": "./dist"
 	},
-	"exclude": ["node_modules", "./__tests__/**/*", "**/*.test.tsx"],
-	// "extends": "tsconfig/base.json",
-	"include": ["./src/*"]
+	"include": ["@types", "./src"],
+	"exclude": [
+		"node_modules",
+		"babel.config.js",
+		"metro.config.js",
+		"jest.config.js",
+		"jest.setup.js"
+	]
 }

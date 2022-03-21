@@ -1,5 +1,5 @@
-import nextStepsBasic from "../data/core/next-steps-basic.json";
-import nextStepsExtended from "../data/translated/next-steps-extended.json";
+import nextStepsBasic from "./data/core/next-steps-basic.json";
+import nextStepsExtended from "./data/translated/next-steps-extended.json";
 
 import type { Condition } from "./base";
 import type { LabTest, Medication } from "./recommended";

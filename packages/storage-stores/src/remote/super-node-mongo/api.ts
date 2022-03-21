@@ -7,7 +7,10 @@ import * as qs from "query-string";
 export const collectionDocument =
 	(snAxios: AxiosInstance) =>
 	(collName: string) =>
-	(docName: string): Store.DocumentAction => {
+	(
+		docName: string,
+		docRefFn: (id: string) => string
+	): Store.DocumentAction => {
 		const collectionRef = collName;
 		const docId = docName;
 		return {
@@ -26,7 +29,7 @@ export const collectionDocument =
 					`/col/${collectionRef}/doc/${docId}/query`
 				);
 
-				console.log(`/col/${collectionRef}/doc/${docId}/query`);
+				// console.log(`/col/${collectionRef}/doc/${docId}/query`);
 				// Current return $id
 				return res.data.data as T;
 			},
