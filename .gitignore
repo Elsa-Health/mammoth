@@ -35,4 +35,5 @@ yarn-error.log*
 # test coverage
 coverage
 
+# all dist folders 
 ./dist
