@@ -1,9 +1,8 @@
 import React from 'react';
 import {Pressable, StatusBar, View, ViewProps} from 'react-native';
-import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView, SafeAreaViewProps} from 'react-native-safe-area-context';
 import {ElsaIcon, ArrowBackIcon} from '../visuals/vectors';
-import theme from '../theme';
+import theme, {Spacing} from '../theme';
 import {RevealContent} from './misc';
 import {Heading} from './typography';
 
@@ -58,8 +57,8 @@ const BaseLayout = function ({
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingVertical: 12,
-            paddingHorizontal: 16,
+            paddingVertical: Spacing.md,
+            paddingHorizontal: Spacing.md,
             backgroundColor: '#FFF',
             // backgroundColor: 'pink',
           },
@@ -127,7 +126,7 @@ const BaseLayout = function ({
         style={[
           {
             flex: 1,
-            padding: 24,
+            padding: Spacing.md,
             paddingTop: 8,
             backgroundColor: '#FFF',
           },

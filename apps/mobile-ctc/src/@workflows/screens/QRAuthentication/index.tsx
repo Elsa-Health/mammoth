@@ -1,8 +1,8 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 
-import {Layout, Text} from '../../@libs/elsa-ui/components';
-import theme from '../../@libs/elsa-ui/theme';
+import {Layout, Text} from '../../../@libs/elsa-ui/components';
+import theme from '../../../@libs/elsa-ui/theme';
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {BarCodeReadEvent} from 'react-native-camera';

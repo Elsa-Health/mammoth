@@ -10,11 +10,14 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import CTCFlow from './@workflows/flows/CTC';
 import QRLogin from './@workflows/screens/QRAuthentication';
 
+import {NavigationContainer} from '@react-navigation/native';
+import rnpTheme from './@libs/elsa-ui/theme/rnp';
+
 import _ from 'lodash';
 import {authenticate} from './app/utils';
 import {ToastAndroid} from 'react-native';
-import {View} from 'react-native';
-import {Layout, Text} from './@libs/elsa-ui/components';
+
+import {Provider as PaperProvider} from 'react-native-paper';
 
 const authenticateQr =
   (
@@ -38,7 +41,7 @@ function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
   // TODO: Set up such that the types match with the workflow -> UserObject
   const setUser = useApplication(s => s.login);
 
-  if (isLogin) {
+  if (!isLogin) {
     return (
       <QRLogin
         actions={{
@@ -52,9 +55,9 @@ function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
   }
 
   return (
-    <Layout>
-      <Text>Kevin</Text>
-    </Layout>
+    <NavigationContainer>
+      <CTCFlow />
+    </NavigationContainer>
   );
 }
 
@@ -64,12 +67,16 @@ export default function App() {
   }, []);
 
   return (
-    <ApplicationProvider>
-      <SafeAreaProvider>
-        <AppLoginState>
-          {({isLogin, user}) => <_Application isLogin={isLogin} user={user} />}
-        </AppLoginState>
-      </SafeAreaProvider>
-    </ApplicationProvider>
+    <PaperProvider theme={rnpTheme}>
+      <ApplicationProvider>
+        <SafeAreaProvider>
+          <AppLoginState>
+            {({isLogin, user}) => (
+              <_Application isLogin={isLogin} user={user} />
+            )}
+          </AppLoginState>
+        </SafeAreaProvider>
+      </ApplicationProvider>
+    </PaperProvider>
   );
 }
