@@ -100,45 +100,14 @@ function AppointmentSection({data}: {data: CTC.Appointment[]}) {
   );
 }
 
-function ButtonGroup() {
-  const [state, setState] = React.useState({open: false});
-
-  const onStateChange = ({open}) => setState({open});
-
-  const {open} = state;
-  return (
-    <Portal>
-      <FAB.Group
-        open={open}
-        visible
-        icon={open ? 'close' : 'plus'}
-        actions={[
-          {
-            icon: 'account',
-            label: 'New Patient',
-            onPress: () => console.log('Pressed star'),
-          },
-          {
-            icon: 'calendar-edit',
-            label: 'Add Appointment',
-            onPress: () => console.log('Pressed notifications'),
-            small: false,
-          },
-        ]}
-        onStateChange={onStateChange}
-      />
-    </Portal>
-  );
-}
-
 export default function ApVisDashboardScreen({
   entry: {fullName},
   actions: $,
 }: WorkflowScreen<
-  {fullName: string},
+  {fullName: string; visits: CTC.Appointment[]; apoointments: CTC.Visit[]},
   {
-    loadPatients: () => Promise<Patient[]>;
-    loadAppointments: () => Promise<Appointment[]>;
+    onNewAppoinment: () => {};
+    onNewPatient: () => {};
   }
 >) {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -148,6 +117,9 @@ export default function ApVisDashboardScreen({
     // console.warn(searchQuery);
     return null;
   };
+
+  const [open, setOpen] = React.useState(false);
+  const onStateChange = ({open}) => setOpen(open);
 
   return (
     <Layout style={{padding: 0}} hideHeader>
@@ -193,11 +165,11 @@ export default function ApVisDashboardScreen({
             Find a Patient
           </Text>
           <Text style={{lineHeight: 24}}>
-            You can search by name or telephone
+            Search patient using the patient ID
           </Text>
 
           <Searchbar
-            placeholder="Ex. Juma Nasorro"
+            placeholder="Ex. 02321-2323-1321321"
             style={{marginTop: 10}}
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearch}
@@ -216,7 +188,29 @@ export default function ApVisDashboardScreen({
         </View>
       </ScrollView>
 
-      <ButtonGroup />
+      {/* Fixed */}
+
+      <Portal>
+        <FAB.Group
+          open={open}
+          visible
+          icon={open ? 'close' : 'plus'}
+          actions={[
+            {
+              icon: 'account',
+              label: 'New Patient',
+              onPress: () => console.log('Pressed star'),
+            },
+            {
+              icon: 'calendar-edit',
+              label: 'Add Appointment',
+              onPress: () => console.log('Pressed notifications'),
+              small: false,
+            },
+          ]}
+          onStateChange={onStateChange}
+        />
+      </Portal>
     </Layout>
   );
 }
