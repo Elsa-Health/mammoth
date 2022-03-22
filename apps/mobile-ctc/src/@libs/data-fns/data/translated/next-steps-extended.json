@@ -1,0 +1,1239 @@
+{
+  "complicated-malaria": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [
+      {
+        "id": "paracetamol-every-4-6-hours-until-symptoms-disappear",
+        "en": "Paracetamol, every 4-6 hours until symptoms disappear.",
+        "sw": "Paracetamol, kila baada ya saa 4 au sita 6 mpaka dalili zinapoisha"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "mrdt",
+        "en": "MRDT"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Recommended that patients use insecticide-treated nets (ITNs).",
+      "sw": "Pendekeza wagonjwa kutumia chandarua chenye viuatilifu (ITNs)."
+    }
+  },
+  "bronchiolitis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa dalili zao zinazidi."
+    },
+    "medications": [
+      {
+        "id": "nonsteroidal-anti-inflammatory-drugs-nsai-ds",
+        "en": "Nonsteroidal anti-inflammatory drugs (NSAIDs)"
+      },
+      {
+        "id": "bronchodilators",
+        "en": "Bronchodilators"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "It is not recommended that the patient takes antibiotics, as this is not a bacterial infection.",
+      "sw": "Haishauriwi mgonjwa kutumia antibiotiki kwani haya sio maambukizi ya bakteria."
+    }
+  },
+  "otitis-externa": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani."
+    },
+    "medications": [
+      {
+        "id": "ear-drops",
+        "en": "Ear drops",
+        "sw": "Ear drops"
+      },
+      {
+        "id": "paracetamol-as-needed",
+        "en": "Paracetamol, as needed.",
+        "sw": "Paracetamol, kama inavyohitajika"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient stays away from swimming or putting water in their ears.",
+      "sw": "Pendekeza kwamba mgonjwa anakaa mbali na kuogelea au kuweka maji masikioni."
+    }
+  },
+  "supprative-otitis-media": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 2 days.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya siku 2."
+    },
+    "medications": [
+      {
+        "id": "antibiotic-ear-drops",
+        "en": "Antibiotic ear drops",
+        "sw": "Antibiotic ear drops"
+      },
+      {
+        "id": "paracetamol-or-ibuprofen-as-needed",
+        "en": "Paracetamol or ibuprofen, as needed.",
+        "sw": "Paracetamol au ibuprofen, kama inavyohitajika"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient observes their symptoms and keeps their ear canal clean. Complications can occur such as loss of hearing.",
+      "sw": "Inapendekezwa mgonjwa aangalie dalili zake na kuhakikisha kuwa masikio yake yanakuwa safi. Matatizo yanaweza kutokea kama vile kupoteza usikivu."
+    }
+  },
+  "pneumocystis-pneumonia": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [
+      {
+        "id": "cough-suppressants-as-needed",
+        "en": "Cough suppressants, as needed.",
+        "sw": "Dawa za kupunguza kukohoa, kama inavyohitajika"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "If the patient is a smoker, recommend that they stop smoking.",
+      "sw": "Ikiwa mgonjwa anavuta sigara, pendekeza aache sigara."
+    }
+  },
+  "ectopic-pregnancy": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [
+      {
+        "id": "surgery",
+        "en": "Surgery",
+        "sw": "Upasuaji"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient goes to a health facility immediately as they will likely need surgery.",
+      "sw": ""
+    }
+  },
+  "pelvic-inflammatory-disease": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "pelvic-exam",
+        "en": "Pelvic Exam"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP) "
+      },
+      {
+        "id": "urinalysis",
+        "en": "Urinalysis"
+      },
+      {
+        "id": "ultrasound-of-pelvis",
+        "en": "Ultrasound of Pelvis"
+      }
+    ],
+    "other-recommendations": {
+      "en": "This condition can result in severe complications. Recommend that the patient seeks immediate care.",
+      "sw": ""
+    }
+  },
+  "genital-warts": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa dalili zao zinazidi."
+    },
+    "medications": [
+      {
+        "id": "imiquimod-or-trichloroacetic-acid",
+        "en": "Imiquimod or Trichloroacetic Acid"
+      },
+      {
+        "id": "other-topical-cream",
+        "en": "Other topical cream"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "If the warts continue to return or cause severe pain, recommend that the patient goes to a health facility for removal. Recommend that the patient gets an HPV vaccine if they have not yet done so.",
+      "sw": ""
+    }
+  },
+  "malaria": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa dalili zao zinazidi."
+    },
+    "medications": [
+      {
+        "id": "artemether-lumefantrine-alu-first-dose-2-mg-kg-artemether-and-12-mg-kg-lumefantrine-for-uncomplicated-malaria",
+        "en": "Artemether-Lumefantrine (ALU), first dose, 2mg/kg Artemether and 12mg/kg Lumefantrine, for uncomplicated malaria.   "
+      },
+      {
+        "id": "diazepam-0-5-mg-kg-delivered-rectally",
+        "en": "Diazepam, 0.5mg/kg, delivered rectally"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "mrdt",
+        "en": "MRDT"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Begin patient on ALU/Quinine and document with patient. Give diazepam if convulsing and document.",
+      "sw": "Mwanzishie mgojwa ALU / Quinine na andika na mgonjwa. Toa diazepam ikiwa unasumbua na andika."
+    }
+  },
+  "pneumonia": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [
+      {
+        "id": "amoxycillin-capsule-250-mg-for-over-10-years-given-250-500-mg-every-8-hours-for-5-days",
+        "en": "Amoxycillin capsule, 250mg. For over 10 years, given 250-500mg every 8 hours for 5 days.  ",
+        "sw": "Amoxycillin kapsuli, 250mg. Mtu mzima na watoto zaidi ya miaka 10 wapewe 250-500mg kila baada ya masaa 8 kwa siku 5."
+      },
+      {
+        "id": "cough-suppressants-as-needed",
+        "en": "Cough suppressants, as needed.",
+        "sw": "Dawa za kupunguza kukohoa, kama inavyohitajika"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "en": "Chest X-Ray (CXR)"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "If the patient is a smoker, recommend that they stop smoking.",
+      "sw": "Ikiwa mgonjwa anavuta sigara, pendekeza aache sigara."
+    }
+  },
+  "tuberculosis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "en": "Chest X-Ray (CXR)"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "gene-xpert",
+        "en": "GeneXpert"
+      },
+      {
+        "id": "sputum-culture",
+        "en": "Sputum Culture"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "coryza": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience difficulty breathing or excessive coughing.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata shida kupumua au kukohoa kupita kiasi."
+    },
+    "medications": [
+      {
+        "id": "antihistamines-if-available",
+        "en": "Antihistamines (If available)",
+        "sw": "Antihistamines (Ikiwa inapatikana)"
+      },
+      {
+        "id": "paracetamol-syrup-for-children-10-mg-kg-as-needed",
+        "en": "Paracetamol (syrup for children), 10mg/kg, as needed",
+        "sw": "Paracetamol (dawa ya maji kwa watoto), 10mg / kg, kama inavyohitajika"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient self-isolate and treats symptoms. Patient should rest and drink plenty of fluids.",
+      "sw": "Pendekeza kwamba mgonjwa ajitenge na atibu dalili. Mgonjwa anapaswa kupumzika na kunywa maji mengi."
+    }
+  },
+  "sinusitis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience severe pain, difficulty breathing, or excessive and recurrent coughing.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata maumivu makali, kupumua kwa shida, au kukohoa kupindukia na mara kwa mara."
+    },
+    "medications": [
+      {
+        "id": "erythromycin",
+        "en": "Erythromycin",
+        "sw": "Erythromycin"
+      },
+      {
+        "id": "nasal-decongestants",
+        "en": "Nasal Decongestants ",
+        "sw": "Vipunguzi vya pua"
+      },
+      {
+        "id": "paracetamol-10-mg-kg-as-needed",
+        "en": "Paracetamol, 10mg/kg, as needed",
+        "sw": "Paracetamol, 10mg / kg, kama inavyohitajika"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Recommend the patient uses a warm compresses to ease pain in the nose and sinuses.",
+      "sw": "Pendekeza mgonjwa atumie kitambaa chenye maji ya vuguvugu kupunguza maumivu kwenye pua."
+    }
+  },
+  "bronchitis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa dalili zao zinazidi."
+    },
+    "medications": [
+      {
+        "id": "nonsteroidal-anti-inflammatory-drugs-nsai-ds",
+        "en": "Nonsteroidal anti-inflammatory drugs (NSAIDs)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "en": "Chest X-Ray (CXR)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "It is not recommended that the patient takes antibiotics, as this is not a bacterial infection.",
+      "sw": "Haishauriwi mgonjwa kutumia antibiotiki kwani haya sio maambukizi ya bakteria."
+    }
+  },
+  "gastritis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 2 days.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya siku 2."
+    },
+    "medications": [
+      {
+        "id": "oral-rehydration-salts-ors",
+        "en": "Oral rehydration salts (ORS)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP) "
+      },
+      {
+        "id": "h-pylori-stool-test",
+        "en": "H-Pylori stool test"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Recommend that the patient avoid acidic foods or foods that aggravate the pain. Patient should drink a lot of fluids.",
+      "sw": "Pendekeza mgonjwa aepuke vyakula vyenye tindikali au vyakula vinavyoongeza maumivu. Mgonjwa anapaswa kunywa maji mengi."
+    }
+  },
+  "otitis-media": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek immediate care if If their symptoms get worse, do not resolve, or if there is tympanic perforation.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta huduma ya haraka ikiwa dalili zao zinazidi kuwa mbaya, usitatue, au ikiwa kuna tympanic perforation."
+    },
+    "medications": [
+      {
+        "id": "amoxicillin-90-mg-kg-max-3-g-a-day-divided-into-3-doses-if-2-years-take-for-2-weeks-if-2-years-take-for-7-days",
+        "en": "Amoxicillin, 90mg/kg (max 3g a day) divided into 3 doses. If <2 years, take for 2 weeks. If >2 years, take for 7 days. "
+      },
+      {
+        "id": "ibuprofen",
+        "en": "Ibuprofen"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient stays away from swimming or putting water in their ears.",
+      "sw": "Pendekeza kwamba mgonjwa anakaa mbali na kuogelea au kuweka maji masikioni."
+    }
+  },
+  "trichuriasis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa dalili zao zinazidi."
+    },
+    "medications": [
+      {
+        "id": "albendazole-400-mg-one-time-per-day-for-3-days",
+        "en": "Albendazole, 400mg, one time per day for 3 days"
+      },
+      {
+        "id": "deworming-tablets",
+        "en": "Deworming tablets"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that patient practices good hygeine and regularly washes their hands. If the patient is a child, provide counseling on deworming tablets.",
+      "sw": "Pendekeza kwamba mgonjwa kuzingatia usafi na anaosha mikono mara kwa mara. Ikiwa mgonjwa ni mtoto, toa ushauri juu ya vidonge vya minyoo."
+    }
+  },
+  "conjunctivitis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if their symptoms do not resolve.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa dalili zao hazipungui."
+    },
+    "medications": [
+      {
+        "id": "gentamycin-eyedrops",
+        "en": "Gentamycin Eyedrops"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient practices good hygeine and regularly washes their hands.",
+      "sw": "Pendekeza kwamba mgonjwa kuzingatia usafi na anaosha mikono mara kwa mara."
+    }
+  },
+  "urinary-tract-infection-uti": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience a worsening of their symptoms or if their symptoms do not resolve.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata kuzidi kwa dalili zao au ikiwa dalili zao hazipungui"
+    },
+    "medications": [
+      {
+        "id": "amoxicillin",
+        "en": "Amoxicillin"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "urinalysis",
+        "en": "Urinalysis"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Provide counseling to patient on prevention menthods and recommend a follow-up after 5 months at a higher facility.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya vidokezo vya kuzuia na kupendekeza ufuatiliaji baada ya miezi 5 katika kituo cha afya cha juu."
+    }
+  },
+  "dysentry": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [
+      {
+        "id": "oral-rehydration-salts-ors",
+        "en": "Oral rehydration salts (ORS)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "stool-analysis",
+        "en": "Stool Analysis"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "malnutrition": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [
+      {
+        "id": "oral-rehydration-salts-ors",
+        "en": "Oral rehydration salts (ORS)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "en": "Chest X-Ray (CXR)"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "hiv-rapid-test",
+        "en": "HIV Rapid Test"
+      },
+      {
+        "id": "mrdt",
+        "en": "MRDT"
+      },
+      {
+        "id": "electrolytes-test",
+        "en": "Electrolytes Test"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "ascariasis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience severe abdominal pain, if the patient is underweight, or if there are any emergency signs.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata maumivu makali ya tumbo, ikiwa mgonjwa ana uzito mdogo, au ikiwa kuna dalili zozote za dharura."
+    },
+    "medications": [
+      {
+        "id": "albendazole-400-mg-one-time-per-day-for-3-days",
+        "en": "Albendazole, 400mg, one time per day for 3 days"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient practices good hygeine and regularly washes their hands.",
+      "sw": "Pendekeza kwamba mgonjwa kuzingatia usafi na anaosha mikono mara kwa mara."
+    }
+  },
+  "asthma": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [
+      {
+        "id": "inhaled-corticosteroids-if-available",
+        "en": "Inhaled Corticosteroids (if available)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "en": "Chest X-Ray (CXR)"
+      },
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "If the patient smokes, recommend that they stop smoking. Recommend that the patient avoids any triggers, if they are known.",
+      "sw": "Ikiwa mgonjwa anavuta sigara, pendekeza waache sigara. Pendekeza kwamba mgonjwa anaepuka vichocheo vyovyote, ikiwa vinajulikana."
+    }
+  },
+  "influenza": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience difficulty breathing or excessive coughing.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata shida kupumua au kukohoa kupita kiasi."
+    },
+    "medications": [
+      {
+        "id": "paracetamol",
+        "en": "Paracetamol",
+        "sw": "Paracetamol"
+      },
+      {
+        "id": "nasal-decongestants",
+        "en": "Nasal decongestants",
+        "sw": "Vipunguzi vya pua"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Recommend that the patient self-isolate and treats symptoms. Patient should rest and drink plenty of fluids.",
+      "sw": "Pendekeza kwamba mgonjwa ajitenge na atibu dalili. Mgonjwa anapaswa kupumzika na kunywa maji mengi."
+    }
+  },
+  "tonsilitis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience difficulty breathing, if they cannot eat, if their symptoms come back, or if this is the second time with this condition.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata shida kupumua, ikiwa hawawezi kula, ikiwa dalili zao zinarudi, au ikiwa hii ni mara ya pili kuwa na hali hii."
+    },
+    "medications": [
+      {
+        "id": "ampiclox",
+        "en": "Ampiclox"
+      },
+      {
+        "id": "paracetamol",
+        "en": "Paracetamol"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Recommend that the patient rests at home.",
+      "sw": "Pendekeza kwamba mgonjwa anapumzika nyumbani."
+    }
+  },
+  "laryngitis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 24 hours.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya masaa 24."
+    },
+    "medications": [],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient rests their voice.",
+      "sw": "Pendekeza kwamba mgonjwa anapumzika nyumbani."
+    }
+  },
+  "chronic-obstructive-pulmonary-disease-copd": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 2 weeks.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya wiki 2."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "chest-x-ray-cxr",
+        "en": "Chest X-Ray (CXR)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "If the patient smokes, recommend that they stop smoking. Provide counseling to the patient on eating nutritious meals.",
+      "sw": "Ikiwa mgonjwa anavuta sigara, pendekeza waache sigara. Toa ushauri kwa mgonjwa juu ya kula chakula chenye lishe."
+    }
+  },
+  "syphillis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 24 hours.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya masaa 24."
+    },
+    "medications": [
+      {
+        "id": "doxycycline-or-penicillin-for-early-infection",
+        "en": "Doxycycline or Penicillin (for early infection)"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya njia za kuzuia maambukizi, na kuendelea na matibabu."
+    }
+  },
+  "gonorrhea": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 2 days.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya siku 2."
+    },
+    "medications": [],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya njia za kuzuia maambukizi, na kuendelea na matibabu."
+    }
+  },
+  "hiv-aids": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "hiv-rapid-test",
+        "en": "HIV Rapid Test"
+      },
+      {
+        "id": "hiv-pcr",
+        "en": "HIV PCR"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya njia za kuzuia maambukizi, na kuendelea na matibabu."
+    }
+  },
+  "bacterial-vaginosis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience these symptoms frequently or if their condition is recurrent.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata dalili hizi mara kwa mara au ikiwa hali yao ni ya kawaida."
+    },
+    "medications": [
+      {
+        "id": "metronidazole-500-mg-twice-daily-for-7-days",
+        "en": "Metronidazole, 500mg, twice daily for 7 days"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention practices and encourage good hygeine.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya kuzuia na kuhimiza usafi mzuri."
+    }
+  },
+  "vulvovaginal-candidiasis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience these symptoms frequently or if their condition is recurrent.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata dalili hizi mara kwa mara au ikiwa hali yao ni ya kawaida."
+    },
+    "medications": [
+      {
+        "id": "fluconazole-150-mg-single-dose",
+        "en": "Fluconazole, 150mg, single dose"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention practices and encourage good hygeine.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya kuzuia na kuhimiza usafi mzuri."
+    }
+  },
+  "trichomoniasis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani."
+    },
+    "medications": [
+      {
+        "id": "metronidazole-500-mg-twice-daily-for-7-days",
+        "en": "Metronidazole, 500mg, twice daily for 7 days"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention practices and encourage good hygeine.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya kuzuia na kuhimiza usafi mzuri."
+    }
+  },
+  "acute-watery-diarrhoea": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they are severely dehydrated or if their symptoms do not resolve.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wamepungukiwa na maji mwilini sana au ikiwa dalili zao hazipungui."
+    },
+    "medications": [
+      {
+        "id": "oral-rehydration-salts-ors",
+        "en": "Oral Rehydration Salts (ORS)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "stool-analysis",
+        "en": "Stool analysis"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Recommend that the patient rests at home.",
+      "sw": "Pendekeza kwamba mgonjwa anapumzika nyumbani."
+    }
+  },
+  "chlamydia": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 2 days.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya siku 2."
+    },
+    "medications": [
+      {
+        "id": "azithromycin-1-g-single-dose",
+        "en": "Azithromycin, 1g, single dose"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment.",
+      "sw": "Pendekeza kwamba mgonjwa anapumzika nyumbani."
+    }
+  },
+  "genital-herpes": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "human-papillomavirus-hpv": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "hpv-screening",
+        "en": "HPV Screening"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "anaemia": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani."
+    },
+    "medications": [
+      {
+        "id": "iron-supplements-ferrous-sulfate-325-3-tablets-per-day-taken-every-alternate-day-for-3-months",
+        "en": "Iron supplements (Ferrous Sulfate 325), 3 tablets per day, taken every alternate day for 3 months",
+        "sw": "Vidonge vya madini ya chuma (Ferrous Sulfate 325), vidonge 3 kwa siku, hutumiwa kila siku mbadala kwa miezi 3"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "oral-thrush": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 2 days.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya siku 2."
+    },
+    "medications": [
+      {
+        "id": "nystatin-oral-gel-applies-three-times-a-day",
+        "en": "Nystatin oral gel, applies three times a day"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "typhoid": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if their symptoms last more than 3-5 days or if there are any emergency signs.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa dalili zao zinadumu zaidi ya siku 3-5 au ikiwa kuna dalili za dharura."
+    },
+    "medications": [
+      {
+        "id": "ciprofloxacin-adults-500-mg-twice-daily-for-7-days-children-30-mg-kg-divided-in-two-doses-a-day-for-7-days",
+        "en": "Ciprofloxacin, (Adults) 500mg, twice daily for 7 days; (Children) 30mg/kg divided in two doses a day for 7 days",
+        "sw": "Ciprofloxacin, (Watu wazima) 500mg, mara mbili kwa siku kwa siku 7; (Watoto) 30mg / kg imegawanywa katika dozi mbili kwa siku kwa siku 7"
+      },
+      {
+        "id": "oral-rehydration-salts-or-fluids-if-dehydrated",
+        "en": "Oral Rehydration Salts or Fluids (if dehydrated)",
+        "sw": "Oral Rehydration Salts or Fluids (if dehydrated)"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention practies and encourage them to practice good hygeine.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya njia za kuzuia na kuwatia moyo wafanye usafi mzuri."
+    }
+  },
+  "cholera": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if their symptoms last more than 3 days or if there are any emergency signs.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa dalili zao zinadumu zaidi ya siku 3 au ikiwa kuna dalili zozote za dharura."
+    },
+    "medications": [
+      {
+        "id": "azithromycin-200-mg-kg-single-dose",
+        "en": "Azithromycin, 200mg/kg, single dose"
+      },
+      {
+        "id": "oral-rehydration-salts-or-fluids-if-dehydrated",
+        "en": "Oral Rehydration Salts or Fluids (if dehydrated)"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention practies and encourage them to practice good hygeine.",
+      "sw": ""
+    }
+  },
+  "meningitis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "spinal-fluid-tap",
+        "en": "Spinal Fluid Tap"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "epilepsy": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide epilepsy first aid to the patient.",
+      "sw": "Toa msaada wa kwanza wa ugonjwa wa kifafa kwa mgonjwa."
+    }
+  },
+  "dehydration": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani."
+    },
+    "medications": [
+      {
+        "id": "oral-rehydration-salts-for-2-years-50-100-ml-after-each-loose-stool-for-2-years-100-200-ml-after-each-loose-stool-alternatively-give-ors-every-4-hours",
+        "en": "Oral Rehydration Salts, for <2 years, 50-100ml after each loose stool. For >2 years, 100-200ml after each loose stool. Alternatively, give ORS every 4 hours. "
+      },
+      {
+        "id": "fluids",
+        "en": "Fluids"
+      },
+      {
+        "id": "zinc-supplements-children-20-mg-per-day-for-14-days-10-mg-per-day-if-less-than-2-years",
+        "en": "Zinc supplements (children), 20mg per day for 14 days (10mg per day if less than 2 years)"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "If the patient's symptoms are severe, recommend that they get treated at the hospital. If the child is breastfeeding, continue breastfeeding.",
+      "sw": "Ikiwa dalili za mgonjwa ni kali, pendekeza watibiwe hospitalini. Ikiwa mtoto ananyonyesha, endelea kunyonyesha."
+    }
+  },
+  "hypertension": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "blood-pressure",
+        "en": "Blood Pressure"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "scabies": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani."
+    },
+    "medications": [
+      {
+        "id": "scaboma-or-benzyl-benzoate-bbe-25-topical-cream",
+        "en": "Scaboma or Benzyl benzoate (BBE - 25%) topical cream"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "After bathing, the patient should apply cream to the whole body - except the face and head - and should stay 24 hours without bathing. Repeat the spray on the third and fifth day.",
+      "sw": "Baada ya kuoga, mgonjwa apake mwili mzima isipokuwa uso na kichwa na mgonjwa akae saa 24 bila kuoga. Rudia kupaka dawa siku ya tatu na ya tano."
+    }
+  },
+  "gastroenteritis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care. They should seek medical attention if they experience excessive pain, excessive vomitting or diarrhoea, if there are any emergency signs, or if the patient is pregnant",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani. Wanapaswa kutafuta matibabu ikiwa wanapata maumivu kupindukia, kutapika kupita kiasi au kuharisha, ikiwa kuna dalili zozote za dharura, au ikiwa mgonjwa ni mjamzito"
+    },
+    "medications": [
+      {
+        "id": "oral-rehydration-salts-or-fluids-if-dehydrated",
+        "en": "Oral Rehydration Salts or Fluids (if dehydrated)"
+      }
+    ],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Recommend that the patient rests and avoids eating milk-based foods.",
+      "sw": "Pendekeza kwamba mgonjwa anapumzika na aepuka kula vyakula vyenye maziwa."
+    }
+  },
+  "heat-rash": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani."
+    },
+    "medications": [
+      {
+        "id": "topical-corticosteroid-cream-if-severe-apply-2-3-times-a-day-on-the-affected-areas",
+        "en": "Topical Corticosteroid Cream (if severe), apply 2-3 times a day on the affected areas",
+        "sw": "Cream ya juu ya Corticosteroid (ikiwa kali), tumia mara 2-3 kwa siku kwenye maeneo yaliyoathiriwa"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Recommend that the patient wear cool cotton clothing and that they ventilate their room.",
+      "sw": "Pendekeza kwamba mgonjwa avae nguo za pamba zenye baridi na kwamba kuwepo na hewa ya kutosha chumba chake."
+    }
+  },
+  "stomatitis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 2 days.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya siku 2."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "bacteremia": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "blood-culture",
+        "en": "Blood Culture"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "cephalohematoma": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani."
+    },
+    "medications": [
+      {
+        "id": "",
+        "en": "-"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "Provide counseling that the condition will likely go away on it's own. Recommend that the patient seeks medical care if the symptoms do not resolve.",
+      "sw": "Toa ushauri kwamba hali hiyo itaenda yenyewe. Pendekeza kwamba mgonjwa atafute huduma ya matibabu ikiwa dalili hazitatatua."
+    }
+  },
+  "tinea-corporis": {
+    "refer-and-triage-level": {
+      "en": "The patient can recieve home based care.",
+      "sw": "Mgonjwa anaweza kupokea huduma ya nyumbani."
+    },
+    "medications": [
+      {
+        "id": "fluconzaole-for-adults-150-mg-once-a-week-for-4-weeks-for-children-7-mg-kg-once-a-week-for-4-weeks",
+        "en": "Fluconzaole, for adults: 150mg once a week for 4 weeks. For children: 7mg/kg once a week for 4 weeks"
+      }
+    ],
+    "test-recommendations": [],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "impetigo": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "umbilical-cord-sepsis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "c-reactive-protein-crp",
+        "en": "C-reactive protein (CRP)"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "sepsis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "blood-culture",
+        "en": "Blood Culture"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "pediatric-hiv-aids": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "hiv-rapid-test",
+        "en": "HIV Rapid Test"
+      },
+      {
+        "id": "hiv-pcr",
+        "en": "HIV PCR"
+      }
+    ],
+    "other-recommendations": {
+      "en": "Provide counseling to the patient on prevention methods, infection, and continuation of treatment.",
+      "sw": "Toa ushauri kwa mgonjwa juu ya njia za kuzuia maambukizi, na kuendelea na matibabu."
+    }
+  },
+  "hepatitis-b": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility. They should seek care within 2 days. They should seek medical care immediately if there are signs of liver failure.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya. Wanapaswa kutafuta huduma ndani ya siku 2. Wanapaswa kutafuta huduma ya matibabu mara moja ikiwa kuna dalili za kufeli kwa ini."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "full-blood-picture-fbp",
+        "en": "Full Blood Picture (FBP)"
+      },
+      {
+        "id": "hepatitis-b-surface-antigen-h-bs-ag",
+        "en": "Hepatitis B Surface Antigen (HBsAg)"
+      },
+      {
+        "id": "hepatitis-b-pcr-hbv-dna",
+        "en": "Hepatitis B PCR (HBV DNA)"
+      },
+      {
+        "id": "hepatitis-b-surface-antibody-hep-bs-ab",
+        "en": "Hepatitis B Surface Antibody (HepBsAb)"
+      },
+      {
+        "id": "liver-function-tests",
+        "en": "Liver Function Tests"
+      },
+      {
+        "id": "hiv-viral-load",
+        "en": "HIV Viral Load"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  },
+  "toxoplasmosis": {
+    "refer-and-triage-level": {
+      "en": "Refer the patient to a health facility immediately.",
+      "sw": "Mpeleke mgonjwa katika kituo cha afya mara moja."
+    },
+    "medications": [],
+    "test-recommendations": [
+      {
+        "id": "cd-4-count",
+        "en": "CD4 Count"
+      },
+      {
+        "id": "anti-toxoplasma-ig-g-serology",
+        "en": "Anti-Toxoplasma IgG Serology"
+      },
+      {
+        "id": "mri-or-ct",
+        "en": "MRI or CT"
+      }
+    ],
+    "other-recommendations": {
+      "en": "",
+      "sw": ""
+    }
+  }
+}

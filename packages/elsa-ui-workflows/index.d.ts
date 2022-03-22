@@ -1,20 +1,11 @@
-import type * as data from "@elsa-health/data-fns";
+import * as data from '@elsa-health/data-fns';
+
 declare type UTCDateTime = string;
 declare type YYYYMMDDDate = string;
-export declare type UserObject = {
+declare type UserObject = {
     fullName: string;
     id: string;
     email: string;
-};
-export declare type Patient = {
-    id: string;
-    registerDate: UTCDateTime;
-    firstName: string;
-    lastName: string;
-    phone: string;
-    address: string;
-    dateOfBirth: YYYYMMDDDate;
-    sex: Patient.Sex;
 };
 declare type PatientInvestigationResult = undefined | string | string[] | {
     values: {
@@ -32,7 +23,7 @@ declare type PatientInvestigation = {
     investigationId: "urinalysis";
     result: PatientInvestigationResult;
 };
-export declare type SymptomState = {
+declare type SymptomState = {
     Name: string;
     Location: Array<string>;
     Duration: number;
@@ -60,13 +51,13 @@ declare type BaseVisitType = {
         absent: string[];
     };
 };
-export declare type PatientVisit = BaseVisitType & {
+declare type PatientVisit = BaseVisitType & {
     id: string;
     investigations: Array<{
         id: string;
     } & PatientInvestigation>;
 };
-export declare type VisitSession = BaseVisitType & {
+declare type VisitSession = BaseVisitType & {
     investigations: PatientInvestigation[];
 };
 declare type InitialPropsType = {
@@ -75,12 +66,22 @@ declare type InitialPropsType = {
 declare type ActionList = {
     [fnName: string]: (...a: any[]) => any;
 };
-export declare type WorkflowScreen<InitialProps extends InitialPropsType, Actions extends ActionList = {}> = {
+declare type WorkflowScreen<InitialProps extends InitialPropsType, Actions extends ActionList = {}> = {
     entry: InitialProps;
     actions: Actions;
 };
-export declare type Language = "en" | "sw";
-export declare namespace Patient {
+declare type Language = "en" | "sw";
+declare type Patient = {
+    id: string;
+    registerDate: UTCDateTime;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    address: string;
+    dateOfBirth: YYYYMMDDDate;
+    sex: Patient.Sex;
+};
+declare namespace Patient {
     type Age = Partial<{
         years: number;
         months: number;
@@ -114,15 +115,15 @@ declare type _CompleteSymptomData = {
 declare type SymptomRecord = {
     id: string;
 };
-export declare type SymptomData = Partial<_CompleteSymptomData>;
-export declare type PatientIntake = {
+declare type SymptomData = Partial<_CompleteSymptomData>;
+declare type PatientIntake = {
     sex: Patient.Sex;
     age: Patient.Age;
     pregnant: boolean;
     dueDate: Date | null;
     vitalSigns?: Patient.VitalSignType;
 };
-export declare type BasicAssessment = PatientIntake & {
+declare type BasicAssessment = PatientIntake & {
     /**
      * Containing the list of present symptoms
      */
@@ -134,7 +135,7 @@ export declare type BasicAssessment = PatientIntake & {
      */
     absentSymptoms: SymptomRecord[];
 };
-export declare type SymptomProps = {
+declare type SymptomProps = {
     location: string[];
     duration: string[];
     onset: string[];
@@ -143,4 +144,15 @@ export declare type SymptomProps = {
     aggravators: string[];
     reducers: string[];
 };
-export {};
+declare type FnList = {
+    [fnName: string]: (...a: any[]) => any;
+};
+declare const withFlowContext: <T, A extends FnList>(Component: (props: {
+    entry?: T | undefined;
+    actions?: A | undefined;
+}) => JSX.Element, k?: {
+    entry?: T | undefined;
+    actions?: (({ navigation }: any) => A) | undefined;
+}) => ({ navigation, route }: any) => JSX.Element;
+
+export { BasicAssessment, Language, Patient, PatientIntake, PatientVisit, SymptomData, SymptomProps, SymptomState, UserObject, VisitSession, WorkflowScreen, withFlowContext };

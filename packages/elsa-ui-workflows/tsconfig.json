@@ -12,12 +12,15 @@
 		"resolveJsonModule": true,
 		"outDir": "./"
 	},
-	"include": ["@types", "./src"],
+	"include": ["./src/**/*"],
 	"exclude": [
 		"node_modules",
 		"babel.config.js",
 		"metro.config.js",
 		"jest.config.js",
-		"jest.setup.js"
+		"jest.setup.js",
+		"./__tests__/**/*",
+		"**/*.test.js",
+		"**/*.test.tsx"
 	]
 }

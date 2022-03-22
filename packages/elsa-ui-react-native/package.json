@@ -12,13 +12,15 @@
 	"scripts": {
 		"postinstall": "rm -rf node_modules/react-native",
 		"test": "jest -u",
-		"build": "tsup ./src --format cjs --dts --external react-native  --out-dir ./",
-		"dev": "tsup ./src --format cjs --watch --dts --external react-native --out-dir ./",
+		"build:dev": "npx tsc -p .",
+		"build": "tsup ./src --format cjs --dts --external react-native --external react-native-svg --out-dir ./",
+		"dev": "tsup ./src --format cjs --watch --dts --external react-native --external react-native-svg --out-dir ./",
 		"lint": "TIMING=1 eslint src --fix",
-		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf ./components ./theme ./visuals ./index.*"
 	},
 	"devDependencies": {
 		"@babel/preset-react": "^7.16.7",
+		"@babel/runtime": "^7.17.8",
 		"@testing-library/react-native": "^9.0.0",
 		"@types/jest": "^27.4.1",
 		"@types/lodash": "^4.14.178",

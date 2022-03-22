@@ -1,10 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import i18n, { InitOptions } from "i18next";
-import {
-	useTranslation as usei18nTranslation,
-	I18nextProvider,
-} from "react-i18next";
-import { View, Text } from "react-native";
+import { I18nextProvider } from "react-i18next";
 
 // Language files
 import en from "./lang/en";
@@ -52,7 +48,7 @@ export const LanguageProvider = ({
 	options?: InitOptions;
 	children: React.ReactNode;
 }) => {
-	const [ready, setReady] = useState(false);
+	const [ready, setReady] = React.useState(false);
 	// FIXME: update the language when the language changes
 	const lang = "en"; // useApplication((s) => s.settings.lang, shallow);
 
@@ -78,12 +74,7 @@ export const LanguageProvider = ({
 	}, [lang]);
 
 	if (!ready) {
-		return (
-			<View style={{ flex: 1 }}>
-				{/* Loading the */}
-				<Text>Loading translations to the application</Text>
-			</View>
-		);
+		return null;
 	}
 
 	return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;

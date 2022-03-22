@@ -7,31 +7,33 @@
 		"locale/**"
 	],
 	"scripts": {
+		"postinstall": "rm -rf node_modules/react-native",
 		"test": "jest -u",
-		"build": "tsup ./src --format cjs --dts --external react-native --out-dir ./locale",
-		"dev": "tsup ./src --format cjs --watch --dts --external react-native --out-dir ./locale",
+		"build:dev": "tsc -p .",
+		"build": "tsup ./src --format cjs --dts --out-dir ./",
+		"dev": "tsup ./src --format cjs --watch --dts  --out-dir ./",
 		"lint": "TIMING=1 eslint src --fix",
-		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf ./locale ./index.*"
 	},
 	"devDependencies": {
 		"@babel/preset-react": "^7.16.7",
+		"@elsa-health/data-fns": "*",
 		"@testing-library/react-native": "^9.0.0",
+		"@types/i18next": "^13.0.0",
 		"@types/jest": "^27.4.1",
 		"@types/lodash": "^4.14.178",
 		"@types/react": "^17.0.13",
 		"@types/react-dom": "^17.0.8",
+		"@types/react-i18next": "^8.1.0",
 		"@types/react-native": "^0.66.4",
 		"jest": "^27.5.1",
 		"metro-react-native-babel-preset": "^0.69.1",
 		"react-native-svg": "^12.3.0",
 		"scripts": "*",
 		"tsup": "^5.10.1",
-		"typescript": "^4.2.4",
-		"@elsa-health/data-fns": "*"
+		"typescript": "^4.2.4"
 	},
 	"dependencies": {
-		"i18next": "^21.6.14",
-		"immer": "^9.0.12",
-		"react-i18next": "^11.16.1"
+		"immer": "^9.0.12"
 	}
 }

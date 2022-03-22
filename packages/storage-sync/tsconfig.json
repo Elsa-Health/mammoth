@@ -1,19 +1,17 @@
 {
 	"compilerOptions": {
-		"target": "esnext",
+		"target": "es2015",
 		"jsx": "preserve",
-		"noEmit": true,
 		"declaration": true,
-		"declarationDir": "./",
 		"isolatedModules": true,
 		"strict": true,
 		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,
-		"skipLibCheck": false,
+		"skipLibCheck": true,
 		"resolveJsonModule": true,
-		"outDir": "./dist"
+		"outDir": "./dist",
+		"baseUrl": "./"
 	},
-	"exclude": ["node_modules", "./__tests__/**/*", "**/*.test.(j|t)sx?"],
-	"extends": "tsconfig/base.json",
-	"include": ["./src/*", "src/components/Button.tsx"]
+	"include": ["./src/**/*"],
+	"exclude": ["node_modules", "./__tests__/**/*", "**/*.test.(j|t)sx?"]
 }

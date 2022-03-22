@@ -7,6 +7,7 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
+		"clean": "rm -rf .turbo && rm -rf node_modules",
     "lint": "eslint ."
   },
   "dependencies": {

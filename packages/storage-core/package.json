@@ -7,7 +7,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "jest -u",
-		"build": "tsup ./src --format cjs --dts  --out-dir ./dist",
+		"build": "tsc -p .",
 		"dev": "tsup ./src --format cjs --watch --dts --out-dir ./dist",
 		"lint": "TIMING=1 eslint src --fix",
 		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"

@@ -2,6 +2,7 @@
 	"name": "@elsa-ui/workflows",
 	"version": "1.0.0",
 	"types": "./@types",
+	"main": "./index.js",
 	"sideEffects": false,
 	"license": "MIT",
 	"files": [
@@ -12,10 +13,11 @@
 	"scripts": {
 		"postinstall": "rm -rf node_modules/react-native",
 		"test": "jest -u",
-		"build": "tsup ./src --format cjs --dts --external react-native  --out-dir ./",
+		"build:dev": "tsc -p .",
+		"build": "tsup ./src --format cjs --dts --external react-native --out-dir ./",
 		"dev": "tsup ./src --format cjs --watch --dts --external react-native --out-dir ./",
 		"lint": "TIMING=1 eslint src --fix",
-		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf ./screens ./screen-group ./flows index.js ./@types"
 	},
 	"devDependencies": {
 		"@babel/preset-react": "^7.16.7",
@@ -34,11 +36,12 @@
 		"typescript": "^4.2.4"
 	},
 	"dependencies": {
+		"@elsa-health/data-fns": "*",
 		"@elsa-ui/react-native": "*",
 		"@elsa-ui/utils": "*",
-		"@elsa-health/data-fns": "*",
 		"immer": "^9.0.12",
 		"react-native-date-picker": "^4.2.0",
-		"react-native-paper": "^4.11.2"
+		"react-native-paper": "^4.11.2",
+		"zustand": "^3.7.1"
 	}
 }

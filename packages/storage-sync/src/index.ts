@@ -112,9 +112,11 @@ const collectionLTR =
 			 */
 			// @ts-ignore
 			queryDoc: async (qo: Store.QueryFilter | undefined) => {
+				// @ts-ignore
 				const ld = await mc.queryDoc(qo);
 
 				// get remote data and merging
+				// @ts-ignore
 				const rd = await rc.queryDoc(qo);
 
 				console.log("STOREPAIR.queryDoc");
@@ -162,6 +164,7 @@ const collectionLTR =
 					}
 				}
 
+				// @ts-ignore
 				return await mc.queryDoc(qo);
 			},
 			queryDocs: mc.queryDocs,
@@ -231,12 +234,14 @@ const LTRStoreConfig =
 					remote.collection(name, remote.collectionDocument(name)),
 					sync,
 					convConfig
+					// @ts-ignore
 				)(documentAction);
 			},
 			// @ts-ignore
 			collectionDocument: (collName: string) => (name: string) =>
 				collectionDocumentLTR(
-					local.collectionDocument(collName),
+					// @ts-ignore
+					local.collectionDocument(collName, docRefFn),
 					remote.collectionDocument(collName),
 					sync
 				)(name),
