@@ -7,6 +7,7 @@ import ApVisDahboardScreen from '../../screens/ApVisDashboard';
 import CTCRegisterNewPatientScreen from '../../screens/CTCRegisterNewPatient';
 import HIVAdherenceAssessmentScreen from '../../screens/HIVAdherenceAssessment';
 import OrderInvestigationScreen from '../../screens/OrderInvestigation';
+import HIVDispenseMedicationScreen from '../../screens/HIVDispenseMedication';
 
 import CTCPatientVisistScreenGroup from '../../screen-groups/CTCPatientVisit';
 import BasicAssessmentScreen from '../../screen-groups/BasicAssessment';
@@ -108,7 +109,19 @@ export default function CTCFlow() {
                 };
               });
 
-              navigation.navigate('lab.confirm_visit');
+              console.log('Investigations:', invObjs);
+
+              navigation.navigate('ctc.dipense_medication');
+            },
+          }),
+        })}
+      />
+      <Stack.Screen
+        name="ctc.dipense_medication"
+        component={withFlowContext(HIVDispenseMedicationScreen, {
+          actions: ({navigation}) => ({
+            onNext: meds => {
+              navigation.navigate('ctc.order_investigation');
             },
           }),
         })}
