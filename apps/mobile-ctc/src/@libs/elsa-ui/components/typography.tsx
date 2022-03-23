@@ -33,7 +33,6 @@ export const Text = styled(NativeText)<{
   color: ${({color}) => color || '#000'};
   font-family: ${theme.typography.fontFamilyStyle};
   font-style: normal;
-  line-height: 20px;
   font-size: ${({size = 'md'}) => getFontSize(size)};
 `;
 

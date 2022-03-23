@@ -8,8 +8,18 @@ import {
   ElsaIcon,
 } from '../../../@libs/elsa-ui/visuals/vectors';
 
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import dayjs from 'dayjs';
-import {Button, FAB, Searchbar, Portal, Appbar} from 'react-native-paper';
+import {
+  Button,
+  FAB,
+  Searchbar,
+  Portal,
+  Appbar,
+  IconButton,
+  TouchableRipple,
+} from 'react-native-paper';
 function VisitSection({data}: {data: CTC.Visit[]}) {
   return (
     <View>
@@ -106,8 +116,9 @@ export default function ApVisDashboardScreen({
 }: WorkflowScreen<
   {fullName: string; visits: CTC.Appointment[]; apoointments: CTC.Visit[]},
   {
-    onNewAppoinment: () => {};
-    onNewPatient: () => {};
+    onNewVisit: () => void;
+    onNewPatient: () => void;
+    onPressCodeButton: () => void;
   }
 >) {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -168,13 +179,29 @@ export default function ApVisDashboardScreen({
             Search patient using the patient ID
           </Text>
 
-          <Searchbar
-            placeholder="Ex. 02321-2323-1321321"
-            style={{marginTop: 10}}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
-            value={searchQuery}
-          />
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 10,
+            }}>
+            <Searchbar
+              placeholder="Ex. 02321-2323-1321321"
+              style={{flex: 1}}
+              onChangeText={setSearchQuery}
+              onSubmitEditing={handleSearch}
+              value={searchQuery}
+            />
+
+            <Button
+              icon="qrcode-scan"
+              mode="text"
+              style={{marginLeft: 8, paddingVertical: 4}}
+              onPress={$.onPressCodeButton}>
+              Scan
+            </Button>
+          </View>
         </View>
 
         {/* Appointment Section */}
@@ -189,28 +216,25 @@ export default function ApVisDashboardScreen({
       </ScrollView>
 
       {/* Fixed */}
-
-      <Portal>
-        <FAB.Group
-          open={open}
-          visible
-          icon={open ? 'close' : 'plus'}
-          actions={[
-            {
-              icon: 'account',
-              label: 'New Patient',
-              onPress: () => console.log('Pressed star'),
-            },
-            {
-              icon: 'calendar-edit',
-              label: 'Add Appointment',
-              onPress: () => console.log('Pressed notifications'),
-              small: false,
-            },
-          ]}
-          onStateChange={onStateChange}
-        />
-      </Portal>
+      <FAB.Group
+        open={open}
+        visible
+        icon={open ? 'close' : 'plus'}
+        actions={[
+          {
+            icon: 'account',
+            label: 'New Patient',
+            onPress: $.onNewPatient,
+          },
+          {
+            icon: 'calendar-edit',
+            label: 'Create Visit',
+            onPress: $.onNewVisit,
+            small: false,
+          },
+        ]}
+        onStateChange={onStateChange}
+      />
     </Layout>
   );
 }

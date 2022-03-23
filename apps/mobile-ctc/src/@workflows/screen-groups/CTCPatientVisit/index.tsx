@@ -91,7 +91,7 @@ export default function CTCPatientVisitScreenGroup({
   return (
     <Stack.Navigator
       screenOptions={{headerShown: false}}
-      initialRouteName="visit.hivPatientIntake">
+      initialRouteName="visit.basicV2intake">
       <Stack.Screen
         name="visit.basicV2intake"
         component={withFlowContext(BasicV2PatientIntakeScreen, {
@@ -109,7 +109,6 @@ export default function CTCPatientVisitScreenGroup({
           actions: ({navigation}) => ({
             onNext: hivPatient => {
               changeValue('hivIntake', transformToProperHIVIntake(hivPatient));
-              navigation.navigate('visit');
               $.onNext(visit);
             },
           }),
