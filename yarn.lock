@@ -1894,6 +1894,13 @@
     sudo-prompt "^9.0.0"
     wcwidth "^1.0.1"
 
+"@react-native-community/datetimepicker@^6.1.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@react-native-community/datetimepicker/-/datetimepicker-6.1.0.tgz#1d6f9de678f9813f546f7841b88e44ebf80b2096"
+  integrity sha512-RD9KDNDYyJkEEpw0L/pQ5xPptkHp5FXK05ISTaCWo7O2RlTkRKcxen8UVMQ56wjSx/VPT6OpLxI4wrLO6sx/Xg==
+  dependencies:
+    invariant "^2.2.4"
+
 "@react-native-community/eslint-config@^3.0.1":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@react-native-community/eslint-config/-/eslint-config-3.0.1.tgz#c45968f1214139fe747a7aebdba06c4fa2a4d018"
@@ -10061,7 +10068,7 @@ react-native-keyboard-aware-scroll-view@^0.9.5:
     prop-types "^15.6.2"
     react-native-iphone-x-helper "^1.0.3"
 
-react-native-mmkv@^2.1.0, react-native-mmkv@^2.2.0:
+react-native-mmkv@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-2.2.0.tgz#5cd7203a9a535328872ab10254d6368d78cabc03"
   integrity sha512-hzg+sUXdteLI8HXAZ3DF2IHkMz+AlXytA+uG7i+C3aOq+80j6zuS4e47bmQOLdA157zLDFwRa3Dg5o0S5awpLA==

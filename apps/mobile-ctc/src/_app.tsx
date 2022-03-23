@@ -13,6 +13,8 @@ import QRLogin from './@workflows/screens/QRAuthentication';
 import {NavigationContainer} from '@react-navigation/native';
 import rnpTheme from './@libs/elsa-ui/theme/rnp';
 
+import {LanguageProvider} from './@libs/elsa-utils/locale';
+
 import _ from 'lodash';
 import {authenticate} from './app/utils';
 import {ToastAndroid} from 'react-native';
@@ -69,13 +71,15 @@ export default function App() {
   return (
     <PaperProvider theme={rnpTheme}>
       <ApplicationProvider>
-        <SafeAreaProvider>
-          <AppLoginState>
-            {({isLogin, user}) => (
-              <_Application isLogin={isLogin} user={user} />
-            )}
-          </AppLoginState>
-        </SafeAreaProvider>
+        <LanguageProvider>
+          <SafeAreaProvider>
+            <AppLoginState>
+              {({isLogin, user}) => (
+                <_Application isLogin={isLogin} user={user} />
+              )}
+            </AppLoginState>
+          </SafeAreaProvider>
+        </LanguageProvider>
       </ApplicationProvider>
     </PaperProvider>
   );
