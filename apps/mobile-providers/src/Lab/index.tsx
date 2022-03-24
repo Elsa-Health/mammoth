@@ -108,9 +108,7 @@ async function saveVisitSession(visit: Omit<VisitSession, "date">, emr: Store) {
 }
 
 const getInvestigation = async (id: string, emr: Store) => {
-	const results = await emr
-		.collection("investigations")
-		.queryDoc({ $id: "b4d7fee0-0c94-4289-bf51-5f1ee261c097" });
+	const results = await emr.collection("investigations").queryDoc({ $id });
 	return results;
 };
 
