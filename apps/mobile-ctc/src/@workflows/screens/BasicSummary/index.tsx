@@ -168,8 +168,6 @@ function ConditionViewSection({
     );
   }
 
-  console.log({conditions});
-
   // all the symptoms that I can present here
   const [first, ...other] = conditions;
 

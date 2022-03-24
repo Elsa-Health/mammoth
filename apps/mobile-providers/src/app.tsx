@@ -16,7 +16,7 @@ import { View, Text } from "react-native";
 // import * as data from "@elsa-health/data-fns";
 
 // import { LanguageProvider } from "@elsa-ui/utils/locale";
-import { LanguageProvider } from "./app/locale/config";
+import { LanguageProvider } from "./@libs/elsa-utils/locale";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import EmailPasswordAuthenticationScreen from "./@workflows/screens/EmailPasswordAuthentication";

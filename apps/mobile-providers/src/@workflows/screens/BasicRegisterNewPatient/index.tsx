@@ -1,6 +1,12 @@
 import React from "react";
 import { View } from "react-native";
-import { Button, Divider, RadioButton, TextInput } from "react-native-paper";
+import {
+	Button,
+	Divider,
+	IconButton,
+	RadioButton,
+	TextInput,
+} from "react-native-paper";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
 import dayjs from "dayjs";
@@ -9,15 +15,15 @@ import theme from "../../../theme";
 
 import { ScrollView } from "react-native-gesture-handler";
 import produce from "immer";
+import { format } from "date-fns";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 type PatientFormType = {
 	firstName: string;
 	familyName: string;
 	phoneNumber: string;
 	resident: string;
-	birthMonth: string;
-	birthDay: string;
-	birthYear: string;
+	dateOfBirth: Date | undefined;
 	sex: Sex;
 };
 
@@ -25,13 +31,7 @@ const transformData = (data: PatientFormType): Omit<Patient, "id"> => {
 	return {
 		registerDate: new Date().toUTCString(),
 		address: data.resident,
-		dateOfBirth: dayjs(
-			new Date(
-				parseInt(data.birthYear) || 0,
-				parseInt(data.birthMonth) || 0,
-				parseInt(data.birthDay) || 0
-			)
-		).format("YYYY-MM-DD"),
+		dateOfBirth: dayjs(data.dateOfBirth).format("YYYY-MM-DD"),
 		firstName: data.firstName,
 		lastName: data.familyName,
 		phone: data.phoneNumber,
@@ -52,9 +52,7 @@ export default function BasicRegisterNewPatientScreen({
 		familyName: "",
 		phoneNumber: "",
 		resident: "",
-		birthMonth: "",
-		birthDay: "",
-		birthYear: "",
+		dateOfBirth: undefined,
 		sex: "male",
 	});
 	const changeValue = React.useCallback(
@@ -67,6 +65,8 @@ export default function BasicRegisterNewPatientScreen({
 		},
 		[set]
 	);
+
+	const [showDOB, setShowDOB] = React.useState(false);
 	return (
 		<Layout title="Register New Patient" style={{ padding: 0 }}>
 			<ScrollView contentContainerStyle={{ paddingHorizontal: 24 }}>
@@ -153,8 +153,54 @@ export default function BasicRegisterNewPatientScreen({
 							onChangeText={changeValue("resident")}
 							style={{ marginTop: theme.spacing.sm }}
 						/>
+						<View style={{ marginVertical: 8 }}>
+							<View
+								style={{
+									display: "flex",
+									flexDirection: "row",
+									alignItems: "center",
+								}}
+							>
+								<TextInput
+									value={
+										patient.dateOfBirth !== undefined
+											? format(
+													patient.dateOfBirth,
+													"MMMM dd, yyyy"
+											  )
+											: undefined
+									}
+									mode="outlined"
+									label="Date of Birth"
+									onPressIn={() => setShowDOB((s) => !s)}
+									showSoftInputOnFocus={false}
+									style={{ flex: 1 }}
+									onChange={null}
+								/>
 
-						<View
+								<IconButton
+									icon="calendar-month"
+									color={"#555"}
+									size={24}
+									onPress={() => setShowDOB((s) => !s)}
+								/>
+							</View>
+
+							{showDOB && (
+								<DateTimePicker
+									display="calendar"
+									value={
+										patient.dateOfBirth || new Date(2000)
+									}
+									onChange={(e, date) => {
+										setShowDOB(false);
+										changeValue("dateOfBirth")(date);
+									}}
+								/>
+							)}
+						</View>
+
+						{/* <View
 							style={{
 								display: "flex",
 								flexDirection: "row",
@@ -192,7 +238,7 @@ export default function BasicRegisterNewPatientScreen({
 								width: "70%",
 								marginTop: theme.spacing.sm,
 							}}
-						/>
+						/> */}
 					</View>
 				</View>
 

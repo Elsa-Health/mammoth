@@ -30,7 +30,7 @@ export default function CTCFlow() {
           actions: ({navigation}) => ({
             loadPatients: async () => [],
             onNewPatient: () => {
-              navigation.navigate('ctc.registerPatient');
+              navigation.navigate('ctc.register_patient');
             },
             onNewVisit: () => {
               navigation.navigate('ctc.patient_visit');
@@ -42,7 +42,7 @@ export default function CTCFlow() {
         })}
       />
       <Stack.Screen
-        name="ctc.registerPatient"
+        name="ctc.register_patient"
         component={withFlowContext(CTCRegisterNewPatientScreen, {
           actions: ({navigation}) => ({
             onRegisterPatient: patientForm => {
@@ -60,14 +60,14 @@ export default function CTCFlow() {
             onNext: patientForm => {
               console.log(patientForm);
               // TODO: This should be a conditional navigation. Depends on where they came from
-              // navigation.navigate('ctc.patientAssessment');
-              navigation.navigate('ctc.adherence_assessment');
+              navigation.navigate('ctc.patient_assessment');
+              // navigation.navigate('ctc.adherence_assessment');
             },
           }),
         })}
       />
       <Stack.Screen
-        name="ctc.patientAssessment"
+        name="ctc.patient_assessment"
         component={withFlowContext(BasicAssessmentScreen, {
           entry: {
             patient: {sex: 'male', age: {years: 23}},
