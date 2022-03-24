@@ -228,6 +228,11 @@ export default function BasicIntake({
 				</View>
 				<MultiInput
 					title="Age"
+					initialValue={{
+						years: data.age?.years?.toString() || "",
+						months: data.age?.months?.toString() || "",
+						days: data.age?.days?.toString() || "",
+					}}
 					onChangeValue={setAge}
 					component={HouseRowComponent}
 					configuration={{
