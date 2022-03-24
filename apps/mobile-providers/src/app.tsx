@@ -91,6 +91,12 @@ export default function App() {
 	// 		console.log(dc);
 	// 	});
 
+	store
+		.collection("investigations")
+		.queryDoc({ $id: "b4d7fee0-0c94-4289-bf51-5f1ee261c097" })
+		.then((v) => {
+			console.log("Queried Inv:", v);
+		});
 	if (!emrReady) {
 		return (
 			<View>

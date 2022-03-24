@@ -10037,6 +10037,11 @@ react-native-elements@^3.4.2:
     react-native-ratings "8.0.4"
     react-native-size-matters "^0.3.1"
 
+react-native-fast-storage@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/react-native-fast-storage/-/react-native-fast-storage-0.1.6.tgz#7a523e04dfc3b4c2d2de4b1629708137e4114503"
+  integrity sha512-PVNW9klaOgXB8ENwV+wfRq7xZkH13ESaiZGnRVhFuosJhLb5rLFJXDRg61qwSJMWYtLmPA0Mfq3xM538gczOUg==
+
 react-native-gesture-handler@^1.10.3:
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.10.3.tgz#942bbf2963bbf49fa79593600ee9d7b5dab3cfc0"

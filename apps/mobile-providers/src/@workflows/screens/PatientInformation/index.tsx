@@ -8,65 +8,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { differenceInYears } from "date-fns";
 import * as data from "../../../@libs/data-fns";
 import dayjs from "dayjs";
-import { Store } from "../../../@libs/storage-core";
 import _ from "lodash";
-
-// const visits: PatientVisit[] = [
-// 	{
-// 		id: "0iwmcpmirf",
-// 		date: new Date("2021-04-15").toUTCString(),
-// 		condition: "pneumonia",
-// 		symptoms: {
-// 			present: [
-// 				{
-// 					id: "abdominal-pain",
-// 					state: {
-// 						Location: ["upper"],
-// 						Duration: 5,
-// 						Aggravators: [""],
-// 						Name: "abdominal-pain",
-// 						Nature: "localized",
-// 						Periodicity: "non-specific",
-// 						Onset: "sudden",
-// 						Reducers: [],
-// 					},
-// 				},
-// 				{
-// 					id: "fever",
-// 					state: {
-// 						Location: [],
-// 						Duration: 3,
-// 						Aggravators: [""],
-// 						Name: "fever",
-// 						Nature: "localized",
-// 						Periodicity: "non-specific",
-// 						Onset: "sudden",
-// 						Reducers: [],
-// 					},
-// 				},
-// 			],
-// 			absent: [],
-// 		},
-// 		investigations: [
-// 			{
-// 				id: "123412",
-// 				investigationId: "urinalysis",
-// 				obj: data.investigation.fromId("urinalysis"),
-// 			},
-
-// 			{
-// 				id: "343124",
-// 				investigationId: "x-ray",
-// 				obj: data.investigation.fromId("x-ray"),
-// 			},
-// 			{
-// 				id: "199312",
-// 				investigationId: "mrdt-rapid-test",
-// 				obj: data.investigation.fromId("mrdt-rapid-test"),
-// 			},
-// 		],
-// 	},
-// ];
 
 export default function PatientInformationScreen({
 	entry: { patient },
@@ -77,9 +19,7 @@ export default function PatientInformationScreen({
 	},
 	{
 		getPatientVisits: (patientId: string) => Promise<PatientVisit[]>;
-		getInvestigationResult: (
-			id: string
-		) => Promise<PatientInvestigationResult>;
+		getInvestigation: (id: string) => Promise<PatientInvestigation>;
 		onNewAssessment: (
 			patientId: string,
 			patient: Partial<PatientIntake>
@@ -246,7 +186,7 @@ export default function PatientInformationScreen({
 											investigations={
 												visit.investigations
 											}
-											getResult={$.getInvestigationResult}
+											getResult={$.getInvestigation}
 											onOpenVisit={(results) => {
 												$.onOpenVisit(visit, results);
 											}}

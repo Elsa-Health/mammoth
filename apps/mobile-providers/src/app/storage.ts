@@ -17,13 +17,14 @@ import uuid from "react-native-uuid";
 /** AsyncStorage type store */
 import ItemStorage from "../@libs/storage-stores/local/itemStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FastStorage from "react-native-fast-storage";
+
+export const keyGenerator = (key?: string | undefined) =>
+	key || uuid.v4().toString();
 
 const store = buildStore(
-	ItemStorage(
-		"$DEV_STORAGE",
-		AsyncStorage,
-		(id) => id || uuid.v4().toString()
-	)
+	// ItemStorage("$DEV_STORAGE", AsyncStorage, keyGenerator)
+	ItemStorage("$DEV_STORAGE_FAST_V2", FastStorage, keyGenerator)
 );
 
 // rawMMKVStore.clearAll();

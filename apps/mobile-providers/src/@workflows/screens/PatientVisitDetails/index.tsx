@@ -19,7 +19,6 @@ export default function PatientVisitDetailsScreen({
 		visit: PatientVisit;
 	},
 	{
-		getResult: (id: string) => Promise<PatientInvestigationResult>;
 		onOpenInvestigation: (
 			investigation: { id: string } & PatientInvestigation
 		) => void;
@@ -97,6 +96,7 @@ export default function PatientVisitDetailsScreen({
 								name: data.investigation.name.fromId(
 									s.investigationId
 								),
+								id: s.id,
 								obj: s.obj,
 								result: s.result,
 								onPress: () => $.onOpenInvestigation(s),
@@ -191,6 +191,7 @@ function InvestigationItem({
 	onPress,
 	result,
 }: PatientInvestigation & {
+	id: string;
 	name: string;
 	onPress: () => void;
 	result: PatientInvestigationResult;
@@ -226,48 +227,60 @@ function InvestigationItem({
 	const results = result || {};
 
 	return (
-		<List.Accordion
-			title={invName}
-			// right={() => (
-			// 	<Pressable
-			// 		style={{
-			// 			alignItems: "center",
-			// 			display: "flex",
-			// 			flexDirection: "row",
-			// 			justifyContent: "space-between",
-			// 			paddingVertical: 6,
-			// 		}}
-			// 		onPress={}
-			// 	>
-			// 		<Icon name="pencil" size={16} />
-			// 		<Text>Edit</Text>
-			// 	</Pressable>
-			// )}
-		>
+		<View>
 			<View>
-				<View>
-					{Object.entries(obj.items)
-						.map((s) => {
-							const [id, shape] = s;
-							return {
-								id,
-								name: data.investigation.name.fromId(id),
-								...shape,
-							};
-						})
-						.map((s) => (
-							<SingleInvestigationItem
-								{...s}
-								key={s.id}
-								result={results[s.id]}
-							/>
-						))}
-				</View>
+				<Text size={"sm"} color="#777" font="bold">
+					Panel
+				</Text>
 			</View>
-			<Button icon={"pencil"} mode="outlined" compact onPress={onPress}>
-				Edit Results
-			</Button>
-		</List.Accordion>
+			<List.Accordion
+				title={invName}
+				// right={() => (
+				// 	<Pressable
+				// 		style={{
+				// 			alignItems: "center",
+				// 			display: "flex",
+				// 			flexDirection: "row",
+				// 			justifyContent: "space-between",
+				// 			paddingVertical: 6,
+				// 		}}
+				// 		onPress={}
+				// 	>
+				// 		<Icon name="pencil" size={16} />
+				// 		<Text>Edit</Text>
+				// 	</Pressable>
+				// )}
+			>
+				<View>
+					<View>
+						{Object.entries(obj.items)
+							.map((s) => {
+								const [id, shape] = s;
+								return {
+									id,
+									name: data.investigation.name.fromId(id),
+									...shape,
+								};
+							})
+							.map((s) => (
+								<SingleInvestigationItem
+									{...s}
+									key={s.id}
+									result={results[s.id]}
+								/>
+							))}
+					</View>
+				</View>
+				<Button
+					icon={"pencil"}
+					mode="outlined"
+					compact
+					onPress={onPress}
+				>
+					Edit Results
+				</Button>
+			</List.Accordion>
+		</View>
 	);
 }
 

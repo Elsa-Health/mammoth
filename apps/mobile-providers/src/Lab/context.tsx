@@ -21,6 +21,8 @@ type LabStoreState = {
 	// All the investigations visible in the app
 	investigations: Array<LabInvestigation>;
 
+	addPatient: (patient: Patient) => void;
+
 	// setVisits: ProperSetter<PatientVisit[]>;
 	setPatients: ProperSetter<Patient[]>;
 	setInvestigations: ProperSetter<LabInvestigation[]>;
@@ -32,6 +34,13 @@ const createStore = () =>
 		visits: [],
 		patients: [],
 		investigations: [],
+		addPatient: (patient) => {
+			set((s) => ({
+				patients: produce(s["patients"], (df) => {
+					df.push(patient);
+				}),
+			}));
+		},
 		setPatients: (v) => {
 			if (typeof v === "function") {
 				set((s) => ({ patients: v(s.patients) }));

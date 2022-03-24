@@ -54,6 +54,7 @@
 		"react-native-code-push": "^7.0.4",
 		"react-native-date-picker": "^4.1.1",
 		"react-native-elements": "^3.4.2",
+		"react-native-fast-storage": "^0.1.6",
 		"react-native-gesture-handler": "^1.10.3",
 		"react-native-get-random-values": "^1.7.0",
 		"react-native-paper": "^4.11.2",
