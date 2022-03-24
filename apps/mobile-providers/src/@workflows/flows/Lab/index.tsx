@@ -229,6 +229,7 @@ function MainLabComponent({
 								};
 							});
 
+							console.log("INVESTIGATIONS:", invObjs);
 							update("investigations", invObjs);
 
 							navigation.navigate("lab.confirm_visit");

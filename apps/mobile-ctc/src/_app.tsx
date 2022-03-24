@@ -17,7 +17,7 @@ import {LanguageProvider} from './@libs/elsa-utils/locale';
 
 import _ from 'lodash';
 import {authenticate} from './app/utils';
-import {ToastAndroid} from 'react-native';
+import {ToastAndroid, View} from 'react-native';
 
 import {Provider as PaperProvider} from 'react-native-paper';
 

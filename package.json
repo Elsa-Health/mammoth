@@ -18,8 +18,10 @@
 			"**/@elsa-ui/react-native/**",
 			"**/@elsa-ui/utils/",
 			"**/@elsa-ui/utils/**",
-			"**/@elsa-ui/workflows/",
-			"**/@elsa-ui/workflows/**"
+			"**/@elsa-ui/react-native-workflows/",
+			"**/@elsa-ui/react-native-workflows/**",
+			"**/react-native-elsa-ui/",
+			"**/react-native-elsa-ui/**"
 		]
 	},
 	"scripts": {

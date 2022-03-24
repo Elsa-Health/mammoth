@@ -94,9 +94,9 @@ const store = deviceStorage();
 // store.collection("investigation.results").create({ checkIfExists: true });
 
 export default function App() {
-	const [user, setUser] = React.useState<UserObject | null>({
-		fullName: "Harrison Mariki",
-	});
+	const [user, setUser] = React.useState<UserObject | null>(
+		__DEV__ ? { fullName: "Micheal Scott" } : null
+	);
 	const [emrReady, setEmrReady] = React.useState(false);
 
 	// const [user, setUser] = React.useState<UserObject | null>(null);

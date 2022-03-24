@@ -16,7 +16,7 @@
     "@elsa-health/data-fns": "*",
     "@elsa-ui/react-native": "*",
     "@elsa-ui/utils": "*",
-    "@elsa-ui/workflows": "*",
+    "@elsa-ui/react-native-workflows": "*",
     "@gorhom/bottom-sheet": "^4",
     "@react-native-async-storage/async-storage": "^1.15.11",
     "@react-native-community/checkbox": "^0.5.9",

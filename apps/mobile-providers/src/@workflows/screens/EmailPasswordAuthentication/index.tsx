@@ -16,7 +16,7 @@ function loginUser(email: string, _: string): UserObject {
 	return {
 		email,
 		id: "ff9uewons",
-		fullName: "Richard Hendricks",
+		fullName: "Thomas Micheal",
 	};
 }
 

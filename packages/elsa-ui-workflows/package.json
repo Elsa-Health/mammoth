@@ -1,5 +1,5 @@
 {
-	"name": "@elsa-ui/workflows",
+	"name": "@elsa-ui/react-native-workflows",
 	"version": "1.0.0",
 	"types": "./@types",
 	"main": "./index.js",
