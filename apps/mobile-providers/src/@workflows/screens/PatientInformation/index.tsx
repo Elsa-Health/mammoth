@@ -1,7 +1,7 @@
 import React from "react";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 import { View, ScrollView } from "react-native";
-import theme from "../../../theme";
+import theme from "../../../@libs/elsa-ui/theme";
 import { Button } from "react-native-paper";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -69,14 +69,14 @@ import _ from "lodash";
 // ];
 
 export default function PatientInformationScreen({
-	entry: { patient, store },
+	entry: { patient },
 	actions: $,
 }: WorkflowScreen<
 	{
 		patient: Patient;
-		store: Store;
 	},
 	{
+		getPatientVisits: (patientId: string) => Promise<PatientVisit[]>;
 		getInvestigationResult: (
 			id: string
 		) => Promise<PatientInvestigationResult>;
@@ -108,14 +108,12 @@ export default function PatientInformationScreen({
 
 	React.useEffect(() => {
 		console.log({ patientId: patient.id });
-		store
-			.collection("visits")
-			.queryDocs<PatientVisit>({ patientId: patient.id })
-			.then((docs) => {
-				setVisits(docs);
+		$.getPatientVisits(patient.id)
+			.then((visits) => {
+				setVisits(visits);
 			})
 			.then(() => console.log("Visits loaded"));
-	}, [store]);
+	}, []);
 
 	// React.useEffect(() => {
 	// 	const investigations: string[] = _.concat(

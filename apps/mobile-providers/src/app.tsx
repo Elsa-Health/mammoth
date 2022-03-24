@@ -2,14 +2,15 @@ import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
 import SplashScreen from "react-native-splash-screen";
 
-import LabFlow from "./@workflows/flows/Lab";
+import LabFlow from "./Lab";
 
 import {
 	Provider as PaperProvider,
 	DefaultTheme,
 	configureFonts,
 } from "react-native-paper";
-import theme, { fontFamilyStyle } from "./theme";
+import theme, { fontFamilyStyle } from "./@libs/elsa-ui/theme";
+import rnpTheme from "./@libs/elsa-ui/theme/rnp";
 
 import { View, Text } from "react-native";
 // import { Chip, Text } from "@elsa-ui/react-native/components";
@@ -22,76 +23,10 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import EmailPasswordAuthenticationScreen from "./@workflows/screens/EmailPasswordAuthentication";
 import { withFlowContext } from "./@workflows/wrapper";
 
-// import MMKV from "react-native-mmkv";
-
-// import { buildStore } from "./@libs/storage-core";
-// import MMKVStore from "./@libs/storage-stores/local/react-native-mmkv";
 import deviceStorage from "./app/storage";
-
-const fontConfig = {
-	regular: {
-		fontFamily: fontFamilyStyle({ font: "normal" }),
-		fontWeight: "normal",
-	},
-	medium: {
-		fontFamily: fontFamilyStyle({ font: "medium" }),
-		fontWeight: "normal",
-	},
-	light: {
-		fontFamily: fontFamilyStyle({ font: "light" }),
-		fontWeight: "normal",
-	},
-	thin: {
-		fontFamily: fontFamilyStyle({ font: "light" }),
-		fontWeight: "normal",
-	},
-};
-
-const paperTheme = {
-	...DefaultTheme,
-	fonts: configureFonts({ android: fontConfig, ios: fontConfig }),
-	roundness: 6,
-	colors: {
-		...DefaultTheme.colors,
-		background: "#FFF",
-		primary: theme.color.primary.base,
-		accent: theme.color.secondary.base,
-	},
-};
-
-// function App() {
-// 	React.useEffect(() => {
-// 		SplashScreen.hide();
-// 	}, []);
-
-// 	return (
-// 		<View
-// 			style={{
-// 				display: "flex",
-// 				flex: 1,
-// 				alignItems: "center",
-// 				justifyContent: "center",
-// 			}}
-// 		>
-// 			<Chip text="asdasdsa" style={{ alignSelf: "center" }} />
-// 			<Text>Hello There {data.conditions.name.fromId("asthma")}</Text>
-// 		</View>
-// 	);
-// }
-
-// export default function A() {
-// 	return (
-// 		// <LanguageProvider>
-// 		<App />
-// 		// </LanguageProvider>
-// 	);
-// }
 
 const Stack = createNativeStackNavigator();
 const store = deviceStorage();
-
-// Creating the collections if they don't exist
-// store.collection("investigation.results").create({ checkIfExists: true });
 
 export default function App() {
 	const [user, setUser] = React.useState<UserObject | null>(
@@ -116,24 +51,46 @@ export default function App() {
 		});
 	}, []);
 
-	// React.useEffect(() => {
-	// 	store
-	// 		.collection("patients")
-	// 		.addDoc<Omit<Patient, "id">>({
-	// 			address: "asdasds",
-	// 			dateOfBirth: "1993-11-05",
-	// 			firstName: "Mike",
-	// 			lastName: "Tyson",
-	// 			phone: "+32323",
-	// 			registerDate: new Date().toUTCString(),
-	// 			sex: "male",
-	// 		})
-	// 		.then((id) => console.log("Created patient in:", id))
-	// 		.catch((err) => {
-	// 			console.warn("FAILED");
-	// 			console.log(err);
-	// 		});
-	// }, []);
+	React.useEffect(() => {
+		// store
+		// 	.collection("abc")
+		// 	.create({ createIfNotExists: true })
+		// 	.then(() => {
+		// 		store
+		// 			.collection("abc")
+		// 			.addMult([{ name: "Mike" }, { name: "James" }])
+		// 			.then((dd) => {
+		// 				console.log("NOW$$$: ", dd);
+		// 			});
+		// 	});
+	}, []);
+
+	// store
+	// 	.collection("investigations")
+	// 	.addMult([
+	// 		{
+	// 			obj: JSON.stringify({
+	// 				type: "numeric-units",
+	// 				units: "x10^9 /L",
+	// 			}),
+	// 			investigationId: "basophil-count",
+	// 		},
+	// 		{
+	// 			obj: JSON.stringify({ type: "numeric-units", units: "mg/dL" }),
+	// 			investigationId: "bun-blood-urea-nitrogen",
+	// 		},
+	// 		{
+	// 			obj: JSON.stringify({
+	// 				type: "numeric-units",
+	// 				units: "cells/mm3",
+	// 			}),
+	// 			investigationId: "cd-4-count",
+	// 		},
+	// 	])
+	// 	.then((dc) => {
+	// 		console.log(dc);
+	// 	});
+
 	if (!emrReady) {
 		return (
 			<View>
@@ -144,7 +101,7 @@ export default function App() {
 
 	return (
 		<LanguageProvider>
-			<PaperProvider theme={paperTheme}>
+			<PaperProvider theme={rnpTheme}>
 				<NavigationContainer theme={{ colors: { background: "#FFF" } }}>
 					{isLoggedIn ? (
 						// TODO: Update the logic the loads the store after the

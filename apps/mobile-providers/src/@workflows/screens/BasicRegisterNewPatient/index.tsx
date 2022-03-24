@@ -11,7 +11,7 @@ import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
 import dayjs from "dayjs";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import theme from "../../../theme";
+import theme from "../../../@libs/elsa-ui/theme";
 
 import { ScrollView } from "react-native-gesture-handler";
 import produce from "immer";

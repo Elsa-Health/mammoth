@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import { ElsaIcon } from "../../../assets/vectors";
 import { Layout } from "../../../@libs/elsa-ui/components";
-// import { Button } from "../../../components/input";
 import { Text } from "../../../@libs/elsa-ui/components/typography";
 
 import { TextInput, Button } from "react-native-paper";

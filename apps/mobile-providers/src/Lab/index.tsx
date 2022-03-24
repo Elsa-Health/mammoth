@@ -1,20 +1,20 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
-import BasicEMRDashboardScreen from "../../screens/BasicEMRDashboard";
-import PatientInformationScreen from "../../screens/PatientInformation";
-import BasicIntake from "../../screens/BasicIntake";
+import BasicEMRDashboardScreen from "../@workflows/screens/BasicEMRDashboard";
+import PatientInformationScreen from "../@workflows/screens/PatientInformation";
+import BasicIntake from "../@workflows/screens/BasicIntake";
 
-import { withFlowContext } from "../../wrapper";
-import BasicAssessment from "../../screen-groups/BasicAssessment";
-import PatientVisit from "../../screen-groups/PatientFolder";
-import { LabContextProvider } from "./context";
-import OrderInvestigationScreen from "../../screens/OrderInvestigation";
-import BasicRegisterNewPatientScreen from "../../screens/BasicRegisterNewPatient";
+import { withFlowContext } from "../@workflows/wrapper";
+import BasicAssessment from "../@workflows/screen-groups/BasicAssessment";
+import PatientVisit from "../@workflows/screen-groups/PatientFolder";
+import { LabContextProvider, useLabContext } from "./context";
+import OrderInvestigationScreen from "../@workflows/screens/OrderInvestigation";
+import BasicRegisterNewPatientScreen from "../@workflows/screens/BasicRegisterNewPatient";
 
-import * as data from "../../../@libs/data-fns";
-import { Store } from "../../../@libs/storage-core";
+import * as data from "../@libs/data-fns";
+import { Store } from "../@libs/storage-core";
 import produce from "immer";
-import ConfirmPatientVisitScreen from "../../screens/ConfirmPatientVisit";
+import ConfirmPatientVisitScreen from "../@workflows/screens/ConfirmPatientVisit";
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +27,88 @@ const NextStepsItems = data.nextSteps.basic(
 	data.investigation.ids
 );
 
+async function saveAndGetPatientFromStore(
+	patient: Omit<Patient, "id">,
+	emr: Store
+) {
+	try {
+		const patientId = await emr.collection("patients").addDoc(patient);
+
+		const qPatient = await emr
+			.collection("patients")
+			.queryDoc<Patient>({ $id: patientId });
+
+		if (patient !== null) {
+			return qPatient;
+		}
+	} catch (err) {
+		console.warn("Unable to create new patient");
+		console.log(err);
+		throw err;
+	}
+}
+
+async function fetchPatientVisitsFromStore(patientId: string, emr: Store) {
+	return await emr
+		.collection("visits")
+		.queryDocs<PatientVisit>({ patientId: patientId });
+}
+
+async function fetchPatientsFromStore(emr: Store) {
+	const ps = await emr.collection("patients").queryDocs<Patient>();
+
+	return ps.map((p) => {
+		const { $id, ...other } = p;
+		return { ...other, id: $id };
+	});
+}
+
+async function saveVisitSession(visit: VisitSession, emr: Store) {
+	const { investigations, ...data } = visit;
+	console.log("&STRIGNY:", JSON.stringify(investigations));
+	try {
+		const ids = await Promise.all(
+			investigations.map(
+				(inv) =>
+					new Promise((res, rej) => {
+						emr.collection("investigations")
+							.addDoc(inv)
+							.then(res)
+							.catch(rej);
+					})
+			)
+		);
+
+		console.log(ids);
+		// const ids = await emr.collection("investigations").addMult();
+
+		const invRecords = await emr
+			.collection("investigations")
+			.queryDocs<PatientInvestigation>({
+				$id: ids,
+			});
+
+		console.log({ ids, invRecords });
+
+		if (visit.patientId !== undefined) {
+			const visitId = await emr.collection("visits").addDoc({
+				...data,
+				investigations: invRecords.map(({ $id, ...others }) => ({
+					id: $id,
+					...others,
+				})),
+				date: new Date().toUTCString(),
+			});
+
+			return visitId;
+		} else {
+			throw Error("Patient ID MISSING");
+		}
+	} catch (err) {
+		throw err;
+	}
+}
+
 function MainLabComponent({
 	user,
 	emr,
@@ -34,6 +116,17 @@ function MainLabComponent({
 	user: { fullName: string };
 	emr: Store;
 }) {
+	// const visits = useLabContext((s) => s.visits);
+	const patients = useLabContext((s) => s.patients);
+
+	const setPatients = useLabContext((s) => s.setPatients);
+	React.useEffect(() => {
+		fetchPatientsFromStore(emr).then((p) => {
+			setPatients(p);
+		});
+	}, []);
+
+	// session
 	const [visit, set] = React.useState<Partial<VisitSession>>({});
 
 	const update = React.useCallback(
@@ -67,7 +160,7 @@ function MainLabComponent({
 				component={withFlowContext(BasicEMRDashboardScreen, {
 					entry: {
 						fullName: user.fullName,
-						store: emr,
+						recentPatients: patients,
 					},
 					actions: ({ navigation }) => {
 						return {
@@ -88,38 +181,17 @@ function MainLabComponent({
 					actions: ({ navigation }) => ({
 						onComplete: (patient) => {
 							// registration happens here
-							emr.collection("patients")
-								.addDoc(patient)
-								.then((s) => {
-									console.log("patientID:", s);
-									emr.collection("patients")
-										.queryDoc<Patient>({ $id: s })
-										.then((patient) => {
-											if (patient !== null) {
-												const { $id, ...ppt } = patient;
-												console.log(
-													"THIS IS THE CREATED PATIENT:",
-													patient
-												);
-												navigation.replace(
-													"lab.patient_information",
-													{
-														patient: {
-															...ppt,
-															id: $id || s,
-														},
-														store: emr,
-													}
-												);
-											}
-										});
-								})
-								.catch((err) => {
-									console.warn(
-										"Unable to create new patient"
+							saveAndGetPatientFromStore(patient, emr).then(
+								(p) => {
+									navigation.replace(
+										"lab.patient_information",
+										{
+											patient,
+											store: emr,
+										}
 									);
-									console.log(err);
-								});
+								}
+							);
 						},
 					}),
 				})}
@@ -127,11 +199,11 @@ function MainLabComponent({
 			<Stack.Screen
 				name="lab.patient_information"
 				component={withFlowContext(PatientInformationScreen, {
-					entry: {
-						store: emr,
-					},
 					actions: ({ navigation }) => ({
+						getPatientVisits: (patientId) =>
+							fetchPatientVisitsFromStore(patientId, emr),
 						getInvestigationResult,
+
 						onNewAssessment: (patientId, patient) => {
 							console.log("onNewAssessment@patient:", {
 								patient,
@@ -229,9 +301,7 @@ function MainLabComponent({
 								};
 							});
 
-							console.log("INVESTIGATIONS:", invObjs);
 							update("investigations", invObjs);
-
 							navigation.navigate("lab.confirm_visit");
 						},
 					}),
@@ -248,71 +318,11 @@ function MainLabComponent({
 							reset(), navigation.navigate("lab.dashboard");
 						},
 						onConfirmAppointment: (visit, err) => {
-							console.log("CONFIRMING:", visit);
-							const { investigations, ...rest } = visit;
-							emr.collection("investigations")
-								.addMult(investigations)
-								.then((ids) => {
-									// query documents
-									emr.collection("investigations")
-										.queryDocs<PatientInvestigation>({
-											$id: ids,
-										})
-										.then((invs) => {
-											console.log("INve:", invs);
-											if (visit.patientId !== undefined) {
-												emr.collection("visits")
-													.addDoc({
-														...rest,
-														investigations:
-															invs.map(
-																({
-																	$id,
-																	...others
-																}) => ({
-																	id: $id,
-																	...others,
-																})
-															),
-														date: new Date().toUTCString(),
-													})
-													.then((id) => {
-														console.log(
-															"VISIT $id:",
-															id
-														);
-														navigation.navigate(
-															"lab.dashboard"
-														);
-													});
-											} else {
-												throw Error(
-													"Patient ID MISSING"
-												);
-											}
-										})
-										.then(() =>
-											navigation.navigate(
-												"lab.confirm_visit"
-											)
-										)
-										.catch(() => {
-											console.warn(
-												"FAILED TO FETCH THE INVESTIGATIONS"
-											);
-											err &&
-												err(
-													"FAILED TO FETCH THE INVESTIGATIONS"
-												);
-										});
+							saveVisitSession(visit, emr)
+								.then(() => {
+									navigation.navigate("lab.dashboard");
 								})
-								.catch(() => {
-									console.warn(
-										"FAILED TO ORDER INVESTIGATIONS"
-									);
-									err &&
-										err("FAILED TO ORDER INVESTIGATIONS");
-								});
+								.catch(err);
 						},
 					}),
 				})}
@@ -325,6 +335,14 @@ function MainLabComponent({
 					},
 					actions: (_) => ({
 						getInvestigationResult: getInvestigationResult,
+						updateInvestigationResult: async (id, obj) => {
+							await emr
+								.collection("investigations")
+								.doc(id)
+								.set<PatientInvestigation>(obj);
+
+							return id;
+						},
 					}),
 				})}
 			/>

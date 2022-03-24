@@ -5,8 +5,6 @@ import { Layout, Text } from "../../../@libs/elsa-ui/components";
 import { Button } from "react-native-paper";
 import { properAgeString } from "../../../app/utils";
 
-import { differenceInYears } from "date-fns";
-
 export default function ConfirmPatientVisitScreen({
 	entry: { visit },
 	actions: $,
@@ -41,12 +39,12 @@ export default function ConfirmPatientVisitScreen({
 					{visit.symptoms.present
 						.map((c) => c.id)
 						.map((text) => (
-							<Text>[present] {text}</Text>
+							<Text key={text}>[present] {text}</Text>
 						))}
 					{visit.symptoms.absent
 						.map((id) => id)
 						.map((text) => (
-							<Text>[absent] {text}</Text>
+							<Text key={text}>[absent] {text}</Text>
 						))}
 				</View>
 			</View>

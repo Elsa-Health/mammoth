@@ -9,7 +9,7 @@ import {
 } from "react-native-paper";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
-import theme from "../../../theme";
+import theme from "../../../@libs/elsa-ui/theme";
 
 import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
@@ -33,14 +33,12 @@ export default function InvestigationResultsForm({
 >) {
 	const { id, ...investigation } = investigation_;
 	const [value, set] = React.useState(() => {
-		if (result?.values === undefined) {
-			return result;
+		if (investigation.obj.type === "panel") {
+			return result || {};
 		}
 
-		return result?.values || {};
+		return result;
 	});
-
-	console.log("XXX", investigation_);
 
 	const obj = investigation.obj;
 	const name = data.investigation.name.fromId(investigation.investigationId);
@@ -53,11 +51,13 @@ export default function InvestigationResultsForm({
 		);
 	}
 
-	console.log("*** OBJ", obj);
 	return (
 		<>
-			<ProgressBar progress={0.5} color={theme.color.primary.dark} />
-			<Layout title={`Investigation: #${id}`} style={{ padding: 0 }}>
+			{/* <ProgressBar progress={0.5} color={theme.color.primary.dark} /> */}
+			<Layout
+				title={`Investigation: #${id.slice(0, 6)}`}
+				style={{ padding: 0 }}
+			>
 				<ScrollView
 					showsVerticalScrollIndicator
 					contentContainerStyle={{
@@ -182,8 +182,6 @@ function InvestigationField<T extends string>({
 	title: string;
 	set: (text: string) => void;
 }) {
-	console.log("SHAPE", shape);
-	console.log("*** NAME", name);
 	return (
 		<View style={{ paddingVertical: 4 }}>
 			{title !== undefined && <Text>{title}</Text>}

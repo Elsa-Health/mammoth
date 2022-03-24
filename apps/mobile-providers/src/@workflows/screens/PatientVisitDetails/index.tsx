@@ -5,7 +5,7 @@ import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
 import dayjs from "dayjs";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import theme from "../../../theme";
+import theme, { Spacing } from "../../../@libs/elsa-ui/theme";
 
 import * as data from "../../../@libs/data-fns";
 import { ScrollView } from "react-native-gesture-handler";
@@ -35,6 +35,7 @@ export default function PatientVisitDetailsScreen({
 						flexDirection: "row",
 						alignItems: "center",
 						justifyContent: "space-between",
+						marginVertical: 8,
 					}}
 				>
 					<View
@@ -86,7 +87,7 @@ export default function PatientVisitDetailsScreen({
 							name="folder-open-outline"
 						/>
 						<Text font="bold" style={{ marginLeft: 8 }}>
-							Investigations (Long press to inspect)
+							Investigations
 						</Text>
 					</View>
 					<View>
@@ -120,14 +121,20 @@ function SingleInvestigationItem<T extends string>(
 	return (
 		<View
 			style={{
-				alignItems: "center",
 				display: "flex",
 				flexDirection: "row",
 				justifyContent: "space-between",
 				paddingVertical: 6,
 			}}
 		>
-			<Text>{props.name}</Text>
+			<View
+				style={{
+					paddingRight: Spacing.md,
+					alignSelf: "center",
+				}}
+			>
+				<Text>{props.name}</Text>
+			</View>
 			<View
 				style={{
 					display: "flex",
@@ -135,7 +142,12 @@ function SingleInvestigationItem<T extends string>(
 					flexDirection: "column",
 				}}
 			>
-				<Text size="xs">Result</Text>
+				<Text
+					size="xs"
+					style={{ textTransform: "uppercase", letterSpacing: 2 }}
+				>
+					Result
+				</Text>
 				<View
 					style={{
 						display: "flex",
@@ -187,20 +199,35 @@ function InvestigationItem({
 
 	if (obj.type !== "panel") {
 		return (
-			<Pressable onLongPress={onPress}>
-				<List.Section title={invName}>
-					<SingleInvestigationItem {...obj} result={result} />
-				</List.Section>
-			</Pressable>
+			<View style={{ paddingVertical: 8 }}>
+				<View>
+					<Text size={"sm"} color="#777" font="bold">
+						Single
+					</Text>
+				</View>
+				<SingleInvestigationItem
+					{...obj}
+					name={invName}
+					result={result}
+				/>
+				<Button
+					icon={"pencil"}
+					mode="outlined"
+					compact
+					onPress={onPress}
+				>
+					Edit
+				</Button>
+			</View>
 		);
 	}
 
-	const results = result?.values || {};
+	//
+	const results = result || {};
 
 	return (
 		<List.Accordion
 			title={invName}
-			onLongPress={onPress}
 			// right={() => (
 			// 	<Pressable
 			// 		style={{
@@ -237,6 +264,9 @@ function InvestigationItem({
 						))}
 				</View>
 			</View>
+			<Button icon={"pencil"} mode="outlined" compact onPress={onPress}>
+				Edit Results
+			</Button>
 		</List.Accordion>
 	);
 }
@@ -274,10 +304,11 @@ function VisitSymptomSection({
 				<View style={{ paddingVertical: 8 }}>
 					<Text
 						size={12}
+						font="medium"
 						style={{
 							textTransform: "uppercase",
-							letterSpacing: 2,
-							marginBottom: 4,
+							letterSpacing: 1,
+							marginVertical: 4,
 						}}
 					>
 						Presenting Symptoms

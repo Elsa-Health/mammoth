@@ -21,6 +21,10 @@ export default function PatientFolderScreenGroup({
 	{ visit: PatientVisit; emr: Store },
 	{
 		getInvestigationResult: (id: string) => Promise<PatientInvestigation>;
+		updateInvestigationResult: (
+			id: string,
+			data: PatientInvestigation
+		) => Promise<void>;
 	}
 >) {
 	// This will be replace when adding observables to stores
@@ -35,7 +39,9 @@ export default function PatientFolderScreenGroup({
 		return invM;
 	});
 
-	React.useEffect(() => {}, []);
+	// React.useEffect(() => {
+	// 	console.log("Investigation changes to: ", invs);
+	// }, [invs]);
 
 	React.useEffect(() => {
 		Promise.all(
@@ -47,17 +53,13 @@ export default function PatientFolderScreenGroup({
 							const [invId, obj] = d;
 
 							// update the investigation with the results
-							emr.collection("investigations")
-								.doc(invId)
-								.set(obj)
-								.then(res)
-								.catch(rej);
+							$.updateInvestigationResult(invId, obj);
 						})
 				)
 		)
 			.then((ids) =>
 				ToastAndroid.show(
-					`Investigations updated ${ids}`,
+					`Investigations updated ${ids.join(", ")}`,
 					ToastAndroid.LONG
 				)
 			)
@@ -82,6 +84,7 @@ export default function PatientFolderScreenGroup({
 								.filter((s) => s[1] !== undefined)
 								.map((i) => {
 									const [key, val] = i;
+									console.log("VA$L:", val);
 									return { id: key, ...val };
 								}),
 						},
@@ -119,16 +122,23 @@ export default function PatientFolderScreenGroup({
 							navigation.goBack();
 						},
 						onUpdateInvestigation: (id, newInvestigationObj) => {
-							// console.log("**** ==>", {
-							// 	id,
-							// 	newInvestigationObj,
-							// });
-							setInvs((s) =>
-								produce(s, (df) => {
-									df[id] = newInvestigationObj;
-								})
-							);
-							navigation.navigate("patient.visitProfile");
+							console.log("**** ==>", {
+								id,
+								newInvestigationObj,
+							});
+							$.updateInvestigationResult(
+								id,
+								newInvestigationObj
+							).then(() => {
+								setInvs((s) =>
+									produce(s, (df) => {
+										df[id] = newInvestigationObj;
+										return df;
+									})
+								);
+								console.log("Works!");
+								navigation.navigate("patient.visitProfile");
+							});
 						},
 					}),
 				})}

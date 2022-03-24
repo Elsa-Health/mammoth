@@ -3,7 +3,6 @@ import { View, ScrollView } from "react-native";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import theme from "../../../theme";
 import { Checkbox as RNPCheckbox } from "react-native-paper";
 
 import * as data from "../../../@libs/data-fns";

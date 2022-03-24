@@ -11,9 +11,8 @@ import {
 import { ElsaIcon, PlusIcon, SearchIcon, XIcon } from "../../../assets/vectors";
 // import { Text } from "react-native-paper";
 import { Layout, Text } from "../../../@libs/elsa-ui/components";
-import theme from "../../../theme";
+import theme from "../../../@libs/elsa-ui/theme";
 import { differenceInYears } from "date-fns";
-import { Store } from "../../../@libs/storage-core";
 
 // const recentPatients: Patient[] = [
 // 	{
@@ -98,12 +97,12 @@ function RecentPatientSection({
 }
 
 function BasicEMRDashboardScreen({
-	entry: { fullName, store: emr },
+	entry: { fullName, recentPatients },
 	actions: $,
 }: {
 	entry: {
 		fullName: string;
-		store: Store;
+		recentPatients: Patient[];
 	};
 	actions: {
 		onOpenFile: (patient: Patient) => void;
@@ -120,26 +119,6 @@ function BasicEMRDashboardScreen({
 		// console.warn(searchQuery);
 		return null;
 	};
-
-	const [recentPatients, setRecent] = React.useState<Patient[] | undefined>(
-		undefined
-	);
-
-	React.useEffect(() => {
-		emr.collection("patients")
-			.queryDocs<Patient>()
-			.then((ps) => {
-				// transform the data
-				return ps.map((p) => {
-					const { $id, ...other } = p;
-					return { ...other, id: $id };
-				});
-			})
-			.then((p) => {
-				console.log(p);
-				setRecent(p);
-			});
-	}, []);
 
 	return (
 		<>

@@ -23,9 +23,7 @@ type PatientInvestigationResult =
 	| string
 	| string[]
 	| {
-			values: {
-				[id in data.Investigation]?: string | string[];
-			};
+			[id in data.Investigation]?: string | string[];
 	  };
 
 type PatientInvestigation = {
