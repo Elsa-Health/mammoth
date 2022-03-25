@@ -65,20 +65,22 @@ async function fetchPatientsFromStore(emr: Store) {
 }
 
 async function fetchPatientFromStore(patientId: string, emr: Store) {
-	return await emr
+	const patient = await emr
 		.collection("patients")
 		.queryDoc<Patient>({ $id: patientId });
+
+	return { id: patientId, ...patient };
 }
 
 async function saveVisitSession(visit: Omit<VisitSession, "date">, emr: Store) {
 	const { investigations, ...data } = visit;
-	console.log("&STRIGNY:", JSON.stringify(investigations));
+	// console.log("&STRIGNY:", JSON.stringify(investigations));
 	try {
 		const ids = await emr
 			.collection("investigations")
 			.addMult(investigations);
 
-		console.log("IDS:", ids);
+		// console.log("IDS:", ids);
 
 		const invRecords = await emr
 			.collection("investigations")
@@ -86,7 +88,7 @@ async function saveVisitSession(visit: Omit<VisitSession, "date">, emr: Store) {
 				$id: ids,
 			});
 
-		console.log({ ids, invRecords });
+		// console.log({ ids, invRecords });
 
 		if (visit.patientId !== undefined) {
 			const visitId = await emr.collection("visits").addDoc({
@@ -108,8 +110,10 @@ async function saveVisitSession(visit: Omit<VisitSession, "date">, emr: Store) {
 }
 
 const getInvestigation = async (id: string, emr: Store) => {
-	const results = await emr.collection("investigations").queryDoc({ $id });
-	return results;
+	const results = await emr
+		.collection("investigations")
+		.queryDoc({ $id: id });
+	return { id, ...results };
 };
 
 function MainLabComponent({
@@ -198,9 +202,14 @@ function MainLabComponent({
 								// registration happens here
 								saveAndGetPatientFromStore(patient, emr).then(
 									(p) => {
-										console.log("SAVE: ", { patient, p });
+										// console.log("SAVE: ", { patient, p });
 										if (p !== null) {
 											lab.addPatient(p);
+
+											setMessage({
+												text: `New patient :: ${patient?.firstName} ${patient?.lastName}`,
+												type: "success",
+											});
 											navigation.replace(
 												"lab.patient_information",
 												{
@@ -351,7 +360,7 @@ function MainLabComponent({
 										)
 											.then((patient) => {
 												setMessage({
-													text: `Record visit for ${visit.patientId}`,
+													text: `Record visit for ${patient?.firstName} ${patient?.lastName}`,
 													type: "success",
 												});
 												navigation.navigate(
@@ -381,12 +390,27 @@ function MainLabComponent({
 								);
 							},
 							onUpdateInvestigationResult: (id, obj, err) => {
-								console.log({ id, obj });
-								// await emr
-								// 	.collection("investigations")
-								// 	.doc(id)
-								// 	.set<PatientInvestigation>(obj);
-								// return id;
+								emr.collection("investigations")
+									.doc(id)
+									.set<PatientInvestigation>(obj)
+									.then(() => {
+										ToastAndroid.show(
+											`Updated Investigation for ${
+												data.investigation.name.fromId(
+													obj.investigationId
+												) || obj.investigationId
+											}`,
+											ToastAndroid.LONG
+										);
+										// setMessage({
+										// 	text: `Updated Investigation for ${
+										// 		data.investigation.name.fromId(
+										// 			obj.investigationId
+										// 		) || obj.investigationId
+										// 	}`,
+										// });
+									})
+									.catch(err);
 							},
 						}),
 					})}
@@ -397,10 +421,8 @@ function MainLabComponent({
 					visible={message !== null}
 					onDismiss={dismiss}
 					action={{
-						label: "Undo",
-						onPress: () => {
-							// Do something
-						},
+						label: "Dismiss",
+						onPress: dismiss,
 					}}
 				>
 					{message?.text}

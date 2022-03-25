@@ -4,7 +4,6 @@ import { withFlowContext } from "../../wrapper";
 import PatientVisitDetailsScreen from "../../screens/PatientVisitDetails";
 import InvestigationResultsForm from "../../screens/InvestigationResultsForm";
 
-import { Store } from "../../../@libs/storage-core";
 import { ToastAndroid } from "react-native";
 import produce from "immer";
 
@@ -40,6 +39,19 @@ export default function PatientFolderScreenGroup({
 		});
 		return invM;
 	});
+
+	React.useEffect(() => {
+		Promise.all(
+			visit.investigations.map(async ({ id }) => {
+				const inv = await $.getInvestigation(id);
+				setInvs((s) =>
+					produce(s, (df) => {
+						df[id] = inv;
+					})
+				);
+			})
+		);
+	}, []);
 
 	// React.useEffect(() => {
 	// 	console.log("Investigation changes to: ", invs);
