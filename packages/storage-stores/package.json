@@ -1,7 +1,8 @@
 {
 	"name": "@elsa-health/storage-stores",
 	"version": "0.1.0",
-	"description": "",
+	"description": "Stores to be used with `@elsa-health/storage` library",
+	"private": false,
 	"sideEffects": false,
 	"files": [
 		"local/**",
@@ -22,7 +23,7 @@
 	"author": "",
 	"license": "ISC",
 	"peerDependencies": {
-		"@sabertooth/storage": "*",
+		"@elsa-health/storage": "*",
 		"react-native-mmkv": "*"
 	},
 	"devDependencies": {
