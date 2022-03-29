@@ -238,7 +238,7 @@
     "type": "numeric-units",
     "units": "cells/mm3"
   },
-  "viral-load": {
+  "hiv-viral-load-pcr": {
     "type": "numeric-units",
     "units": "cells/mm3"
   },
@@ -274,7 +274,30 @@
       "inconclusive"
     ]
   },
+  "hepatitis-b-pcr-hbv-dna": {
+    "type": "options",
+    "options": [
+      "detected",
+      "not-detected",
+      "inconclusive"
+    ]
+  },
+  "hepatitis-b-surface-antibody-h-bs-ab": {
+    "type": "options",
+    "options": [
+      "positive",
+      "negative",
+      "inconclusive"
+    ]
+  },
   "x-ray": {
+    "type": "panel",
+    "investigations": [
+      "options",
+      "notes"
+    ]
+  },
+  "chest-x-ray-cxr": {
     "type": "panel",
     "investigations": [
       "options",
@@ -295,7 +318,28 @@
       "notes"
     ]
   },
-  "xpert-mtb-rif": {
+  "ultrasound-pelvis": {
+    "type": "panel",
+    "investigations": [
+      "options",
+      "notes"
+    ]
+  },
+  "ultrasound-abdomen": {
+    "type": "panel",
+    "investigations": [
+      "options",
+      "notes"
+    ]
+  },
+  "ultrasound-other": {
+    "type": "panel",
+    "investigations": [
+      "options",
+      "notes"
+    ]
+  },
+  "gene-xpert-mtb-rif": {
     "type": "options",
     "options": [
       "positive",
@@ -352,6 +396,14 @@
     ]
   },
   "blood-culture": {
+    "type": "options",
+    "options": [
+      "positive",
+      "negative",
+      "inconclusive"
+    ]
+  },
+  "toxoplasma-ig-g-serology": {
     "type": "options",
     "options": [
       "positive",
@@ -420,7 +472,7 @@
       "creatinine"
     ]
   },
-  "full-blood-picture": {
+  "full-blood-picture-fbp": {
     "type": "panel",
     "investigations": [
       "haemoglobin-hb",
@@ -486,8 +538,31 @@
     "type": "numeric-units",
     "units": "mcg/dL"
   },
-  "c-reactive-protein": {
+  "c-reactive-protein-crp": {
     "type": "numeric-units",
     "units": "mg/dL"
+  },
+  "pelvic-exam": {
+    "type": "panel",
+    "investigations": [
+      "options",
+      "notes"
+    ]
+  },
+  "pap-smear": {
+    "type": "options",
+    "options": [
+      "positive",
+      "negative",
+      "inconclusive"
+    ]
+  },
+  "stool-analysis": {
+    "type": "options",
+    "options": [
+      "normal",
+      "abnormal",
+      "inconclusive"
+    ]
   }
 }
