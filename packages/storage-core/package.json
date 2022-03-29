@@ -1,10 +1,11 @@
 {
-	"name": "@sabertooth/storage",
-	"version": "1.0.0",
-	"description": "",
+	"name": "@elsa-health/storage",
+	"version": "0.1.0",
+	"description": "Storage for Document-based Modelled Data",
 	"sideEffects": false,
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
+	"private": false,
 	"scripts": {
 		"test": "jest -u",
 		"build": "tsc -p .",
@@ -12,8 +13,10 @@
 		"lint": "TIMING=1 eslint src --fix",
 		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
 	},
-	"keywords": [],
-	"author": "",
+	"keywords": [
+		"storage",
+		"core"
+	],
 	"license": "ISC",
 	"devDependencies": {
 		"@babel/runtime": "^7.17.7",

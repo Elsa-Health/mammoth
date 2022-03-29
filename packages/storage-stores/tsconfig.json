@@ -1,12 +1,14 @@
 {
 	"compilerOptions": {
 		"target": "es2015",
+		"module": "CommonJS",
 		"jsx": "preserve",
 		"declaration": true,
 		"declarationDir": "./",
 		"isolatedModules": true,
 		"strict": true,
 		"moduleResolution": "node",
+		"sourceMap": true,
 		"allowSyntheticDefaultImports": true,
 		"skipLibCheck": true,
 		"resolveJsonModule": true,

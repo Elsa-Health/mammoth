@@ -13,7 +13,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@elsa-health/data-fns": "*",
+    "@elsa-health/data-fns": "1.0.1",
     "@elsa-ui/react-native": "*",
     "@elsa-ui/utils": "*",
     "@elsa-ui/react-native-workflows": "*",

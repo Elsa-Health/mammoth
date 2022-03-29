@@ -1,9 +1,11 @@
 {
 	"compilerOptions": {
 		"target": "es2015",
+		"module": "CommonJS",
 		"jsx": "preserve",
 		"declaration": true,
 		"isolatedModules": true,
+		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,

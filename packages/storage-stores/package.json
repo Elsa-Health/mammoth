@@ -1,6 +1,6 @@
 {
-	"name": "@sabertooth/storage-stores",
-	"version": "1.0.0",
+	"name": "@elsa-health/storage-stores",
+	"version": "0.1.0",
 	"description": "",
 	"sideEffects": false,
 	"files": [
@@ -14,11 +14,18 @@
 		"lint": "TIMING=1 eslint src --fix",
 		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf ./local ./remote"
 	},
-	"keywords": [],
+	"keywords": [
+		"storage",
+		"local",
+		"remote"
+	],
 	"author": "",
 	"license": "ISC",
-	"devDependencies": {
+	"peerDependencies": {
 		"@sabertooth/storage": "*",
+		"react-native-mmkv": "*"
+	},
+	"devDependencies": {
 		"@types/jest": "^27.4.1",
 		"@types/mongodb": "^4.0.7",
 		"@types/node": "^17.0.21",
