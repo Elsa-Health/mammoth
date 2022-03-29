@@ -21,7 +21,7 @@
 		"remote"
 	],
 	"author": "",
-	"license": "ISC",
+	"license": "Apache-2.0",
 	"peerDependencies": {
 		"@elsa-health/storage": "*",
 		"react-native-mmkv": "*"

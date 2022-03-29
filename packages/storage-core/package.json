@@ -17,7 +17,7 @@
 		"storage",
 		"core"
 	],
-	"license": "ISC",
+	"license": "Apache-2.0",
 	"devDependencies": {
 		"@babel/runtime": "^7.17.7",
 		"@types/jest": "^27.4.1",
