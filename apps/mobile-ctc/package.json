@@ -32,8 +32,6 @@
     "@react-rxjs/core": "^0.8.4",
     "@react-rxjs/utils": "^0.9.3",
     "@react-spring/native": "^9.4.2",
-    "@sabertooth/storage": "*",
-    "@sabertooth/storage-stores": "*",
     "@sentry/react-native": "^3.2.3",
     "axios": "^0.24.0",
     "buffer": "^6.0.3",
