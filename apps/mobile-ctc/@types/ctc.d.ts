@@ -5,13 +5,18 @@
 declare namespace CTC {
   type Appointment = {
     patientId: string;
-    visitId: string;
+    visitIdCreated: string;
+    visitIdFullfilled: string;
+    fullFilledDate: UTCDateTime;
+    date: YYYYMMDDDate;
   };
 
   type Visit = {
     id: string;
     dateTime: UTCDateTime;
     patientId: string;
+
+    // shows the appointment the visit is fullfilling
     appointmentId?: string;
     patient: {
       age: Age;
@@ -19,7 +24,7 @@ declare namespace CTC {
     };
     intake: {
       isPregnant?: boolean;
-      dateOfPregancy: DBDateTime;
+      dateOfPregancy?: DBDateTime;
       weight?: number;
       height?: number;
       systolic?: number;
@@ -37,7 +42,13 @@ declare namespace CTC {
         present: object[];
         absent: string[];
       };
-      elsa_differentials: object[];
+      elsa_differentials:
+        | {
+            condition: string;
+            p: number;
+            id: string;
+          }[]
+        | null;
     };
     adherenceAssessment: {
       educationLevel: string;
@@ -48,6 +59,7 @@ declare namespace CTC {
       isExperienceSideEffects: boolean;
       doesPatientUnderstandRegimen: boolean;
     };
+    assessmentSummary: object;
   };
 
   type Patient = {

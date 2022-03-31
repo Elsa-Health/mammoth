@@ -26,21 +26,22 @@ export type HIVPatientIntake = {
 const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 
 export default function HIVPatientIntakeScreen({
+  entry: {value = {}},
   actions: $,
 }: WorkflowScreen<
   {
-    value: HIVPatientIntake;
+    value: Partial<HIVPatientIntake>;
   },
   {onNext: (hivInfoIntake: HIVPatientIntake) => void}
 >) {
   const [patientIntake, set] = React.useState<HIVPatientIntake>({
-    whoStage: ARV_WHO_STAGES[0],
-    functionalStatus: FUNCTIONAL_STATUS[0],
-    coMorbidities: [],
-    isTakingARV: false,
-    ARVRegimens: [],
-    isTakingMedications: false,
-    medications: [],
+    whoStage: value.whoStage ?? ARV_WHO_STAGES[0],
+    functionalStatus: value.functionalStatus ?? FUNCTIONAL_STATUS[0],
+    coMorbidities: value.coMorbidities ?? [],
+    isTakingARV: value.isTakingARV ?? false,
+    ARVRegimens: value.ARVRegimens ?? [],
+    isTakingMedications: value.isTakingARV ?? false,
+    medications: value.medications ?? [],
   });
 
   const changeValue = React.useCallback(

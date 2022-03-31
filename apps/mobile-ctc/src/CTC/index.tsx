@@ -16,7 +16,7 @@ import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAsse
 
 import {Portal, Snackbar} from 'react-native-paper';
 
-import {format} from 'date-fns';
+import {format, differenceInMonths, differenceInYears} from 'date-fns';
 import produce from 'immer';
 
 import {deviceStorage} from './storage';
@@ -74,6 +74,17 @@ async function fetchPatients() {
   });
 }
 
+function dateToAge(date: Date): Age {
+  const now = new Date();
+  const years = differenceInYears(now, date);
+  const months = differenceInMonths(now, date);
+  return {
+    years,
+    months: months - years * 12,
+  };
+}
+
+type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'>;
 function CTCFlow({fullName}: {fullName: string}) {
   const [message, setMessage] = React.useState<{
     text: string;
@@ -87,6 +98,30 @@ function CTCFlow({fullName}: {fullName: string}) {
   const [appointments, setAppointments] = React.useState<CTC.Appointment[]>([]);
   const [visits, setVisits] = React.useState<CTC.Visit[]>([]);
 
+  const [currentVisit, setCurrentVisit] = React.useState<Partial<CurrentVisit>>(
+    {},
+  );
+
+  const updateCurrentVisit = React.useCallback(
+    <K extends keyof CurrentVisit>(field: K, cb?: (s: CurrentVisit) => void) =>
+      (value: ((p: CurrentVisit[K]) => CurrentVisit[K]) | CurrentVisit[K]) => {
+        setCurrentVisit(s => {
+          const p = produce(s, df => {
+            if (typeof value === 'function') {
+              df[field] = value(df[field]);
+            } else {
+              df[field] = value;
+            }
+
+            return df;
+          });
+
+          cb && cb(p);
+          return p;
+        });
+      },
+    [setCurrentVisit],
+  );
   return (
     <>
       <Stack.Navigator
@@ -102,7 +137,6 @@ function CTCFlow({fullName}: {fullName: string}) {
             actions: ({navigation}) => ({
               loadPatients: async () => [],
               searchPatientsById: async (partialId: string) => {
-                console.log('Searching:...', partialId);
                 return await fetchPatientsFromId(partialId);
               },
               onRegisterPatientWithId: patientId => {
@@ -208,11 +242,17 @@ function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.patient_intake"
           component={withFlowContext(CTCPatientIntakeScreenGroup, {
             actions: ({navigation}) => ({
-              onNext: patientForm => {
+              onNext: (patientForm, patient) => {
                 console.log(patientForm);
                 // TODO: This should be a conditional navigation. Depends on where they came from
-                navigation.navigate('ctc.patient_assessment');
                 // navigation.navigate('ctc.adherence_assessment');
+                updateCurrentVisit('intake')(patientForm);
+                updateCurrentVisit('patientId')(patient.id);
+                updateCurrentVisit('patient')({
+                  sex: patient.sex,
+                  age: dateToAge(new Date(patient.dateOfBirth)),
+                });
+                navigation.navigate('ctc.patient_assessment');
               },
             }),
           })}
@@ -221,14 +261,20 @@ function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.patient_assessment"
           component={withFlowContext(BasicAssessmentScreenGroup, {
             entry: {
-              patient: {sex: 'male', age: {years: 23}},
+              patient: currentVisit.patient,
             },
             actions: ({navigation}) => ({
               onCancel: () => {
                 navigation.navigate('ctc.dashboard');
               },
-              onCompleteAssessment: (data, elsaDfs) => {
-                navigation.navigate('ctc.adherence_assessment');
+              onCompleteAssessment: (data, elsa_differentials) => {
+                updateCurrentVisit('symptomAssessment', () => {
+                  // console.log({data, elsa_differentials});
+                  navigation.navigate('ctc.adherence_assessment');
+                })({
+                  data,
+                  elsa_differentials,
+                });
               },
             }),
           })}
@@ -238,7 +284,13 @@ function CTCFlow({fullName}: {fullName: string}) {
           component={withFlowContext(HIVAdherenceAssessmentScreen, {
             actions: ({navigation}) => ({
               onCompleteAdherence: adhrence => {
-                navigation.navigate('ctc.assessment_summary');
+                const {forgottenCount, ...other} = adhrence;
+                updateCurrentVisit('adherenceAssessment', () => {
+                  navigation.navigate('ctc.assessment_summary');
+                })({
+                  ...other,
+                  forgottenCount: parseInt(forgottenCount || '0'),
+                });
               },
             }),
           })}
@@ -247,16 +299,62 @@ function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.assessment_summary"
           component={withFlowContext(CTCAssessmentSummaryScreenGroup, {
             entry: {
-              condition: 'cryptococcal-meningitis',
-              conditionValuePairs: [
-                ['cryptococcal-meningitis', 0.8],
-                ['asthma', 0.5],
-                ['toxoplasmosis', 0.2],
-              ],
+              condition:
+                currentVisit.symptomAssessment?.elsa_differentials?.[0].id,
+              conditionValuePairs: (
+                currentVisit.symptomAssessment?.elsa_differentials || []
+              )
+                .map(cx => [
+                  cx.id,
+                  // Round to 2 d.p.
+                  Math.round((cx.p + Number.EPSILON) * 100) / 100,
+                ])
+                .slice(0, 3),
+              // [
+              //   ['cryptococcal-meningitis', 0.8],
+              //   ['asthma', 0.5],
+              //   ['toxoplasmosis', 0.2],
+              // ],
             },
             actions: ({navigation}) => ({
               onConclude: data => {
                 console.log('Conclude App', data);
+                updateCurrentVisit('assessmentSummary', final => {
+                  cVisitsRef
+                    .addDoc({...final, dateTime: new Date()})
+                    .then(id => {
+                      const appointmentDate =
+                        final.assessmentSummary.summary?.appointmentDate?.toString();
+                      cAppointRef
+                        .addDoc({
+                          patientId: currentVisit.patientId,
+                          visitIdCreated: id,
+                          // FIXME: HACK
+                          date: appointmentDate,
+                        })
+                        .then(_ => {
+                          setMessage({
+                            text: `Visit complete! Next appointment set for ${appointmentDate}`,
+                            type: 'success',
+                          });
+                          navigation.navigate('ctc.dashboard');
+                        })
+                        .catch(err => {
+                          console.log(err);
+                          setMessage({
+                            text: 'Unable to complete assessment',
+                            type: 'error',
+                          });
+                        });
+                    })
+                    .catch(err => {
+                      console.log(err);
+                      setMessage({
+                        text: 'Unable to conclude assessment',
+                        type: 'error',
+                      });
+                    });
+                })(data);
               },
             }),
           })}

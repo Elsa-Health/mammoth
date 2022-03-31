@@ -9,11 +9,13 @@ import HIVPatientIntakeScreen, {
 } from '../../screens/HIVPatientIntake';
 import {withFlowContext, WorkflowScreen} from '../..';
 import produce from 'immer';
+import _ from 'lodash';
+import {format} from 'date-fns';
 
 const Stack = createNativeStackNavigator();
 type CTCBasicIntake = {
   isPregnant: boolean;
-  dateOfPregancy?: Date;
+  dateOfPregancy?: string;
   weight?: number;
   height?: number;
   systolic?: number;
@@ -36,7 +38,8 @@ const transformToProperBasicIntake = (
 ): CTCBasicIntake => {
   return produce({} as CTCBasicIntake, df => {
     df['isPregnant'] = intake.isPregnant || false;
-    if (df.isPregnant) df['dateOfPregancy'] = intake.dateOfPregancy;
+    if (df.isPregnant)
+      df['dateOfPregancy'] = format(intake.dateOfPregancy, 'yyyy-MM-dd');
 
     if (intake.weight !== undefined)
       df['weight'] = parseInt(intake.weight || '0');
@@ -78,26 +81,26 @@ export default function CTCPatientIntakeScreenGroup({
     patient: CTC.Patient;
     value: Partial<CTCPatientIntake>;
   },
-  {onNext: (patient: CTCPatientIntake) => {}}
+  {onNext: (patientIntake: CTCPatientIntake, patient: CTC.Patient) => {}}
 >) {
-  const [visit, set] = React.useState<CTCPatientIntake>(value || {});
+  const [intake, set] = React.useState<CTCPatientIntake>(value || {});
 
-  const changeValue = React.useCallback(
-    <K extends keyof CTCPatientIntake>(
-      field: K,
-      value: CTCPatientIntake[K],
-      cb?: (v: CTCPatientIntake) => void,
-    ) => {
-      set(s => {
-        const p = produce(s, df => {
-          df[field] = value;
-        });
-        cb && cb(p);
-        return p;
-      });
-    },
-    [set],
-  );
+  // const changeValue = React.useCallback(
+  //   <K extends keyof CTCPatientIntake>(
+  //     field: K,
+  //     value: CTCPatientIntake[K],
+  //     cb?: (v: CTCPatientIntake) => void,
+  //   ) => {
+  //     set(s => {
+  //       const p = produce(s, df => {
+  //         df[field] = value;
+  //       });
+  //       cb && cb(p);
+  //       return p;
+  //     });
+  //   },
+  //   [set],
+  // );
 
   return (
     <Stack.Navigator
@@ -121,10 +124,27 @@ export default function CTCPatientIntakeScreenGroup({
       <Stack.Screen
         name="visit.hivPatientIntake"
         component={withFlowContext(HIVPatientIntakeScreen, {
+          entry: {
+            value: _.pick(intake, [
+              'whoStage',
+              'functionalStatus',
+              'coMorbidities',
+              'isTakingARV',
+              'ARVRegimens',
+              'isTakingMedications',
+              'medications',
+            ]),
+          },
           actions: ({navigation}) => ({
             onNext: hivPatient => {
-              set(s => ({...s, ...transformToProperHIVIntake(hivPatient)}));
-              $.onNext(visit);
+              set(s => {
+                const newIntake = {
+                  ...s,
+                  ...transformToProperHIVIntake(hivPatient),
+                };
+                $.onNext(newIntake, patient);
+                return newIntake;
+              });
             },
           }),
         })}
