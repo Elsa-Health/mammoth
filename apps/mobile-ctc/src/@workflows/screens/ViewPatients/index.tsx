@@ -6,7 +6,12 @@ import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
 
 import {format} from 'date-fns';
 
-import {Button, Divider, Searchbar} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Button,
+  Divider,
+  Searchbar,
+} from 'react-native-paper';
 
 export default function ViewPatientsScreen({
   actions: $,
@@ -40,8 +45,20 @@ export default function ViewPatientsScreen({
 
   if (patients === undefined) {
     return (
-      <View>
-        <Text>Loading</Text>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#FFF',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View style={{display: 'flex', flexDirection: 'row'}}>
+          <ActivityIndicator animating={true} color={Color.primary.light} />
+          <Text style={{marginLeft: Spacing.md}} font="bold">
+            Loading
+          </Text>
+        </View>
       </View>
     );
   }

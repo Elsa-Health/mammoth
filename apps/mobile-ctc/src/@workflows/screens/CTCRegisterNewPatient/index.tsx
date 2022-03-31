@@ -137,9 +137,8 @@ export default function CTCRegisterNewPatientScreen({
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: Spacing.lg,
-          padding: Spacing.md,
         }}>
-        <View style={{marginVertical: 12}}>
+        <View style={{marginVertical: Spacing.sm, marginBottom: Spacing.md}}>
           <TextInput
             label="Patient ID"
             mode="outlined"

@@ -91,7 +91,8 @@ function CTCFlow({fullName}: {fullName: string}) {
     <>
       <Stack.Navigator
         screenOptions={{headerShown: false}}
-        initialRouteName="ctc.patients">
+        // initialRouteName="ctc.patients"
+      >
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(ApVisDahboardScreen, {
