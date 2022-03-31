@@ -7,7 +7,7 @@ declare namespace CTC {
     patientId: string;
     visitIdCreated: string;
     visitIdFullfilled: string;
-    fullFilledDate: UTCDateTime;
+    fulfilledDate: UTCDateTime;
     date: YYYYMMDDDate;
   };
 
