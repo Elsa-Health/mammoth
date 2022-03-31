@@ -1,5 +1,4 @@
 import React from 'react';
-import {View} from 'react-native';
 
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import BasicV2PatientIntakeScreen, {
@@ -12,31 +11,31 @@ import {withFlowContext, WorkflowScreen} from '../..';
 import produce from 'immer';
 
 const Stack = createNativeStackNavigator();
-type CTCPatientIntake = {
-  basicIntake: {
-    isPregnant: boolean;
-    dateOfPregancy?: Date;
-    weight?: number;
-    height?: number;
-    systolic?: number;
-    diastolic?: number;
-  };
-  hivIntake: {
-    whoStage: string;
-    functionalStatus: string;
-    coMorbidities: string[];
-    isTakingARV: boolean;
-    ARVRegimens?: string[];
-    isTakingMedications: boolean;
-    medications?: string[];
-  };
+type CTCBasicIntake = {
+  isPregnant: boolean;
+  dateOfPregancy?: Date;
+  weight?: number;
+  height?: number;
+  systolic?: number;
+  diastolic?: number;
 };
+
+type CTCHivIntake = {
+  whoStage: string;
+  functionalStatus: string;
+  coMorbidities: string[];
+  isTakingARV: boolean;
+  ARVRegimens?: string[];
+  isTakingMedications: boolean;
+  medications?: string[];
+};
+export type CTCPatientIntake = CTCBasicIntake & CTCHivIntake;
 
 const transformToProperBasicIntake = (
   intake: BasicIntakeForm,
-): CTCPatientIntake['basicIntake'] => {
-  return produce({} as CTCPatientIntake['basicIntake'], df => {
-    df['isPregnant'] = intake.isPregnant;
+): CTCBasicIntake => {
+  return produce({} as CTCBasicIntake, df => {
+    df['isPregnant'] = intake.isPregnant || false;
     if (df.isPregnant) df['dateOfPregancy'] = intake.dateOfPregancy;
 
     if (intake.weight !== undefined)
@@ -55,12 +54,15 @@ const transformToProperBasicIntake = (
   });
 };
 
-const transformToProperHIVIntake = (
-  intake: HIVPatientIntake,
-): CTCPatientIntake['hivIntake'] => {
+const transformToProperHIVIntake = (intake: HIVPatientIntake): CTCHivIntake => {
   const {ARVRegimens, medications, ...others} = intake;
-  return produce({} as CTCPatientIntake['hivIntake'], df => {
-    df = intake;
+  return produce({} as CTCHivIntake, df => {
+    df.whoStage = intake.whoStage;
+    df.functionalStatus = intake.functionalStatus;
+    df.coMorbidities = intake.coMorbidities ?? [];
+    df.isTakingARV = intake.isTakingARV || false;
+    df.isTakingMedications = intake.isTakingMedications || false;
+
     if (df.isTakingMedications) df['medications'] = medications;
     if (df.isTakingARV) df['ARVRegimens'] = ARVRegimens;
 
@@ -69,21 +71,30 @@ const transformToProperHIVIntake = (
 };
 
 export default function CTCPatientVisitScreenGroup({
-  entry,
+  entry: {value},
   actions: $,
-}: WorkflowScreen<{}, {onNext: (patient: CTCPatientIntake) => {}}>) {
-  const [visit, set] = React.useState<CTCPatientIntake>({});
+}: WorkflowScreen<
+  {
+    patient: CTC.Patient;
+    value: Partial<CTCPatientIntake>;
+  },
+  {onNext: (patient: CTCPatientIntake) => {}}
+>) {
+  const [visit, set] = React.useState<CTCPatientIntake>(value || {});
 
   const changeValue = React.useCallback(
     <K extends keyof CTCPatientIntake>(
       field: K,
       value: CTCPatientIntake[K],
+      cb?: (v: CTCPatientIntake) => void,
     ) => {
-      set(s =>
-        produce(s, df => {
+      set(s => {
+        const p = produce(s, df => {
           df[field] = value;
-        }),
-      );
+        });
+        cb && cb(p);
+        return p;
+      });
     },
     [set],
   );
@@ -95,9 +106,12 @@ export default function CTCPatientVisitScreenGroup({
       <Stack.Screen
         name="visit.basicV2intake"
         component={withFlowContext(BasicV2PatientIntakeScreen, {
+          entry: {
+            patientId: '1712619081',
+          },
           actions: ({navigation}) => ({
             onNext: patient => {
-              changeValue('basicIntake', transformToProperBasicIntake(patient));
+              set(s => ({...s, ...transformToProperBasicIntake(patient)}));
               navigation.navigate('visit.hivPatientIntake');
             },
           }),
@@ -108,7 +122,7 @@ export default function CTCPatientVisitScreenGroup({
         component={withFlowContext(HIVPatientIntakeScreen, {
           actions: ({navigation}) => ({
             onNext: hivPatient => {
-              changeValue('hivIntake', transformToProperHIVIntake(hivPatient));
+              set(s => ({...s, ...transformToProperHIVIntake(hivPatient)}));
               $.onNext(visit);
             },
           }),

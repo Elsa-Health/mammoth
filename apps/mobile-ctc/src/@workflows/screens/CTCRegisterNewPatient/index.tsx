@@ -64,15 +64,14 @@ const TYPE_O_TREATMENT_SUPPORT = [
   'Partner / Spouse',
   'Community Group',
 ];
-type PatientFormType = {
+export type PatientFormType = {
   firstName: string;
   familyName: string;
   phoneNumber: string;
   resident: string;
+
   // for DOB
-  birthMonth: string;
-  birthDay: string;
-  birthYear: string;
+  dateOfBirth: Date;
 
   martialStatus: undefined | MartialStatus;
   district: undefined | string;
@@ -104,20 +103,19 @@ export default function CTCRegisterNewPatientScreen({
     familyName: '',
     phoneNumber: '',
     resident: '',
-    birthMonth: '',
-    birthDay: '',
-    birthYear: '',
+    dateOfBirth: new Date(1970, 1, 1),
     martialStatus: 'single',
     district: undefined,
     hasPositiveTest: false,
-    dateOfTest: new Date(),
+    dateOfTest: new Date(new Date().getFullYear() - 2, 1, 1),
     hasPatientOnARVs: false,
-    dateStartedARVs: new Date(),
+    dateStartedARVs: new Date(new Date().getFullYear() - 4, 1, 1),
     whoStage: 'Stage 1',
     hasTreatmentSupport: false,
     typeOfSupport: 'Family',
     sex: 'male',
   });
+
   const changeValue = React.useCallback(
     (field: keyof typeof patient) => (value: string) => {
       set(s =>
@@ -130,6 +128,7 @@ export default function CTCRegisterNewPatientScreen({
   );
 
   const [show, setShow] = React.useState(false);
+  const [showDOB, setShowDOB] = React.useState(false);
   const [showARVs, setShowARVs] = React.useState(false);
 
   return (
@@ -156,7 +155,46 @@ export default function CTCRegisterNewPatientScreen({
           </RadioButton.Group>
         </View>
         {/* DOB */}
-        <View>
+        {patient.hasPositiveTest && (
+          <View>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <TextInput
+                value={dayjs(patient.dateOfBirth).format('YYYY-MMMM-DD')}
+                mode="outlined"
+                style={{flex: 1}}
+                label="Date of Birth"
+                onPressIn={() => setShowDOB(s => !s)}
+                showSoftInputOnFocus={false}
+                onChange={null}
+              />
+
+              <IconButton
+                icon="calendar-month"
+                color={'#555'}
+                size={24}
+                onPress={() => setShowDOB(s => !s)}
+              />
+            </View>
+
+            {showDOB && (
+              <DateTimePicker
+                style={{flex: 1}}
+                display="calendar"
+                value={patient.dateOfBirth}
+                onChange={(e, date) => {
+                  setShowDOB(false);
+                  changeValue('dateOfTest')(date);
+                }}
+              />
+            )}
+          </View>
+        )}
+        {/* <View>
           <View
             style={{
               display: 'flex',
@@ -195,7 +233,7 @@ export default function CTCRegisterNewPatientScreen({
               marginTop: Spacing.sm,
             }}
           />
-        </View>
+        </View> */}
         {/* Martial Status */}
         <View style={{marginTop: 12}}>
           <Text>Martial Status</Text>
@@ -257,6 +295,7 @@ export default function CTCRegisterNewPatientScreen({
               <TextInput
                 value={dayjs(patient.dateOfTest).format('DD MMMM, YYYY')}
                 mode="outlined"
+                style={{flex: 1}}
                 label="Date HIV+"
                 onPressIn={() => setShow(s => !s)}
                 showSoftInputOnFocus={false}
@@ -317,6 +356,7 @@ export default function CTCRegisterNewPatientScreen({
                 value={dayjs(patient.dateStartedARVs).format('DD MMMM, YYYY')}
                 mode="outlined"
                 label="ARV Start date"
+                style={{flex: 1}}
                 onPressIn={() => setShowARVs(s => !s)}
                 showSoftInputOnFocus={false}
                 onChange={null}
@@ -363,7 +403,7 @@ export default function CTCRegisterNewPatientScreen({
           <Text>Is the patient on a treatment support?</Text>
           <RadioButton.Group
             onValueChange={val =>
-              changeValue('hasTreatmentSupport')(val === 'yes' ? true : false)
+              changeValue('hasTreatmentSupport')(val === 'yes')
             }
             value={patient.hasTreatmentSupport ? 'yes' : 'no'}>
             <View

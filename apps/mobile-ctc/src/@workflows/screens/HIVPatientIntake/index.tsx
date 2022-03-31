@@ -4,11 +4,11 @@ import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import {Picker} from '@react-native-picker/picker';
 import produce from 'immer';
 import {Spacing} from '../../../@libs/elsa-ui/theme';
-import * as data from '../../../@libs/data-fns';
 
 import {SectionedSelect} from '../../../@libs/elsa-ui/components';
 import {Button, Divider, RadioButton} from 'react-native-paper';
 import {WorkflowScreen} from '../..';
+import {ARV, CTC, Medication} from '@elsa-health/data-fns';
 
 const ARV_WHO_STAGES = ['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4'];
 const FUNCTIONAL_STATUS = ['Working', 'Ambulatory', 'Bedridden'];
@@ -16,16 +16,23 @@ const FUNCTIONAL_STATUS = ['Working', 'Ambulatory', 'Bedridden'];
 export type HIVPatientIntake = {
   whoStage: string;
   functionalStatus: string;
-  coMorbidities: string[];
+  coMorbidities: CTC.CoMorbidity[];
   isTakingARV: boolean;
-  ARVRegimens: string[];
+  ARVRegimens: ARV.Regimen[];
   isTakingMedications: boolean;
-  medications: string[];
+  medications: Medication.All[];
 };
+
+const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 
 export default function HIVPatientIntakeScreen({
   actions: $,
-}: WorkflowScreen<{}, {onNext: (hivInfoIntake: HIVPatientIntake) => void}>) {
+}: WorkflowScreen<
+  {
+    value: HIVPatientIntake;
+  },
+  {onNext: (hivInfoIntake: HIVPatientIntake) => void}
+>) {
   const [patientIntake, set] = React.useState<HIVPatientIntake>({
     whoStage: ARV_WHO_STAGES[0],
     functionalStatus: FUNCTIONAL_STATUS[0],
@@ -90,14 +97,14 @@ export default function HIVPatientIntakeScreen({
                 {
                   name: 'Co-Morbidities',
                   id: 1,
-                  children: data.investigation.name.values(),
+                  children: ion(CTC.coMorbidity.pairs()),
                 },
               ]}
               uniqueKey="id"
               searchPlaceholderText={'Search Co-Morbidities'}
               selectText={'Select if any'}
-              onSelectedItemsChange={(testIds: string[]) => {
-                changeValue('coMorbidities')(testIds);
+              onSelectedItemsChange={(comorbidities: CTC.CoMorbidity[]) => {
+                changeValue('coMorbidities')(comorbidities);
               }}
               selectedItems={patientIntake.coMorbidities}
             />
@@ -135,14 +142,14 @@ export default function HIVPatientIntakeScreen({
                     {
                       name: 'ARV Combination Regimen',
                       id: 1,
-                      children: data.investigation.name.values(),
+                      children: ion(ARV.regimen.pairs()),
                     },
                   ]}
                   uniqueKey="id"
                   searchPlaceholderText={'Search ARV Combination Regimen'}
                   selectText={'Select if any'}
-                  onSelectedItemsChange={(testIds: string[]) => {
-                    changeValue('ARVRegimens')(testIds);
+                  onSelectedItemsChange={(regimens: ARV.Regimen[]) => {
+                    changeValue('ARVRegimens')(regimens);
                   }}
                   selectedItems={patientIntake.ARVRegimens}
                 />
@@ -181,13 +188,13 @@ export default function HIVPatientIntakeScreen({
                     {
                       name: 'Medications',
                       id: 1,
-                      children: data.medications.all.values(),
+                      children: ion(Medication.all.pairs()),
                     },
                   ]}
                   uniqueKey="id"
                   searchPlaceholderText={'Search Medications'}
                   selectText={'Select if any'}
-                  onSelectedItemsChange={(testIds: string[]) => {
+                  onSelectedItemsChange={(testIds: Medication.All[]) => {
                     changeValue('medications')(testIds);
                   }}
                   selectedItems={patientIntake.medications}

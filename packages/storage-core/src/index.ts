@@ -224,7 +224,7 @@ export declare namespace StoreQuery {
 		create: <T>(
 			data: T,
 			credentials: any,
-			docPermFn?: (permission: Permission<string>) => Permission<string>,
+			// docPermFn?: (permission: Permission<string>) => Permission<string>,
 			options?: { isCreateCollectionIfMissing: boolean }
 		) => Promise<void>;
 	};
@@ -240,25 +240,8 @@ export type Store = {
 };
 
 /**
- * Information the definitions for the data that's being stored
- *
- * *OBEY* Principle of least priviledge (POLP)
- *
- * NOTE: Didn't make this with a clear mind. Rethinking might be needed
+ * Using the stores to build a storage
  */
-
-/**
- * Users that can talk to the collections and/or document
- */
-type User<US extends string> = "__all__" | Exclude<US, "__all__">;
-
-// Actions that can be done
-type AllowableAction = "read" | "write";
-
-type Permission<U extends string> = {
-	[user in User<U>]?: AllowableAction[];
-};
-
 export function buildStore<StoreOptions>(sbc: Store.BuildConfig<StoreOptions>) {
 	return {
 		collection: (name: string) =>

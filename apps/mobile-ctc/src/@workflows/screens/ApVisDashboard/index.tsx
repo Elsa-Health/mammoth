@@ -114,11 +114,10 @@ export default function ApVisDashboardScreen({
   entry: {fullName},
   actions: $,
 }: WorkflowScreen<
-  {fullName: string; visits: CTC.Appointment[]; apoointments: CTC.Visit[]},
+  {fullName: string; appointments: CTC.Appointment[]; visits: CTC.Visit[]},
   {
     onNewVisit: () => void;
     onNewPatient: () => void;
-    onPressCodeButton: () => void;
   }
 >) {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -130,7 +129,7 @@ export default function ApVisDashboardScreen({
   };
 
   const [open, setOpen] = React.useState(false);
-  const onStateChange = ({open}) => setOpen(open);
+  const onStateChange = ({open}: {open: boolean}) => setOpen(open);
 
   return (
     <Layout style={{padding: 0}} hideHeader>
@@ -193,14 +192,6 @@ export default function ApVisDashboardScreen({
               onSubmitEditing={handleSearch}
               value={searchQuery}
             />
-
-            <Button
-              icon="qrcode-scan"
-              mode="text"
-              style={{marginLeft: 8, paddingVertical: 4}}
-              onPress={$.onPressCodeButton}>
-              Scan
-            </Button>
           </View>
         </View>
 

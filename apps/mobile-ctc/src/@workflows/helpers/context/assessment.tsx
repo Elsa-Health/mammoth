@@ -37,89 +37,96 @@ interface AssessmentState extends Assessment {
 
 const {Provider, useStore} = createContext<AssessmentState>();
 
-export const builderStoreCreator = () =>
-  create<AssessmentState>((set, get) => ({
-    recommended: [],
-    presentingSymptoms: [],
-    absentSymptoms: [],
+export type InitialAssessmentState = Partial<
+  Pick<AssessmentState, 'recommended' | 'presentingSymptoms' | 'absentSymptoms'>
+>;
+export const builderStoreCreator =
+  (initialState: InitialAssessmentState) => () =>
+    create<AssessmentState>((set, get) => ({
+      recommended: initialState.recommended ?? [],
+      presentingSymptoms: initialState.presentingSymptoms ?? [],
+      absentSymptoms: initialState.absentSymptoms ?? [],
 
-    /**
-     * Checks if the symptom is present or absent
-     */
-    checkSymptomStatusById: (id: string) => {
-      const {presentingSymptoms, absentSymptoms} = get();
+      /**
+       * Checks if the symptom is present or absent
+       */
+      checkSymptomStatusById: (id: string) => {
+        const {presentingSymptoms, absentSymptoms} = get();
 
-      const psIds = presentingSymptoms.map(ps => ps.id);
-      const asIds = absentSymptoms.map(as => as.id);
+        const psIds = presentingSymptoms.map(ps => ps.id);
+        const asIds = absentSymptoms.map(as => as.id);
 
-      if (psIds.includes(id)) {
-        return 'present';
-      }
+        if (psIds.includes(id)) {
+          return 'present';
+        }
 
-      if (asIds.includes(id)) {
-        return 'present';
-      }
+        if (asIds.includes(id)) {
+          return 'present';
+        }
 
-      return null;
-    },
-    queryPresentSymptomDataById: id => {
-      const {presentingSymptoms} = get();
-      const data = presentingSymptoms.find(s => s.id === id);
-      if (data) return data.data;
-      return undefined;
-    },
-    setSymptom: (symptom, present, data = {}) => {
-      // remove
-      get().removeSymptom(symptom);
+        return null;
+      },
+      queryPresentSymptomDataById: id => {
+        const {presentingSymptoms} = get();
+        const data = presentingSymptoms.find(s => s.id === id);
+        if (data) return data.data;
+        return undefined;
+      },
+      setSymptom: (symptom, present, data = {}) => {
+        // remove
+        get().removeSymptom(symptom);
 
-      if (present !== undefined) {
-        // add
+        if (present !== undefined) {
+          // add
+          set(s =>
+            produce(s, df => {
+              if (!present) {
+                df.absentSymptoms.push({...symptom});
+              } else {
+                df.presentingSymptoms.push({...symptom, data});
+              }
+            }),
+          );
+        }
+      },
+
+      removeSymptom: symptom => get().removeSymptomFromId(symptom.id),
+
+      removeSymptomFromId: (symptomId: string) => {
         set(s =>
           produce(s, df => {
-            if (!present) {
-              df.absentSymptoms.push({...symptom});
-            } else {
-              df.presentingSymptoms.push({...symptom, data});
+            const presentIndex = df.presentingSymptoms.findIndex(
+              ps => ps.id === symptomId,
+            );
+            const absentIndex = df.absentSymptoms.findIndex(
+              as => as.id === symptomId,
+            );
+
+            // reset option
+            if (presentIndex > -1) {
+              df.presentingSymptoms.splice(presentIndex, 1);
             }
+            if (absentIndex > -1) {
+              df.absentSymptoms.splice(absentIndex, 1);
+            }
+
+            return df;
           }),
         );
-      }
-    },
-
-    removeSymptom: symptom => get().removeSymptomFromId(symptom.id),
-
-    removeSymptomFromId: (symptomId: string) => {
-      set(s =>
-        produce(s, df => {
-          const presentIndex = df.presentingSymptoms.findIndex(
-            ps => ps.id === symptomId,
-          );
-          const absentIndex = df.absentSymptoms.findIndex(
-            as => as.id === symptomId,
-          );
-
-          // reset option
-          if (presentIndex > -1) {
-            df.presentingSymptoms.splice(presentIndex, 1);
-          }
-          if (absentIndex > -1) {
-            df.absentSymptoms.splice(absentIndex, 1);
-          }
-
-          return df;
-        }),
-      );
-    },
-  }));
+      },
+    }));
 
 /**
  * State manager for the application
  */
 export function SymptomAssessmentSequenceProvider(props: {
+  initialState?: InitialAssessmentState;
   children: React.ReactNode;
 }) {
   return (
-    <Provider createStore={builderStoreCreator}>{props.children}</Provider>
+    <Provider createStore={builderStoreCreator(props.initialState || {})}>
+      {props.children}
+    </Provider>
   );
 }
 

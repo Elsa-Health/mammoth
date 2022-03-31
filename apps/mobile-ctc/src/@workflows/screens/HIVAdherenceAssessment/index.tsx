@@ -45,19 +45,20 @@ const YNQuestions: Array<{text: string; key: keyof PatientAdherence}> = [
 ];
 
 export default function HIVAdherenceAssessmentScreen({
+  entry: {value},
   actions: $,
 }: WorkflowScreen<
-  {},
+  {value: Partial<PatientAdherence>},
   {onCompleteAdherence: (adhrence: PatientAdherence) => void}
 >) {
   const [patient, set] = React.useState<PatientAdherence>({
-    educationLevel: AVAIL_EDUACTION_LEVELS[0],
-    forgottenCount: '',
-    hasJob: false,
-    hasFrequentAlc: false,
-    isShareDrugs: false,
-    isExperienceSideEffects: false,
-    doesPatientUnderstandRegimen: true,
+    educationLevel: value?.educationLevel ?? AVAIL_EDUACTION_LEVELS[0],
+    forgottenCount: value?.forgottenCount ?? '',
+    hasJob: value?.hasJob ?? false,
+    hasFrequentAlc: value?.hasFrequentAlc ?? false,
+    isShareDrugs: value?.isShareDrugs ?? false,
+    isExperienceSideEffects: value?.isExperienceSideEffects ?? false,
+    doesPatientUnderstandRegimen: value?.doesPatientUnderstandRegimen ?? true,
   });
   const changeValue = React.useCallback(
     <K extends keyof PatientAdherence>(field: K) =>

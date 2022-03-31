@@ -7,7 +7,7 @@ import {
 } from './app/context/application';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import CTCFlow from './@workflows/flows/CTC';
+import CTCFlow from './CTC';
 import QRLogin from './@workflows/screens/QRAuthentication';
 
 import {NavigationContainer} from '@react-navigation/native';

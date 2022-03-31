@@ -9,6 +9,7 @@ import BasicSearchSymptomsScreen from '../../screens/BasicSearchSymptoms';
 import {
   SymptomAssessmentSequenceProvider,
   useSymptomAssessment,
+  InitialAssessmentState,
 } from '../../helpers/context/assessment';
 import {
   BottomSheetInteractionProvider,
@@ -158,9 +159,14 @@ type BasicAssessmentScreenGroupAction = {
 export default function BasicAssessmentScreenGroup({
   entry,
   actions,
-}: WorkflowScreen<BasicProps, BasicAssessmentScreenGroupAction>) {
+}: WorkflowScreen<
+  BasicProps & {
+    value: InitialAssessmentState;
+  },
+  BasicAssessmentScreenGroupAction
+>) {
   return (
-    <SymptomAssessmentSequenceProvider>
+    <SymptomAssessmentSequenceProvider initialState={entry.value}>
       <BottomSheetInteractionProvider lang="en">
         <MainComponent patient={entry.patient} actions={actions} />
       </BottomSheetInteractionProvider>

@@ -193,8 +193,8 @@ export const withFlowContext = <T, A extends FnList>(
     return (
       <Provider createStore={createStore(entryData)}>
         <Component
-          entry={entryData || {}}
-          actions={k.actions?.({navigation})}
+          entry={(entryData || {}) as T}
+          actions={k.actions?.({navigation}) as A}
         />
       </Provider>
     );

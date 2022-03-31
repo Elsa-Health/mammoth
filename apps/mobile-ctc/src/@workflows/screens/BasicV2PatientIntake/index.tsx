@@ -16,8 +16,7 @@ import produce from 'immer';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export type BasicIntakeForm = {
-  visitDate: Date;
-  isPregnant: boolean;
+  isPregnant: boolean | undefined;
   dateOfPregancy: Date;
   weight: undefined | string;
   height: undefined | string;
@@ -27,16 +26,20 @@ export type BasicIntakeForm = {
 };
 
 export default function BasicV2PatientIntakeScreen({
+  entry: {value, patientId, sex},
   actions: $,
 }: WorkflowScreen<
-  {},
+  {
+    patientId: string;
+    sex: Sex;
+    value: Partial<BasicIntakeForm>;
+  },
   {
     onNext: (patientIntake: BasicIntakeForm) => void;
   }
 >) {
   const [patientIntake, set] = React.useState<BasicIntakeForm>({
-    visitDate: new Date(),
-    isPregnant: false,
+    isPregnant: sex === 'female' ? false : undefined,
     dateOfPregancy: new Date(),
     weight: undefined,
     height: undefined,
@@ -82,7 +85,7 @@ export default function BasicV2PatientIntakeScreen({
                   Patient ID
                 </Text>
               </View>
-              <Text>{'1712619081'}</Text>
+              <Text>{patientId}</Text>
             </View>
 
             {/* Date */}
@@ -105,31 +108,33 @@ export default function BasicV2PatientIntakeScreen({
                   Date of Visit
                 </Text>
               </View>
-              <Text>{format(patientIntake.visitDate, 'dd MMMM yyyy')}</Text>
+              <Text>{format(new Date(), 'dd MMMM yyyy')}</Text>
             </View>
           </View>
           <Divider />
 
           {/* Pregnant */}
           <View>
-            <View style={{marginTop: 12}}>
-              <Text>Is the patient pregnant?</Text>
-              <RadioButton.Group
-                onValueChange={val =>
-                  changeValue('isPregnant')(val === 'yes' ? true : false)
-                }
-                value={patientIntake.isPregnant ? 'yes' : 'no'}>
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-evenly',
-                  }}>
-                  <RadioButton.Item label="Yes" value={'yes'} />
-                  <RadioButton.Item label="No" value={'no'} />
-                </View>
-              </RadioButton.Group>
-            </View>
+            {sex === 'female' && (
+              <View style={{marginTop: 12}}>
+                <Text>Is the patient pregnant?</Text>
+                <RadioButton.Group
+                  onValueChange={val =>
+                    changeValue('isPregnant')(val === 'yes' ? true : false)
+                  }
+                  value={patientIntake.isPregnant ? 'yes' : 'no'}>
+                  <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'space-evenly',
+                    }}>
+                    <RadioButton.Item label="Yes" value={'yes'} />
+                    <RadioButton.Item label="No" value={'no'} />
+                  </View>
+                </RadioButton.Group>
+              </View>
+            )}
 
             {patientIntake.isPregnant && (
               <>
@@ -188,6 +193,7 @@ export default function BasicV2PatientIntakeScreen({
                 value={patientIntake.weight}
                 mode="outlined"
                 label="Weight"
+                keyboardType="decimal-pad"
                 onChangeText={changeValue('weight')}
                 style={{flex: 1}}
                 right={<TextInput.Affix text="kg" />}
@@ -196,6 +202,7 @@ export default function BasicV2PatientIntakeScreen({
                 value={patientIntake.height}
                 mode="outlined"
                 label="Height / Length"
+                keyboardType="decimal-pad"
                 onChangeText={changeValue('height')}
                 style={{flex: 1, marginLeft: Spacing.sm}}
                 right={<TextInput.Affix text="cm" />}
@@ -218,6 +225,7 @@ export default function BasicV2PatientIntakeScreen({
                 value={patientIntake.systolic}
                 mode="outlined"
                 label="Systolic"
+                keyboardType="decimal-pad"
                 onChangeText={changeValue('systolic')}
                 style={{flex: 1}}
                 right={<TextInput.Affix text="mmHg" />}
@@ -226,6 +234,7 @@ export default function BasicV2PatientIntakeScreen({
                 value={patientIntake.diastolic}
                 mode="outlined"
                 label="Diastolic"
+                keyboardType="decimal-pad"
                 onChangeText={changeValue('diastolic')}
                 style={{flex: 1, marginLeft: Spacing.sm}}
                 right={<TextInput.Affix text="mmHg" />}

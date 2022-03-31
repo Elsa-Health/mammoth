@@ -20,6 +20,9 @@
 		"local",
 		"remote"
 	],
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
 	"author": "",
 	"license": "Apache-2.0",
 	"peerDependencies": {

@@ -13,10 +13,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@elsa-health/data-fns": "1.0.1",
+    "@elsa-health/data-fns": "1.3.1",
+    "@elsa-health/storage": "^0.2.0",
     "@elsa-ui/react-native": "*",
-    "@elsa-ui/utils": "*",
     "@elsa-ui/react-native-workflows": "*",
+    "@elsa-ui/utils": "*",
     "@gorhom/bottom-sheet": "^4",
     "@react-native-async-storage/async-storage": "^1.15.11",
     "@react-native-community/checkbox": "^0.5.9",
@@ -47,6 +48,7 @@
     "react-i18next": "^11.13.0",
     "react-native": "0.66.1",
     "react-native-camera": "^4.2.1",
+    "react-native-chart-kit": "^6.12.0",
     "react-native-date-picker": "^4.1.1",
     "react-native-elements": "^3.4.2",
     "react-native-gesture-handler": "^1.10.3",
