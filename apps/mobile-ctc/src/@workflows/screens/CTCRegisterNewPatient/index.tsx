@@ -1,13 +1,11 @@
 import React from 'react';
 import {ScrollView, View} from 'react-native';
-import {Layout, Text} from '../../../@libs/elsa-ui/components';
+import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
 
 import {RadioButton, TextInput, IconButton, Button} from 'react-native-paper';
 import {Picker} from '@react-native-picker/picker';
-import DateTimePicker, {
-  DateTimePickerAndroid,
-} from '@react-native-community/datetimepicker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import produce from 'immer';
 import dayjs from 'dayjs';
@@ -29,7 +27,7 @@ const martialStatusOptions = [
   'widow-ed',
 ] as MartialStatus[];
 
-const convertMartial = (ms: MartialStatus) => {
+export const convertMartial = (ms: MartialStatus) => {
   if (ms === 'single') return 'Single';
   if (ms === 'married') return 'Married';
   if (ms === 'cohabiting') return 'Cohabiting';
@@ -65,6 +63,7 @@ const TYPE_O_TREATMENT_SUPPORT = [
   'Community Group',
 ];
 export type PatientFormType = {
+  patientId: string | undefined;
   firstName: string;
   familyName: string;
   phoneNumber: string;
@@ -73,8 +72,7 @@ export type PatientFormType = {
   // for DOB
   dateOfBirth: Date;
 
-  martialStatus: undefined | MartialStatus;
-  district: undefined | string;
+  martialStatus: MartialStatus;
 
   // HIV+ status
   hasPositiveTest: boolean;
@@ -93,19 +91,22 @@ export type PatientFormType = {
   sex: Sex;
 };
 export default function CTCRegisterNewPatientScreen({
+  entry: {patientId},
   actions: $,
 }: WorkflowScreen<
-  {},
+  {
+    patientId?: string | undefined;
+  },
   {onRegisterPatient: (paitent: PatientFormType) => void}
 >) {
   const [patient, set] = React.useState<PatientFormType>({
+    patientId,
     firstName: '',
     familyName: '',
     phoneNumber: '',
-    resident: '',
+    resident: DISTRICTS[0],
     dateOfBirth: new Date(1970, 1, 1),
     martialStatus: 'single',
-    district: undefined,
     hasPositiveTest: false,
     dateOfTest: new Date(new Date().getFullYear() - 2, 1, 1),
     hasPatientOnARVs: false,
@@ -133,9 +134,21 @@ export default function CTCRegisterNewPatientScreen({
 
   return (
     <Layout title="Register Patient" style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{paddingHorizontal: Spacing.lg}}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: Spacing.lg,
+          padding: Spacing.md,
+        }}>
+        <View style={{marginVertical: 12}}>
+          <TextInput
+            label="Patient ID"
+            mode="outlined"
+            value={patient.patientId}
+            onChangeText={changeValue('patientId')}
+          />
+        </View>
         <View>
-          <Text>Please input the following inforamtion about your patient</Text>
+          <Text>Please input the following information about your patient</Text>
         </View>
         {/* Gender */}
         <View style={{marginTop: 12}}>
@@ -155,45 +168,46 @@ export default function CTCRegisterNewPatientScreen({
           </RadioButton.Group>
         </View>
         {/* DOB */}
-        {patient.hasPositiveTest && (
-          <View>
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <TextInput
-                value={dayjs(patient.dateOfBirth).format('YYYY-MMMM-DD')}
-                mode="outlined"
-                style={{flex: 1}}
-                label="Date of Birth"
-                onPressIn={() => setShowDOB(s => !s)}
-                showSoftInputOnFocus={false}
-                onChange={null}
-              />
 
-              <IconButton
-                icon="calendar-month"
-                color={'#555'}
-                size={24}
-                onPress={() => setShowDOB(s => !s)}
-              />
-            </View>
+        <View>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <TextInput
+              value={dayjs(patient.dateOfBirth).format('YYYY-MM-DD')}
+              mode="outlined"
+              style={{flex: 1}}
+              label="Date of Birth"
+              onPressIn={() => setShowDOB(s => !s)}
+              showSoftInputOnFocus={false}
+              onChange={null}
+            />
 
-            {showDOB && (
-              <DateTimePicker
-                style={{flex: 1}}
-                display="calendar"
-                value={patient.dateOfBirth}
-                onChange={(e, date) => {
-                  setShowDOB(false);
-                  changeValue('dateOfTest')(date);
-                }}
-              />
-            )}
+            <IconButton
+              icon="calendar-month"
+              color={'#555'}
+              size={24}
+              onPress={() => setShowDOB(s => !s)}
+            />
           </View>
-        )}
+
+          {showDOB && (
+            <DateTimePicker
+              style={{flex: 1}}
+              display="calendar"
+              maximumDate={new Date()}
+              value={patient.dateOfBirth}
+              onChange={(e, date) => {
+                setShowDOB(false);
+                changeValue('dateOfTest')(date);
+              }}
+            />
+          )}
+        </View>
+
         {/* <View>
           <View
             style={{

@@ -69,7 +69,7 @@ async function fetchPatientFromStore(patientId: string, emr: Store) {
 		.collection("patients")
 		.queryDoc<Patient>({ $id: patientId });
 
-	return { id: patientId, ...patient };
+	return { ...patient, id: patientId };
 }
 
 async function saveVisitSession(visit: Omit<VisitSession, "date">, emr: Store) {

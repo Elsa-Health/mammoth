@@ -68,6 +68,36 @@ async function createDocument<T>(
 	await istore.setItem(documentRef, JSON.stringify({ $data: data }));
 }
 
+async function queryMultipleDocuments(
+	istore: ItemStorage,
+	refs: string[]
+): Promise<null | Array<[string, string | null]>> {
+	const kvps = await istore.multiGet(refs);
+
+	if (Array.isArray(kvps)) {
+		return kvps;
+	}
+
+	return null;
+}
+
+async function createManyDocuments<T>(
+	istore: ItemStorage,
+	docRefDataPair: Array<[string, T]>
+) {
+	const refs = docRefDataPair.map((d) => d[0]);
+
+	// check if the keys exist
+	const kvps = await queryMultipleDocuments(istore, refs);
+	if (kvps === null) {
+		throw Error("Something is wrong");
+	}
+
+	await istore.multiSet(
+		docRefDataPair.map((ddp) => [ddp[0], JSON.stringify({ $data: ddp[1] })])
+	);
+}
+
 async function setDocument<T extends { [key: string]: any }>(
 	istore: ItemStorage,
 	documentRef: string,
@@ -124,6 +154,27 @@ async function collectionExists(istore: ItemStorage, collectionRef: string) {
 	return exists;
 }
 
+async function addManyDocumentToCollection<T>(
+	istore: ItemStorage,
+	collectionRef: string,
+	docKVPair: Array<[string, T]>,
+	refFn: (docID: string) => string
+) {
+	const ids = docKVPair.map((d) => d[0]);
+
+	await setCollectionDocs(istore, collectionRef, (docsIds) => [
+		...docsIds,
+		...ids,
+	]);
+	await createManyDocuments(
+		istore,
+		docKVPair.map((d) => [refFn(d[0]), d[1]])
+	);
+
+	console.log("MULTI ADDED: ==>", ids);
+	return ids;
+}
+
 async function addDocumentToCollection<T>(
 	istore: ItemStorage,
 	collectionRef: string,
@@ -142,10 +193,10 @@ async function addDocumentToCollection<T>(
 		docID,
 	]);
 
-	// console.log("Creating document: ", refFn(docID));
 	await createDocument<T>(istore, refFn(docID), data);
 
-	// console.log("ADDED!:", docID);/
+	console.log("ADDED: ==>", docID);
+
 	return docID;
 }
 
@@ -158,7 +209,7 @@ export const collectionDocumentWithStore =
 	): Store.DocumentAction => {
 		return {
 			create: async (data) => {
-				addDocumentToCollection(
+				await addDocumentToCollection(
 					istore,
 					collRefFn(collId),
 					docName,
@@ -198,6 +249,7 @@ export const collectionWithStore =
 			const docsIds = await getCollectionDocs(istore, collRef);
 
 			const { $id: qid, ...otherQ } = qo || {};
+			console.log("qureyDoc:", qid);
 			if (qid !== undefined) {
 				const locatedDocId = docsIds.find((id) => {
 					if (typeof qid === "string") {
@@ -288,11 +340,13 @@ export const collectionWithStore =
 		): Promise<Array<{ $id: string } & T>> => {
 			// Performs search  and load what can be loaded
 			const docsIds = await getCollectionDocs(istore, collRef);
-			let $docsToLoad = docsIds;
+			let $docsToLoad: string[] = docsIds;
 
 			const { $id: qid, ...otherQ } = qo || {};
 
 			if (qid !== undefined) {
+				// console.log("HERE QID:", { qid });
+
 				// filter by id
 				$docsToLoad = docsIds.filter((id) => {
 					if (Array.isArray(qid)) {
@@ -315,7 +369,7 @@ export const collectionWithStore =
 				});
 			}
 
-			// console.log({ $docsToLoad, otherQ });
+			// console.log("$docsToLoad:", { $docsToLoad, otherQ });
 
 			const dcs = await Promise.all(
 				$docsToLoad.map(
@@ -337,6 +391,9 @@ export const collectionWithStore =
 						})
 				)
 			);
+
+			// console.log("%QUERY%", qo);
+			// console.log("%%%", { dcs });
 
 			return dcs.filter((d) => {
 				if (otherQ === undefined) {
@@ -405,23 +462,31 @@ export const collectionWithStore =
 			},
 			// Add implement with a Multiset
 			addMult: async (docsData) => {
-				return await Promise.all(
-					docsData.map(
-						(s) =>
-							new Promise<string>((resolve, reject) => {
-								const { $id, ...o } = s;
-								addDocumentToCollection(
-									istore,
-									collRef,
-									genDocId($id),
-									o,
-									docRefFn
-								)
-									.then(resolve)
-									.catch(reject);
-							})
-					)
+				return await addManyDocumentToCollection(
+					istore,
+					collRef,
+					docsData.map(({ $id, ...other }) => [genDocId($id), other]),
+					docRefFn
 				);
+				// return (
+				// 	await Promise.all(
+				// 		docsData.map(
+				// 			(s) =>
+				// 				new Promise<string>((resolve, reject) => {
+				// 					const { $id, ...o } = s;
+				// 					addDocumentToCollection(
+				// 						istore,
+				// 						collRef,
+				// 						genDocId($id),
+				// 						o,
+				// 						docRefFn
+				// 					)
+				// 						.then(resolve)
+				// 						.catch(reject);
+				// 				})
+				// 		)
+				// 	)
+				// ).map((s) => s);
 			},
 			queryDoc,
 			queryDocs,

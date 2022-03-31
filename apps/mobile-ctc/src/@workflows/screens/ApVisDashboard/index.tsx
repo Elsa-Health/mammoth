@@ -110,21 +110,65 @@ function AppointmentSection({data}: {data: CTC.Appointment[]}) {
   );
 }
 
+function SearchPatientSection({
+  data,
+  onClear,
+  onRegisterPatient,
+}: {
+  data: CTC.Patient[];
+  onClear: () => void;
+  onRegisterPatient: () => void;
+}) {
+  return (
+    <View style={{paddingVertical: Spacing.xs, flex: 1}}>
+      {data.length === 0 ? (
+        <View>
+          <View
+            style={{flex: 1, alignItems: 'center', marginVertical: Spacing.md}}>
+            <Text italic>Didn't find the patient.</Text>
+            <Text italic>Register patient instead?</Text>
+          </View>
+          <Button mode="outlined" onPress={onRegisterPatient}>
+            Register Patient
+          </Button>
+        </View>
+      ) : (
+        data.map(d => (
+          <View key={d.id}>
+            <Text>{d.id}</Text>
+          </View>
+        ))
+      )}
+      <View>
+        <Button onPress={onClear}>Clear</Button>
+      </View>
+    </View>
+  );
+}
+
 export default function ApVisDashboardScreen({
   entry: {fullName},
   actions: $,
 }: WorkflowScreen<
   {fullName: string; appointments: CTC.Appointment[]; visits: CTC.Visit[]},
   {
-    onNewVisit: () => void;
+    searchPatientsById: (partialId: string) => Promise<CTC.Patient[]>;
+    onRegisterPatientWithId: (patientId: string) => void;
+    onPatientList: () => void;
     onNewPatient: () => void;
   }
 >) {
   const [searchQuery, setSearchQuery] = React.useState('');
+  React.useEffect(() => {
+    if (searchQuery.trim().length === 0) {
+      setPatients(null);
+    }
+  }, [searchQuery]);
+  const [patients, setPatients] = React.useState<CTC.Patient[] | null>([]);
   const handleSearch = e => {
     // FIXME: Needs to be callback
     // TODO: start searching
-    // console.warn(searchQuery);
+    $.searchPatientsById(searchQuery).then(vals => setPatients(vals));
     return null;
   };
 
@@ -188,6 +232,7 @@ export default function ApVisDashboardScreen({
             <Searchbar
               placeholder="Ex. 02321-2323-1321321"
               style={{flex: 1}}
+              blurOnSubmit
               onChangeText={setSearchQuery}
               onSubmitEditing={handleSearch}
               value={searchQuery}
@@ -195,33 +240,46 @@ export default function ApVisDashboardScreen({
           </View>
         </View>
 
-        {/* Appointment Section */}
-        <View style={{marginTop: Spacing.lg}}>
-          <AppointmentSection data={Array(2).fill(2)} />
-        </View>
+        {patients !== null ? (
+          <View style={{marginVertical: Spacing.md}}>
+            <SearchPatientSection
+              data={patients}
+              onClear={() => setSearchQuery('')}
+              onRegisterPatient={() => $.onRegisterPatientWithId(searchQuery)}
+            />
+          </View>
+        ) : (
+          <>
+            {/* Appointment Section */}
+            <View style={{marginTop: Spacing.lg}}>
+              <AppointmentSection data={Array(2).fill(2)} />
+            </View>
 
-        {/* Appointment Section */}
-        <View style={{marginTop: Spacing.lg}}>
-          <VisitSection data={Array(2).fill(2)} />
-        </View>
+            {/* Appointment Section */}
+            <View style={{marginTop: Spacing.lg}}>
+              <VisitSection data={Array(2).fill(2)} />
+            </View>
+          </>
+        )}
       </ScrollView>
 
       {/* Fixed */}
       <FAB.Group
         open={open}
         visible
-        icon={open ? 'close' : 'plus'}
+        icon={open ? 'close' : 'menu'}
         actions={[
           {
-            icon: 'account',
+            icon: 'account-plus',
             label: 'New Patient',
+            small: false,
             onPress: $.onNewPatient,
           },
           {
-            icon: 'calendar-edit',
-            label: 'Create Visit',
-            onPress: $.onNewVisit,
+            icon: 'format-list-bulleted',
+            label: 'Patient List',
             small: false,
+            onPress: $.onPatientList,
           },
         ]}
         onStateChange={onStateChange}

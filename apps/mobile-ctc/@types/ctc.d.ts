@@ -9,7 +9,10 @@ declare namespace CTC {
   };
 
   type Visit = {
+    id: string;
+    dateTime: UTCDateTime;
     patientId: string;
+    appointmentId?: string;
     patient: {
       age: Age;
       sex: Sex;
@@ -57,12 +60,12 @@ declare namespace CTC {
     martialStatus: string;
     district: string;
     hasPositiveTest: boolean;
-    dateOfHIVPositive?: Date;
+    dateOfHIVPositive?: YYYYMMDDDate;
     hasPatientOnARVs: boolean;
-    dateStartedARVs?: Date;
+    dateStartedARVs?: YYYYMMDDDate;
     hasTreatmentSupport: boolean;
     typeOfSupport?: string;
-    registeredDate: DBDateTime;
+    registeredDate: UTCDateTime;
   };
 }
 

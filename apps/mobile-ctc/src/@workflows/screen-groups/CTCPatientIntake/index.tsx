@@ -70,8 +70,8 @@ const transformToProperHIVIntake = (intake: HIVPatientIntake): CTCHivIntake => {
   });
 };
 
-export default function CTCPatientVisitScreenGroup({
-  entry: {value},
+export default function CTCPatientIntakeScreenGroup({
+  entry: {value, patient},
   actions: $,
 }: WorkflowScreen<
   {
@@ -107,7 +107,8 @@ export default function CTCPatientVisitScreenGroup({
         name="visit.basicV2intake"
         component={withFlowContext(BasicV2PatientIntakeScreen, {
           entry: {
-            patientId: '1712619081',
+            patientId: patient.id,
+            sex: patient.sex,
           },
           actions: ({navigation}) => ({
             onNext: patient => {

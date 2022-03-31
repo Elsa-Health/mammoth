@@ -56,9 +56,13 @@ function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
     );
   }
 
+  if (user === undefined) {
+    return null;
+  }
+
   return (
     <NavigationContainer>
-      <CTCFlow />
+      <CTCFlow fullName={user.name || user.uid} />
     </NavigationContainer>
   );
 }
