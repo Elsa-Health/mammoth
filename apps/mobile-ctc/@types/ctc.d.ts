@@ -4,11 +4,18 @@
  */
 declare namespace CTC {
   type Appointment = {
+    id: string;
     patientId: string;
     visitIdCreated: string;
-    visitIdFullfilled: string;
+    visitIdFullfilled?: string;
+
+    /**
+     * Date with with the visit is fullfilled.
+     * (Same as the date in the `visitIdFullfilled` visit)
+     */
     fulfilledDate: UTCDateTime;
-    date: YYYYMMDDDate;
+
+    date: UTCDateTime;
   };
 
   type Visit = {
@@ -17,7 +24,7 @@ declare namespace CTC {
     patientId: string;
 
     // shows the appointment the visit is fullfilling
-    appointmentId?: string;
+    fulfilledAppointmentId?: string | null;
     patient: {
       age: Age;
       sex: Sex;

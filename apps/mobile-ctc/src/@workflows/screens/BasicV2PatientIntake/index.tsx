@@ -26,11 +26,12 @@ export type BasicIntakeForm = {
 };
 
 export default function BasicV2PatientIntakeScreen({
-  entry: {value, patientId, sex},
+  entry: {value, patientId, sex, appointmentDate},
   actions: $,
 }: WorkflowScreen<
   {
     patientId: string;
+    appointmentDate: Date;
     sex: Sex;
     value: Partial<BasicIntakeForm>;
   },
@@ -66,6 +67,38 @@ export default function BasicV2PatientIntakeScreen({
         contentContainerStyle={{paddingHorizontal: Spacing.md, flex: 1}}>
         <View style={{flex: 1}}>
           <View>
+            {appointmentDate && (
+              <>
+                {/* Appointment Date */}
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingVertical: 8,
+                    justifyContent: 'space-between',
+                  }}>
+                  <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <Icon
+                      color={Color.primary.base}
+                      size={24}
+                      name="calendar-clock"
+                    />
+                    <Text font="bold" style={{marginLeft: 8}}>
+                      Appointment Date
+                    </Text>
+                  </View>
+                  <Text>{format(appointmentDate, 'dd MMMM yyyy')}</Text>
+                </View>
+              </>
+            )}
+
+            {/* Patient ID */}
             <View
               style={{
                 display: 'flex',

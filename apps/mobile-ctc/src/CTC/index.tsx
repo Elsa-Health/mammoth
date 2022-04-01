@@ -16,7 +16,13 @@ import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAsse
 
 import {Portal, Snackbar} from 'react-native-paper';
 
-import {format, differenceInMonths, differenceInYears} from 'date-fns';
+import {
+  format,
+  differenceInMonths,
+  differenceInYears,
+  isBefore,
+  differenceInDays,
+} from 'date-fns';
 import produce from 'immer';
 
 import {deviceStorage} from './storage';
@@ -74,6 +80,38 @@ async function fetchPatients() {
   });
 }
 
+type A = Omit<CTC.Appointment, 'id'>;
+async function fetchAppointments() {
+  const docs = await cAppointRef.queryDocs<A>();
+  return docs.map(({$id, ...other}) => {
+    return {...other, id: $id} as CTC.Appointment;
+  });
+}
+
+async function fetchUpcomingAppointments() {
+  return (await fetchAppointments()).filter(appt => {
+    return (
+      (appt.visitIdFullfilled !== null &&
+        appt.visitIdFullfilled !== undefined) ||
+      isBefore(new Date(), new Date(appt.date))
+    );
+  });
+}
+
+async function fetchMissedAppointment() {
+  return (await fetchAppointments()).filter(appt => {
+    const apptDate = new Date(appt.date);
+    const nowDate = new Date();
+    return (
+      !(
+        appt.visitIdFullfilled !== null && appt.visitIdFullfilled !== undefined
+      ) &&
+      isBefore(apptDate, nowDate) &&
+      differenceInDays(nowDate, apptDate) - 3
+    );
+  });
+}
+
 function dateToAge(date: Date): Age {
   const now = new Date();
   const years = differenceInYears(now, date);
@@ -84,7 +122,9 @@ function dateToAge(date: Date): Age {
   };
 }
 
-type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'>;
+type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'> & {
+  appointment?: CTC.Appointment | undefined;
+};
 function CTCFlow({fullName}: {fullName: string}) {
   const [message, setMessage] = React.useState<{
     text: string;
@@ -124,10 +164,7 @@ function CTCFlow({fullName}: {fullName: string}) {
   );
   return (
     <>
-      <Stack.Navigator
-        screenOptions={{headerShown: false}}
-        // initialRouteName="ctc.patients"
-      >
+      <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(ApVisDahboardScreen, {
@@ -139,8 +176,30 @@ function CTCFlow({fullName}: {fullName: string}) {
               searchPatientsById: async (partialId: string) => {
                 return await fetchPatientsFromId(partialId);
               },
+              onAttendPatient: appointment => {
+                getPatient(appointment.patientId).then(patient => {
+                  if (patient === null) {
+                    const message = 'Unable to start a appointment';
+                    setMessage({
+                      text: message,
+                      type: 'success',
+                    });
+                  } else {
+                    navigation.navigate('ctc.patient_intake', {
+                      patient,
+                      appointment,
+                    });
+                  }
+                });
+              },
+              getMissedAppointments: async () => await fetchMissedAppointment(),
+              getUpcomingAppointments: async () =>
+                await fetchUpcomingAppointments(),
               onRegisterPatientWithId: patientId => {
                 navigation.navigate('ctc.register_patient', {patientId});
+              },
+              onNewPatientVisit: patient => {
+                navigation.navigate('ctc.patient_intake', {patient});
               },
               onNewPatient: () => {
                 navigation.navigate('ctc.register_patient');
@@ -242,12 +301,13 @@ function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.patient_intake"
           component={withFlowContext(CTCPatientIntakeScreenGroup, {
             actions: ({navigation}) => ({
-              onNext: (patientForm, patient) => {
+              onNext: (patientForm, patient, appointment) => {
                 console.log(patientForm);
                 // TODO: This should be a conditional navigation. Depends on where they came from
                 // navigation.navigate('ctc.adherence_assessment');
                 updateCurrentVisit('intake')(patientForm);
                 updateCurrentVisit('patientId')(patient.id);
+                updateCurrentVisit('appointment')(appointment);
                 updateCurrentVisit('patient')({
                   sex: patient.sex,
                   age: dateToAge(new Date(patient.dateOfBirth)),
@@ -319,41 +379,63 @@ function CTCFlow({fullName}: {fullName: string}) {
             actions: ({navigation}) => ({
               onConclude: data => {
                 console.log('Conclude App', data);
-                updateCurrentVisit('assessmentSummary', final => {
-                  cVisitsRef
-                    .addDoc({...final, dateTime: new Date()})
-                    .then(id => {
-                      const appointmentDate =
-                        final.assessmentSummary.summary?.appointmentDate?.toString();
-                      cAppointRef
-                        .addDoc({
-                          patientId: currentVisit.patientId,
-                          visitIdCreated: id,
-                          // FIXME: HACK
-                          date: appointmentDate,
-                        })
-                        .then(_ => {
-                          setMessage({
-                            text: `Visit complete! Next appointment set for ${appointmentDate}`,
-                            type: 'success',
-                          });
-                          navigation.navigate('ctc.dashboard');
-                        })
-                        .catch(err => {
-                          console.log(err);
-                          setMessage({
-                            text: 'Unable to complete assessment',
-                            type: 'error',
-                          });
-                        });
-                    })
-                    .catch(err => {
-                      console.log(err);
-                      setMessage({
-                        text: 'Unable to conclude assessment',
-                        type: 'error',
+                updateCurrentVisit('assessmentSummary', async final => {
+                  try {
+                    const {appointment} = final;
+                    const appointmentDate =
+                      final.assessmentSummary.summary?.appointmentDate?.toString();
+                    if (appointmentDate) {
+                      const visitId = await cVisitsRef.addDoc({
+                        ...final,
+                        dateTime: new Date(),
                       });
+
+                      console.log({visitId, appointmentDate});
+                      const date = new Date(appointmentDate).toUTCString();
+
+                      let fulfilledAppointmentId = null;
+                      if (
+                        appointment?.id !== null &&
+                        appointment?.id !== undefined
+                      ) {
+                        cAppointRef.doc(appointment.id).set({
+                          visitIdFullfilled: visitId,
+                          fulfilledDate: new Date().toUTCString(),
+                        });
+
+                        fulfilledAppointmentId = appointment.id;
+                      } else {
+                        const id = await cAppointRef.addDoc({
+                          patientId: currentVisit.patientId,
+                          visitIdCreated: visitId,
+                          date,
+                        });
+
+                        fulfilledAppointmentId = id;
+                      }
+
+                      // works like update
+                      await cVisitsRef
+                        .doc(visitId)
+                        .set({fulfilledAppointmentId});
+
+                      setMessage({
+                        text: `Visit complete! Next appointment set for ${date}`,
+                        type: 'success',
+                      });
+                      navigation.navigate('ctc.dashboard');
+                    } else {
+                      console.warn(
+                        'THERE IS NO APPOINTMENT DATE',
+                        appointmentDate,
+                      );
+                    }
+                  } catch (err) {
+                    setMessage({
+                      text: 'Unable to conclude assessment',
+                      type: 'error',
                     });
+                  }
                 })(data);
               },
             }),

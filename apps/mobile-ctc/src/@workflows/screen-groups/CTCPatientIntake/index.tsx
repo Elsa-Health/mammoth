@@ -74,14 +74,21 @@ const transformToProperHIVIntake = (intake: HIVPatientIntake): CTCHivIntake => {
 };
 
 export default function CTCPatientIntakeScreenGroup({
-  entry: {value, patient},
+  entry: {value, patient, appointment},
   actions: $,
 }: WorkflowScreen<
   {
+    appointment?: CTC.Appointment;
     patient: CTC.Patient;
     value: Partial<CTCPatientIntake>;
   },
-  {onNext: (patientIntake: CTCPatientIntake, patient: CTC.Patient) => {}}
+  {
+    onNext: (
+      patientIntake: CTCPatientIntake,
+      patient: CTC.Patient,
+      appointment?: CTC.Appointment | undefined,
+    ) => {};
+  }
 >) {
   const [intake, set] = React.useState<CTCPatientIntake>(value || {});
 
@@ -110,6 +117,9 @@ export default function CTCPatientIntakeScreenGroup({
         name="visit.basicV2intake"
         component={withFlowContext(BasicV2PatientIntakeScreen, {
           entry: {
+            appointmentDate: appointment?.date
+              ? new Date(appointment.date)
+              : undefined,
             patientId: patient.id,
             sex: patient.sex,
           },
@@ -142,7 +152,7 @@ export default function CTCPatientIntakeScreenGroup({
                   ...s,
                   ...transformToProperHIVIntake(hivPatient),
                 };
-                $.onNext(newIntake, patient);
+                $.onNext(newIntake, patient, appointment);
                 return newIntake;
               });
             },

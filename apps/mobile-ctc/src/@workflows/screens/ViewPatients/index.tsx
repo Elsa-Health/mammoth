@@ -20,7 +20,7 @@ export default function ViewPatientsScreen({
   {
     getPatients: () => Promise<CTC.Patient[]>;
     onDashboard: () => void;
-    onNewPatientVisit: (patientId: CTC.Patient) => void;
+    onNewPatientVisit: (patient: CTC.Patient) => void;
     searchPatientsById: (partialId: string) => Promise<CTC.Patient[]>;
   }
 >) {
@@ -101,15 +101,15 @@ export default function ViewPatientsScreen({
         {patients !== undefined ? (
           <View>
             {patients.map(patient => (
-              <>
-                <View key={patient.id}>
+              <React.Fragment key={patient.id}>
+                <View>
                   <Patient
                     data={patient}
                     onNewVisit={() => $.onNewPatientVisit(patient)}
                   />
                 </View>
                 <Divider />
-              </>
+              </React.Fragment>
             ))}
           </View>
         ) : (
