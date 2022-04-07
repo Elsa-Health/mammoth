@@ -1,6 +1,6 @@
 {
 	"name": "mammoth",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"private": true,
 	"workspaces": {
 		"packages": [
@@ -19,9 +19,7 @@
 			"**/@elsa-ui/utils/",
 			"**/@elsa-ui/utils/**",
 			"**/@elsa-ui/react-native-workflows/",
-			"**/@elsa-ui/react-native-workflows/**",
-			"**/react-native-elsa-ui/",
-			"**/react-native-elsa-ui/**"
+			"**/@elsa-ui/react-native-workflows/**"
 		]
 	},
 	"scripts": {

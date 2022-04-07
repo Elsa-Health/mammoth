@@ -1,4 +1,4 @@
-import { Store } from "@sabertooth/storage";
+import { Store } from "sabertooth";
 import axios from "axios";
 import {
 	collection,

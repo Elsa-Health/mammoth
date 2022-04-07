@@ -1,7 +1,7 @@
 {
-	"name": "@elsa-health/storage-stores",
+	"name": "sabertooth-stores",
 	"version": "0.1.0",
-	"description": "Stores to be used with `@elsa-health/storage` library",
+	"description": "Stores to be used with `sabertooth` library",
 	"private": false,
 	"sideEffects": false,
 	"files": [
@@ -11,7 +11,6 @@
 	"scripts": {
 		"test": "jest -u",
 		"build": "tsc -p .",
-		"dev": "tsup ./src --format cjs --watch --dts --external \"@sabertooth/storage\" --external \"react-native-mmkv\" --out-dir ./",
 		"lint": "TIMING=1 eslint src --fix",
 		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf ./local ./remote"
 	},
@@ -26,7 +25,7 @@
 	"author": "",
 	"license": "Apache-2.0",
 	"peerDependencies": {
-		"@elsa-health/storage": "*",
+		"sabertooth": "*",
 		"react-native-mmkv": "*"
 	},
 	"devDependencies": {

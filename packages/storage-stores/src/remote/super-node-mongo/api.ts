@@ -1,4 +1,4 @@
-import { Store } from "@sabertooth/storage";
+import { Store } from "sabertooth";
 import { CreateCollectionOptions } from "mongodb";
 import { AxiosInstance } from "axios";
 

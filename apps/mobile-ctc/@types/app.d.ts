@@ -1,4 +1,3 @@
-/// <reference path="../src/@libs/data-fns" />
 type Sex = 'male' | 'female';
 
 type DBDateTime = number;

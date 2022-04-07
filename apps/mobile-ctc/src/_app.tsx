@@ -7,11 +7,11 @@ import {
 } from './app/context/application';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import CTCFlow from './CTC';
 import QRLogin from './@workflows/screens/QRAuthentication';
-
-import {NavigationContainer} from '@react-navigation/native';
 import rnpTheme from './@libs/elsa-ui/theme/rnp';
+
+import {Text, Layout} from './@libs/elsa-ui/components';
+import {Color} from './@libs/elsa-ui/theme';
 
 import {LanguageProvider} from './@libs/elsa-utils/locale';
 
@@ -20,6 +20,8 @@ import {authenticate} from './app/utils';
 import {ToastAndroid, View} from 'react-native';
 
 import {Provider as PaperProvider} from 'react-native-paper';
+
+import CDRT from './crdt';
 
 const authenticateQr =
   (
@@ -60,11 +62,13 @@ function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
     return null;
   }
 
-  return (
-    <NavigationContainer>
-      <CTCFlow fullName={user.name || user.uid} />
-    </NavigationContainer>
-  );
+  return <CDRT />;
+
+  // return (
+  //   <NavigationContainer>
+  //     <CTCFlow fullName={user.name || user.uid} />
+  //   </NavigationContainer>
+  // );
 }
 
 export default function App() {

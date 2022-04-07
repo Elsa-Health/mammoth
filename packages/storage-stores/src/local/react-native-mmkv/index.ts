@@ -1,5 +1,5 @@
 import { MMKV } from "react-native-mmkv";
-import { Store } from "@sabertooth/storage";
+import { Store } from "sabertooth";
 
 import {
 	collectionWithStore,

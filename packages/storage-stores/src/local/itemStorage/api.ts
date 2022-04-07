@@ -1,5 +1,5 @@
 import { ItemStorage, LocalStorageStoreOption } from ".";
-import { Store } from "@sabertooth/storage";
+import { Store } from "sabertooth";
 
 type Document<T> = {
 	$data: T;

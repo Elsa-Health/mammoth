@@ -1,4 +1,4 @@
-import { Store } from "@sabertooth/storage";
+import { Store } from "sabertooth";
 import { MMKV } from "react-native-mmkv";
 
 type Document<T> = {

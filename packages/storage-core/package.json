@@ -1,29 +1,36 @@
 {
-	"name": "@elsa-health/storage",
-	"version": "0.2.0",
-	"description": "Storage for Document-based Modelled Data",
-	"sideEffects": false,
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"name": "storage-core",
+	"description": "JSON storage for Elsa",
+	"version": "1.4.1",
+	"main": "./lib/index.js",
+	"types": "./lib",
+	"license": "MIT",
 	"private": false,
 	"scripts": {
-		"test": "jest -u",
-		"build": "tsc -p .",
-		"dev": "tsup ./src --format cjs --watch --dts --out-dir ./dist",
-		"lint": "TIMING=1 eslint src --fix",
-		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+		"start": "ts-node src/index.ts",
+		"build": "rm -rf ./lib && tsc -p .",
+		"dev": "ts-node-dev src/index.ts",
+		"test": "ts-jest",
+		"prepublish": "yarn build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Elsa-Health/data-fns.git"
 	},
 	"keywords": [
+		"elsa-health",
 		"storage",
 		"core"
 	],
-	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/Elsa-Health/data-fns/issues"
+	},
 	"devDependencies": {
-		"@babel/runtime": "^7.17.7",
-		"@types/jest": "^27.4.1",
-		"@types/node": "^17.0.21",
-		"jest": "^27.5.1",
-		"tsup": "^5.12.1",
-		"typescript": "^4.2.4"
+		"@types/jest": "^27.0.3",
+		"@types/node": "^16.11.9",
+		"jest": "^27.3.1",
+		"ts-node": "^10.4.0",
+		"ts-node-dev": "^1.1.8",
+		"typescript": "^4.5.2"
 	}
 }

@@ -1,19 +1,35 @@
 {
-	"compilerOptions": {
-		"target": "es2017",
-		"module": "es2015",
-		"jsx": "react-native",
-		"declaration": true,
-		"declarationDir": "./",
-		"isolatedModules": true,
-		"strict": true,
-		"moduleResolution": "node",
-		"allowSyntheticDefaultImports": true,
-		"skipLibCheck": true,
-		"resolveJsonModule": true,
-		"outDir": "./"
-	},
-	"exclude": ["node_modules", "./__tests__/**/*", "**/*.test.(j|t)sx?"],
-	"extends": "tsconfig/base.json",
-	"include": ["./src/*"]
+  "compilerOptions": {
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "esModuleInterop": true,
+    "composite": true,
+    "importsNotUsedAsValues": "error",
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-native",
+    "lib": ["esnext"],
+    "module": "esnext",
+    "moduleResolution": "node",
+
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "./",
+    "allowJs": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noStrictGenericChecks": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext"
+  },
+  "exclude": ["**/__tests__/**/*", "**/*.test.tsx", "**/*.test.js"],
+  "include": ["./src/**/*"]
 }

@@ -1,0 +1,14 @@
+# Making configurations needed for ipfs
+FROM ipfs/go-ipfs:latest
+
+EXPOSE 4001
+EXPOSE 5001
+EXPOSE 8080
+
+COPY ../network-swarm.key ~/.ipfs/swarm.key
+
+ENV IPFS_SWARM_KEY ~/.ipfs/swarm.key
+ENV IPFS_DATA ~/.ipfs
+
+RUN ipfs daemon --init --enable-pubsub-experiment
+
