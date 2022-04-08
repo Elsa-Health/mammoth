@@ -6,7 +6,10 @@ import {
 	resolveStates,
 	SBState,
 } from "../sabertooth";
-import { PlusSmIcon as PlusSmIconSolid } from "@heroicons/react/solid";
+import {
+	PlusSmIcon as PlusSmIconSolid,
+	RefreshIcon,
+} from "@heroicons/react/solid";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -14,14 +17,12 @@ import { BuildCRDTStore } from "../sabertooth/store-core";
 
 import { w3cwebsocket as WebSocket } from "websocket";
 import { configuration } from "../sabertooth/stores/key-value-map";
-import { configuration as buildItemStoreConfig } from "../sabertooth/stores/item-storage";
 
 // To store the messages
 const crdtBox = new CRDTMessageBox();
-// const wsURL = "ws://1951-197-186-5-155.ngrok.io/channel/crdt";
+// const wsURL = "ws://localhost:5005/channel/crdt";
 const wsURL = "wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt";
 
-const collectionsUID = "@@COLLECTIONS";
 const generateId = (id?: string) => id || uuidv4();
 
 const keyMapConfig = configuration({
@@ -29,6 +30,7 @@ const keyMapConfig = configuration({
 	buildDocRef: (doc: string, col: string) => `${doc}-${col}`,
 });
 
+// const collectionsUID = "@@COLLECTIONS";
 // const itemStoreConfig = buildItemStoreConfig({
 // 	istore: localStorage,
 // 	generateId,
@@ -96,7 +98,6 @@ async function readTasks() {
 const updateTaskText = async (id: string, text: string, cb?: () => void) => {
 	await store.collection("tasks").document(id).update({ text });
 	cb && cb();
-	// onSyncMessage(crdtBox.messages());
 };
 const updateTaskValue = async (
 	id: string,
@@ -104,13 +105,11 @@ const updateTaskValue = async (
 	cb?: () => void
 ) => {
 	await store.collection("tasks").document(id).update({ complete });
-	// onSyncMessage(crdtBox.messages());
 	cb && cb();
 };
 
 const deleteTask = async (id: string, cb?: () => void) => {
 	await store.collection("tasks").document(id).delete();
-	// onSyncMessage(crdtBox.messages());
 	cb && cb();
 };
 
@@ -135,7 +134,7 @@ function QuickTodo({
 	React.useEffect(() => {
 		// store.document('tasks').set()
 		store.collection("tasks").observe("updated", (delta) => {
-			// console.log("updated", delta);
+			console.log("updated", delta);
 			readTasks().then((tasks) => {
 				set(tasks);
 			});
@@ -151,7 +150,7 @@ function QuickTodo({
 		async (text: string, cb?: () => void) => {
 			await store
 				.collection("tasks")
-				.add({ text, complete: false, pos: list.length });
+				.add([undefined, { text, complete: false, pos: list.length }]);
 
 			cb && cb();
 		},
@@ -187,16 +186,13 @@ function QuickTodo({
 						>
 							Flatten
 						</button>
-						{/* <button
+						<button
 							className="inline-flex whitespace-nowrap gap-2 items-center px-3 py-0.5 rounded-full text-sm font-medium border border-transparent bg-green-100 hover:bg-green-200 hover:border-green-400 text-green-800"
-							onClick={() => {
-								mergeOther(crdtBox);
-								sync();
-							}}
+							onClick={sync}
 						>
 							<RefreshIcon className="h-3 w-auto" />
 							<span>Sync Remote Messages</span>
-						</button> */}
+						</button>
 					</div>
 				</div>
 				{/* Add item */}
@@ -290,10 +286,9 @@ export default function TodoApp() {
 			if (socket.readyState === WebSocket.OPEN) {
 				data.data.text().then((text) => {
 					const vals = JSON.parse(text);
-					crdtBox.resolve();
-					mergeOther(vals || []);
+					// console.log(">", vals);
+					mergeOther(vals ?? []);
 					sync();
-					console.log(">", vals);
 				});
 			} else {
 				if (socket.readyState !== WebSocket.CLOSED) {

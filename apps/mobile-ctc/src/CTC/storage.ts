@@ -44,10 +44,6 @@ const buildCollRef = (collId: string) => `${collectionsUID}/${collId}`;
 const {store, sync, merge, mergeOther} = BuildCRDTStore(
   ObservableStore,
   crdtBox,
-  msg => {
-    // persists the message
-    crdtCollection.add([undefined, msg]);
-  },
   configuration({
     generateId: keyGenerator,
     istore: FastStorage,
@@ -56,6 +52,10 @@ const {store, sync, merge, mergeOther} = BuildCRDTStore(
       `${buildCollRef(collId)}/${docId}`,
     collectionsUID,
   }),
+  msg => {
+    // persists the message
+    crdtCollection.add([undefined, msg]);
+  },
 );
 
 export {merge, sync, mergeOther};

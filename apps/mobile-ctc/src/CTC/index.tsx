@@ -99,7 +99,10 @@ async function fetchPatients() {
 
 type A = Omit<CTC.Appointment, 'id'>;
 async function fetchAppointments() {
+  // console.log('NEED APPTs');
   const docs = await cAppointRef.queryDocs<A>();
+
+  // console.log('APPTS:', docs);
   return docs.map(({$id, ...other}) => {
     return {...other, id: $id} as CTC.Appointment;
   });
@@ -193,18 +196,18 @@ function CTCFlow({fullName}: {fullName: string}) {
   const [networkStatus, setNetworkStatus] =
     React.useState<NetworkStatus>('connecting');
 
-  const [networkMessage, setNetworkMessage] = React.useState<null | {
-    text: string;
-    iconName: string;
-    color: string;
-  }>(null);
-  const clearNxMessage = React.useCallback(() => {
-    setNetworkMessage(null);
-  }, [setNetworkMessage]);
+  // const [networkMessage, setNetworkMessage] = React.useState<null | {
+  //   text: string;
+  //   iconName: string;
+  //   color: string;
+  // }>(null);
+  // const clearNxMessage = React.useCallback(() => {
+  //   setNetworkMessage(null);
+  // }, [setNetworkMessage]);
 
-  React.useEffect(() => {
-    setNetworkMessage(setNxMessage(networkStatus));
-  }, [networkStatus]);
+  // React.useEffect(() => {
+  //   setNetworkMessage(setNxMessage(networkStatus));
+  // }, [networkStatus]);
 
   /**
    * --------------------------------
@@ -560,7 +563,6 @@ function CTCFlow({fullName}: {fullName: string}) {
                         type: 'success',
                       });
                       pushMessages();
-
                       navigation.navigate('ctc.dashboard');
                     } else {
                       console.warn(

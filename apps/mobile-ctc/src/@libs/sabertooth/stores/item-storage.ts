@@ -79,6 +79,7 @@ async function documentFire<T extends object>(
   // get reference for document
   const collRef = opt.buildCollRef(action.collectionId);
   const docRef = opt.buildDocRef(action.id, action.collectionId);
+  // console.log('document actions ==> ', action);
 
   // similar to initializing the collection
   setCollection(opt.istore, action.collectionId, {
@@ -134,10 +135,11 @@ async function collectionFire<T extends DData>(
     buildCollRef: (collId: string) => string;
     generateId: (id?: string) => string;
   },
-) {
+): Promise<string[] | [string, T][] | [string, T] | null> {
   // get reference for collection
   const collRef = opt.buildCollRef(action.id);
 
+  // console.log('collection actions ==> ', action);
   const getDocumentsId = async () =>
     await Helper.get<string[]>(opt.istore, collRef, []);
 
@@ -184,7 +186,6 @@ async function collectionFire<T extends DData>(
       // NOTE the `$data` is important
       const d = data$ !== null ? JSON.parse(data$).$data : ({} as T);
 
-      // console.log('**', {d});
       return [docId, d];
     }) as [string, T][];
 
@@ -283,7 +284,7 @@ async function collectionFire<T extends DData>(
       return await getDocumentsId();
     }
     case 'set': {
-      const {idDataPais: dataPairs} = action;
+      const {idDataPairs: dataPairs} = action;
       const result: [string, T][] = dataPairs.map(([_id, data]) => {
         const docId = opt.generateId(_id);
         const docRef = opt.buildDocRef(docId, action.id);
@@ -294,7 +295,7 @@ async function collectionFire<T extends DData>(
         return [docId, data];
       });
 
-      return new Set(result);
+      return result;
     }
     case 'query': {
       return await queryDocs(action.query);

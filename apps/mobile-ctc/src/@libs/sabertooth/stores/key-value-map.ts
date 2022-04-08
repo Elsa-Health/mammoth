@@ -121,7 +121,7 @@ export async function collectionFire<T extends object>(
     buildDocRef: (docId: string, collId: string) => string;
     generateId: (id?: string) => string;
   },
-) {
+): Promise<string[] | [string, T][] | [string, T] | null> {
   // This will always be executed first because of
   // store.collection(x).document(y)
   // To mean that to reach through any document, has to be through
@@ -138,8 +138,8 @@ export async function collectionFire<T extends object>(
 
     case 'set': {
       // treat as batch set
-      const {idDataPais} = action;
-      const result: [string, T][] = idDataPais.map(([_id, data]) => {
+      const {idDataPairs: idDataPairs} = action;
+      const result: [string, T][] = idDataPairs.map(([_id, data]) => {
         const id = generateId(_id);
         const docref = docRefFn(id);
         $S[docref] = data;
@@ -147,11 +147,7 @@ export async function collectionFire<T extends object>(
         addIdToCollection(id, action.id);
         return [id, data];
       });
-
-      // console.log("Adding...", {
-      // 	s: result.map(([id, _]) => $S[docCollStr(id, action.id)]),
-      // });
-      return new Set(result);
+      return result;
     }
     case 'single-query': {
       // This should be used but isn't
@@ -159,7 +155,8 @@ export async function collectionFire<T extends object>(
       const docs = Array.from(collections[action.id]?.added.values() || []);
 
       if (docs.length > 0) {
-        return $S[docRefFn(docs[0])] as T;
+        const id = docs[0];
+        return [id, $S[docRefFn(id)] as T];
       }
 
       return null;
@@ -168,7 +165,7 @@ export async function collectionFire<T extends object>(
     case 'query': {
       const docs = Array.from(collections[action.id]?.added.values() || []);
 
-      return new Set(docs.map(id => [id, $S[docCollStr(id, action.id)] as T]));
+      return docs.map(id => [id, $S[docCollStr(id, action.id)]] as [string, T]);
     }
     default: {
       console.trace(`Action: ${action} `);

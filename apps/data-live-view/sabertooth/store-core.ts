@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import { resolveStates, SBSet } from ".";
+import { SBSet } from ".";
 import type { CRDTMessageBox, SBState, State } from "./cmdrt-set";
 import { nxt } from "./hybrid-logical-clock";
 
@@ -17,7 +17,7 @@ export type CollectionAction<T = any> = {
 	| { type: "single-query"; query?: QueryObject }
 	| { type: "query"; query?: QueryObject }
 	| { type: "get-doc-ids" }
-	| { type: "set"; idDataPais: [string | undefined, T][] }
+	| { type: "set"; idDataPairs: [string | undefined, T][] }
 );
 
 export type DData = { [field: string]: any };
@@ -93,17 +93,17 @@ const collectionBox = <T, D>(
 	collectionId: string,
 	collectionFire: (
 		action: CollectionAction
-	) => Promise<Set<[string, T]> | string[] | null>,
+	) => Promise<[string, T][] | [string, T] | string[] | null>,
 	document: (id: string) => D
 ) => {
 	const addMultiple = async (data: [string, DData][]) => {
 		const vals = (await collectionFire({
 			type: "set",
 			id: collectionId,
-			idDataPais: data,
-		})) as Set<[string, DData]>;
+			idDataPairs: data,
+		})) as [string, DData][];
 
-		return Array.from(vals.values() || []);
+		return Array.from(vals || []);
 	};
 
 	const queryMultiple = async (query?: QueryObject) => {
@@ -112,7 +112,7 @@ const collectionBox = <T, D>(
 				type: "query",
 				id: collectionId,
 				query,
-			})) || []) as Set<[string, DData]>
+			})) || []) as [string, DData][]
 		);
 	};
 
@@ -130,7 +130,7 @@ const collectionBox = <T, D>(
 		const vals = await collectionFire({
 			type: "set",
 			id: collectionId,
-			idDataPais: [data],
+			idDataPairs: [data],
 		});
 
 		return vals?.values().next().value as [string, DData];
@@ -321,7 +321,7 @@ export class ObservableStore extends Store {
 					collObs.next({
 						action: {
 							type: "set",
-							idDataPais: [[action.id, result]],
+							idDataPairs: [[action.id, result]],
 							id: action.collectionId,
 						},
 						// TODO. this might be hard to do actually
@@ -434,17 +434,39 @@ export function BuildCRDTStore(
 	 * Syncronize the store with the CRDT messages
 	 */
 	const sync = async () => {
-		const { docs, collections } = resolveStates(crdtMsgBox.set());
+		const { docs, collections } = crdtMsgBox.resolve();
 
 		// write collections
-		Object.entries(collections).forEach(([collectionId, docSet]) => {
-			const toAdd = Array.from(docSet)
-				.map((docId) => [docId, docs[docId].state as DData | undefined])
-				.filter((d) => d[1] !== undefined) as [string, DData][];
+		Object.entries(collections).map(async ([collectionId, docSet]) => {
+			const idDataPairs = docSet
+				.map((doc) => {
+					const {
+						state: { op, result },
+					} = docs[doc];
 
-			// console.log(toAdd);
-			store.collection(collectionId).addMultiple(toAdd);
+					if (op.type === "set" || op.type === "update") {
+						return [op.id, result];
+					}
+
+					undefined;
+				})
+				.filter((d) => d !== undefined) as [string, DData][];
+
+			await store.collection(collectionId).addMultiple(idDataPairs);
 		});
+
+		// store.collection(collectionId).addMultiple(
+		// 	Array.from(docSet)
+		// 		.map((docId) => {
+
+		//       const {} = docs[docId];
+		//       return [
+		//         docId,
+		//         docs[docId].state.result as DData | undefined,
+		//       ]
+		//     })
+		// 		.filter((d) => d[1] !== undefined) as [string, DData][]
+		// );
 	};
 
 	/**

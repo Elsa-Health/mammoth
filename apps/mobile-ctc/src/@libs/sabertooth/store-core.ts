@@ -17,7 +17,7 @@ export type CollectionAction<T = any> = {
   | {type: 'single-query'; query?: QueryObject}
   | {type: 'query'; query?: QueryObject}
   | {type: 'get-doc-ids'}
-  | {type: 'set'; idDataPais: [string | undefined, T][]}
+  | {type: 'set'; idDataPairs: [string | undefined, T][]}
 );
 
 export type DData = {[field: string]: any};
@@ -93,17 +93,17 @@ const collectionBox = <T, D>(
   collectionId: string,
   collectionFire: (
     action: CollectionAction,
-  ) => Promise<Set<[string, T]> | string[] | null>,
+  ) => Promise<[string, T][] | [string, T] | string[] | null>,
   document: (id: string) => D,
 ) => {
   const addMultiple = async (data: [string, DData][]) => {
     const vals = (await collectionFire({
       type: 'set',
       id: collectionId,
-      idDataPais: data,
-    })) as Set<[string, DData]>;
+      idDataPairs: data,
+    })) as [string, DData][];
 
-    return Array.from(vals.values() || []);
+    return Array.from(vals || []);
   };
 
   const queryMultiple = async (query?: QueryObject) => {
@@ -112,7 +112,7 @@ const collectionBox = <T, D>(
         type: 'query',
         id: collectionId,
         query,
-      })) || []) as Set<[string, DData]>,
+      })) || []) as [string, DData][],
     );
   };
 
@@ -130,7 +130,7 @@ const collectionBox = <T, D>(
     const vals = await collectionFire({
       type: 'set',
       id: collectionId,
-      idDataPais: [data],
+      idDataPairs: [data],
     });
 
     return vals?.values().next().value as [string, DData];
@@ -199,7 +199,9 @@ const collectionBox = <T, D>(
      * Use `queryMultiple`
      */
     queryDocs: async <T>(q?: QueryObject) => {
+      // console.log('Firing query:', q);
       const vals = await queryMultiple(q);
+      // console.log('Done');
       return vals.map(([$id, data]) => ({$id, ...data} as DocumentData<T>));
     },
   };
@@ -319,7 +321,7 @@ export class ObservableStore extends Store {
           collObs.next({
             action: {
               type: 'set',
-              idDataPais: [[action.id, result]],
+              idDataPairs: [[action.id, result]],
               id: action.collectionId,
             },
             // TODO. this might be hard to do actually
@@ -375,12 +377,12 @@ export class ObservableStore extends Store {
 export function BuildCRDTStore(
   class_: Store,
   crdtMsgBox: CRDTMessageBox,
-  onAppendMessage: (msg: SBState<DocumentAction<any>, any>) => void,
   f: {
     documentFire: <T>(action: DocumentAction) => Promise<T | null>;
     collectionFire: <T>(action: CollectionAction) => Promise<T | null>;
     getCollections: () => Promise<string[]>;
   },
+  onAppendMessage?: (msg: SBState<DocumentAction<any>, any>) => void,
 ) {
   const crdtDocFire = async (action: DocumentAction) => {
     const result = await f.documentFire(action);
@@ -389,7 +391,7 @@ export function BuildCRDTStore(
     if (action.type === 'set' || action.type === 'update') {
       // message needed to track the messages
       const message = crdtMsgBox.append(action, result);
-      onAppendMessage(message);
+      onAppendMessage && onAppendMessage(message);
     }
     return result;
   };
@@ -409,7 +411,7 @@ export function BuildCRDTStore(
           data,
         );
 
-        onAppendMessage(msg);
+        onAppendMessage && onAppendMessage(msg);
       });
     }
 
@@ -429,13 +431,36 @@ export function BuildCRDTStore(
     const {docs, collections} = crdtMsgBox.resolve();
 
     // write collections
-    Object.entries(collections).forEach(([collectionId, docSet]) => {
-      store.collection(collectionId).addMultiple(
-        Array.from(docSet)
-          .map(docId => [docId, docs[docId].state as DData | undefined])
-          .filter(d => d[1] !== undefined) as [string, DData][],
-      );
+    Object.entries(collections).map(async ([collectionId, docSet]) => {
+      const idDataPairs = docSet
+        .map(doc => {
+          const {
+            state: {op, result},
+          } = docs[doc];
+
+          if (op.type === 'set' || op.type === 'update') {
+            return [op.id, result];
+          }
+
+          undefined;
+        })
+        .filter(d => d !== undefined) as [string, DData][];
+
+      await store.collection(collectionId).addMultiple(idDataPairs);
     });
+
+    // store.collection(collectionId).addMultiple(
+    // 	Array.from(docSet)
+    // 		.map((docId) => {
+
+    //       const {} = docs[docId];
+    //       return [
+    //         docId,
+    //         docs[docId].state.result as DData | undefined,
+    //       ]
+    //     })
+    // 		.filter((d) => d[1] !== undefined) as [string, DData][]
+    // );
   };
 
   /**
