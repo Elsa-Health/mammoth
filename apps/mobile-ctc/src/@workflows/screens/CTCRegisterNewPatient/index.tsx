@@ -176,7 +176,7 @@ export default function CTCRegisterNewPatientScreen({
               alignItems: 'center',
             }}>
             <TextInput
-              value={dayjs(patient.dateOfBirth).format('YYYY-MM-DD')}
+              value={dayjs(patient.dateOfBirth).format('DD MMMM, YYYY')}
               mode="outlined"
               style={{flex: 1}}
               label="Date of Birth"
@@ -201,52 +201,12 @@ export default function CTCRegisterNewPatientScreen({
               value={patient.dateOfBirth}
               onChange={(e, date) => {
                 setShowDOB(false);
-                changeValue('dateOfTest')(date);
+                changeValue('dateOfBirth')(date);
               }}
             />
           )}
         </View>
 
-        {/* <View>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              marginTop: Spacing.sm,
-            }}>
-            <TextInput
-              mode="outlined"
-              label="Birth Month"
-              style={{flex: 1}}
-              keyboardType="number-pad"
-              onChangeText={changeValue('birthMonth')}
-              value={patient.birthMonth}
-            />
-            <TextInput
-              mode="outlined"
-              label="Birth Day"
-              keyboardType="number-pad"
-              style={{
-                flex: 1,
-                marginLeft: Spacing.md,
-              }}
-              onChangeText={changeValue('birthDay')}
-              value={patient.birthDay}
-            />
-          </View>
-
-          <TextInput
-            mode="outlined"
-            label="Birth Year"
-            value={patient.birthYear}
-            keyboardType="number-pad"
-            onChangeText={changeValue('birthYear')}
-            style={{
-              width: '70%',
-              marginTop: Spacing.sm,
-            }}
-          />
-        </View> */}
         {/* Martial Status */}
         <View style={{marginTop: 12}}>
           <Text>Martial Status</Text>
@@ -328,6 +288,7 @@ export default function CTCRegisterNewPatientScreen({
                 style={{flex: 1}}
                 display="calendar"
                 value={patient.dateOfTest}
+                minimumDate={patient.dateOfBirth}
                 onChange={(e, date) => {
                   setShow(false);
                   changeValue('dateOfTest')(date);

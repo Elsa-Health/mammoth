@@ -310,7 +310,7 @@ export default function BasicSummaryScreen({
   const [ready, setReady] = React.useState(false);
   const [elsaDifferentials, setConditions] = React.useState<Differential[]>([]);
 
-  console.log(patient);
+  // console.log(patient);
 
   React.useEffect(() => {
     if (!ready) {

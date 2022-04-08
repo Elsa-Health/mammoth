@@ -14,7 +14,12 @@ import CTCPatientIntakeScreenGroup from '../@workflows/screen-groups/CTCPatientI
 import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
 import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAssessmentSummary';
 
-import {Portal, Snackbar} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+// These are only used for the snackbars
+import {Portal, ProgressBar, Snackbar} from 'react-native-paper';
+// import {Text} from '../@libs/elsa-ui/components';
+// import {View} from 'react-native';
 
 import {
   format,
@@ -25,7 +30,13 @@ import {
 } from 'date-fns';
 import produce from 'immer';
 
-import {deviceStorage} from './storage';
+import {
+  deviceStorage,
+  onUpdateSnapshot,
+  crdtBox as crdt,
+  mergeOther as mergeWithRemote,
+  sync,
+} from './storage';
 
 const emr = deviceStorage();
 
@@ -33,11 +44,11 @@ const cPatientsRef = emr.collection('patients');
 const cVisitsRef = emr.collection('visits');
 const cAppointRef = emr.collection('appointments');
 
-export default function CTCApp({fullName}: {fullName: string}) {
+export default function CTC({fullName}: {fullName: string}) {
   React.useEffect(() => {
-    [cPatientsRef, cVisitsRef, cAppointRef].map(collRef =>
-      collRef.create({createIfNotExists: true}),
-    );
+    // [cPatientsRef, cVisitsRef, cAppointRef].map(collRef =>
+    //   collRef.create(),
+    // );
   }, []);
 
   return <CTCFlow fullName={fullName} />;
@@ -61,16 +72,22 @@ async function getPatient(patientId: string) {
 type P = Omit<CTC.Patient, 'id'>;
 async function savePatient(patient: P, patientId: string | undefined) {
   const id = await cPatientsRef.addDoc<P>(
-    patientId !== undefined ? {$id: patientId, ...patient} : patient,
+    patientId !== undefined
+      ? {$id: patientId, ...patient, registeredDate: new Date().toUTCString()}
+      : patient,
   );
   return id;
 }
 
 async function fetchPatientsFromId(patientId: string) {
   const docs = await cPatientsRef.queryDocs<P>({$id: {$text: patientId}});
-  return docs.map(({$id, ...other}) => {
+  const d = docs.map(({$id, ...other}) => {
     return {...other, id: $id} as CTC.Patient;
   });
+
+  // console.log('fetchPatientsFromId', d);
+
+  return d;
 }
 
 async function fetchPatients() {
@@ -122,6 +139,42 @@ function dateToAge(date: Date): Age {
   };
 }
 
+/**
+ * Network Related Code
+ */
+let socket = new WebSocket('ws://766c-197-186-5-155.ngrok.io/channel/crdt');
+
+const pushMessages = () => {
+  crdt.resolve();
+  socket.send(JSON.stringify(crdt.messages()));
+};
+
+type NetworkStatus = 'offline' | 'connecting' | 'online' | 'error';
+
+// CIT = color, Icon-name, Text
+const statusCITMap: {[s in NetworkStatus]: [string, string, string]} = {
+  connecting: ['#ffbb00', 'dots-horizontal', 'Connecting'],
+  error: ['#f54943', 'exclamation-thick', 'Error when connecting'],
+  offline: ['#676767', 'cloud-off-outline', 'Staying Offline'],
+  online: ['#77a459', 'cloud-check-outline', 'Connection Establised'],
+};
+
+/**
+ * Gets the color corresponsing to the status
+ * @param s
+ * @returns
+ */
+const getColor = (s: NetworkStatus) => {
+  const [color, ..._other] = statusCITMap[s];
+  return color;
+};
+
+const setNxMessage = (s: NetworkStatus) => {
+  const [color, iconName, text] = statusCITMap[s];
+
+  return {text, iconName, color};
+};
+
 type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'> & {
   appointment?: CTC.Appointment | undefined;
 };
@@ -135,8 +188,82 @@ function CTCFlow({fullName}: {fullName: string}) {
     setMessage(null);
   };
 
-  const [appointments, setAppointments] = React.useState<CTC.Appointment[]>([]);
-  const [visits, setVisits] = React.useState<CTC.Visit[]>([]);
+  const [networkStatus, setNetworkStatus] =
+    React.useState<NetworkStatus>('connecting');
+
+  const [networkMessage, setNetworkMessage] = React.useState<null | {
+    text: string;
+    iconName: string;
+    color: string;
+  }>(null);
+  const clearNxMessage = React.useCallback(() => {
+    setNetworkMessage(null);
+  }, [setNetworkMessage]);
+
+  React.useEffect(() => {
+    setNetworkMessage(setNxMessage(networkStatus));
+  }, [networkStatus]);
+
+  /**
+   * --------------------------------
+   * Actions only involving the sockets
+   * --------------------------------
+   */
+  React.useEffect(() => {
+    // Connecting
+    setNetworkStatus('connecting');
+
+    socket.onerror = () => {
+      setNetworkStatus('error');
+    };
+
+    socket.onopen = () => {
+      setNetworkStatus('online');
+      pushMessages();
+    };
+
+    socket.onmessage = ({data}) => {
+      // console.log(': FROM SERVER -> ', data);
+      // update the data
+      if (socket.readyState === WebSocket.OPEN) {
+        // merge the current CRDT messages with the remote
+        mergeWithRemote(data);
+
+        // flatten the contents
+        crdt.resolve();
+
+        // sync with the storage
+        sync();
+      } else {
+        if (socket.readyState !== WebSocket.CLOSED) {
+          console.log('CLOSED... Reconnecting');
+          socket;
+        }
+      }
+    };
+
+    socket.onclose = () => {
+      setNetworkStatus('offline');
+    };
+  }, []);
+
+  // // Currently seems like unnecessary writes
+
+  // React.useEffect(() => {
+  //   // update information
+  //   onUpdateSnapshot('appointments', data => {
+  //     console.log('Appointments updated:', data);
+  //     setAppointments(data);
+  //   });
+
+  //   onUpdateSnapshot('visits', data => {
+  //     console.log('Visits updated:', data);
+  //     setVisits(data);
+  //   });
+  // }, []);
+
+  // const [appointments, setAppointments] = React.useState<CTC.Appointment[]>([]);
+  // const [visits, setVisits] = React.useState<CTC.Visit[]>([]);
 
   const [currentVisit, setCurrentVisit] = React.useState<Partial<CurrentVisit>>(
     {},
@@ -162,8 +289,10 @@ function CTCFlow({fullName}: {fullName: string}) {
       },
     [setCurrentVisit],
   );
+
   return (
     <>
+      <ProgressBar progress={0} color={getColor(networkStatus)} />
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="ctc.dashboard"
@@ -196,6 +325,7 @@ function CTCFlow({fullName}: {fullName: string}) {
               getUpcomingAppointments: async () =>
                 await fetchUpcomingAppointments(),
               onRegisterPatientWithId: patientId => {
+                pushMessages();
                 navigation.navigate('ctc.register_patient', {patientId});
               },
               onNewPatientVisit: patient => {
@@ -302,7 +432,7 @@ function CTCFlow({fullName}: {fullName: string}) {
           component={withFlowContext(CTCPatientIntakeScreenGroup, {
             actions: ({navigation}) => ({
               onNext: (patientForm, patient, appointment) => {
-                console.log(patientForm);
+                // console.log(patientForm);
                 // TODO: This should be a conditional navigation. Depends on where they came from
                 // navigation.navigate('ctc.adherence_assessment');
                 updateCurrentVisit('intake')(patientForm);
@@ -378,7 +508,7 @@ function CTCFlow({fullName}: {fullName: string}) {
             },
             actions: ({navigation}) => ({
               onConclude: data => {
-                console.log('Conclude App', data);
+                // console.log('Conclude App', data);
                 updateCurrentVisit('assessmentSummary', async final => {
                   try {
                     const {appointment} = final;
@@ -390,7 +520,12 @@ function CTCFlow({fullName}: {fullName: string}) {
                         dateTime: new Date(),
                       });
 
-                      console.log({visitId, appointmentDate});
+                      console.log('DONE! FINAL PROCESS', {
+                        visitId,
+                        appointmentDate,
+                      });
+
+                      // console.log({visitId, appointmentDate});
                       const date = new Date(appointmentDate).toUTCString();
 
                       let fulfilledAppointmentId = null;
@@ -398,7 +533,7 @@ function CTCFlow({fullName}: {fullName: string}) {
                         appointment?.id !== null &&
                         appointment?.id !== undefined
                       ) {
-                        cAppointRef.doc(appointment.id).set({
+                        cAppointRef.document(appointment.id).update({
                           visitIdFullfilled: visitId,
                           fulfilledDate: new Date().toUTCString(),
                         });
@@ -414,15 +549,16 @@ function CTCFlow({fullName}: {fullName: string}) {
                         fulfilledAppointmentId = id;
                       }
 
-                      // works like update
                       await cVisitsRef
-                        .doc(visitId)
-                        .set({fulfilledAppointmentId});
+                        .document(visitId)
+                        .update({fulfilledAppointmentId});
 
                       setMessage({
                         text: `Visit complete! Next appointment set for ${date}`,
                         type: 'success',
                       });
+                      pushMessages();
+
                       navigation.navigate('ctc.dashboard');
                     } else {
                       console.warn(
@@ -431,6 +567,7 @@ function CTCFlow({fullName}: {fullName: string}) {
                       );
                     }
                   } catch (err) {
+                    console.log('ERROR:', err);
                     setMessage({
                       text: 'Unable to conclude assessment',
                       type: 'error',
@@ -444,6 +581,35 @@ function CTCFlow({fullName}: {fullName: string}) {
       </Stack.Navigator>
 
       <Portal>
+        {/* <Snackbar
+          visible={networkMessage !== null}
+          duration={networkStatus === 'online' ? 3000 : 8000}
+          onDismiss={clearNxMessage}
+          wrapperStyle={{position: 'relative'}}
+          style={{
+            position: 'absolute',
+            backgroundColor: networkMessage?.color ?? undefined,
+            top: 0,
+            alignContent: 'stretch',
+          }}>
+          <View
+            style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <Icon
+              name={networkMessage?.iconName || 'account'}
+              size={22}
+              color={'#FFF'}
+            />
+            <Text font="bold" size="md" color="#FFF" style={{marginLeft: 20}}>
+              {networkMessage?.text}
+            </Text>
+          </View>
+        </Snackbar> */}
         <Snackbar
           visible={message !== null}
           onDismiss={dismiss}

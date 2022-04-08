@@ -1,0 +1,60 @@
+module.exports = {
+	content: ["./pages/**/*.{js,ts,jsx,tsx}", "./app/**/*.{js,ts,jsx,tsx}"],
+	theme: {
+		extend: {
+			fontFamily: {
+				sans: ['"Biotif"', "sans-serif"],
+			},
+			colors: {
+				"elsa-primary": {
+					100: "#dae0ef",
+					200: "#b5c1df",
+					300: "#90a3cf",
+					400: "#6b84bf",
+					500: "#4665af",
+					600: "#38518c",
+					700: "#2a3d69",
+					800: "#1c2846",
+					900: "#0e1423",
+				},
+				"elsa-purple": {
+					100: "#e6dded",
+					200: "#cebbda",
+					300: "#b59ac8",
+					400: "#9d78b5",
+					500: "#8456a3",
+					600: "#6a4582",
+					700: "#4f3462",
+					800: "#352241",
+					900: "#1a1121",
+				},
+				"elsa-pink": {
+					100: "#fce2eb",
+					200: "#f9c6d7",
+					300: "#f7a9c3",
+					400: "#f48daf",
+					500: "#f1709b",
+					600: "#c15a7c",
+					700: "#91435d",
+					800: "#602d3e",
+					900: "#30161f",
+				},
+				"elsa-accent": {
+					100: "#dbf1fb",
+					200: "#b7e3f6",
+					300: "#93d4f2",
+					400: "#6fc6ed",
+					500: "#4bb8e9",
+					600: "#3c93ba",
+					700: "#2d6e8c",
+					800: "#1e4a5d",
+					900: "#0f252f",
+				},
+			},
+		},
+	},
+	plugins: [
+		require("@tailwindcss/line-clamp"),
+		require("@tailwindcss/forms"),
+	],
+};

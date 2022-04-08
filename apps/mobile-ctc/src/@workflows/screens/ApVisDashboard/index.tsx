@@ -69,7 +69,6 @@ function MissedAppointmentsSection({
   dataFn: () => Promise<CTC.Appointment[]>;
 }) {
   const {retry, loading, value: data} = useAsyncRetry(dataFn, []);
-  console.log({loading, data});
 
   if (loading) {
     return (
@@ -153,7 +152,6 @@ function UpcomingAppointmentSection({
   onAttendPatient: (appt: CTC.Appointment) => void;
 }) {
   const {retry, loading, value: data} = useAsyncRetry(dataFn, []);
-  console.log({loading, data});
 
   if (loading) {
     return (
