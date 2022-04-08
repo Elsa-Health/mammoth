@@ -18,7 +18,8 @@ import { configuration as buildItemStoreConfig } from "../sabertooth/stores/item
 
 // To store the messages
 const crdtBox = new CRDTMessageBox();
-const wsURL = "ws://1951-197-186-5-155.ngrok.io/channel/crdt";
+// const wsURL = "ws://1951-197-186-5-155.ngrok.io/channel/crdt";
+const wsURL = "wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt";
 
 const collectionsUID = "@@COLLECTIONS";
 const generateId = (id?: string) => id || uuidv4();

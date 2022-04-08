@@ -142,7 +142,9 @@ function dateToAge(date: Date): Age {
 /**
  * Network Related Code
  */
-let socket = new WebSocket('ws://766c-197-186-5-155.ngrok.io/channel/crdt');
+// const wsURL = 'ws://766c-197-186-5-155.ngrok.io/channel/crdt';
+const wsURL = 'wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt';
+let socket = new WebSocket(wsURL);
 
 const pushMessages = () => {
   crdt.resolve();

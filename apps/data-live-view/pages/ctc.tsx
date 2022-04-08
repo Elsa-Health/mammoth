@@ -19,7 +19,8 @@ const generateId = (id?: string) => id || uuidv4();
 const crdt = new CRDTMessageBox();
 
 // const wsURL = "ws://1951-197-186-5-155.ngrok.io/channel/crdt";
-const wsURL = "ws://localhost:5005/channel/crdt";
+// const wsURL = "ws://localhost:5005/channel/crdt";
+const wsURL = "wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt";
 
 const collectionsUID = "@@CTC-STORE";
 
