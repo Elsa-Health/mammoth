@@ -76,7 +76,7 @@ declare namespace CTC {
     lastName: string;
     phoneNumber: string;
     dateOfBirth: YYYYMMDDDate;
-    martialStatus: string;
+    maritalStatus: string;
     district: string;
     hasPositiveTest: boolean;
     dateOfHIVPositive?: YYYYMMDDDate;

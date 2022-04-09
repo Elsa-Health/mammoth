@@ -27,6 +27,7 @@ import {
   differenceInYears,
   isBefore,
   differenceInDays,
+  differenceInSeconds,
 } from 'date-fns';
 import produce from 'immer';
 
@@ -37,6 +38,7 @@ import {
   mergeOther as mergeWithRemote,
   sync,
 } from './storage';
+import cons from 'gun';
 
 const emr = deviceStorage();
 
@@ -92,9 +94,16 @@ async function fetchPatientsFromId(patientId: string) {
 
 async function fetchPatients() {
   const docs = await cPatientsRef.queryDocs<P>();
-  return docs.map(({$id, ...other}) => {
-    return {...other, id: $id} as CTC.Patient;
-  });
+  return docs
+    .map(({$id, ...other}) => {
+      return {...other, id: $id} as CTC.Patient;
+    })
+    .sort((a, b) =>
+      differenceInSeconds(
+        new Date(b.registeredDate),
+        new Date(a.registeredDate),
+      ),
+    );
 }
 
 type A = Omit<CTC.Appointment, 'id'>;
@@ -371,7 +380,7 @@ function CTCFlow({fullName}: {fullName: string}) {
                     lastName: other.familyName,
                     phoneNumber: other.phoneNumber,
                     district: other.resident,
-                    martialStatus: convertMartial(other.martialStatus),
+                    maritalStatus: convertMartial(other.maritalStatus),
                     hasPatientOnARVs: other.hasPatientOnARVs,
                     hasPositiveTest: other.hasPositiveTest,
                     hasTreatmentSupport: other.hasTreatmentSupport,
@@ -415,7 +424,7 @@ function CTCFlow({fullName}: {fullName: string}) {
                   })
                   .then(() => pushMessages())
                   .then(() => {
-                    navigation.navigate('ctc.dashboard');
+                    navigation.navigate('ctc.patients');
                   });
               },
             }),

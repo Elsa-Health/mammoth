@@ -17,7 +17,7 @@ import produce from 'immer';
 import dayjs from 'dayjs';
 import {WorkflowScreen} from '../..';
 
-type MartialStatus =
+type MaritalStatus =
   | 'single'
   | 'child'
   | 'cohabiting'
@@ -31,9 +31,9 @@ const martialStatusOptions = [
   'cohabiting',
   'divorced-separated',
   'widow-ed',
-] as MartialStatus[];
+] as MaritalStatus[];
 
-export const convertMartial = (ms: MartialStatus) => {
+export const convertMartial = (ms: MaritalStatus) => {
   if (ms === 'single') return 'Single';
   if (ms === 'married') return 'Married';
   if (ms === 'cohabiting') return 'Cohabiting';
@@ -78,7 +78,7 @@ export type PatientFormType = {
   // for DOB
   dateOfBirth: Date;
 
-  martialStatus: MartialStatus;
+  maritalStatus: MaritalStatus;
 
   // HIV+ status
   hasPositiveTest: boolean;
@@ -129,7 +129,7 @@ export default function CTCRegisterNewPatientScreen({
     phoneNumber: '',
     resident: DISTRICTS[0],
     dateOfBirth: new Date(1970, 1, 1),
-    martialStatus: 'single',
+    maritalStatus: 'single',
     hasPositiveTest: false,
     dateOfTest: new Date(new Date().getFullYear() - 2, 1, 1),
     hasPatientOnARVs: false,
@@ -277,7 +277,7 @@ export default function CTCRegisterNewPatientScreen({
         <View style={{marginTop: 12}}>
           <Text>Martial Status</Text>
           <Picker
-            selectedValue={patient.martialStatus}
+            selectedValue={patient.maritalStatus}
             onValueChange={(itemValue, itemIndex) =>
               changeValue('martialStatus')(itemValue)
             }>
