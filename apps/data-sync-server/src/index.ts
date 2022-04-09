@@ -75,10 +75,14 @@ wss.on("connection", (socket) => {
 		// @ts-ignore
 		crdtx.merge(sbset);
 
+		// CRDTx messages
+		// console.log(crdtx.messages());
+
 		// persist
 		crdtCollection.add(
 			crdtx.messages().map((d) => [undefined, d]) as [undefined, any]
 		);
+
 		wss.clients.forEach((client) => {
 			if (client.readyState === WebSocket.OPEN) {
 				if (client !== socket) {

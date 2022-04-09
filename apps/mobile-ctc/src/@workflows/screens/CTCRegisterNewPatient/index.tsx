@@ -1,9 +1,15 @@
 import React from 'react';
-import {ScrollView, View} from 'react-native';
+import {ScrollView, ToastAndroid, View} from 'react-native';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
 
-import {RadioButton, TextInput, IconButton, Button} from 'react-native-paper';
+import {
+  RadioButton,
+  TextInput,
+  IconButton,
+  Button,
+  HelperText,
+} from 'react-native-paper';
 import {Picker} from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -90,6 +96,23 @@ export type PatientFormType = {
 
   sex: Sex;
 };
+
+const CTCCodeMap = {
+  'Meru District Hospital': '02020100',
+  'Mount Meru Regional Referral Hospital': '',
+  'Mbuguni CTC': '02020101',
+  'Usa Dream': '02020250',
+  'Nkoaranga Lutheran Hospital': '02020300',
+  'Usa Government': '02020500',
+  Momela: '02020118',
+  Makiba: '02020105',
+  'Ngarenanyuki Health Centre': '02020103',
+  Mareu: '02020120',
+  Other: '',
+};
+
+const CTCValues = Object.entries(CTCCodeMap);
+
 export default function CTCRegisterNewPatientScreen({
   entry: {patientId},
   actions: $,
@@ -117,6 +140,29 @@ export default function CTCRegisterNewPatientScreen({
     sex: 'male',
   });
 
+  const [ctcX, setSelectCTC] = React.useState(CTCValues[0][0]);
+  React.useEffect(() => {
+    changeValue('patientId')(CTCCodeMap[ctcX]);
+  }, [ctcX]);
+
+  const patientFieldError = () => {
+    return patient.patientId?.length !== 10;
+  };
+
+  const onSubmit = () => {
+    const errors = patientFieldError();
+
+    if (!errors) {
+      $.onRegisterPatient(patient);
+      return;
+    }
+
+    ToastAndroid.show(
+      'You have errors. Fix them before submitting!',
+      ToastAndroid.LONG,
+    );
+  };
+
   const changeValue = React.useCallback(
     (field: keyof typeof patient) => (value: string) => {
       set(s =>
@@ -138,13 +184,33 @@ export default function CTCRegisterNewPatientScreen({
         contentContainerStyle={{
           paddingHorizontal: Spacing.lg,
         }}>
-        <View style={{marginVertical: Spacing.sm, marginBottom: Spacing.md}}>
-          <TextInput
-            label="Patient ID"
-            mode="outlined"
-            value={patient.patientId}
-            onChangeText={changeValue('patientId')}
-          />
+        <View
+          style={{
+            marginVertical: Spacing.sm,
+            marginBottom: Spacing.md,
+          }}>
+          <View>
+            <Text>Select Code to Prefill</Text>
+            <Picker
+              selectedValue={ctcX}
+              style={{flex: 1}}
+              onValueChange={(itemValue, itemIndex) => setSelectCTC(itemValue)}>
+              {CTCValues.map(([name, code]) => {
+                return <Picker.Item key={name} label={name} value={name} />;
+              })}
+            </Picker>
+          </View>
+          <View style={{flex: 2}}>
+            <TextInput
+              label="Patient ID"
+              mode="outlined"
+              value={patient.patientId}
+              onChangeText={changeValue('patientId')}
+            />
+            <HelperText type="error" visible={patientFieldError()}>
+              Please type in a valid CTC ID
+            </HelperText>
+          </View>
         </View>
         <View>
           <Text>Please input the following information about your patient</Text>
@@ -409,7 +475,7 @@ export default function CTCRegisterNewPatientScreen({
         <View></View>
         {/*  */}
         <View style={{marginVertical: Spacing.md}}>
-          <Button mode="contained" onPress={() => $.onRegisterPatient(patient)}>
+          <Button mode="contained" onPress={onSubmit}>
             Register Patient
           </Button>
         </View>

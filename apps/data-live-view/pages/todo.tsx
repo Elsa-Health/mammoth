@@ -20,8 +20,12 @@ import { configuration } from "../sabertooth/stores/key-value-map";
 
 // To store the messages
 const crdtBox = new CRDTMessageBox();
-// const wsURL = "ws://localhost:5005/channel/crdt";
-const wsURL = "wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt";
+
+const wsURL_DEV = "ws://localhost:5005/channel/crdt";
+// const wsURL_DEV = "ws://7e75-197-250-199-90.ngrok.io/channel/crdt";
+const wsURL_PROD =
+	"wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt";
+const wsURL = process.env.NODE_ENV === "development" ? wsURL_DEV : wsURL_PROD;
 
 const generateId = (id?: string) => id || uuidv4();
 

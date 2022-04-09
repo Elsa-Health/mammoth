@@ -468,7 +468,10 @@ export function BuildCRDTStore(
    * @param other
    */
   const mergeOther = (other: SBState<DocumentAction<any>, any>[]) => {
-    crdtMsgBox.merge(new SBSet(other));
+    // console.log(other.length);
+    if (other.length > 0) {
+      crdtMsgBox.merge(new SBSet(other));
+    }
   };
 
   // Building ObservableStore

@@ -145,12 +145,16 @@ function dateToAge(date: Date): Age {
 /**
  * Network Related Code
  */
-// const wsURL = 'ws://766c-197-186-5-155.ngrok.io/channel/crdt';
-const wsURL = 'wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt';
+const wsURL_DEV = 'ws://5929-197-250-199-90.ngrok.io/channel/crdt';
+
+const wsURL_PROD =
+  'wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt';
+
+const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
 let socket = new WebSocket(wsURL);
 
 const pushMessages = () => {
-  crdt.resolve();
+  // crdt.resolve();
   socket.send(JSON.stringify(crdt.messages()));
 };
 
@@ -228,11 +232,13 @@ function CTCFlow({fullName}: {fullName: string}) {
     };
 
     socket.onmessage = ({data}) => {
-      // console.log(': FROM SERVER -> ', data);
+      const _data = new Uint16Array(new ArrayBuffer(data));
+      const crdt_messages = Array.from(_data);
+      // console.log(': FROM SERVER -> ', .map(s => s));
       // update the data
       if (socket.readyState === WebSocket.OPEN) {
         // merge the current CRDT messages with the remote
-        mergeWithRemote(data);
+        mergeWithRemote(crdt_messages);
 
         // flatten the contents
         crdt.resolve();
@@ -330,7 +336,6 @@ function CTCFlow({fullName}: {fullName: string}) {
               getUpcomingAppointments: async () =>
                 await fetchUpcomingAppointments(),
               onRegisterPatientWithId: patientId => {
-                pushMessages();
                 navigation.navigate('ctc.register_patient', {patientId});
               },
               onNewPatientVisit: patient => {
@@ -408,6 +413,7 @@ function CTCFlow({fullName}: {fullName: string}) {
                       type: 'success',
                     });
                   })
+                  .then(() => pushMessages())
                   .then(() => {
                     navigation.navigate('ctc.dashboard');
                   });
@@ -525,10 +531,10 @@ function CTCFlow({fullName}: {fullName: string}) {
                         dateTime: new Date(),
                       });
 
-                      console.log('DONE! FINAL PROCESS', {
-                        visitId,
-                        appointmentDate,
-                      });
+                      // console.log('DONE! FINAL PROCESS', {
+                      //   visitId,
+                      //   appointmentDate,
+                      // });
 
                       // console.log({visitId, appointmentDate});
                       const date = new Date(appointmentDate).toUTCString();

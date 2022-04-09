@@ -89,10 +89,10 @@ async function documentFire<T extends object>(
   switch (action.type) {
     case 'set': {
       // set the collection
-      setDocument(opt.istore, docRef, action.data);
+      await setDocument(opt.istore, docRef, action.data);
 
       // update the collection with docId record
-      addDocumentIdToCollection(opt.istore, collRef, action.id);
+      await addDocumentIdToCollection(opt.istore, collRef, action.id);
       return action.data ?? ({} as T);
     }
     case 'read': {
@@ -100,11 +100,11 @@ async function documentFire<T extends object>(
       return await getDocument<T>(opt.istore, docRef);
     }
     case 'update': {
-      const prevData = getDocument<T>(opt.istore, docRef);
+      const prevData = await getDocument<T>(opt.istore, docRef);
 
       // update the document
-      const newData = {...prevData, ...action.partialValue};
-      setDocument(opt.istore, docRef, newData);
+      const newData: T = {...prevData, ...action.partialValue};
+      await setDocument(opt.istore, docRef, newData);
       return newData;
     }
     case 'delete': {
