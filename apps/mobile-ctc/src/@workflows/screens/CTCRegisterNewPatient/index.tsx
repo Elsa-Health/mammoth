@@ -99,7 +99,6 @@ export type PatientFormType = {
 
 const CTCCodeMap = {
   'Meru District Hospital': '02020100',
-  'Mount Meru Regional Referral Hospital': '',
   'Mbuguni CTC': '02020101',
   'Usa Dream': '02020250',
   'Nkoaranga Lutheran Hospital': '02020300',
@@ -146,7 +145,7 @@ export default function CTCRegisterNewPatientScreen({
   }, [ctcX]);
 
   const patientFieldError = () => {
-    return patient.patientId?.length !== 10;
+    return patient.patientId?.length !== 14;
   };
 
   const onSubmit = () => {
@@ -205,6 +204,7 @@ export default function CTCRegisterNewPatientScreen({
               label="Patient ID"
               mode="outlined"
               value={patient.patientId}
+              maxLength={14}
               onChangeText={changeValue('patientId')}
             />
             <HelperText type="error" visible={patientFieldError()}>

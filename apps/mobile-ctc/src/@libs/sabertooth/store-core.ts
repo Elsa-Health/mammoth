@@ -123,7 +123,7 @@ const collectionBox = <T, D>(
       query,
     });
 
-    return vs?.values().next().value as [string, DData];
+    return vs as [string, DData];
   };
 
   const add = async (data: [string | undefined, DData]) => {

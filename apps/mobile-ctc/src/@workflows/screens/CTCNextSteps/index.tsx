@@ -49,7 +49,6 @@ export default function CTCNextStepsScreen({
     tests,
     status,
   } = data;
-  console.log({data});
 
   return (
     <Layout title="Next Steps" style={{padding: 0}}>

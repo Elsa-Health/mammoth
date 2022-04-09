@@ -44,7 +44,7 @@ declare namespace CTC {
       isTakingMedications: boolean;
       medications?: string[];
     };
-    symptomAssessment: {
+    symptomAssessment?: {
       data: {
         present: object[];
         absent: string[];

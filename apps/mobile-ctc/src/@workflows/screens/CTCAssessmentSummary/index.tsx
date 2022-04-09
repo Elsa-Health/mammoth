@@ -25,7 +25,7 @@ function Section({
   return (
     <View style={style}>
       {title && <Text font="bold">{title}</Text>}
-      <View>{children}</View>
+      <View style={{marginTop: Spacing.sm}}>{children}</View>
     </View>
   );
 }
@@ -96,8 +96,8 @@ function DiseaseSummarySection({
 }
 
 export type CTCAssessmentData = {
-  condition: Condition | CTC.Condition;
-  conditionValuePairs: [Condition | CTC.Condition, number][];
+  condition?: Condition | CTC.Condition;
+  conditionValuePairs?: [Condition | CTC.Condition, number][];
   riskNonAdherence: number | undefined;
   appointmentDate: Date | undefined;
 };
@@ -123,7 +123,10 @@ export default function CTCAssessmentSummaryScreen({
     }),
   );
   const hasNextSteps = React.useMemo(
-    () => $.checkHasNextSteps(data.condition),
+    () =>
+      data.condition !== undefined
+        ? $.checkHasNextSteps(data.condition)
+        : false,
     [data, $.checkHasNextSteps],
   );
 
@@ -143,10 +146,13 @@ export default function CTCAssessmentSummaryScreen({
     <Layout title={'Assessment Summary'} style={{padding: 0}}>
       <ScrollView contentContainerStyle={{marginHorizontal: Spacing.md}}>
         {/* Disease Summary Section */}
-        <DiseaseSummarySection
-          condition={data.condition}
-          values={data.conditionValuePairs}
-        />
+        {data.condition !== undefined &&
+          data.conditionValuePairs?.length === 0 && (
+            <DiseaseSummarySection
+              condition={data.condition}
+              values={data.conditionValuePairs}
+            />
+          )}
 
         {hasNextSteps && (
           <>
@@ -174,50 +180,52 @@ export default function CTCAssessmentSummaryScreen({
                   {`${(data.riskNonAdherence * 100).toFixed(1)}`}%
                 </Text>
               </Text>
-              <Text>Patient wont adhere</Text>
             </View>
           </Section>
         )}
 
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}>
-          <TextInput
-            value={
-              data.appointmentDate !== undefined
-                ? format(data.appointmentDate, 'MMMM dd, yyyy')
-                : undefined
-            }
-            mode="outlined"
-            label="Next Appointment"
-            onPressIn={() => setShowApptDate(s => !s)}
-            showSoftInputOnFocus={false}
-            style={{flex: 1}}
-            onChange={null}
-          />
+        <View>
+          <Text font="bold">Please set the next appointment date</Text>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <TextInput
+              value={
+                data.appointmentDate !== undefined
+                  ? format(data.appointmentDate, 'MMMM dd, yyyy')
+                  : undefined
+              }
+              mode="outlined"
+              label="Next Appointment Date"
+              onPressIn={() => setShowApptDate(s => !s)}
+              showSoftInputOnFocus={false}
+              style={{flex: 1}}
+              onChange={null}
+            />
 
-          <IconButton
-            icon="calendar-month"
-            color={'#555'}
-            size={24}
-            onPress={() => setShowApptDate(s => !s)}
-          />
+            <IconButton
+              icon="calendar-month"
+              color={'#555'}
+              size={24}
+              onPress={() => setShowApptDate(s => !s)}
+            />
+          </View>
+
+          {showApptDate && (
+            <DateTimePicker
+              display="calendar"
+              minimumDate={new Date()}
+              value={data.appointmentDate || new Date()}
+              onChange={(e, date) => {
+                setShowApptDate(false);
+                changeValue('appointmentDate')(date);
+              }}
+            />
+          )}
         </View>
-
-        {showApptDate && (
-          <DateTimePicker
-            display="calendar"
-            minimumDate={new Date()}
-            value={data.appointmentDate || new Date()}
-            onChange={(e, date) => {
-              setShowApptDate(false);
-              changeValue('appointmentDate')(date);
-            }}
-          />
-        )}
 
         {/* Actions */}
         <View style={{marginVertical: Spacing.md}}>

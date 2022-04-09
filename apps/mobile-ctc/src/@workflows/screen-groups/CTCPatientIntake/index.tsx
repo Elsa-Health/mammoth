@@ -86,6 +86,7 @@ export default function CTCPatientIntakeScreenGroup({
     onNext: (
       patientIntake: CTCPatientIntake,
       patient: CTC.Patient,
+      isAssessment: boolean,
       appointment?: CTC.Appointment | undefined,
     ) => {};
   }
@@ -146,13 +147,13 @@ export default function CTCPatientIntakeScreenGroup({
             ]),
           },
           actions: ({navigation}) => ({
-            onNext: hivPatient => {
+            onNext: (hivPatient, isAssess) => {
               set(s => {
                 const newIntake = {
                   ...s,
                   ...transformToProperHIVIntake(hivPatient),
                 };
-                $.onNext(newIntake, patient, appointment);
+                $.onNext(newIntake, patient, isAssess, appointment);
                 return newIntake;
               });
             },

@@ -6,7 +6,7 @@ import produce from 'immer';
 import {Spacing} from '../../../@libs/elsa-ui/theme';
 
 import {SectionedSelect} from '../../../@libs/elsa-ui/components';
-import {Button, Divider, RadioButton} from 'react-native-paper';
+import {Button, Checkbox, Divider, RadioButton} from 'react-native-paper';
 import {WorkflowScreen} from '../..';
 import {ARV, CTC, Medication} from '@elsa-health/data-fns';
 
@@ -32,7 +32,7 @@ export default function HIVPatientIntakeScreen({
   {
     value: Partial<HIVPatientIntake>;
   },
-  {onNext: (hivInfoIntake: HIVPatientIntake) => void}
+  {onNext: (hivInfoIntake: HIVPatientIntake, isAssessment) => void}
 >) {
   const [patientIntake, set] = React.useState<HIVPatientIntake>({
     whoStage: value.whoStage ?? ARV_WHO_STAGES[0],
@@ -54,6 +54,8 @@ export default function HIVPatientIntakeScreen({
     },
     [set],
   );
+
+  const [isAssessment, setIsAssessment] = React.useState(false);
   return (
     <Layout title="Patient Intake" style={{padding: 0}}>
       <ScrollView contentContainerStyle={{paddingHorizontal: Spacing.md}}>
@@ -205,8 +207,20 @@ export default function HIVPatientIntakeScreen({
           </View>
         </View>
 
+        <View>
+          <Checkbox.Item
+            label="Is the patient also doing a symptom assessment?"
+            status={isAssessment ? 'checked' : 'unchecked'}
+            onPress={() => {
+              setIsAssessment(!isAssessment);
+            }}
+          />
+        </View>
+
         <View style={{marginVertical: Spacing.md}}>
-          <Button mode="contained" onPress={() => $.onNext(patientIntake)}>
+          <Button
+            mode="contained"
+            onPress={() => $.onNext(patientIntake, isAssessment)}>
             Next
           </Button>
         </View>

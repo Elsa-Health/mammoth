@@ -184,12 +184,12 @@ function Patient({
           mode="outlined">
           New Visit
         </Button>
-        <Button
+        {/* <Button
           style={{flex: 1, marginLeft: 8}}
           icon="pencil"
           onPress={() => console.log('Edit Profile')}>
           Edit Profile
-        </Button>
+        </Button> */}
       </View>
     </View>
   );

@@ -38,7 +38,6 @@ import {
   mergeOther as mergeWithRemote,
   sync,
 } from './storage';
-import cons from 'gun';
 
 const emr = deviceStorage();
 
@@ -60,7 +59,7 @@ const Stack = createNativeStackNavigator();
 
 async function getPatient(patientId: string) {
   const doc = await cPatientsRef.queryDoc<Omit<CTC.Patient, 'id'>>({
-    $id: patientId,
+    $id: {$eq: patientId},
   });
 
   if (doc !== null) {
@@ -120,8 +119,8 @@ async function fetchAppointments() {
 async function fetchUpcomingAppointments() {
   return (await fetchAppointments()).filter(appt => {
     return (
-      (appt.visitIdFullfilled !== null &&
-        appt.visitIdFullfilled !== undefined) ||
+      (appt.visitIdFullfilled === null ||
+        appt.visitIdFullfilled === undefined) &&
       isBefore(new Date(), new Date(appt.date))
     );
   });
@@ -451,7 +450,7 @@ function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.patient_intake"
           component={withFlowContext(CTCPatientIntakeScreenGroup, {
             actions: ({navigation}) => ({
-              onNext: (patientForm, patient, appointment) => {
+              onNext: (patientForm, patient, isAssess, appointment) => {
                 // console.log(patientForm);
                 // TODO: This should be a conditional navigation. Depends on where they came from
                 // navigation.navigate('ctc.adherence_assessment');
@@ -462,7 +461,12 @@ function CTCFlow({fullName}: {fullName: string}) {
                   sex: patient.sex,
                   age: dateToAge(new Date(patient.dateOfBirth)),
                 });
-                navigation.navigate('ctc.patient_assessment');
+
+                if (isAssess) {
+                  navigation.navigate('ctc.patient_assessment');
+                } else {
+                  navigation.navigate('ctc.adherence_assessment');
+                }
               },
             }),
           })}
@@ -540,12 +544,6 @@ function CTCFlow({fullName}: {fullName: string}) {
                         dateTime: new Date(),
                       });
 
-                      // console.log('DONE! FINAL PROCESS', {
-                      //   visitId,
-                      //   appointmentDate,
-                      // });
-
-                      // console.log({visitId, appointmentDate});
                       const date = new Date(appointmentDate).toUTCString();
 
                       let fulfilledAppointmentId = null;
@@ -559,19 +557,21 @@ function CTCFlow({fullName}: {fullName: string}) {
                         });
 
                         fulfilledAppointmentId = appointment.id;
-                      } else {
-                        const id = await cAppointRef.addDoc({
-                          patientId: currentVisit.patientId,
-                          visitIdCreated: visitId,
-                          date,
-                        });
-
-                        fulfilledAppointmentId = id;
                       }
+
+                      const appointmentId = await cAppointRef.addDoc({
+                        patientId: currentVisit.patientId,
+                        visitIdCreated: visitId,
+                        date,
+                      });
 
                       await cVisitsRef
                         .document(visitId)
-                        .update({fulfilledAppointmentId});
+                        .update(
+                          fulfilledAppointmentId === null
+                            ? {appointmentId, fulfilledAppointmentId}
+                            : {appointmentId},
+                        );
 
                       setMessage({
                         text: `Visit complete! Next appointment set for ${date}`,

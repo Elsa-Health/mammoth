@@ -56,9 +56,9 @@ export default function CTCAssessmentSummaryScreenGroup({
     [set],
   );
 
-  const reset = () => {
-    set({});
-  };
+  // const reset = () => {
+  //   set({});
+  // };
 
   const saveAssessData = (
     data: CTCAssessmentData,
@@ -99,7 +99,6 @@ export default function CTCAssessmentSummaryScreenGroup({
           },
           actions: ({navigation}) => ({
             onDispenseMedication: (treatments, arvStatus) => {
-              console.log('CTC Medications');
               navigation.navigate('sub.ctc.dispensed_medication', {
                 recommended: {
                   treatments,
