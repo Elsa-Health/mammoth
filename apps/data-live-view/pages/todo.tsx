@@ -13,10 +13,9 @@ import {
 
 import { v4 as uuidv4 } from "uuid";
 
-import { BuildCRDTStore } from "../sabertooth/store-core";
-
 import { w3cwebsocket as WebSocket } from "websocket";
-import { configuration } from "../sabertooth/stores/key-value-map";
+import { buildCRDTStore as BuildCRDTStore } from "sabertooth-core";
+import { configuration } from "sabertooth-stores/key-value-map";
 
 // To store the messages
 const crdtBox = new CRDTMessageBox();

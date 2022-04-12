@@ -69,6 +69,8 @@
     "react-native-webview": "^11.18.1",
     "react-native-webview-crypto": "^0.0.24",
     "react-use": "^17.3.2",
+    "sabertooth-core": "^0.2.1",
+    "sabertooth-stores": "^0.1.5",
     "styled-components": "^5.3.3",
     "styled-system": "^5.1.5",
     "swr": "^1.2.2",

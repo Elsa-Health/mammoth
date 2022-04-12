@@ -1,40 +1,25 @@
 import {
-  BuildCRDTStore,
-  BuildStore,
+  buildCRDTStore as BuildCRDTStore,
   CRDTMessageBox,
-  ObservableStore,
   SBSet,
-  Store,
-} from '../@libs/sabertooth';
-import {configuration} from '../@libs/sabertooth/stores/item-storage';
-import {configuration as kvConfiguration} from '../@libs/sabertooth/stores/key-value-map';
+} from 'sabertooth-core';
+import {ObservableStore} from 'sabertooth-core/lib/providers';
+import {configuration} from 'sabertooth-stores/item-storage';
 
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import FastStorage from 'react-native-fast-storage';
 import uuid from 'react-native-uuid';
 
+import * as crdt from './crdt';
+
 export const keyGenerator = (key?: string | undefined) =>
   key || uuid.v4().toString();
-
-// Intendedn to persist CRDT messages over lifetime of session
-const _crdtStore = BuildStore(
-  Store,
-  configuration({
-    generateId: keyGenerator,
-    istore: FastStorage,
-    buildCollRef: collId => `CRDTS@${collId}`,
-    buildDocRef: (docId: string, collId: string) =>
-      `${buildCollRef(collId)}:${docId}`,
-    collectionsUID: 'CRDTS',
-  }),
-);
-const crdtCollection = _crdtStore.collection('crdt_messages');
 
 const collectionsUID = '@@CTC-STORE';
 export const crdtBox = new CRDTMessageBox();
 
 // on boot, rebuilds the messages
-crdtCollection
+crdt.collection
   .queryMultiple()
   .then(ds => ds.map(([id, v]) => v))
   .then(objs => crdtBox.merge(new SBSet(objs || [])));
@@ -54,7 +39,7 @@ const {store, sync, merge, mergeOther} = BuildCRDTStore(
   }),
   msg => {
     // persists the message
-    crdtCollection.add([undefined, msg]);
+    crdt.collection.add([undefined, msg]);
   },
 );
 

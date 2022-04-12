@@ -1,16 +1,14 @@
 import React from "react";
 import {
 	CRDTMessageBox,
-	BuildCRDTStore,
-	ObservableStore,
-	Store,
-	BuildStore,
-} from "../sabertooth";
+	buildCRDTStore as BuildCRDTStore,
+} from "sabertooth-core";
+import { ObservableStore } from "sabertooth-core/lib/providers";
 import { w3cwebsocket as WebSocket } from "websocket";
 
 import { format } from "date-fns";
 
-import { configuration } from "../sabertooth/stores/key-value-map";
+import { configuration } from "sabertooth-stores/key-value-map";
 import { v4 as uuidv4 } from "uuid";
 
 const generateId = (id?: string) => id || uuidv4();

@@ -28,13 +28,12 @@ server.listen(PORT, () => {
 
 // Create store to persists CRDT Messages
 import {
-	BuildStore,
-	ObservableStore,
+	buildStore as BuildStore,
 	CRDTMessageBox,
 	Store,
 	SBSet,
-} from "./sabertooth";
-import { configuration } from "./sabertooth/stores/key-value-map";
+} from "sabertooth-core";
+import { configuration } from "sabertooth-stores/key-value-map";
 
 // SB State to log the messages
 const crdtx = new CRDTMessageBox();

@@ -14,8 +14,6 @@ import CTCPatientIntakeScreenGroup from '../@workflows/screen-groups/CTCPatientI
 import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
 import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAssessmentSummary';
 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
 // These are only used for the snackbars
 import {Portal, ProgressBar, Snackbar} from 'react-native-paper';
 // import {Text} from '../@libs/elsa-ui/components';
@@ -33,7 +31,7 @@ import produce from 'immer';
 
 import {
   deviceStorage,
-  onUpdateSnapshot,
+  devicePrivateStorage,
   crdtBox as crdt,
   mergeOther as mergeWithRemote,
   sync,
