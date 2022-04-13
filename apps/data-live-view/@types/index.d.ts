@@ -73,7 +73,6 @@ declare namespace CTC {
 	type Patient = {
 		// id: string;
 		sex: Sex;
-		facilityId: string;
 		firstName: string;
 		lastName: string;
 		phoneNumber: string;

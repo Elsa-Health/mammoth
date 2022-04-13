@@ -220,8 +220,8 @@ function groupByContent<T, G extends string>(
 }
 
 function extractFacility(patientRecord: [string, CTC.Patient]): string {
-	const [id, patient] = patientRecord;
-	return patient.facilityId || id.slice(0, 8);
+	const [id, _] = patientRecord;
+	return id.slice(0, 8);
 }
 
 function upcomingAppointments(appts: [string, CTC.Appointment][]) {
