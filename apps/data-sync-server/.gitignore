@@ -1,8 +1,8 @@
 # Build directory
-./dist
+dist
 
 # Node modules
-./node_modules
+node_modules
 
 # composer data
-./.docker/cdata
+.docker/cdata

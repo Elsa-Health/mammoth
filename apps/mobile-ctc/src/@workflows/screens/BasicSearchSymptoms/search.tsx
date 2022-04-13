@@ -8,7 +8,7 @@ import create from 'zustand';
 import createContext from 'zustand/context';
 import {buildSearch} from './misc';
 
-import * as data from '../../../@libs/data-fns';
+import {Symptom} from '@elsa-health/data-fns';
 import {symptoms} from '../../helpers/symptoms';
 import {SymptomId} from '../../../../@types';
 
@@ -76,10 +76,8 @@ export function useSearchInput(
 
   const {searchByTags} = React.useMemo(
     () =>
-      buildSearch(
-        lang,
-        data.symptoms.ids() as SymptomId[],
-        id => data.symptomsLocale.translate(lang)[id],
+      buildSearch(lang, Symptom.keys() as SymptomId[], id =>
+        Symptom.locale('en').api.fromKey(id),
       ),
     [lang],
   );
@@ -114,7 +112,7 @@ export function useSearchData(lang: Language) {
       .map(ix => symptoms[ix].id)
       .map(id => ({
         id,
-        ...data.symptomsLocale.translate(lang)[id as SymptomId],
+        ...Symptom.locale(lang).api.fromKey(id as SymptomId),
       })),
     // .map(s => ({ id: s, ...symptomTranslation[lang || 'en'][s as SymptomId]}))
   };

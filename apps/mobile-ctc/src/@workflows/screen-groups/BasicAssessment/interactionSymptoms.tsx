@@ -49,8 +49,7 @@ import {
 import {useDeviceBreak, useSymptomsInfo} from '../../helpers/context/utils';
 
 // NOTE: Temporary fix
-import donparMap from '../../../@libs/data-fns/data/translated/donpar-map.json';
-import * as dataFn from '../../../@libs/data-fns';
+import {SymptomDescription as Donpar} from '@elsa-health/data-fns';
 
 // state used to managed how the components are revealed to the user
 interface InteractionState {
@@ -153,7 +152,7 @@ const createStore =
       setSymptomFromId: (id, data = {}, present) => {
         console.log('setSymptomFromId:', {id, data, present});
         get().setSymptomFromDescription(
-          {id, ...dataFn.symptoms.symptom.fromId(id)},
+          {id, ...Donpar.fromKey(id)},
           data,
           present,
         );
@@ -562,11 +561,11 @@ const SINGLE_INPUT_OPTIONS: Array<keyof SymptomData> = [
 const AGE_INPUT_OPTIONS: Array<keyof SymptomData> = ['duration'];
 
 const buildTranslation =
-  (lang: 'en' | 'sw', _default = 'en') =>
+  (lang: 'en' | 'sw', _default: 'en' = 'en') =>
   (donparType: string, itemKey: string) => {
     return (
-      donparMap[lang]?.[donparType]?.[itemKey] ||
-      donparMap[_default]?.[donparType]?.[itemKey] ||
+      Donpar.locale(lang).donparKey(donparType).fromKey(itemKey) ||
+      Donpar.locale(_default).donparKey(donparType).fromKey(itemKey) ||
       undefined
     );
   };

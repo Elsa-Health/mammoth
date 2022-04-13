@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Button,
   Divider,
+  FAB,
   Searchbar,
 } from 'react-native-paper';
 
@@ -18,8 +19,11 @@ export default function ViewPatientsScreen({
 }: WorkflowScreen<
   {},
   {
+    onMount?: () => void | (() => void);
     getPatients: () => Promise<CTC.Patient[]>;
     onDashboard: () => void;
+    onNewPatient: () => void;
+    onSyncPushPatientList: (patients: CTC.Patient[]) => void;
     onNewPatientVisit: (patient: CTC.Patient) => void;
     searchPatientsById: (partialId: string) => Promise<CTC.Patient[]>;
   }
@@ -28,6 +32,13 @@ export default function ViewPatientsScreen({
     undefined,
   );
   const [searchQuery, setSearchQuery] = React.useState('');
+
+  // Fired on mount
+  React.useEffect(() => {
+    const d = $.onMount?.();
+    return d;
+  }, []);
+
   React.useEffect(() => {
     if (searchQuery.trim().length === 0) {
       $.getPatients().then(patients => setPatients(patients));
@@ -42,6 +53,9 @@ export default function ViewPatientsScreen({
   React.useEffect(() => {
     $.getPatients().then(patients => setPatients(patients));
   }, []);
+
+  const [open, setOpen] = React.useState(false);
+  const onStateChange = ({open}: {open: boolean}) => setOpen(open);
 
   if (patients === undefined) {
     return (
@@ -123,6 +137,31 @@ export default function ViewPatientsScreen({
           </Button>
         </View>
       </ScrollView>
+
+      <FAB.Group
+        open={open}
+        visible
+        icon={open ? 'close' : 'account-circle-outline'}
+        actions={[
+          ...(patients !== undefined
+            ? [
+                {
+                  icon: 'account-sync',
+                  label: 'Synchronize Patient List',
+                  // small: false,
+                  onPress: () => $.onSyncPushPatientList(patients),
+                },
+              ]
+            : []),
+          {
+            icon: 'account-plus',
+            label: 'New Patient',
+            small: false,
+            onPress: $.onNewPatient,
+          },
+        ]}
+        onStateChange={onStateChange}
+      />
     </Layout>
   );
 }

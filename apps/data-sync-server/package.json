@@ -2,13 +2,12 @@
 	"name": "super-node",
 	"version": "1.0.0",
 	"description": "",
-	"main": "dist/index.js",
 	"scripts": {
 		"build": "tsc -P .",
-		"start": "node ./dist/index.js",
+		"start": "node dist/server/index.js",
 		"docker": "docker-compose up --remove-orphans",
-		"dev:start": "tsnd --respawn src/index.ts",
-		"dev:watch": "tsnd --respawn src/index.ts --watch src",
+		"dev:start": "tsnd --respawn src/server/index.ts",
+		"dev:watch": "tsnd --respawn src/server/index.ts --watch src",
 		"test": "echo \"Error: no test script specified\" && exit 1"
 	},
 	"keywords": [],

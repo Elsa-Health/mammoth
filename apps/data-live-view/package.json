@@ -9,7 +9,6 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
-		"@elsa-health/data-fns": "1.4.1",
 		"@headlessui/react": "^1.5.0",
 		"@heroicons/react": "^1.0.6",
 		"@tailwindcss/forms": "^0.4.0",
@@ -18,11 +17,9 @@
 		"date-fns": "^2.28.0",
 		"duration-fns": "^3.0.0",
 		"immer": "^9.0.12",
-		"minimongo": "^6.11.7",
-		"mongodb": "^4.4.0",
-		"next": "12.1.0",
-		"react": "17.0.2",
-		"react-dom": "17.0.2",
+		"next": "^12.1.4",
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0",
 		"sabertooth-core": "^0.2.0",
 		"sabertooth-stores": "^0.1.5",
 		"uuid": "^8.3.2",

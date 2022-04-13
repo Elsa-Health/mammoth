@@ -16,9 +16,10 @@ export const store = BuildStore(
   configuration({
     generateId: keyGenerator,
     istore: FastStorage,
-    buildCollRef: collId => `CRDTS@${collId}`,
-    buildDocRef: (docId: string, collId: string) => `CRDTS@${collId}:${docId}`,
-    collectionsUID: 'CRDTS',
+    buildCollRef: collId => `CRDT-MSGS@${collId}`,
+    buildDocRef: (docId: string, collId: string) =>
+      `CRDT-MSGS@${collId}:${docId}`,
+    collectionsUID: 'CRDT-MSGS',
   }),
 );
 

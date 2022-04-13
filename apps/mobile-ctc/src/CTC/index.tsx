@@ -15,185 +15,44 @@ import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessm
 import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAssessmentSummary';
 
 // These are only used for the snackbars
-import {Portal, ProgressBar, Snackbar} from 'react-native-paper';
-// import {Text} from '../@libs/elsa-ui/components';
-// import {View} from 'react-native';
+import {Portal, Snackbar} from 'react-native-paper';
 
 import {
-  format,
-  differenceInMonths,
-  differenceInYears,
-  isBefore,
-  differenceInDays,
-  differenceInSeconds,
-} from 'date-fns';
+  cAppointRef,
+  cPatientsRef,
+  cVisitsRef,
+  dateToAge,
+  fetchMissedAppointment,
+  fetchPatients,
+  fetchPatientsFromId,
+  fetchUpcomingAppointments,
+  getPatient,
+  savePatient,
+} from './fns';
+
+import {format} from 'date-fns';
 import produce from 'immer';
 
-import {
-  deviceStorage,
-  devicePrivateStorage,
-  crdtBox as crdt,
-  mergeOther as mergeWithRemote,
-  sync,
-} from './storage';
-
-const emr = deviceStorage();
-
-const cPatientsRef = emr.collection('patients');
-const cVisitsRef = emr.collection('visits');
-const cAppointRef = emr.collection('appointments');
-
-export default function CTC({fullName}: {fullName: string}) {
-  React.useEffect(() => {
-    // [cPatientsRef, cVisitsRef, cAppointRef].map(collRef =>
-    //   collRef.create(),
-    // );
-  }, []);
-
-  return <CTCFlow fullName={fullName} />;
-}
+import {crdtBox as crdt, mergeOther as mergeWithRemote, sync} from './storage';
+import {nxt} from 'sabertooth-core/lib/hybrid-logical-clock';
+import {useWebSocket} from '../app/utils';
+import {ToastAndroid} from 'react-native';
 
 const Stack = createNativeStackNavigator();
-
-async function getPatient(patientId: string) {
-  const doc = await cPatientsRef.queryDoc<Omit<CTC.Patient, 'id'>>({
-    $id: {$eq: patientId},
-  });
-
-  if (doc !== null) {
-    const {$id, ...other} = doc;
-    return {...other, id: patientId};
-  }
-
-  return null;
-}
-
-type P = Omit<CTC.Patient, 'id'>;
-async function savePatient(patient: P, patientId: string | undefined) {
-  const id = await cPatientsRef.addDoc<P>(
-    patientId !== undefined
-      ? {$id: patientId, ...patient, registeredDate: new Date().toUTCString()}
-      : patient,
-  );
-  return id;
-}
-
-async function fetchPatientsFromId(patientId: string) {
-  const docs = await cPatientsRef.queryDocs<P>({$id: {$text: patientId}});
-  const d = docs.map(({$id, ...other}) => {
-    return {...other, id: $id} as CTC.Patient;
-  });
-
-  // console.log('fetchPatientsFromId', d);
-
-  return d;
-}
-
-async function fetchPatients() {
-  const docs = await cPatientsRef.queryDocs<P>();
-  return docs
-    .map(({$id, ...other}) => {
-      return {...other, id: $id} as CTC.Patient;
-    })
-    .sort((a, b) =>
-      differenceInSeconds(
-        new Date(b.registeredDate),
-        new Date(a.registeredDate),
-      ),
-    );
-}
-
-type A = Omit<CTC.Appointment, 'id'>;
-async function fetchAppointments() {
-  // console.log('NEED APPTs');
-  const docs = await cAppointRef.queryDocs<A>();
-
-  // console.log('APPTS:', docs);
-  return docs.map(({$id, ...other}) => {
-    return {...other, id: $id} as CTC.Appointment;
-  });
-}
-
-async function fetchUpcomingAppointments() {
-  return (await fetchAppointments()).filter(appt => {
-    return (
-      (appt.visitIdFullfilled === null ||
-        appt.visitIdFullfilled === undefined) &&
-      isBefore(new Date(), new Date(appt.date))
-    );
-  });
-}
-
-async function fetchMissedAppointment() {
-  return (await fetchAppointments()).filter(appt => {
-    const apptDate = new Date(appt.date);
-    const nowDate = new Date();
-    return (
-      !(
-        appt.visitIdFullfilled !== null && appt.visitIdFullfilled !== undefined
-      ) &&
-      isBefore(apptDate, nowDate) &&
-      differenceInDays(nowDate, apptDate) - 3
-    );
-  });
-}
-
-function dateToAge(date: Date): Age {
-  const now = new Date();
-  const years = differenceInYears(now, date);
-  const months = differenceInMonths(now, date);
-  return {
-    years,
-    months: months - years * 12,
-  };
-}
 
 /**
  * Network Related Code
  */
-const wsURL_DEV = 'ws://5929-197-250-199-90.ngrok.io/channel/crdt';
-
-const wsURL_PROD =
-  'wss://demo-sabertooth-crdt-channel.herokuapp.com/channel/crdt';
+const wsURL_DEV = 'ws://7318-197-250-230-175.ngrok.io/channel/cmrdt';
+const wsURL_PROD = 'wss://ctc-bounce-server.herokuapp.com/channel/cmrdt';
 
 const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
-let socket = new WebSocket(wsURL);
-
-const pushMessages = () => {
-  // crdt.resolve();
-  socket.send(JSON.stringify(crdt.messages()));
-};
-
-type NetworkStatus = 'offline' | 'connecting' | 'online' | 'error';
-
-// CIT = color, Icon-name, Text
-const statusCITMap: {[s in NetworkStatus]: [string, string, string]} = {
-  connecting: ['#ffbb00', 'dots-horizontal', 'Connecting'],
-  error: ['#f54943', 'exclamation-thick', 'Error when connecting'],
-  offline: ['#676767', 'cloud-off-outline', 'Staying Offline'],
-  online: ['#77a459', 'cloud-check-outline', 'Connection Establised'],
-};
-
-/**
- * Gets the color corresponsing to the status
- * @param s
- * @returns
- */
-const getColor = (s: NetworkStatus) => {
-  const [color, ..._other] = statusCITMap[s];
-  return color;
-};
-
-const setNxMessage = (s: NetworkStatus) => {
-  const [color, iconName, text] = statusCITMap[s];
-
-  return {text, iconName, color};
-};
+// const wsURL = wsURL_PROD;
 
 type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'> & {
   appointment?: CTC.Appointment | undefined;
 };
-function CTCFlow({fullName}: {fullName: string}) {
+export default function CTCFlow({fullName}: {fullName: string}) {
   const [message, setMessage] = React.useState<{
     text: string;
     type: 'error' | 'success' | 'default';
@@ -203,84 +62,51 @@ function CTCFlow({fullName}: {fullName: string}) {
     setMessage(null);
   };
 
-  const [networkStatus, setNetworkStatus] =
-    React.useState<NetworkStatus>('connecting');
-
-  // const [networkMessage, setNetworkMessage] = React.useState<null | {
-  //   text: string;
-  //   iconName: string;
-  //   color: string;
-  // }>(null);
-  // const clearNxMessage = React.useCallback(() => {
-  //   setNetworkMessage(null);
-  // }, [setNetworkMessage]);
-
-  // React.useEffect(() => {
-  //   setNetworkMessage(setNxMessage(networkStatus));
-  // }, [networkStatus]);
-
-  /**
-   * --------------------------------
-   * Actions only involving the sockets
-   * --------------------------------
-   */
-  React.useEffect(() => {
-    // Connecting
-    setNetworkStatus('connecting');
-
-    socket.onerror = () => {
-      setNetworkStatus('error');
-    };
-
-    socket.onopen = () => {
-      setNetworkStatus('online');
-      pushMessages();
-    };
-
-    socket.onmessage = ({data}) => {
+  const {
+    socket,
+    status: networkStatus,
+    retry,
+  } = useWebSocket({
+    url: wsURL,
+    onMessage: ({data}) => {
+      // merge the current CRDT messages with the remote
       const _data = new Uint16Array(new ArrayBuffer(data));
       const crdt_messages = Array.from(_data);
-      // console.log(': FROM SERVER -> ', .map(s => s));
-      // update the data
-      if (socket.readyState === WebSocket.OPEN) {
-        // merge the current CRDT messages with the remote
-        mergeWithRemote(crdt_messages);
+      mergeWithRemote(crdt_messages);
 
-        // flatten the contents
-        crdt.resolve();
+      // flatten the contents
+      crdt.resolve();
 
-        // sync with the storage
-        sync();
-      } else {
-        if (socket.readyState !== WebSocket.CLOSED) {
-          console.log('CLOSED... Reconnecting');
-          socket;
-        }
-      }
-    };
+      // sync with the storage
+      sync();
+    },
+  });
 
-    socket.onclose = () => {
-      setNetworkStatus('offline');
-    };
-  }, []);
+  const pushMessages = React.useCallback(() => {
+    // crdt.resolve();
+    socket?.send(JSON.stringify(crdt.messages()));
+  }, [socket]);
 
-  // // Currently seems like unnecessary writes
+  const pushRecordsAsMessages = React.useCallback(
+    <T,>(collectionId: string, data: [string, T][]) => {
+      // HACK: A way around uploading data as CRDT messages
+      const pushData = data.map(([id, patient]) => ({
+        state: {
+          op: {
+            type: 'update',
+            collectionId,
+            id,
+            partialValue: {},
+          },
+          result: patient,
+        },
+        timestamp: nxt(),
+      }));
 
-  // React.useEffect(() => {
-  //   // update information
-  //   onUpdateSnapshot('appointments', data => {
-  //     console.log('Appointments updated:', data);
-  //     setAppointments(data);
-  //   });
-
-  //   onUpdateSnapshot('visits', data => {
-  //     console.log('Visits updated:', data);
-  //     setVisits(data);
-  //   });
-  // }, []);
-
-  // const [appointments, setAppointments] = React.useState<CTC.Appointment[]>([]);
-  // const [visits, setVisits] = React.useState<CTC.Visit[]>([]);
+      socket?.send(JSON.stringify(pushData));
+    },
+    [socket],
+  );
 
   const [currentVisit, setCurrentVisit] = React.useState<Partial<CurrentVisit>>(
     {},
@@ -309,15 +135,31 @@ function CTCFlow({fullName}: {fullName: string}) {
 
   return (
     <>
-      <ProgressBar progress={0} color={getColor(networkStatus)} />
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(ApVisDahboardScreen, {
             entry: {
               fullName,
+              networkStatus,
             },
             actions: ({navigation}) => ({
+              onRetrySyncServer: retry,
+              syncPushAllData: async () => {
+                // Syncronize
+                pushRecordsAsMessages(
+                  'patients',
+                  await cPatientsRef.queryMultiple(),
+                );
+                pushRecordsAsMessages(
+                  'visits',
+                  await cVisitsRef.queryMultiple(),
+                );
+                pushRecordsAsMessages(
+                  'appointments',
+                  await cAppointRef.queryMultiple(),
+                );
+              },
               loadPatients: async () => [],
               searchPatientsById: async (partialId: string) => {
                 return await fetchPatientsFromId(partialId);
@@ -375,6 +217,7 @@ function CTCFlow({fullName}: {fullName: string}) {
                     dateOfBirth: format(dateOfBirth, 'yyyy-MM-dd'),
                     firstName: other.firstName,
                     lastName: other.familyName,
+                    facilityId: other.facilityId,
                     phoneNumber: other.phoneNumber,
                     district: other.resident,
                     maritalStatus: convertMartial(other.maritalStatus),
@@ -409,20 +252,25 @@ function CTCFlow({fullName}: {fullName: string}) {
                     return df;
                   },
                 );
-                savePatient(
-                  patient,
-                  patientId?.trim().length > 0 ? patientId : undefined,
-                )
-                  .then(id => {
-                    setMessage({
-                      text: `Registered patient / ${id}`,
-                      type: 'success',
+
+                const patientId_ =
+                  patientId?.trim().length > 0 ? patientId : undefined;
+
+                if (patientId_ !== undefined) {
+                  savePatient(patient, patientId_)
+                    .then(id => {
+                      setMessage({
+                        text: `Registered patient / ${id}`,
+                        type: 'success',
+                      });
+                    })
+                    .then(() => pushMessages())
+                    .then(() => {
+                      navigation.navigate('ctc.patients');
                     });
-                  })
-                  .then(() => pushMessages())
-                  .then(() => {
-                    navigation.navigate('ctc.patients');
-                  });
+                } else {
+                  ToastAndroid.show('Patient ID missing!', ToastAndroid.LONG);
+                }
               },
             }),
           })}
@@ -431,6 +279,14 @@ function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.patients"
           component={withFlowContext(CTCPatientsScreen, {
             actions: ({navigation}) => ({
+              onNewPatient: () => navigation.navigate('ctc.register_patient'),
+              onSyncPushPatientList: patients => {
+                // Send patients data to server
+                pushRecordsAsMessages(
+                  'patients',
+                  patients.map(({id, ...patients}) => [id, patients]),
+                );
+              },
               getPatients: async () => await fetchPatients(),
               searchPatientsById: async (partialId: string) => {
                 return await fetchPatientsFromId(partialId);
@@ -596,37 +452,7 @@ function CTCFlow({fullName}: {fullName: string}) {
           })}
         />
       </Stack.Navigator>
-
       <Portal>
-        {/* <Snackbar
-          visible={networkMessage !== null}
-          duration={networkStatus === 'online' ? 3000 : 8000}
-          onDismiss={clearNxMessage}
-          wrapperStyle={{position: 'relative'}}
-          style={{
-            position: 'absolute',
-            backgroundColor: networkMessage?.color ?? undefined,
-            top: 0,
-            alignContent: 'stretch',
-          }}>
-          <View
-            style={{
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-            <Icon
-              name={networkMessage?.iconName || 'account'}
-              size={22}
-              color={'#FFF'}
-            />
-            <Text font="bold" size="md" color="#FFF" style={{marginLeft: 20}}>
-              {networkMessage?.text}
-            </Text>
-          </View>
-        </Snackbar> */}
         <Snackbar
           visible={message !== null}
           onDismiss={dismiss}

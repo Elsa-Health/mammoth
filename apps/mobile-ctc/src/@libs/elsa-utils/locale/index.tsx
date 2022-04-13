@@ -7,7 +7,7 @@ import en from './lang/en';
 import sw from './lang/sw';
 
 // building the maps for the texts
-import * as data from '../../data-fns';
+import {Symptom, SymptomDescription} from '@elsa-health/data-fns';
 
 i18n.init(
   {
@@ -20,13 +20,13 @@ i18n.init(
     resources: {
       en: {
         translation: en,
-        'donpar-map': data.donparMap.translate('en'),
-        symptoms: data.symptomsLocale.translate('en'),
+        'donpar-map': SymptomDescription.locale('en').object,
+        symptoms: Object.fromEntries(Symptom.locale('en').api.pairs()),
       },
       sw: {
         translation: sw,
-        'donpar-map': data.donparMap.translate('sw'),
-        symptoms: data.symptomsLocale.translate('sw'),
+        'donpar-map': SymptomDescription.locale('sw').object,
+        symptoms: Object.fromEntries(Symptom.locale('sw').api.pairs()),
       },
     },
     compatibilityJSON: 'v3',

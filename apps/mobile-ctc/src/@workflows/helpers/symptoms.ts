@@ -3,21 +3,29 @@ import React from 'react';
 import {SymptomDescription} from '../@types';
 import {TFunction, useTranslation} from 'react-i18next';
 
-import * as data from '../../@libs/data-fns';
+import {
+  Condition,
+  SymptomDescription as Donpar,
+  Symptom,
+} from '@elsa-health/data-fns';
 
-const symptoms: SymptomDescription[] = data.symptoms.values();
-const conditionsList = data.conditions
-  .values()
-  .map(s => ({id: s.id, condition: s.name}));
+const symptoms: SymptomDescription[] = Donpar.pairs().map(([id, vals]) => ({
+  id,
+  ...vals,
+}));
+const conditionsList = Condition.pairs().map(([id, name]) => ({
+  id: id,
+  condition: name,
+}));
 
 function getCondition(
-  id: data.Condition,
-): {id: data.Condition; condition: string} | undefined {
+  id: Condition,
+): {id: Condition; condition: string} | undefined {
   return conditionsList.find(s => s.id === id);
 }
 
 export const getSymptomLocalFunction =
-  (t: TFunction) => (symptomId: data.Symptom) => {
+  (t: TFunction) => (symptomId: Symptom) => {
     const obj: {description: string; name: string} = t(symptomId, {
       returnObjects: true,
       defaultValue: undefined,

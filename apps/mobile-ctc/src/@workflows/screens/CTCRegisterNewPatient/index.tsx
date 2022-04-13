@@ -1,6 +1,11 @@
 import React from 'react';
 import {ScrollView, ToastAndroid, View} from 'react-native';
-import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
+import {
+  AltLayout as Layout,
+  Text,
+  SectionedSelect,
+  Picker as EPicker,
+} from '../../../@libs/elsa-ui/components';
 import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
 
 import {
@@ -72,6 +77,7 @@ export type PatientFormType = {
   patientId: string | undefined;
   firstName: string;
   familyName: string;
+  facilityId: string;
   phoneNumber: string;
   resident: string;
 
@@ -107,7 +113,7 @@ const CTCCodeMap = {
   Makiba: '02020105',
   'Ngarenanyuki Health Centre': '02020103',
   Mareu: '02020120',
-  Other: '',
+  'Other - Not Registered': '',
 };
 
 const CTCValues = Object.entries(CTCCodeMap);
@@ -126,9 +132,10 @@ export default function CTCRegisterNewPatientScreen({
     firstName: '',
     familyName: '',
     phoneNumber: '',
+    facilityId: '', // added late
     resident: DISTRICTS[0],
     dateOfBirth: new Date(1970, 1, 1),
-    maritalStatus: 'single',
+    maritalStatus: 'single', // modified late
     hasPositiveTest: false,
     dateOfTest: new Date(new Date().getFullYear() - 2, 1, 1),
     hasPatientOnARVs: false,
@@ -139,9 +146,11 @@ export default function CTCRegisterNewPatientScreen({
     sex: 'male',
   });
 
-  const [ctcX, setSelectCTC] = React.useState(CTCValues[0][0]);
+  const [ctcX, setSelectCTC] = React.useState<string>(CTCValues[0][0]);
   React.useEffect(() => {
-    changeValue('patientId')(CTCCodeMap[ctcX]);
+    const facilityId = CTCCodeMap[ctcX] as string;
+    changeValue('patientId')(facilityId);
+    changeValue('facilityId')(facilityId);
   }, [ctcX]);
 
   const patientFieldError = () => {
@@ -183,6 +192,40 @@ export default function CTCRegisterNewPatientScreen({
         contentContainerStyle={{
           paddingHorizontal: Spacing.lg,
         }}>
+        <View style={{marginVertical: 10}}>
+          <Text font="bold">Optional Patient Details</Text>
+          <Text style={{marginVertical: 10}}>
+            This information will be useful when searching for the patient
+          </Text>
+          <View style={{display: 'flex', flexDirection: 'row'}}>
+            <TextInput
+              mode="outlined"
+              label="First Name"
+              value={patient.firstName}
+              style={{flex: 1, marginRight: Spacing.md}}
+              onChangeText={changeValue('firstName')}
+            />
+            <TextInput
+              mode="outlined"
+              Select
+              label="Family Name"
+              style={{flex: 1}}
+              value={patient.familyName}
+              onChangeText={changeValue('familyName')}
+            />
+          </View>
+          <TextInput
+            mode="outlined"
+            label="Phone Number"
+            style={{flex: 1, marginTop: Spacing.sm}}
+            keyboardType="phone-pad"
+            value={patient.phoneNumber}
+            onChangeText={changeValue('phoneNumber')}
+          />
+        </View>
+        <Text style={{marginVertical: 10}} font="bold">
+          CTC Details
+        </Text>
         <View
           style={{
             marginVertical: Spacing.sm,
@@ -190,14 +233,24 @@ export default function CTCRegisterNewPatientScreen({
           }}>
           <View>
             <Text>Select Code to Prefill</Text>
-            <Picker
+            <EPicker
+              items={CTCValues}
+              selectedKey={ctcX}
+              uniqueKey={item => item[0]}
+              renderText={item => item[0]}
+              onChangeValue={item => {
+                console.log('changed to', {item});
+                setSelectCTC(item);
+              }}
+            />
+            {/* <Picker
               selectedValue={ctcX}
               style={{flex: 1}}
               onValueChange={(itemValue, itemIndex) => setSelectCTC(itemValue)}>
               {CTCValues.map(([name, code]) => {
                 return <Picker.Item key={name} label={name} value={name} />;
               })}
-            </Picker>
+            </Picker> */}
           </View>
           <View style={{flex: 2}}>
             <TextInput

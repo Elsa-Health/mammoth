@@ -14,6 +14,8 @@ import {
 import theme from '../theme';
 import {Text} from './typography';
 
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 type ChipProps = PressableProps & {
   text?: string;
   textStyle?: TextProps['style'];
@@ -130,12 +132,23 @@ export const iconToggle = (name: string, style: object = {}) => {
     );
   }
   if (name === 'check') {
+    return (
+      <Icon
+        name="check-circle-outline"
+        size={24}
+        style={[style, {marginRight: 4}]}
+      />
+    );
     return <CheckCircleIcon style={style} />;
   }
   if (name === 'search') {
+    return <Icon name="magnify" size={24} style={style} />;
     return <SearchIcon style={style} />;
   }
   if (name === 'keyboard-arrow-down') {
+    return (
+      <Icon name="chevron-down" size={24} color={theme.color.secondary.base} />
+    );
     return <ChevronDownIcon style={style} />;
   }
   return null;
@@ -147,7 +160,9 @@ export function SectionedSelect<T>(
   return (
     <SectionedMultiSelect
       // items={searchableConditions}
-      IconRenderer={props => iconToggle(props.name, props.style)}
+      IconRenderer={(props: {name: string; style: object}) =>
+        iconToggle(props.name, props.style)
+      }
       subKey="children"
       // searchPlaceholderText="Select conditions"
       // selectText="Choose conditions"
@@ -164,7 +179,7 @@ export function SectionedSelect<T>(
           marginVertical: 8,
           borderColor: theme.color.primary.base,
           borderWidth: 2,
-          borderRadius: 10,
+          borderRadius: 6,
         },
         selectToggleText: {
           fontFamily: theme.typography.fontFamilyStyle(),
@@ -206,6 +221,40 @@ export function SectionedSelect<T>(
         },
         chipIcon: {borderRadius: 100, padding: 14},
       }}
+    />
+  );
+}
+
+export function Picker<T>(props: {
+  selectedKey?: string;
+  items: T[];
+  label?: string;
+  uniqueKey: (item: T) => string;
+  renderText?: (item: T) => string;
+  onChangeValue: (itemKey: string) => void;
+}) {
+  return (
+    <SectionedSelect
+      confirmText="Select"
+      single
+      items={[
+        {
+          name: props.label || 'Items',
+          id: 0,
+          children: props.items.map(item => ({
+            id: props.uniqueKey ? props.uniqueKey(item) : item,
+            name: props.renderText ? props.renderText(item) : item,
+          })),
+        },
+      ]}
+      uniqueKey="id"
+      onSelectedItemsChange={items => {
+        console.log('==>', items);
+        props.onChangeValue(items[0]);
+      }}
+      selectedItems={
+        props.selectedKey !== undefined ? [props.selectedKey] : undefined
+      }
     />
   );
 }

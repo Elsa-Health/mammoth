@@ -23,8 +23,7 @@ crdt.collection
   .queryMultiple()
   .then(ds => ds.map(([id, v]) => v))
   .then(objs => crdtBox.merge(new SBSet(objs || [])));
-
-const buildCollRef = (collId: string) => `${collectionsUID}/${collId}`;
+// .then(objs => console.log(objs));
 
 const {store, sync, merge, mergeOther} = BuildCRDTStore(
   ObservableStore,
@@ -32,9 +31,9 @@ const {store, sync, merge, mergeOther} = BuildCRDTStore(
   configuration({
     generateId: keyGenerator,
     istore: FastStorage,
-    buildCollRef,
+    buildCollRef: (collId: string) => `${collectionsUID}/${collId}`,
     buildDocRef: (docId: string, collId: string) =>
-      `${buildCollRef(collId)}/${docId}`,
+      `${collectionsUID}/${collId}/${docId}`,
     collectionsUID,
   }),
   msg => {
