@@ -209,7 +209,7 @@ export default function HIVPatientIntakeScreen({
 
         <View>
           <Checkbox.Item
-            label="Is the patient also doing a symptom assessment?"
+            label="Does the patients have any symptoms today?"
             status={isAssessment ? 'checked' : 'unchecked'}
             onPress={() => {
               setIsAssessment(!isAssessment);
