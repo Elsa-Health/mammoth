@@ -150,7 +150,7 @@ const createStore =
         get().setSymptomFromDescription(symptomsBag[refNumber], data, present);
       },
       setSymptomFromId: (id, data = {}, present) => {
-        console.log('setSymptomFromId:', {id, data, present});
+        // console.log('setSymptomFromId:', {id, data, present});
         get().setSymptomFromDescription(
           {id, ...Donpar.fromKey(id)},
           data,

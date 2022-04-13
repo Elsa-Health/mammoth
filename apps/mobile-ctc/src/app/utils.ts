@@ -115,10 +115,12 @@ export type NetworkStatus = 'offline' | 'connecting' | 'online' | 'error';
  */
 export function useWebSocket({
   url,
+  onOpen,
   onMessage,
 }: {
   url: string;
-  onMessage: (e: WebSocketMessageEvent) => void;
+  onOpen?: (socket: WebSocket) => void;
+  onMessage?: (e: WebSocketMessageEvent) => void;
 }) {
   const [socket, setSocket] = React.useState<WebSocket | undefined>(
     () => undefined,
@@ -135,11 +137,12 @@ export function useWebSocket({
     } else {
       socket.onopen = () => {
         setStatus('online');
+        onOpen?.(socket);
       };
 
       socket.onmessage = e => {
         if (socket.readyState === WebSocket.OPEN) {
-          onMessage(e);
+          onMessage?.(e);
         } else {
           if (socket.readyState !== WebSocket.CLOSED) {
             // console.log("CLOSED... Reconnecting");

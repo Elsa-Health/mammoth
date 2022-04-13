@@ -46,8 +46,13 @@ const Stack = createNativeStackNavigator();
 const wsURL_DEV = 'ws://7318-197-250-230-175.ngrok.io/channel/cmrdt';
 const wsURL_PROD = 'wss://ctc-bounce-server.herokuapp.com/channel/cmrdt';
 
-const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
-// const wsURL = wsURL_PROD;
+// const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
+const wsURL = wsURL_PROD;
+
+const pushMessagesOnSocket = (socket: WebSocket) => {
+  // crdt.resolve();
+  socket.send(JSON.stringify(crdt.messages()));
+};
 
 type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'> & {
   appointment?: CTC.Appointment | undefined;
@@ -68,6 +73,10 @@ export default function CTCFlow({fullName}: {fullName: string}) {
     retry,
   } = useWebSocket({
     url: wsURL,
+    onOpen: socket => {
+      // Push messages
+      pushMessagesOnSocket(socket);
+    },
     onMessage: ({data}) => {
       // merge the current CRDT messages with the remote
       const _data = new Uint16Array(new ArrayBuffer(data));
@@ -83,8 +92,9 @@ export default function CTCFlow({fullName}: {fullName: string}) {
   });
 
   const pushMessages = React.useCallback(() => {
-    // crdt.resolve();
-    socket?.send(JSON.stringify(crdt.messages()));
+    if (socket !== undefined) {
+      pushMessagesOnSocket(socket);
+    }
   }, [socket]);
 
   const pushRecordsAsMessages = React.useCallback(
@@ -217,7 +227,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
                     dateOfBirth: format(dateOfBirth, 'yyyy-MM-dd'),
                     firstName: other.firstName,
                     lastName: other.familyName,
-                    facilityId: other.facilityId,
+                    // facilityId: other.facilityId, // Facility ID retrieved isn't proper (extract from patient Id)
                     phoneNumber: other.phoneNumber,
                     district: other.resident,
                     maritalStatus: convertMartial(other.maritalStatus),
