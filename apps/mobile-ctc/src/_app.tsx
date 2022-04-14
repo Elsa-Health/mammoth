@@ -18,6 +18,7 @@ import {ToastAndroid, View} from 'react-native';
 
 import CTC from './CTC';
 import {NavigationContainer} from '@react-navigation/native';
+import produce from 'immer';
 
 const authenticateQr =
   (
@@ -71,7 +72,12 @@ export default function App() {
   }, []);
 
   return (
-    <ThemeProvider>
+    <ThemeProvider
+      theme={theme =>
+        produce(theme, df => {
+          df.contentType = 'colored';
+        })
+      }>
       <ApplicationProvider>
         <LanguageProvider>
           <SafeAreaProvider>
