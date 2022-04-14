@@ -1,5 +1,5 @@
 import {DefaultTheme, configureFonts} from 'react-native-paper';
-import {Color, fontFamilyStyle} from '.';
+import {DefaultColor, fontFamilyStyle} from './default';
 const fontConfig = {
   regular: {
     fontFamily: fontFamilyStyle({font: 'normal'}),
@@ -26,8 +26,8 @@ const paperTheme = {
   colors: {
     ...DefaultTheme.colors,
     background: '#FFF',
-    primary: Color.primary.base,
-    accent: Color.secondary.base,
+    primary: DefaultColor.primary.base,
+    accent: DefaultColor.secondary.base,
   },
 };
 

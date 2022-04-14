@@ -3,7 +3,7 @@ import {ScrollView, View} from 'react-native';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import {Picker} from '@react-native-picker/picker';
 import produce from 'immer';
-import {Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 import {SectionedSelect} from '../../../@libs/elsa-ui/components';
 import {Button, Checkbox, Divider, RadioButton} from 'react-native-paper';
@@ -58,7 +58,8 @@ export default function HIVPatientIntakeScreen({
   const [isAssessment, setIsAssessment] = React.useState(false);
   return (
     <Layout title="Patient Intake" style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{paddingHorizontal: Spacing.md}}>
+      <ScrollView
+        contentContainerStyle={{paddingHorizontal: DefaultSpacing.md}}>
         <View>
           {/* WHO Stage */}
           <View style={{marginTop: 12}}>
@@ -217,7 +218,7 @@ export default function HIVPatientIntakeScreen({
           />
         </View>
 
-        <View style={{marginVertical: Spacing.md}}>
+        <View style={{marginVertical: DefaultSpacing.md}}>
           <Button
             mode="contained"
             onPress={() => $.onNext(patientIntake, isAssessment)}>

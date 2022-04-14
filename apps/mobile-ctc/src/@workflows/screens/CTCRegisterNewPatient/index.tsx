@@ -6,7 +6,7 @@ import {
   SectionedSelect,
   Picker as EPicker,
 } from '../../../@libs/elsa-ui/components';
-import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 import {
   RadioButton,
@@ -190,7 +190,7 @@ export default function CTCRegisterNewPatientScreen({
     <Layout title="Register Patient" style={{padding: 0}}>
       <ScrollView
         contentContainerStyle={{
-          paddingHorizontal: Spacing.lg,
+          paddingHorizontal: DefaultSpacing.lg,
         }}>
         <View style={{marginVertical: 10}}>
           <Text font="bold">Optional Patient Details</Text>
@@ -202,7 +202,7 @@ export default function CTCRegisterNewPatientScreen({
               mode="outlined"
               label="First Name"
               value={patient.firstName}
-              style={{flex: 1, marginRight: Spacing.md}}
+              style={{flex: 1, marginRight: DefaultSpacing.md}}
               onChangeText={changeValue('firstName')}
             />
             <TextInput
@@ -217,7 +217,7 @@ export default function CTCRegisterNewPatientScreen({
           <TextInput
             mode="outlined"
             label="Phone Number"
-            style={{flex: 1, marginTop: Spacing.sm}}
+            style={{flex: 1, marginTop: DefaultSpacing.sm}}
             keyboardType="phone-pad"
             value={patient.phoneNumber}
             onChangeText={changeValue('phoneNumber')}
@@ -228,8 +228,8 @@ export default function CTCRegisterNewPatientScreen({
         </Text>
         <View
           style={{
-            marginVertical: Spacing.sm,
-            marginBottom: Spacing.md,
+            marginVertical: DefaultSpacing.sm,
+            marginBottom: DefaultSpacing.md,
           }}>
           <View>
             <Text>Select Code to Prefill</Text>
@@ -527,7 +527,7 @@ export default function CTCRegisterNewPatientScreen({
         {/* TODO: Include section for listing the Allergies that the patient might have */}
         <View></View>
         {/*  */}
-        <View style={{marginVertical: Spacing.md}}>
+        <View style={{marginVertical: DefaultSpacing.md}}>
           <Button mode="contained" onPress={onSubmit}>
             Register Patient
           </Button>

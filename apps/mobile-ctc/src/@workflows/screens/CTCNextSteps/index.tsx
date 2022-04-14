@@ -4,7 +4,7 @@ import {ScrollView, useWindowDimensions, View, ViewProps} from 'react-native';
 import {WorkflowScreen} from '../..';
 
 import {CTC, LabTest} from '@elsa-health/data-fns';
-import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 import {ProgressBar, TouchableRipple, Button} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -52,8 +52,8 @@ export default function CTCNextStepsScreen({
 
   return (
     <Layout title="Next Steps" style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{marginHorizontal: Spacing.md}}>
-        <View style={{marginVertical: Spacing.md}}>
+      <ScrollView contentContainerStyle={{marginHorizontal: DefaultSpacing.md}}>
+        <View style={{marginVertical: DefaultSpacing.md}}>
           <Text>
             As part of the next steps, please add information to show the way
             forward for how the patient can proceed
@@ -63,24 +63,24 @@ export default function CTCNextStepsScreen({
         {/* Progress */}
         <View>
           <Text>You have a few information to fill for progress</Text>
-          <View style={{paddingVertical: Spacing.sm}}>
+          <View style={{paddingVertical: DefaultSpacing.sm}}>
             <Text size={'lg'}>{`${(100 * progress).toFixed(0)}`}%</Text>
             <ProgressBar style={{marginTop: 4}} progress={progress} />
           </View>
         </View>
 
         {/* Select Actions */}
-        <View style={{paddingVertical: Spacing.md}}>
+        <View style={{paddingVertical: DefaultSpacing.md}}>
           <Button
             mode="contained"
-            color={Color.secondary.base}
+            color={DefaultColor.secondary.base}
             onPress={() => $.onOrderInvestigation(tests || [])}>
             Investigations
           </Button>
-          <View style={{marginVertical: Spacing.sm}}>
+          <View style={{marginVertical: DefaultSpacing.sm}}>
             <Button
               mode="contained"
-              color={Color.secondary.base}
+              color={DefaultColor.secondary.base}
               onPress={() => $.onDispenseMedication(treatments, status)}>
               Medications
             </Button>
@@ -97,24 +97,24 @@ export default function CTCNextStepsScreen({
                 <View
                   key={cr}
                   style={{
-                    marginVertical: Spacing.xs,
+                    marginVertical: DefaultSpacing.xs,
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
                   }}>
                   <Icon name="check" size={18} />
-                  <Text style={{marginLeft: Spacing.md}}>{cr}</Text>
+                  <Text style={{marginLeft: DefaultSpacing.md}}>{cr}</Text>
                 </View>
               ))}
             </Section>
           </View>
         )}
       </ScrollView>
-      <View style={{marginVertical: 16, paddingHorizontal: Spacing.md}}>
+      <View style={{marginVertical: 16, paddingHorizontal: DefaultSpacing.md}}>
         <Button
           onPress={$.onGoBack}
           mode="outlined"
-          color={Color.secondary.base}>
+          color={DefaultColor.secondary.base}>
           Go To Final Summary
         </Button>
       </View>

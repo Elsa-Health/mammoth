@@ -8,7 +8,7 @@ import {
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import QRLogin from './@workflows/screens/QRAuthentication';
-import rnpTheme from './@libs/elsa-ui/theme/rnp';
+import {ThemeProvider} from './@libs/elsa-ui/theme';
 
 import {LanguageProvider} from './@libs/elsa-utils/locale';
 
@@ -16,7 +16,6 @@ import _ from 'lodash';
 import {authenticate} from './app/utils';
 import {ToastAndroid, View} from 'react-native';
 
-import {Provider as PaperProvider} from 'react-native-paper';
 import CTC from './CTC';
 import {NavigationContainer} from '@react-navigation/native';
 
@@ -72,7 +71,7 @@ export default function App() {
   }, []);
 
   return (
-    <PaperProvider theme={rnpTheme}>
+    <ThemeProvider>
       <ApplicationProvider>
         <LanguageProvider>
           <SafeAreaProvider>
@@ -84,6 +83,6 @@ export default function App() {
           </SafeAreaProvider>
         </LanguageProvider>
       </ApplicationProvider>
-    </PaperProvider>
+    </ThemeProvider>
   );
 }

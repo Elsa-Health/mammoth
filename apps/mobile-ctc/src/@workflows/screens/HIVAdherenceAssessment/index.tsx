@@ -5,7 +5,7 @@ import {ScrollView, View} from 'react-native';
 import {Button, RadioButton, TextInput} from 'react-native-paper';
 import {WorkflowScreen} from '../..';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
-import {Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 const AVAIL_EDUACTION_LEVELS = [
   'No Education',
@@ -73,7 +73,8 @@ export default function HIVAdherenceAssessmentScreen({
   );
   return (
     <Layout title="Adherence Assessment" style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{paddingHorizontal: Spacing.lg}}>
+      <ScrollView
+        contentContainerStyle={{paddingHorizontal: DefaultSpacing.lg}}>
         <Text>
           Please input the following information about your patient to assess
           their risk of non-adherence.
@@ -130,7 +131,7 @@ export default function HIVAdherenceAssessmentScreen({
             </React.Fragment>
           ))}
         </View>
-        <View style={{marginVertical: Spacing.md}}>
+        <View style={{marginVertical: DefaultSpacing.md}}>
           <Button
             mode="contained"
             onPress={() => $.onCompleteAdherence(patient)}>

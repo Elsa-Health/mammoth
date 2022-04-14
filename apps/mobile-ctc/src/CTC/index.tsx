@@ -14,6 +14,8 @@ import CTCPatientIntakeScreenGroup from '../@workflows/screen-groups/CTCPatientI
 import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
 import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAssessmentSummary';
 
+import PatientProfileScreen from './screens/PatientProfile';
+
 // These are only used for the snackbars
 import {Portal, Snackbar} from 'react-native-paper';
 
@@ -24,10 +26,14 @@ import {
   dateToAge,
   fetchMissedAppointment,
   fetchPatients,
-  fetchPatientsFromId,
+  searchPatientsFromId,
   fetchUpcomingAppointments,
   getPatient,
+  fetchVisitsFromPatientId,
   savePatient,
+  fetchUpcomingAppointmentsFromPatientId,
+  fetchMissedAppointmentsFromPatientId,
+  fetchAppointmentsFromPatientId,
 } from './fns';
 
 import {format} from 'date-fns';
@@ -46,8 +52,8 @@ const Stack = createNativeStackNavigator();
 const wsURL_DEV = 'ws://7318-197-250-230-175.ngrok.io/channel/cmrdt';
 const wsURL_PROD = 'wss://ctc-bounce-server.herokuapp.com/channel/cmrdt';
 
-// const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
-const wsURL = wsURL_PROD;
+const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
+// const wsURL = wsURL_PROD;
 
 const pushMessagesOnSocket = (socket: WebSocket) => {
   // crdt.resolve();
@@ -145,7 +151,9 @@ export default function CTCFlow({fullName}: {fullName: string}) {
 
   return (
     <>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator
+        screenOptions={{headerShown: false}}
+        initialRouteName="ctc.patients">
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(ApVisDahboardScreen, {
@@ -172,7 +180,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               },
               loadPatients: async () => [],
               searchPatientsById: async (partialId: string) => {
-                return await fetchPatientsFromId(partialId);
+                return await searchPatientsFromId(partialId);
               },
               onAttendPatient: appointment => {
                 getPatient(appointment.patientId).then(patient => {
@@ -297,9 +305,12 @@ export default function CTCFlow({fullName}: {fullName: string}) {
                   patients.map(({id, ...patients}) => [id, patients]),
                 );
               },
+              onViewPatientProfile: patient => {
+                navigation.navigate('ctc.patientProfile', {patient});
+              },
               getPatients: async () => await fetchPatients(),
               searchPatientsById: async (partialId: string) => {
-                return await fetchPatientsFromId(partialId);
+                return await searchPatientsFromId(partialId);
               },
               onNewPatientVisit: patient => {
                 navigation.navigate('ctc.patient_intake', {patient});
@@ -458,6 +469,20 @@ export default function CTCFlow({fullName}: {fullName: string}) {
                   }
                 })(data);
               },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.patientProfile"
+          component={withFlowContext(PatientProfileScreen, {
+            actions: ({navigation}) => ({
+              onNewPatientVisit: patient => {
+                navigation.navigate('ctc.patient_intake', {patient});
+              },
+              getPatientAppointments: fetchAppointmentsFromPatientId,
+              getPatientMissedAppointments:
+                fetchMissedAppointmentsFromPatientId,
+              getPatientVisits: fetchVisitsFromPatientId,
             }),
           })}
         />

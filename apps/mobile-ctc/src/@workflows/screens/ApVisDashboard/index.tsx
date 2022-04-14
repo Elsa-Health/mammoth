@@ -2,7 +2,7 @@ import React from 'react';
 import {ScrollView, View} from 'react-native';
 import {WorkflowScreen} from '../..';
 import {Layout, Text} from '../../../@libs/elsa-ui/components';
-import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 import {ElsaColorableIcon} from '../../../@libs/elsa-ui/visuals/vectors';
 
 import {format} from 'date-fns';
@@ -63,7 +63,11 @@ function MissedAppointmentsSection({
       </View>
       {data.length === 0 ? (
         <View
-          style={{flex: 1, alignItems: 'center', marginVertical: Spacing.md}}>
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            marginVertical: DefaultSpacing.md,
+          }}>
           <Text italic>You are all set.</Text>
           <Text italic>There are no missing appointments</Text>
         </View>
@@ -71,7 +75,7 @@ function MissedAppointmentsSection({
         <View>
           {data.map((appt, ix) => {
             return (
-              <View key={ix} style={{paddingVertical: Spacing.sm}}>
+              <View key={ix} style={{paddingVertical: DefaultSpacing.sm}}>
                 <View>
                   <Text
                     size="xs"
@@ -147,7 +151,11 @@ function UpcomingAppointmentSection({
 
       {data.length === 0 ? (
         <View
-          style={{flex: 1, alignItems: 'center', marginVertical: Spacing.md}}>
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            marginVertical: DefaultSpacing.md,
+          }}>
           <Text italic>There are no appointments created.</Text>
           <Text italic>Create appointments to have one show up.</Text>
         </View>
@@ -156,7 +164,7 @@ function UpcomingAppointmentSection({
           <View>
             {data.map((appt, ix) => {
               return (
-                <View key={ix} style={{paddingVertical: Spacing.sm}}>
+                <View key={ix} style={{paddingVertical: DefaultSpacing.sm}}>
                   <View>
                     <Text
                       size="xs"
@@ -210,7 +218,7 @@ function Patient({
         <Text
           font="bold"
           size="xs"
-          color={Color.secondary.base}
+          color={DefaultColor.secondary.base}
           style={{
             textTransform: 'uppercase',
             letterSpacing: 1,
@@ -225,7 +233,7 @@ function Patient({
         <Text
           font="bold"
           size="xs"
-          color={Color.secondary.base}
+          color={DefaultColor.secondary.base}
           style={{
             textTransform: 'uppercase',
             letterSpacing: 1,
@@ -277,11 +285,15 @@ function SearchPatientSection({
   onRegisterPatient: () => void;
 }) {
   return (
-    <View style={{paddingVertical: Spacing.xs, flex: 1}}>
+    <View style={{paddingVertical: DefaultSpacing.xs, flex: 1}}>
       {data.length === 0 ? (
         <View>
           <View
-            style={{flex: 1, alignItems: 'center', marginVertical: Spacing.md}}>
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              marginVertical: DefaultSpacing.md,
+            }}>
             <Text italic>Didn't find the patient.</Text>
             <Text italic>Register patient instead?</Text>
           </View>
@@ -446,7 +458,7 @@ export default function ApVisDashboardScreen({
                 <View style={{display: 'flex', flexDirection: 'row'}}>
                   <ActivityIndicator
                     animating={true}
-                    color={Color.secondary.light}
+                    color={DefaultColor.secondary.light}
                   />
                   <Text style={{marginLeft: 8}}>Synchronizing Data</Text>
                 </View>
@@ -502,7 +514,7 @@ export default function ApVisDashboardScreen({
       </Portal>
       <ScrollView
         contentContainerStyle={{
-          paddingHorizontal: Spacing.lg,
+          paddingHorizontal: DefaultSpacing.lg,
           paddingBottom: 60,
         }}>
         <View
@@ -533,21 +545,21 @@ export default function ApVisDashboardScreen({
             <View
               style={{
                 alignSelf: 'flex-end',
-                padding: Spacing.md,
+                padding: DefaultSpacing.md,
                 borderRadius: 10,
               }}>
               <ElsaColorableIcon
                 width={28}
                 height={28}
                 style={{
-                  color: Color.primary.base,
+                  color: DefaultColor.primary.base,
                 }}
               />
             </View>
           </View>
         </View>
         {/* Search Patient */}
-        <View style={{marginTop: Spacing.md}}>
+        <View style={{marginTop: DefaultSpacing.md}}>
           <Text font="bold" size="md">
             Find a Patient
           </Text>
@@ -574,7 +586,7 @@ export default function ApVisDashboardScreen({
         </View>
 
         {patients !== null ? (
-          <View style={{marginVertical: Spacing.md}}>
+          <View style={{marginVertical: DefaultSpacing.md}}>
             <SearchPatientSection
               data={patients}
               onNewPatientVisit={$.onNewPatientVisit}
@@ -585,11 +597,11 @@ export default function ApVisDashboardScreen({
         ) : (
           <>
             {/* Appointment Section */}
-            <View style={{marginTop: Spacing.lg}}>
+            <View style={{marginTop: DefaultSpacing.lg}}>
               <MissedAppointmentsSection dataFn={$.getMissedAppointments} />
             </View>
             {/* Upcming Appointment Section */}
-            <View style={{marginTop: Spacing.lg}}>
+            <View style={{marginTop: DefaultSpacing.lg}}>
               <UpcomingAppointmentSection
                 dataFn={$.getUpcomingAppointments}
                 onAttendPatient={$.onAttendPatient}
@@ -617,10 +629,10 @@ export default function ApVisDashboardScreen({
             color: '#FFF',
             labelTextColor: '#FFF',
             labelStyle: {
-              backgroundColor: Color.primary.light,
+              backgroundColor: DefaultColor.primary.light,
             },
             style: {
-              backgroundColor: Color.primary.light,
+              backgroundColor: DefaultColor.primary.light,
             },
           },
           {

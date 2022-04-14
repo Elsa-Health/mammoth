@@ -8,7 +8,7 @@ import {
   SectionedSelect,
   Text,
 } from '../../../@libs/elsa-ui/components';
-import {Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 import {CTC, Medication} from '@elsa-health/data-fns';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -26,7 +26,7 @@ function Section({
   return (
     <View style={style}>
       {title && <Text font="bold">{title}</Text>}
-      <View style={{marginVertical: Spacing.sm}}>{children}</View>
+      <View style={{marginVertical: DefaultSpacing.sm}}>{children}</View>
     </View>
   );
 }
@@ -78,7 +78,8 @@ export default function HIVDispenseMedicationScreen({
     treatments !== undefined && treatments?.length > 0;
   return (
     <Layout title="Dispense Medications" style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{paddingHorizontal: Spacing.md}}>
+      <ScrollView
+        contentContainerStyle={{paddingHorizontal: DefaultSpacing.md}}>
         <View>
           <Text></Text>
         </View>
@@ -91,18 +92,20 @@ export default function HIVDispenseMedicationScreen({
                 Based on the assessment, we recommend the following medications
                 for your patient.
               </Text>
-              <View style={{paddingVertical: Spacing.md}}>
+              <View style={{paddingVertical: DefaultSpacing.md}}>
                 {treatments.map((cr, ix) => (
                   <View
                     key={cr}
                     style={{
-                      marginVertical: Spacing.xs,
+                      marginVertical: DefaultSpacing.xs,
                       display: 'flex',
                       flexDirection: 'row',
                       alignItems: 'center',
                     }}>
                     <Icon name="check" size={18} />
-                    <Text style={{marginHorizontal: Spacing.md}}>{cr}</Text>
+                    <Text style={{marginHorizontal: DefaultSpacing.md}}>
+                      {cr}
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -133,7 +136,7 @@ export default function HIVDispenseMedicationScreen({
         <Section title="ARV Recommendations" style={{marginVertical: 8}}>
           {status !== undefined && (
             <>
-              <Text style={{lineHeight: 20, marginBottom: Spacing.md}}>
+              <Text style={{lineHeight: 20, marginBottom: DefaultSpacing.md}}>
                 Based on the assessment, it is recommended to{' '}
                 <Text font="bold" italic>
                   {CTC.status.fromKey(status)}
@@ -142,7 +145,7 @@ export default function HIVDispenseMedicationScreen({
               <Divider />
             </>
           )}
-          <View style={{marginVertical: Spacing.md}}>
+          <View style={{marginVertical: DefaultSpacing.md}}>
             <Text>What decision is made about the patient ARVs?</Text>
             <Picker
               selectedValue={state.status}
@@ -174,7 +177,7 @@ export default function HIVDispenseMedicationScreen({
               </View>
             )}
         </Section>
-        <View style={{marginVertical: Spacing.md}}>
+        <View style={{marginVertical: DefaultSpacing.md}}>
           <Button onPress={$.onGoBack}>Go Back</Button>
           <Button
             mode="contained"

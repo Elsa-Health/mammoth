@@ -2,7 +2,7 @@ import React from 'react';
 import {ScrollView, View} from 'react-native';
 import {WorkflowScreen} from '../..';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
-import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 import {format} from 'date-fns';
 
@@ -23,6 +23,7 @@ export default function ViewPatientsScreen({
     getPatients: () => Promise<CTC.Patient[]>;
     onDashboard: () => void;
     onNewPatient: () => void;
+    onViewPatientProfile: (patient: CTC.Patient) => void;
     onSyncPushPatientList: (patients: CTC.Patient[]) => void;
     onNewPatientVisit: (patient: CTC.Patient) => void;
     searchPatientsById: (partialId: string) => Promise<CTC.Patient[]>;
@@ -68,8 +69,11 @@ export default function ViewPatientsScreen({
           justifyContent: 'center',
         }}>
         <View style={{display: 'flex', flexDirection: 'row'}}>
-          <ActivityIndicator animating={true} color={Color.primary.light} />
-          <Text style={{marginLeft: Spacing.md}} font="bold">
+          <ActivityIndicator
+            animating={true}
+            color={DefaultColor.primary.light}
+          />
+          <Text style={{marginLeft: DefaultSpacing.md}} font="bold">
             Loading
           </Text>
         </View>
@@ -79,8 +83,9 @@ export default function ViewPatientsScreen({
 
   return (
     <Layout title="Patients" style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{paddingHorizontal: Spacing.lg}}>
-        <View style={{marginVertical: Spacing.sm}}>
+      <ScrollView
+        contentContainerStyle={{paddingHorizontal: DefaultSpacing.lg}}>
+        <View style={{marginVertical: DefaultSpacing.sm}}>
           <Searchbar
             placeholder="Patient ID"
             style={{flex: 1}}
@@ -96,7 +101,7 @@ export default function ViewPatientsScreen({
             style={{
               flexDirection: 'row',
               display: 'flex',
-              marginVertical: Spacing.sm,
+              marginVertical: DefaultSpacing.sm,
             }}>
             <Text size={20}>Number of Patients</Text>
             <Text
@@ -106,7 +111,7 @@ export default function ViewPatientsScreen({
               style={{marginHorizontal: 12}}>
               {'/'}
             </Text>
-            <Text size={20} color={Color.primary.dark} font="bold">
+            <Text size={20} color={DefaultColor.primary.dark} font="bold">
               {patients.length}
             </Text>
           </View>
@@ -120,6 +125,7 @@ export default function ViewPatientsScreen({
                   <Patient
                     data={patient}
                     onNewVisit={() => $.onNewPatientVisit(patient)}
+                    onViewProfile={() => $.onViewPatientProfile(patient)}
                   />
                 </View>
                 <Divider />
@@ -127,11 +133,11 @@ export default function ViewPatientsScreen({
             ))}
           </View>
         ) : (
-          <View style={{padding: Spacing.md, alignItems: 'center'}}>
+          <View style={{padding: DefaultSpacing.md, alignItems: 'center'}}>
             <Text>Loading</Text>
           </View>
         )}
-        <View style={{marginVertical: Spacing.lg}}>
+        <View style={{marginVertical: DefaultSpacing.lg}}>
           <Button mode="outlined" onPress={$.onDashboard}>
             Dashboard
           </Button>
@@ -169,9 +175,11 @@ export default function ViewPatientsScreen({
 function Patient({
   data: {id, registeredDate},
   onNewVisit,
+  onViewProfile,
 }: {
   data: CTC.Patient;
   onNewVisit: () => void;
+  onViewProfile: () => void;
 }) {
   return (
     <View style={{paddingVertical: 12}}>
@@ -179,7 +187,7 @@ function Patient({
         <Text
           font="bold"
           size="xs"
-          color={Color.secondary.base}
+          color={DefaultColor.secondary.base}
           style={{
             textTransform: 'uppercase',
             letterSpacing: 1,
@@ -194,7 +202,7 @@ function Patient({
         <Text
           font="bold"
           size="xs"
-          color={Color.secondary.base}
+          color={DefaultColor.secondary.base}
           style={{
             textTransform: 'uppercase',
             letterSpacing: 1,
@@ -223,12 +231,12 @@ function Patient({
           mode="outlined">
           New Visit
         </Button>
-        {/* <Button
+        <Button
           style={{flex: 1, marginLeft: 8}}
-          icon="pencil"
-          onPress={() => console.log('Edit Profile')}>
-          Edit Profile
-        </Button> */}
+          icon="file"
+          onPress={onViewProfile}>
+          View Profile
+        </Button>
       </View>
     </View>
   );

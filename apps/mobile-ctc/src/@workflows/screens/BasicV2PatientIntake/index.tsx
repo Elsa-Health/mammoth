@@ -2,7 +2,7 @@ import React from 'react';
 import {ScrollView, View} from 'react-native';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 import {format} from 'date-fns';
 import {
@@ -64,7 +64,7 @@ export default function BasicV2PatientIntakeScreen({
   return (
     <Layout title="Patient Intake" style={{padding: 0}}>
       <ScrollView
-        contentContainerStyle={{paddingHorizontal: Spacing.md, flex: 1}}>
+        contentContainerStyle={{paddingHorizontal: DefaultSpacing.md, flex: 1}}>
         <View style={{flex: 1}}>
           <View>
             {appointmentDate && (
@@ -85,7 +85,7 @@ export default function BasicV2PatientIntakeScreen({
                       alignItems: 'center',
                     }}>
                     <Icon
-                      color={Color.primary.base}
+                      color={DefaultColor.primary.base}
                       size={24}
                       name="calendar-clock"
                     />
@@ -113,7 +113,11 @@ export default function BasicV2PatientIntakeScreen({
                   flexDirection: 'row',
                   alignItems: 'center',
                 }}>
-                <Icon color={Color.primary.base} size={24} name="account" />
+                <Icon
+                  color={DefaultColor.primary.base}
+                  size={24}
+                  name="account"
+                />
                 <Text font="bold" style={{marginLeft: 8}}>
                   Patient ID
                 </Text>
@@ -136,7 +140,11 @@ export default function BasicV2PatientIntakeScreen({
                   flexDirection: 'row',
                   alignItems: 'center',
                 }}>
-                <Icon color={Color.primary.base} size={24} name="calendar" />
+                <Icon
+                  color={DefaultColor.primary.base}
+                  size={24}
+                  name="calendar"
+                />
                 <Text font="bold" style={{marginLeft: 8}}>
                   Date of Visit
                 </Text>
@@ -237,7 +245,7 @@ export default function BasicV2PatientIntakeScreen({
                 label="Height / Length"
                 keyboardType="decimal-pad"
                 onChangeText={changeValue('height')}
-                style={{flex: 1, marginLeft: Spacing.sm}}
+                style={{flex: 1, marginLeft: DefaultSpacing.sm}}
                 right={<TextInput.Affix text="cm" />}
               />
             </View>
@@ -269,13 +277,13 @@ export default function BasicV2PatientIntakeScreen({
                 label="Diastolic"
                 keyboardType="decimal-pad"
                 onChangeText={changeValue('diastolic')}
-                style={{flex: 1, marginLeft: Spacing.sm}}
+                style={{flex: 1, marginLeft: DefaultSpacing.sm}}
                 right={<TextInput.Affix text="mmHg" />}
               />
             </View>
           </View>
         </View>
-        <View style={{marginVertical: Spacing.md}}>
+        <View style={{marginVertical: DefaultSpacing.md}}>
           <Button mode="contained" onPress={() => $.onNext(patientIntake)}>
             Next
           </Button>

@@ -2,7 +2,7 @@ import React from 'react';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 
 import {ScrollView, useWindowDimensions, View, ViewProps} from 'react-native';
-import {Color, Spacing} from '../../../@libs/elsa-ui/theme';
+import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 import {WorkflowScreen} from '../..';
 import {Button, Divider, IconButton, TextInput} from 'react-native-paper';
 
@@ -25,7 +25,7 @@ function Section({
   return (
     <View style={style}>
       {title && <Text font="bold">{title}</Text>}
-      <View style={{marginTop: Spacing.sm}}>{children}</View>
+      <View style={{marginTop: DefaultSpacing.sm}}>{children}</View>
     </View>
   );
 }
@@ -70,13 +70,13 @@ function DiseaseSummarySection({
         chartConfig={{
           backgroundGradientFrom: '#fff',
           backgroundGradientTo: '#fff',
-          color: (opacity = 1) => Color.secondary.base,
+          color: (opacity = 1) => DefaultColor.secondary.base,
           decimalPlaces: 2, // optional, defaults to 2dp
           labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           propsForDots: {
             r: '6',
             strokeWidth: '2',
-            stroke: Color.primary.dark,
+            stroke: DefaultColor.primary.dark,
           },
           strokeWidth: 0,
         }}
@@ -144,7 +144,7 @@ export default function CTCAssessmentSummaryScreen({
 
   return (
     <Layout title={'Assessment Summary'} style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{marginHorizontal: Spacing.md}}>
+      <ScrollView contentContainerStyle={{marginHorizontal: DefaultSpacing.md}}>
         {/* Disease Summary Section */}
         {data.condition !== undefined &&
           data.conditionValuePairs?.length === 0 && (
@@ -157,7 +157,9 @@ export default function CTCAssessmentSummaryScreen({
         {hasNextSteps && (
           <>
             {/* hasNextSteps  */}
-            <Section title="Suggestions" style={{marginVertical: Spacing.md}}>
+            <Section
+              title="Suggestions"
+              style={{marginVertical: DefaultSpacing.md}}>
               <Text style={{lineHeight: 20}}>
                 Press on the "Next Steps" button to find out what more you can
                 do to help the patient
@@ -171,7 +173,7 @@ export default function CTCAssessmentSummaryScreen({
         {data.riskNonAdherence !== undefined && (
           <Section
             title="Risk of Non-Adherence"
-            style={{marginVertical: Spacing.md}}>
+            style={{marginVertical: DefaultSpacing.md}}>
             <Text>This shows likelihood of non-adherence</Text>
             <View>
               <Text>
@@ -228,7 +230,7 @@ export default function CTCAssessmentSummaryScreen({
         </View>
 
         {/* Actions */}
-        <View style={{marginVertical: Spacing.md}}>
+        <View style={{marginVertical: DefaultSpacing.md}}>
           <Button mode="outlined" onPress={() => $.onNextSteps(data)}>
             Next Steps
           </Button>

@@ -66,7 +66,24 @@ declare namespace CTC {
       isExperienceSideEffects: boolean;
       doesPatientUnderstandRegimen: boolean;
     };
-    assessmentSummary: object;
+    assessmentSummary: {
+      summary: {
+        condition?: Condition | CTC.Condition;
+        conditionValuePairs?: [Condition | CTC.Condition, number][];
+        riskNonAdherence: number | undefined;
+        appointmentDate: Date | undefined;
+      };
+      nextSteps: CTC.NextStepsObject;
+      riskNonAdherence: number;
+      investigations: CTC.Test[];
+      medicationInfo: HIVDispenseMedication<Medication.All>;
+    };
+  };
+
+  export type HIVDispenseMedication<M extends string> = {
+    medications: M[];
+    status: CTC.Status | undefined;
+    reason?: string | undefined;
   };
 
   type Patient = {

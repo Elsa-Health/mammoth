@@ -2,7 +2,7 @@ import React from 'react';
 import {Pressable, StatusBar, View, ViewProps} from 'react-native';
 import {SafeAreaView, SafeAreaViewProps} from 'react-native-safe-area-context';
 import {ElsaIcon, ArrowBackIcon, ElsaColorableIcon} from '../visuals/vectors';
-import theme, {Color, Spacing} from '../theme';
+import theme, {DefaultColor, DefaultSpacing, useTheme} from '../theme';
 import {RevealContent} from './misc';
 import {Heading} from './typography';
 
@@ -59,8 +59,8 @@ const BaseLayout = function ({
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingVertical: Spacing.md,
-            paddingHorizontal: Spacing.md,
+            paddingVertical: DefaultSpacing.md,
+            paddingHorizontal: DefaultSpacing.md,
             backgroundColor: '#FFF',
             // backgroundColor: 'pink',
           },
@@ -128,7 +128,7 @@ const BaseLayout = function ({
         style={[
           {
             flex: 1,
-            padding: Spacing.md,
+            padding: DefaultSpacing.md,
             paddingTop: 8,
             backgroundColor: '#FFF',
           },
@@ -138,13 +138,6 @@ const BaseLayout = function ({
     </SafeAreaView>
   );
 };
-
-/**
- * Main Layout component
- */
-function MainLayout(props: LayoutProps) {
-  return <BaseLayout {...props} />;
-}
 
 /**
  * Alternative layout component with different style
@@ -169,7 +162,7 @@ function AltLayout({
     <SafeAreaView style={[{flex: 1}, wrapperStyle]}>
       <StatusBar
         animated
-        backgroundColor={Color.primary.dark}
+        backgroundColor={DefaultColor.primary.dark}
         barStyle={'light-content'}
       />
       {/* header component */}
@@ -242,7 +235,7 @@ function AltLayout({
         style={[
           {
             flex: 1,
-            padding: Spacing.md,
+            padding: DefaultSpacing.md,
             paddingTop: 8,
             backgroundColor: '#FFF',
           },
@@ -253,4 +246,17 @@ function AltLayout({
   );
 }
 
-export {View, MainLayout as Layout, AltLayout};
+/**
+ * Main Layout component
+ */
+function MainLayout(props: LayoutProps) {
+  const {contentType} = useTheme();
+
+  if (contentType === 'white') {
+    return <BaseLayout {...props} />;
+  }
+
+  return <AltLayout {...props} />;
+}
+
+export {View, MainLayout as Layout, MainLayout as AltLayout};

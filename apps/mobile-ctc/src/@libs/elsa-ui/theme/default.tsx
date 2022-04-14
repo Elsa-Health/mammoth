@@ -49,7 +49,7 @@ export const fontFamilyStyle = (
   }
 };
 
-export const Color = {
+export const DefaultColor = {
   primary: {
     base: '#4665AF',
     light: '#7992e1',
@@ -62,7 +62,7 @@ export const Color = {
   },
 };
 
-export const Spacing = {
+export const DefaultSpacing = {
   xs: 4,
   sm: 8,
   md: 16,
@@ -71,7 +71,7 @@ export const Spacing = {
   '2xl': 48,
 };
 
-export const Typography = {
+export const DefaultTypography = {
   fontFamilyStyle,
   sizes: {
     xs: '12px',
@@ -81,14 +81,4 @@ export const Typography = {
     xl: '24px',
     '2xl': '28px',
   },
-};
-
-export default {
-  /**
-   * Created from:
-   * https://material.io/resources/color/#!/?view.left=0&view.right=1&primary.color=4666ae&secondary.color=00796B
-   */
-  color: Color,
-  typography: Typography,
-  spacing: Spacing,
 };
