@@ -86,6 +86,7 @@ export default function PatientProfileScreen({
 }: WorkflowScreen<
   {patient: CTC.Patient},
   {
+    onNewPatientVisit: (visit: CTC.Visit) => void;
     getPatientAppointments: (patientId: string) => Promise<CTC.Appointment[]>;
     getPatientVisits: (patientId: string) => Promise<CTC.Visit[]>;
   }
@@ -220,29 +221,14 @@ export default function PatientProfileScreen({
           <Section
             title="Past Visits"
             dataFn={() => $.getPatientVisits(patient.id)}>
-            {({
-              item: {
+            {({item: visit}) => {
+              const {
                 dateTime,
                 assessmentSummary: {summary},
-              },
-            }) => (
-              <View style={{paddingVertical: spacing.sm}}>
-                <View style={{marginBottom: 8}}>
-                  <Text
-                    size="xs"
-                    color="#777"
-                    font="bold"
-                    style={{
-                      letterSpacing: 2,
-                      textTransform: 'uppercase',
-                      marginBottom: 3,
-                    }}>
-                    Visit Date
-                  </Text>
-                  <Text>{format(new Date(dateTime), 'MMMM dd, yyyy')}</Text>
-                </View>
-                {summary.riskNonAdherence !== undefined && (
-                  <View>
+              } = visit;
+              return (
+                <View style={{paddingVertical: spacing.sm}}>
+                  <View style={{marginBottom: 8}}>
                     <Text
                       size="xs"
                       color="#777"
@@ -252,16 +238,37 @@ export default function PatientProfileScreen({
                         textTransform: 'uppercase',
                         marginBottom: 3,
                       }}>
-                      Risk of Non-Adherence
+                      Visit Date
                     </Text>
-                    <Text>{summary.riskNonAdherence}</Text>
+                    <Text>{format(new Date(dateTime), 'MMMM dd, yyyy')}</Text>
                   </View>
-                )}
-                <Button mode="outlined" style={{marginVertical: 8}}>
-                  View Visit
-                </Button>
-              </View>
-            )}
+                  {summary.riskNonAdherence !== undefined && (
+                    <View>
+                      <Text
+                        size="xs"
+                        color="#777"
+                        font="bold"
+                        style={{
+                          letterSpacing: 2,
+                          textTransform: 'uppercase',
+                          marginBottom: 3,
+                        }}>
+                        Risk of Non-Adherence
+                      </Text>
+                      <Text>
+                        {(summary.riskNonAdherence * 100).toFixed(2)} %
+                      </Text>
+                    </View>
+                  )}
+                  <Button
+                    mode="outlined"
+                    style={{marginVertical: 8}}
+                    onPress={() => $.onNewPatientVisit(visit)}>
+                    View Visit
+                  </Button>
+                </View>
+              );
+            }}
           </Section>
         </View>
       </ScrollView>

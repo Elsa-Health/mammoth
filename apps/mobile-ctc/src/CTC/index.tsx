@@ -14,6 +14,7 @@ import CTCPatientIntakeScreenGroup from '../@workflows/screen-groups/CTCPatientI
 import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
 import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAssessmentSummary';
 
+import PatientVisitScreen from './screens/PatientVisit';
 import PatientProfileScreen from './screens/PatientProfile';
 
 // These are only used for the snackbars
@@ -31,7 +32,6 @@ import {
   getPatient,
   fetchVisitsFromPatientId,
   savePatient,
-  fetchUpcomingAppointmentsFromPatientId,
   fetchMissedAppointmentsFromPatientId,
   fetchAppointmentsFromPatientId,
 } from './fns';
@@ -153,7 +153,8 @@ export default function CTCFlow({fullName}: {fullName: string}) {
     <>
       <Stack.Navigator
         screenOptions={{headerShown: false}}
-        initialRouteName="ctc.patients">
+        // initialRouteName="ctc.patients"
+      >
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(ApVisDahboardScreen, {
@@ -476,8 +477,8 @@ export default function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.patientProfile"
           component={withFlowContext(PatientProfileScreen, {
             actions: ({navigation}) => ({
-              onNewPatientVisit: patient => {
-                navigation.navigate('ctc.patient_intake', {patient});
+              onNewPatientVisit: visit => {
+                navigation.navigate('ctc.view_patient_visit', {visit});
               },
               getPatientAppointments: fetchAppointmentsFromPatientId,
               getPatientMissedAppointments:
@@ -485,6 +486,10 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               getPatientVisits: fetchVisitsFromPatientId,
             }),
           })}
+        />
+        <Stack.Screen
+          name="ctc.view_patient_visit"
+          component={withFlowContext(PatientVisitScreen)}
         />
       </Stack.Navigator>
       <Portal>
