@@ -121,8 +121,17 @@ export async function fetchPatients() {
     );
 }
 
+export async function fetchVisits() {
+  const docs = await cVisitsRef.queryMultiple();
+
+  return docs.map(([id, visit]) => ({
+    id,
+    ...visit,
+  }));
+}
+
 type A = Omit<CTC.Appointment, 'id'>;
-async function fetchAppointments() {
+export async function fetchAppointments() {
   // console.log('NEED APPTs');
   const docs = await cAppointRef.queryDocs<A>();
 

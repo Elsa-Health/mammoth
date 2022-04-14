@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScrollView, View} from 'react-native';
+import {ScrollView, ToastAndroid, View} from 'react-native';
 import {WorkflowScreen} from '../..';
 import {Layout, Text} from '../../../@libs/elsa-ui/components';
 import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
@@ -10,6 +10,8 @@ import {format} from 'date-fns';
 import {
   ActivityIndicator,
   Divider,
+  IconButton,
+  Menu,
   Modal,
   Portal,
   TouchableRipple,
@@ -394,7 +396,7 @@ function NetworkChip({
   );
 }
 
-export default function ApVisDashboardScreen({
+export default function CTCDashboardScreen({
   entry: {fullName, networkStatus},
   actions: $,
 }: WorkflowScreen<
@@ -409,6 +411,7 @@ export default function ApVisDashboardScreen({
     onPatientList: () => void;
     onNewPatientVisit: (patient: CTC.Patient) => void;
     onNewPatient: () => void;
+    generateReport: () => Promise<void>;
     onRetrySyncServer: () => void;
   }
 >) {
@@ -438,218 +441,266 @@ export default function ApVisDashboardScreen({
   // sets status for syncronizing data to the server
   const [isSyncing, setIsSyncing] = React.useState(false);
 
+  // Menu
+
+  const [menuVisible, setMenuVisible] = React.useState(false);
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
+  // generateReport
+  const [grModal, setGrModal] = React.useState(false);
+  const generateReport = async () => {
+    closeMenu();
+    setGrModal(true);
+    try {
+      const filePath = await $.generateReport();
+      ToastAndroid.show('Report saved!', ToastAndroid.SHORT);
+    } catch (err) {
+      ToastAndroid.show(err.message, ToastAndroid.LONG);
+    } finally {
+      setGrModal(false);
+    }
+  };
+
   return (
-    <Layout style={{padding: 0}} hideHeader>
-      {/* Modal */}
+    <>
+      {/* General Modal */}
       <Portal>
         <Modal
-          visible={visible}
+          visible={grModal}
           dismissable={false}
           contentContainerStyle={{
+            borderRadius: 4,
             backgroundColor: 'white',
             margin: 36,
           }}>
           <View style={{padding: 24}}>
-            {isSyncing ? (
-              <>
-                <Text font="bold" style={{marginBottom: 20}}>
-                  Pushing data to the server
-                </Text>
-                <View style={{display: 'flex', flexDirection: 'row'}}>
-                  <ActivityIndicator
-                    animating={true}
-                    color={DefaultColor.secondary.light}
-                  />
-                  <Text style={{marginLeft: 8}}>Synchronizing Data</Text>
-                </View>
-              </>
-            ) : (
-              <Text font="medium">
-                This will send current data to the server. Synchronize?
-              </Text>
-            )}
+            <Text>Generating Report...</Text>
           </View>
-          <Divider />
-
-          {!isSyncing && (
-            <View style={{padding: 12, display: 'flex', flexDirection: 'row'}}>
-              <Button
-                onPress={() => {
-                  if (!isSyncing) {
-                    setIsSyncing(true);
-                    $.syncPushAllData()
-                      .catch(err =>
-                        console.log(
-                          "There's a problem when pushind data..",
-                          err,
-                        ),
-                      )
-                      .finally(() => setIsSyncing(false))
-                      .finally(hideModal);
-                  }
-                }}>
-                Synchronize
-              </Button>
-
-              <Button
-                onPress={() => {
-                  setIsSyncing(false);
-                  hideModal();
-                }}>
-                Cancel
-              </Button>
-            </View>
-          )}
-          {/* <Text font="bold" style={{marginBottom: 20}}>
-              Pushing data to the server
-            </Text>
-            <View style={{display: 'flex', flexDirection: 'row'}}>
-              <ActivityIndicator
-                animating={true}
-                color={Color.secondary.light}
-              />
-              <Text style={{marginLeft: 8}}>Synchronizing Data</Text>
-            </View> */}
         </Modal>
       </Portal>
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: DefaultSpacing.lg,
-          paddingBottom: 60,
-        }}>
-        <View
-          style={{
-            paddingVertical: 8,
-          }}>
-          {/* Socket */}
-          <NetworkChip
-            status={networkStatus}
-            onErrorPress={$.onRetrySyncServer}
-          />
+      {/* App Start */}
+      <Layout style={{padding: 0}} hideHeader>
+        {/* Modal */}
+        <Portal>
+          <Modal
+            visible={visible}
+            dismissable={false}
+            contentContainerStyle={{
+              backgroundColor: 'white',
+              margin: 36,
+            }}>
+            <View style={{padding: 24}}>
+              {isSyncing ? (
+                <>
+                  <Text font="bold" style={{marginBottom: 20}}>
+                    Pushing data to the server
+                  </Text>
+                  <View style={{display: 'flex', flexDirection: 'row'}}>
+                    <ActivityIndicator
+                      animating={true}
+                      color={DefaultColor.secondary.light}
+                    />
+                    <Text style={{marginLeft: 8}}>Synchronizing Data</Text>
+                  </View>
+                </>
+              ) : (
+                <Text font="medium">
+                  This will send current data to the server. Synchronize?
+                </Text>
+              )}
+            </View>
+            <Divider />
 
+            {!isSyncing && (
+              <View
+                style={{padding: 12, display: 'flex', flexDirection: 'row'}}>
+                <Button
+                  onPress={() => {
+                    if (!isSyncing) {
+                      setIsSyncing(true);
+                      $.syncPushAllData()
+                        .catch(err =>
+                          console.log(
+                            "There's a problem when pushind data..",
+                            err,
+                          ),
+                        )
+                        .finally(() => setIsSyncing(false))
+                        .finally(hideModal);
+                    }
+                  }}>
+                  Synchronize
+                </Button>
+
+                <Button
+                  onPress={() => {
+                    setIsSyncing(false);
+                    hideModal();
+                  }}>
+                  Cancel
+                </Button>
+              </View>
+            )}
+          </Modal>
+        </Portal>
+        <ScrollView
+          contentContainerStyle={{
+            paddingHorizontal: DefaultSpacing.lg,
+            paddingBottom: 60,
+          }}>
           <View
             style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
+              paddingVertical: 8,
             }}>
-            <View>
-              <Text font="extra-black" size={24}>
-                Welcome Back,
-              </Text>
-              <Text font="extra-black" size={24}>
-                {fullName}
-              </Text>
+            {/* Socket */}
+            <NetworkChip
+              status={networkStatus}
+              onErrorPress={$.onRetrySyncServer}
+            />
+
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  // justifyContent: '',
+                }}>
+                <View
+                  style={{
+                    alignSelf: 'flex-start',
+                    marginVertical: 10,
+                  }}>
+                  <ElsaColorableIcon
+                    width={28}
+                    height={28}
+                    style={{
+                      color: DefaultColor.primary.base,
+                    }}
+                  />
+                </View>
+                <View>
+                  <Text font="extra-black" size={24}>
+                    Welcome,
+                  </Text>
+                  <Text font="extra-black" size={24}>
+                    {fullName}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Settings */}
+              <View>
+                <Menu
+                  visible={menuVisible}
+                  onDismiss={closeMenu}
+                  anchor={
+                    <IconButton icon="dots-vertical" onPress={openMenu} />
+                  }>
+                  <Menu.Item onPress={generateReport} title="Get Report" />
+                  <Divider />
+                  <Menu.Item
+                    onPress={() => console.log('Logout')}
+                    title="Log out"
+                  />
+                </Menu>
+              </View>
             </View>
+          </View>
+          {/* Search Patient */}
+          <View style={{marginTop: DefaultSpacing.md}}>
+            <Text font="bold" size="md">
+              Find a Patient
+            </Text>
+            <Text style={{lineHeight: 24}}>
+              Search patient using the patient ID
+            </Text>
 
             <View
               style={{
-                alignSelf: 'flex-end',
-                padding: DefaultSpacing.md,
-                borderRadius: 10,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 10,
               }}>
-              <ElsaColorableIcon
-                width={28}
-                height={28}
-                style={{
-                  color: DefaultColor.primary.base,
-                }}
+              <Searchbar
+                placeholder="Ex. 02020100123456"
+                style={{flex: 1}}
+                blurOnSubmit
+                onChangeText={setSearchQuery}
+                onSubmitEditing={handleSearch}
+                value={searchQuery}
               />
             </View>
           </View>
-        </View>
-        {/* Search Patient */}
-        <View style={{marginTop: DefaultSpacing.md}}>
-          <Text font="bold" size="md">
-            Find a Patient
-          </Text>
-          <Text style={{lineHeight: 24}}>
-            Search patient using the patient ID
-          </Text>
 
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 10,
-            }}>
-            <Searchbar
-              placeholder="Ex. 02020100123456"
-              style={{flex: 1}}
-              blurOnSubmit
-              onChangeText={setSearchQuery}
-              onSubmitEditing={handleSearch}
-              value={searchQuery}
-            />
-          </View>
-        </View>
-
-        {patients !== null ? (
-          <View style={{marginVertical: DefaultSpacing.md}}>
-            <SearchPatientSection
-              data={patients}
-              onNewPatientVisit={$.onNewPatientVisit}
-              onClear={() => setSearchQuery('')}
-              onRegisterPatient={() => $.onRegisterPatientWithId(searchQuery)}
-            />
-          </View>
-        ) : (
-          <>
-            {/* Appointment Section */}
-            <View style={{marginTop: DefaultSpacing.lg}}>
-              <MissedAppointmentsSection dataFn={$.getMissedAppointments} />
-            </View>
-            {/* Upcming Appointment Section */}
-            <View style={{marginTop: DefaultSpacing.lg}}>
-              <UpcomingAppointmentSection
-                dataFn={$.getUpcomingAppointments}
-                onAttendPatient={$.onAttendPatient}
+          {patients !== null ? (
+            <View style={{marginVertical: DefaultSpacing.md}}>
+              <SearchPatientSection
+                data={patients}
+                onNewPatientVisit={$.onNewPatientVisit}
+                onClear={() => setSearchQuery('')}
+                onRegisterPatient={() => $.onRegisterPatientWithId(searchQuery)}
               />
             </View>
+          ) : (
+            <>
+              {/* Appointment Section */}
+              <View style={{marginTop: DefaultSpacing.lg}}>
+                <MissedAppointmentsSection dataFn={$.getMissedAppointments} />
+              </View>
+              {/* Upcming Appointment Section */}
+              <View style={{marginTop: DefaultSpacing.lg}}>
+                <UpcomingAppointmentSection
+                  dataFn={$.getUpcomingAppointments}
+                  onAttendPatient={$.onAttendPatient}
+                />
+              </View>
 
-            {/* Appointment Section
+              {/* Appointment Section
             <View style={{marginTop: Spacing.lg}}>
               <VisitSection data={Array(2).fill(2)} />
             </View> */}
-          </>
-        )}
-      </ScrollView>
+            </>
+          )}
+        </ScrollView>
 
-      {/* Fixed */}
-      <FAB.Group
-        open={open}
-        visible
-        icon={open ? 'close' : 'menu'}
-        actions={[
-          {
-            icon: 'cloud-sync-outline',
-            label: 'Syncronize Data',
-            onPress: showModal,
-            color: '#FFF',
-            labelTextColor: '#FFF',
-            labelStyle: {
-              backgroundColor: DefaultColor.primary.light,
+        {/* Fixed */}
+        <FAB.Group
+          open={open}
+          visible
+          icon={open ? 'close' : 'menu'}
+          actions={[
+            {
+              icon: 'cloud-sync-outline',
+              label: 'Syncronize Data',
+              onPress: showModal,
+              color: '#FFF',
+              labelTextColor: '#FFF',
+              labelStyle: {
+                backgroundColor: DefaultColor.primary.light,
+              },
+              style: {
+                backgroundColor: DefaultColor.primary.light,
+              },
             },
-            style: {
-              backgroundColor: DefaultColor.primary.light,
+            {
+              icon: 'account-plus',
+              label: 'New Patient',
+              small: false,
+              onPress: $.onNewPatient,
             },
-          },
-          {
-            icon: 'account-plus',
-            label: 'New Patient',
-            small: false,
-            onPress: $.onNewPatient,
-          },
-          {
-            icon: 'format-list-bulleted',
-            label: 'Patient List',
-            small: false,
-            onPress: $.onPatientList,
-          },
-        ]}
-        onStateChange={onStateChange}
-      />
-    </Layout>
+            {
+              icon: 'format-list-bulleted',
+              label: 'Patient List',
+              small: false,
+              onPress: $.onPatientList,
+            },
+          ]}
+          onStateChange={onStateChange}
+        />
+      </Layout>
+    </>
   );
 }
