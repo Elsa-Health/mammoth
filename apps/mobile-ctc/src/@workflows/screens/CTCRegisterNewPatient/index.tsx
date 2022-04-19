@@ -239,7 +239,7 @@ export default function CTCRegisterNewPatientScreen({
               uniqueKey={item => item[0]}
               renderText={item => item[0]}
               onChangeValue={item => {
-                console.log('changed to', {item});
+                // console.log('changed to', {item});
                 setSelectCTC(item);
               }}
             />
@@ -332,7 +332,7 @@ export default function CTCRegisterNewPatientScreen({
           <Picker
             selectedValue={patient.maritalStatus}
             onValueChange={(itemValue, itemIndex) =>
-              changeValue('martialStatus')(itemValue)
+              changeValue('maritalStatus')(itemValue)
             }>
             {martialStatusOptions.map(ms => {
               return (
