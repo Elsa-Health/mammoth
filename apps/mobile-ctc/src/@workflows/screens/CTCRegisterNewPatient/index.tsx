@@ -259,6 +259,7 @@ export default function CTCRegisterNewPatientScreen({
               value={patient.patientId}
               maxLength={14}
               onChangeText={changeValue('patientId')}
+              keyboardType="number-pad"
             />
             <HelperText type="error" visible={patientFieldError()}>
               Please type in a valid CTC ID
