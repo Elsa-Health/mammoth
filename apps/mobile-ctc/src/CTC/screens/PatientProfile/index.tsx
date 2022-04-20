@@ -91,19 +91,28 @@ export default function PatientProfileScreen({
     getPatientVisits: (patientId: string) => Promise<CTC.Visit[]>;
   }
 >) {
-  const {spacing, color} = useTheme();
+  const {spacing, color, contentType} = useTheme();
   const facilityCode = patient.id.slice(0, 8);
 
   return (
     <Layout title="Patient Profile" style={{padding: 0}}>
       <ScrollView contentContainerStyle={{paddingHorizontal: spacing.md}}>
         <View
-          style={{
-            padding: spacing.md,
-            borderWidth: 0.5,
-            borderRadius: 5,
-            borderColor: color.primary.light,
-          }}>
+          style={
+            contentType === 'colored'
+              ? {
+                  borderBottomColor: color.primary.light,
+                  paddingBottom: spacing.lg,
+                  paddingTop: spacing.md,
+                  borderBottomWidth: 0.5,
+                }
+              : {
+                  padding: spacing.md,
+                  borderWidth: 0.5,
+                  borderRadius: 5,
+                  borderColor: color.primary.light,
+                }
+          }>
           <View>
             <Text
               font="bold"

@@ -19,7 +19,9 @@
 	"devDependencies": {
 		"@types/cors": "^2.8.12",
 		"@types/express": "^4.17.13",
+		"@types/lodash": "^4.14.182",
 		"@types/node": "^17.0.21",
+		"@types/object-hash": "^2.2.1",
 		"@types/uuid": "^8.3.4",
 		"@types/ws": "^8.5.3",
 		"nodemon": "^2.0.15",
@@ -30,6 +32,8 @@
 		"cors": "^2.8.5",
 		"express": "^4.17.3",
 		"immer": "^9.0.12",
+		"lodash": "^4.17.21",
+		"object-hash": "^3.0.0",
 		"react-native-uuid": "^2.0.1",
 		"rxjs": "^7.5.4",
 		"sabertooth-core": "^0.2.1",

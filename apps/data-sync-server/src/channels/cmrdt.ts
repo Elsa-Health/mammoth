@@ -3,6 +3,8 @@ import { CRDTMessageBox, SBSet } from "sabertooth-core";
 import { WebSocket, WebSocketServer } from "ws";
 import { store } from "../server/store";
 
+import _ from "lodash";
+
 // SB State to log the messages
 const crdtx = new CRDTMessageBox();
 const crdtCollection = store.collection("cmrdt_messages_server");
@@ -14,6 +16,7 @@ crdtCollection
 	// @ts-ignore
 	.then((objs) => crdtx.merge(new SBSet(objs || [])));
 
+const tEnc = new TextEncoder();
 export default function (server: Server, path: string) {
 	const wss = new WebSocketServer({
 		path,
@@ -24,15 +27,23 @@ export default function (server: Server, path: string) {
 	//  super-node can login and make changes to the users allowed
 	//  to work with the network
 	wss.on("connection", (socket) => {
+		// const socketId = hash(
+		// 	_.omitBy(socket, (field) => {
+		// 		return typeof field !== "undefined";
+		// 	})
+		// );
+		// console.log("Sending to", socketId);
+
+		// console.log(crdtx.messages());
 		// when connected with the user, send the cached messages over to the new client
-		socket.send(Buffer.from(JSON.stringify(crdtx.messages())), {
-			binary: true,
-		});
+		socket.send(JSON.stringify(crdtx.messages()));
+
+		// socket.send(JSON.stringify([1, 2, 3, 4, 5]));
 
 		// shorten the data
 		crdtx.resolve();
 
-		socket.on("message", (crdtMessage) => {
+		socket.on("message", (crdtMessage, isBinary) => {
 			// Check message
 			const sbset = new SBSet(JSON.parse(crdtMessage.toString()));
 
@@ -42,8 +53,8 @@ export default function (server: Server, path: string) {
 
 			// CRDTx messages
 			// console.log(crdtx.messages());
-
 			// persist
+
 			crdtCollection.add(
 				crdtx.messages().map((d) => [undefined, d]) as [undefined, any]
 			);
@@ -51,8 +62,13 @@ export default function (server: Server, path: string) {
 			wss.clients.forEach((client) => {
 				if (client.readyState === WebSocket.OPEN) {
 					if (client !== socket) {
+						// @ts-ignore
+						// console.log("Sending message from socket", socketId);
+
 						// sending to other sockets
-						client.send(crdtMessage, { binary: true });
+						client.send(crdtMessage, {
+							binary: isBinary,
+						});
 					}
 				}
 			});

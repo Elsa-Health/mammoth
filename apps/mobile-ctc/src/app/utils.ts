@@ -2,6 +2,8 @@ import _ from 'lodash';
 import {useWindowDimensions} from 'react-native';
 import React from 'react';
 
+// import {IMessageEvent, w3cwebsocket as WebSocket} from 'websocket';
+
 /**
  * Calculates the patients age in years given years and months
  * @param years
@@ -110,17 +112,24 @@ export function useDeviceBreak() {
 
 export type NetworkStatus = 'offline' | 'connecting' | 'online' | 'error';
 
+function initWebsocket(url: string) {
+  const socket = new WebSocket(url);
+  // socket.binaryType = 'blob'; // 'blob' | 'arraybuffer'
+  return socket;
+}
 /**
- * WebSocket hook
+ * RN WebSocket hook
  */
 export function useWebSocket({
   url,
   onOpen,
   onMessage,
+  onData,
 }: {
   url: string;
   onOpen?: (socket: WebSocket) => void;
   onMessage?: (e: WebSocketMessageEvent) => void;
+  onData?: <T>(data: T) => void;
 }) {
   const [socket, setSocket] = React.useState<WebSocket | undefined>(
     () => undefined,
@@ -130,11 +139,14 @@ export function useWebSocket({
     'connecting',
   );
 
+  // const socketRef = React.useRef<WebSocket>(initWebsocket(url));
+
   React.useEffect(() => {
     if (socket === undefined) {
-      setSocket(new WebSocket(url));
+      setSocket(initWebsocket(url));
       setStatus('connecting');
     } else {
+      // const socket = socketRef.current;
       socket.onopen = () => {
         setStatus('online');
         onOpen?.(socket);
@@ -143,9 +155,12 @@ export function useWebSocket({
       socket.onmessage = e => {
         if (socket.readyState === WebSocket.OPEN) {
           onMessage?.(e);
+
+          if (e.data !== undefined) {
+            onData?.(JSON.parse(e.data));
+          }
         } else {
           if (socket.readyState !== WebSocket.CLOSED) {
-            // console.log("CLOSED... Reconnecting");
             setStatus('connecting');
           }
         }
@@ -157,6 +172,7 @@ export function useWebSocket({
 
       socket.onclose = () => {
         setStatus('offline');
+        socket.close();
         // console.log("Closed connection with CDRT WS.");
       };
     }
@@ -166,9 +182,12 @@ export function useWebSocket({
    * Reconnecting to the websocket server
    */
   const retry = React.useCallback(() => {
-    setSocket(new WebSocket(url));
+    socket?.close?.();
+    setSocket(initWebsocket(url));
+    // socketRef.current?.close();
+    // socketRef.current = initWebsocket(url);
     setStatus('connecting');
-  }, [url, setSocket, setStatus]);
+  }, [url, socket, setStatus]);
 
-  return {socket, retry, status};
+  return {socket: socket, retry, status};
 }

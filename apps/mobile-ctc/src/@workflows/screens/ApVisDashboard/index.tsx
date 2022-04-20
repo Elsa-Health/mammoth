@@ -403,8 +403,8 @@ export default function CTCDashboardScreen({
   {fullName: string; networkStatus?: NetworkStatus | undefined},
   {
     syncPushAllData: () => Promise<void>;
-    getUpcomingAppointments: () => Promise<CTC.Appointment[]>;
-    getMissedAppointments: () => Promise<CTC.Appointment[]>;
+    getRecentUpcomingAppointments: () => Promise<CTC.Appointment[]>;
+    getRecentMissedAppointments: () => Promise<CTC.Appointment[]>;
     searchPatientsById: (partialId: string) => Promise<CTC.Patient[]>;
     onRegisterPatientWithId: (patientId: string) => void;
     onAttendPatient: (appt: CTC.Appointment) => void;
@@ -451,15 +451,17 @@ export default function CTCDashboardScreen({
   const [grModal, setGrModal] = React.useState(false);
   const generateReport = async () => {
     closeMenu();
-    setGrModal(true);
-    try {
-      const filePath = await $.generateReport();
-      ToastAndroid.show('Report saved!', ToastAndroid.SHORT);
-    } catch (err) {
-      ToastAndroid.show(err.message, ToastAndroid.LONG);
-    } finally {
-      setGrModal(false);
-    }
+    ToastAndroid.show('You need to update the app!', ToastAndroid.SHORT);
+
+    // setGrModal(true);
+    // try {
+    //   const filePath = await $.generateReport();
+    //   ToastAndroid.show('Report saved!', ToastAndroid.SHORT);
+    // } catch (err) {
+    //   ToastAndroid.show(err.message, ToastAndroid.LONG);
+    // } finally {
+    //   setGrModal(false);
+    // }
   };
 
   return (
@@ -648,12 +650,14 @@ export default function CTCDashboardScreen({
             <>
               {/* Appointment Section */}
               <View style={{marginTop: DefaultSpacing.lg}}>
-                <MissedAppointmentsSection dataFn={$.getMissedAppointments} />
+                <MissedAppointmentsSection
+                  dataFn={$.getRecentMissedAppointments}
+                />
               </View>
               {/* Upcming Appointment Section */}
               <View style={{marginTop: DefaultSpacing.lg}}>
                 <UpcomingAppointmentSection
-                  dataFn={$.getUpcomingAppointments}
+                  dataFn={$.getRecentUpcomingAppointments}
                   onAttendPatient={$.onAttendPatient}
                 />
               </View>

@@ -20,6 +20,17 @@ import CTC from './CTC';
 import {NavigationContainer} from '@react-navigation/native';
 import produce from 'immer';
 
+import * as Sentry from '@sentry/react-native';
+
+// FIXME: Remove API key and secret
+Sentry.init({
+  dsn: 'https://6ca7254d249c4739b3db2cb7af62b796@o683972.ingest.sentry.io/5804165',
+  // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+  // We recommend adjusting this value in production.
+  // tracesSampleRate: 1.0,
+  tracesSampleRate: 0.5,
+});
+
 const authenticateQr =
   (
     onSuccess: (vals: {name: string; uid: string}) => void,
@@ -55,6 +66,16 @@ function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
     );
   }
 
+  React.useEffect(() => {
+    if (user !== undefined) {
+      if (!__DEV__) {
+        Sentry.setUser({
+          username: `[ctc-device-user]::${user.uid}`,
+        });
+      }
+    }
+  }, [user]);
+
   if (user === undefined) {
     return null;
   }
@@ -66,7 +87,7 @@ function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
   );
 }
 
-export default function App() {
+function App() {
   React.useEffect(() => {
     SplashScreen.hide();
   }, []);
@@ -92,3 +113,5 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
+export default __DEV__ ? App : Sentry.wrap(App);

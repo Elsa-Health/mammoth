@@ -29,6 +29,7 @@
     "@sentry/react-native": "^3.2.3",
     "@syncedstore/core": "^0.3.7",
     "@types/gun": "^0.9.3",
+    "@types/websocket": "^1.0.5",
     "automerge": "^1.0.1-preview.7",
     "axios": "^0.24.0",
     "buffer": "^6.0.3",
@@ -36,11 +37,8 @@
     "date-fns": "^2.28.0",
     "dayjs": "^1.10.7",
     "fuse.js": "^6.4.6",
-    "gun": "^0.2020.1236",
-    "gun-flint": "^0.0.28",
     "i18next": "^21.4.0",
     "immer": "^9.0.6",
-    "immer-yjs": "^0.1.4",
     "lodash": "^4.17.21",
     "react": "17.0.2",
     "react-i18next": "^11.13.0",
@@ -76,8 +74,6 @@
     "swr": "^1.2.2",
     "text-encoding": "^0.7.0",
     "uuid": "^8.3.2",
-    "y-websocket": "^1.4.0",
-    "yjs": "^13.5.33",
     "zustand": "^3.6.0"
   },
   "devDependencies": {

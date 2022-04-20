@@ -11,7 +11,7 @@ export function useWebSocket({
 	onMessage,
 }: {
 	url: string;
-	onMessage: (data: MessageEvent) => void;
+	onMessage?: (data: MessageEvent) => void;
 }) {
 	const [socket, setSocket] = React.useState<WebSocket | undefined>(
 		() => undefined
@@ -23,7 +23,9 @@ export function useWebSocket({
 
 	React.useEffect(() => {
 		if (socket === undefined) {
-			setSocket(new WebSocket(url));
+			const socket = new WebSocket(url);
+			// socket.binaryType = "arraybuffer";
+			setSocket(socket);
 			setStatus("connecting");
 		} else {
 			socket.onopen = () => {
@@ -32,7 +34,7 @@ export function useWebSocket({
 
 			socket.onmessage = (e) => {
 				if (socket.readyState === WebSocket.OPEN) {
-					onMessage(e);
+					onMessage?.(e);
 				} else {
 					if (socket.readyState !== WebSocket.CLOSED) {
 						// console.log("CLOSED... Reconnecting");
@@ -56,7 +58,9 @@ export function useWebSocket({
 	 * Reconnecting to the websocket server
 	 */
 	const retry = React.useCallback(() => {
-		setSocket(new WebSocket(url));
+		const socket = new WebSocket(url);
+		// socket.binaryType = "arraybuffer";
+		setSocket(socket);
 		setStatus("connecting");
 	}, [url, setSocket, setStatus]);
 

@@ -57,15 +57,38 @@ const Stack = createNativeStackNavigator();
 /**
  * Network Related Code
  */
-const wsURL_DEV = 'ws://7318-197-250-230-175.ngrok.io/channel/cmrdt';
+const wsURL_DEV = 'wss://2819-197-250-225-79.ngrok.io/channel/cmrdt';
 const wsURL_PROD = 'wss://ctc-bounce-server.herokuapp.com/channel/cmrdt';
 
 const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
 // const wsURL = wsURL_PROD;
-
 const pushMessagesOnSocket = (socket: WebSocket) => {
+  const crdt_messages = crdt.messages();
   // crdt.resolve();
-  socket.send(JSON.stringify(crdt.messages()));
+  socket.send(JSON.stringify(crdt_messages));
+};
+
+const pushRecordsAsMessagesOnSocket = <T,>(
+  socket: WebSocket,
+  collectionId: string,
+  data: [string, T][],
+) => {
+  // HACK: A way around uploading data as CRDT messages
+  const pushData = data.map(([id, patient]) => ({
+    state: {
+      // This is coded knowing about the structure of the data
+      op: {
+        type: 'update',
+        collectionId,
+        id,
+        partialValue: {},
+      },
+      result: patient,
+    },
+    timestamp: nxt(),
+  }));
+
+  socket.send(JSON.stringify(pushData));
 };
 
 type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'> & {
@@ -91,15 +114,12 @@ export default function CTCFlow({fullName}: {fullName: string}) {
       // Push messages
       pushMessagesOnSocket(socket);
     },
-    onMessage: ({data}) => {
+    onData: crdt_messages => {
       // merge the current CRDT messages with the remote
-      const _data = new Uint16Array(new ArrayBuffer(data));
-      const crdt_messages = Array.from(_data);
-      mergeWithRemote(crdt_messages);
 
+      mergeWithRemote(crdt_messages);
       // flatten the contents
       crdt.resolve();
-
       // sync with the storage
       sync();
     },
@@ -110,27 +130,6 @@ export default function CTCFlow({fullName}: {fullName: string}) {
       pushMessagesOnSocket(socket);
     }
   }, [socket]);
-
-  const pushRecordsAsMessages = React.useCallback(
-    <T,>(collectionId: string, data: [string, T][]) => {
-      // HACK: A way around uploading data as CRDT messages
-      const pushData = data.map(([id, patient]) => ({
-        state: {
-          op: {
-            type: 'update',
-            collectionId,
-            id,
-            partialValue: {},
-          },
-          result: patient,
-        },
-        timestamp: nxt(),
-      }));
-
-      socket?.send(JSON.stringify(pushData));
-    },
-    [socket],
-  );
 
   const [currentVisit, setCurrentVisit] = React.useState<Partial<CurrentVisit>>(
     {},
@@ -174,19 +173,24 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               generateReport,
               onRetrySyncServer: retry,
               syncPushAllData: async () => {
-                // Syncronize
-                pushRecordsAsMessages(
-                  'patients',
-                  await cPatientsRef.queryMultiple(),
-                );
-                pushRecordsAsMessages(
-                  'visits',
-                  await cVisitsRef.queryMultiple(),
-                );
-                pushRecordsAsMessages(
-                  'appointments',
-                  await cAppointRef.queryMultiple(),
-                );
+                if (socket !== undefined) {
+                  // Syncronize
+                  pushRecordsAsMessagesOnSocket(
+                    socket,
+                    'patients',
+                    await cPatientsRef.queryMultiple(),
+                  );
+                  pushRecordsAsMessagesOnSocket(
+                    socket,
+                    'visits',
+                    await cVisitsRef.queryMultiple(),
+                  );
+                  pushRecordsAsMessagesOnSocket(
+                    socket,
+                    'appointments',
+                    await cAppointRef.queryMultiple(),
+                  );
+                }
               },
               loadPatients: async () => [],
               searchPatientsById: async (partialId: string) => {
@@ -208,9 +212,10 @@ export default function CTCFlow({fullName}: {fullName: string}) {
                   }
                 });
               },
-              getMissedAppointments: async () => await fetchMissedAppointment(),
-              getUpcomingAppointments: async () =>
-                await fetchUpcomingAppointments(),
+              getRecentMissedAppointments: async () =>
+                (await fetchMissedAppointment()).slice(0, 3),
+              getRecentUpcomingAppointments: async () =>
+                (await fetchUpcomingAppointments()).slice(0, 3),
               onRegisterPatientWithId: patientId => {
                 navigation.navigate('ctc.register_patient', {patientId});
               },
@@ -310,7 +315,8 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               onNewPatient: () => navigation.navigate('ctc.register_patient'),
               onSyncPushPatientList: patients => {
                 // Send patients data to server
-                pushRecordsAsMessages(
+                pushRecordsAsMessagesOnSocket(
+                  socket,
                   'patients',
                   patients.map(({id, ...patients}) => [id, patients]),
                 );

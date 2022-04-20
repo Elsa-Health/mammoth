@@ -20,7 +20,26 @@ const CRDT_SOCKET_PATH = "/channel/cmrdt";
 // Add ws for working with State-based CDRTs
 channelCmrdt(server, CRDT_SOCKET_PATH);
 
+// import { WebSocketServer } from "ws";
+// const sampleWs = new WebSocketServer({
+// 	path: "/sample/ws",
+// 	server,
+// });
+
+// sampleWs.on("connection", (socket) => {
+// 	socket.send(new Uint16Array(Buffer.from(JSON.stringify([1234, 343434]))), {
+// 		binary: true,
+// 	});
+// 	socket.send(JSON.stringify([1234, 343434]));
+// 	socket.send([1234, 343434]);
+// 	socket.on("message", (data) => {
+// 		// Something
+// 		console.log("Received", data);
+// 	});
+// });
+
 server.listen(PORT, () => {
 	console.log(`Server listening on port ${PORT}`);
 	console.log(`crdt ws listening at ${CRDT_SOCKET_PATH}`);
+	// console.log(`Dev ws listening at ${"/sample/ws"}`);
 });
