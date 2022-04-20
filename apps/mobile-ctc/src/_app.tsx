@@ -53,6 +53,16 @@ function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
   // TODO: Set up such that the types match with the workflow -> UserObject
   const setUser = useApplication(s => s.login);
 
+  React.useEffect(() => {
+    if (user !== undefined) {
+      if (!__DEV__) {
+        Sentry.setUser({
+          username: `[ctc-device-user]::${user.uid}`,
+        });
+      }
+    }
+  }, [user]);
+
   if (!isLogin) {
     return (
       <QRLogin
@@ -65,16 +75,6 @@ function _Application({isLogin, user}: {isLogin: boolean; user?: AppUser}) {
       />
     );
   }
-
-  React.useEffect(() => {
-    if (user !== undefined) {
-      if (!__DEV__) {
-        Sentry.setUser({
-          username: `[ctc-device-user]::${user.uid}`,
-        });
-      }
-    }
-  }, [user]);
 
   if (user === undefined) {
     return null;
