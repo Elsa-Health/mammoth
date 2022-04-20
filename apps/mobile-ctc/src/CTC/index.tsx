@@ -14,6 +14,7 @@ import CTCPatientIntakeScreenGroup from '../@workflows/screen-groups/CTCPatientI
 import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
 import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAssessmentSummary';
 
+import AssessmentSummary from './screens/AssessmentSummary';
 import PatientVisitScreen from './screens/PatientVisit';
 import PatientProfileScreen from './screens/PatientProfile';
 
@@ -116,7 +117,6 @@ export default function CTCFlow({fullName}: {fullName: string}) {
     },
     onData: crdt_messages => {
       // merge the current CRDT messages with the remote
-
       mergeWithRemote(crdt_messages);
       // flatten the contents
       crdt.resolve();
@@ -160,7 +160,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
     <>
       <Stack.Navigator
         screenOptions={{headerShown: false}}
-        // initialRouteName="ctc.patients"
+        // initialRouteName={__DEV__ ? 'ctc.assessment_summary' : undefined}
       >
         <Stack.Screen
           name="ctc.dashboard"
@@ -315,11 +315,13 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               onNewPatient: () => navigation.navigate('ctc.register_patient'),
               onSyncPushPatientList: patients => {
                 // Send patients data to server
-                pushRecordsAsMessagesOnSocket(
-                  socket,
-                  'patients',
-                  patients.map(({id, ...patients}) => [id, patients]),
-                );
+                if (socket !== undefined) {
+                  pushRecordsAsMessagesOnSocket(
+                    socket,
+                    'patients',
+                    patients.map(({id, ...patients}) => [id, patients]),
+                  );
+                }
               },
               onViewPatientProfile: patient => {
                 navigation.navigate('ctc.patientProfile', {patient});
@@ -492,7 +494,10 @@ export default function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.patientProfile"
           component={withFlowContext(PatientProfileScreen, {
             actions: ({navigation}) => ({
-              onNewPatientVisit: visit => {
+              onNewPatientVisit: patient => {
+                navigation.navigate('ctc.patient_intake', {patient});
+              },
+              onViewPatientVisit: visit => {
                 navigation.navigate('ctc.view_patient_visit', {visit});
               },
               getPatientAppointments: fetchAppointmentsFromPatientId,

@@ -451,17 +451,17 @@ export default function CTCDashboardScreen({
   const [grModal, setGrModal] = React.useState(false);
   const generateReport = async () => {
     closeMenu();
-    ToastAndroid.show('You need to update the app!', ToastAndroid.SHORT);
+    // ToastAndroid.show('You need to update the app!', ToastAndroid.SHORT);
 
-    // setGrModal(true);
-    // try {
-    //   const filePath = await $.generateReport();
-    //   ToastAndroid.show('Report saved!', ToastAndroid.SHORT);
-    // } catch (err) {
-    //   ToastAndroid.show(err.message, ToastAndroid.LONG);
-    // } finally {
-    //   setGrModal(false);
-    // }
+    setGrModal(true);
+    try {
+      const filePath = await $.generateReport();
+      ToastAndroid.show('Report saved!', ToastAndroid.SHORT);
+    } catch (err) {
+      ToastAndroid.show(err.message, ToastAndroid.LONG);
+    } finally {
+      setGrModal(false);
+    }
   };
 
   return (

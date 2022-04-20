@@ -229,9 +229,9 @@ export function Picker<T>(props: {
   selectedKey?: string;
   items: T[];
   label?: string;
-  uniqueKey: (item: T) => string;
+  uniqueKey?: (item: T) => string;
   renderText?: (item: T) => string;
-  onChangeValue: (itemKey: string) => void;
+  onChangeValue?: (itemKey: string) => void;
 }) {
   return (
     <SectionedSelect
@@ -249,8 +249,8 @@ export function Picker<T>(props: {
       ]}
       uniqueKey="id"
       onSelectedItemsChange={items => {
-        console.log('==>', items);
-        props.onChangeValue(items[0]);
+        // console.log('==>', items);
+        props.onChangeValue?.(items[0]);
       }}
       selectedItems={
         props.selectedKey !== undefined ? [props.selectedKey] : undefined

@@ -86,7 +86,8 @@ export default function PatientProfileScreen({
 }: WorkflowScreen<
   {patient: CTC.Patient},
   {
-    onNewPatientVisit: (visit: CTC.Visit) => void;
+    onNewPatientVisit: (patient: CTC.Patient) => void;
+    onViewPatientVisit: (visit: CTC.Visit) => void;
     getPatientAppointments: (patientId: string) => Promise<CTC.Appointment[]>;
     getPatientVisits: (patientId: string) => Promise<CTC.Visit[]>;
   }
@@ -96,7 +97,10 @@ export default function PatientProfileScreen({
 
   return (
     <Layout title="Patient Profile" style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{paddingHorizontal: spacing.md}}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: spacing.md,
+        }}>
         <View
           style={
             contentType === 'colored'
@@ -146,7 +150,10 @@ export default function PatientProfileScreen({
             marginVertical: spacing.sm,
             paddingVertical: spacing.md,
           }}>
-          <Button icon="account" mode="contained">
+          <Button
+            onPress={() => $.onNewPatientVisit(patient)}
+            icon="account"
+            mode="contained">
             New Visit
           </Button>
         </View>
@@ -272,7 +279,7 @@ export default function PatientProfileScreen({
                   <Button
                     mode="outlined"
                     style={{marginVertical: 8}}
-                    onPress={() => $.onNewPatientVisit(visit)}>
+                    onPress={() => $.onViewPatientVisit(visit)}>
                     View Visit
                   </Button>
                 </View>
