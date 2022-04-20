@@ -64,13 +64,15 @@ export default function Analytics() {
 		url: wsURL,
 		onMessage: (e) => {
 			// @ts-ignore
-			e.data.text().then((text) => {
-				const vals = JSON.parse(text);
-				// crdt.resolve();
-				mergeOther(vals || []);
-				sync();
-				console.log(">", vals);
-			});
+			// e.data.text().then((text) => {
+			const vals = JSON.parse(e.data);
+			console.log(">", vals);
+			// const vals = JSON.parse(text);
+			mergeOther(vals || []);
+			sync();
+			crdt.resolve();
+			console.log("Received and Merged!");
+			// });
 
 			// e.data.text().then((text: string) => {
 			// 	const out = JSON.parse(text);
@@ -126,10 +128,6 @@ export default function Analytics() {
 							<h2>Total</h2>
 							<label>{patients.length}</label>
 						</div>
-						<div>
-							<h2>Total</h2>
-							<label>{patients.length}</label>
-						</div>
 					</div>
 				</div>
 				<div>
@@ -146,6 +144,15 @@ export default function Analytics() {
 									.map(([fid, pts]) => `${fid}:${pts.length}`)
 									.join(", ")}
 							</label>
+						</div>
+					</div>
+				</div>
+				<div>
+					<h2 className="text-2xl font-bold">Visits</h2>
+					<div className="grid grid-cols-3">
+						<div>
+							<h2>Total</h2>
+							<label>{visits.length}</label>
 						</div>
 					</div>
 				</div>
