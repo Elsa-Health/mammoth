@@ -210,9 +210,11 @@ function UpcomingAppointmentSection({
 function Patient({
   data: {id, registeredDate},
   onNewVisit,
+  onViewProfile,
 }: {
   data: CTC.Patient;
   onNewVisit: () => void;
+  onViewProfile: () => void;
 }) {
   return (
     <View style={{paddingVertical: 12}}>
@@ -266,9 +268,9 @@ function Patient({
         </Button>
         <Button
           style={{flex: 1, marginLeft: 8}}
-          icon="pencil"
-          onPress={() => console.log('Edit Profile')}>
-          Edit Profile
+          icon="file"
+          onPress={onViewProfile}>
+          View Profile
         </Button>
       </View>
     </View>
@@ -280,10 +282,12 @@ function SearchPatientSection({
   onClear,
   onRegisterPatient,
   onNewPatientVisit,
+  onViewPatientProfile,
 }: {
   data: CTC.Patient[];
   onClear: () => void;
   onNewPatientVisit: (patient: CTC.Patient) => void;
+  onViewPatientProfile: (patient: CTC.Patient) => void;
   onRegisterPatient: () => void;
 }) {
   return (
@@ -306,7 +310,11 @@ function SearchPatientSection({
       ) : (
         data.map(d => (
           <View key={d.id}>
-            <Patient data={d} onNewVisit={() => onNewPatientVisit(d)} />
+            <Patient
+              data={d}
+              onViewProfile={() => onViewPatientProfile(d)}
+              onNewVisit={() => onNewPatientVisit(d)}
+            />
           </View>
         ))
       )}
@@ -410,6 +418,7 @@ export default function CTCDashboardScreen({
     onAttendPatient: (appt: CTC.Appointment) => void;
     onPatientList: () => void;
     onNewPatientVisit: (patient: CTC.Patient) => void;
+    onViewPatientProfile: (patient: CTC.Patient) => void;
     onNewPatient: () => void;
     generateReport: () => Promise<void>;
     onRetrySyncServer: () => void;
@@ -642,6 +651,7 @@ export default function CTCDashboardScreen({
               <SearchPatientSection
                 data={patients}
                 onNewPatientVisit={$.onNewPatientVisit}
+                onViewPatientProfile={$.onViewPatientProfile}
                 onClear={() => setSearchQuery('')}
                 onRegisterPatient={() => $.onRegisterPatientWithId(searchQuery)}
               />

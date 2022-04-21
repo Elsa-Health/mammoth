@@ -45,8 +45,8 @@ const buildAppStore =
     create<AppState>(
       // persist(
       (set, get) => ({
-        user: undefined,
-        // user: __DEV__ ? {uid: 'kevin-james', name: 'Juma Michael'} : undefined,
+        // user: undefined,
+        user: __DEV__ ? {uid: 'kevin-james', name: 'Juma Michael'} : undefined,
         settings: {
           lang: __DEV__ ? 'en' : undefined,
         },

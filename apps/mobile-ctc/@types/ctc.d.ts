@@ -74,9 +74,11 @@ declare namespace CTC {
         appointmentDate: Date | undefined;
       };
       nextSteps: CTC.NextStepsObject;
-      riskNonAdherence: number;
       investigations: CTC.Test[];
       medicationInfo: HIVDispenseMedication<Medication.All>;
+    };
+    investigations: {
+      [key in Investigation]?: any;
     };
   };
 

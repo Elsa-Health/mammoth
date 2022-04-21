@@ -147,6 +147,7 @@ export default function CTCRegisterNewPatientScreen({
   });
 
   const [ctcX, setSelectCTC] = React.useState<string>(CTCValues[0][0]);
+
   React.useEffect(() => {
     const facilityId = CTCCodeMap[ctcX] as string;
     changeValue('patientId')(facilityId);

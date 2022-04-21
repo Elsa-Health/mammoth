@@ -13,9 +13,29 @@ type P = Omit<CTC.Patient, 'id'>;
 export const cPatientsRef = emr.collection('patients');
 export const cVisitsRef = emr.collection('visits');
 export const cAppointRef = emr.collection('appointments');
+export const cInvsRef = emr.collection('investigations');
+
+type InvRef = {
+  inv: string;
+  ix: number;
+  visitId: string;
+};
+
+export function invStrigify(v: InvRef): string {
+  return `investigation:${v.inv}:${v.ix}:${v.visitId}`;
+}
+
+export function invParse(s: string): InvRef {
+  const [, inv, ix, visitId] = s.split(':');
+  return {
+    inv,
+    ix: parseInt(ix),
+    visitId,
+  };
+}
 
 export async function getPatient(patientId: string) {
-  const doc = await cPatientsRef.queryDoc<Omit<CTC.Patient, 'id'>>({
+  const doc = await cPatientsRef.queryDoc({
     $id: {$eq: patientId},
   });
 
@@ -27,8 +47,19 @@ export async function getPatient(patientId: string) {
   return null;
 }
 
+export async function getInvestigation(id: string) {
+  const s = await cInvsRef.query({$id: id});
+
+  if (s === null) {
+    return null;
+  }
+
+  const [$id, out] = s;
+  return [$id, out];
+}
+
 export async function savePatient(patient: P, patientId: string | undefined) {
-  const id = await cPatientsRef.addDoc<P>(
+  const id = await cPatientsRef.addDoc(
     patientId !== undefined
       ? {$id: patientId, ...patient, registeredDate: new Date().toUTCString()}
       : patient,

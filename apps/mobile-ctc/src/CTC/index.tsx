@@ -14,6 +14,8 @@ import CTCPatientIntakeScreenGroup from '../@workflows/screen-groups/CTCPatientI
 import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
 import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAssessmentSummary';
 
+import InvestigationResultsFormScreen from '../@workflows/screens/InvestigationResultsForm';
+
 import AssessmentSummary from './screens/AssessmentSummary';
 import PatientVisitScreen from './screens/PatientVisit';
 import PatientProfileScreen from './screens/PatientProfile';
@@ -35,8 +37,8 @@ import {
   savePatient,
   fetchMissedAppointmentsFromPatientId,
   fetchAppointmentsFromPatientId,
-  fetchAppointments,
-  fetchVisits,
+  getInvestigation,
+  cInvsRef,
 } from './fns';
 
 import {format} from 'date-fns';
@@ -48,6 +50,7 @@ import {useWebSocket} from '../app/utils';
 import {ToastAndroid} from 'react-native';
 
 import {generateReport} from './misc';
+import {Investigation} from '@elsa-health/data-fns/lib';
 
 /**
  * Generate Report
@@ -63,6 +66,7 @@ const wsURL_PROD = 'wss://ctc-bounce-server.herokuapp.com/channel/cmrdt';
 
 const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
 // const wsURL = wsURL_PROD;
+
 const pushMessagesOnSocket = (socket: WebSocket) => {
   const crdt_messages = crdt.messages();
   // crdt.resolve();
@@ -222,6 +226,9 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               onNewPatientVisit: patient => {
                 navigation.navigate('ctc.patient_intake', {patient});
               },
+              onViewPatientProfile: patient => {
+                navigation.navigate('ctc.patient_profile', {patient});
+              },
               onNewPatient: () => {
                 navigation.navigate('ctc.register_patient');
               },
@@ -324,7 +331,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
                 }
               },
               onViewPatientProfile: patient => {
-                navigation.navigate('ctc.patientProfile', {patient});
+                navigation.navigate('ctc.patient_profile', {patient});
               },
               getPatients: async () => await fetchPatients(),
               searchPatientsById: async (partialId: string) => {
@@ -372,7 +379,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
             },
             actions: ({navigation}) => ({
               onCancel: () => {
-                navigation.navigate('ctc.dashboard');
+                navigation.goBack();
               },
               onCompleteAssessment: (data, elsa_differentials) => {
                 updateCurrentVisit('symptomAssessment', () => {
@@ -391,6 +398,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
           component={withFlowContext(HIVAdherenceAssessmentScreen, {
             actions: ({navigation}) => ({
               onCompleteAdherence: adhrence => {
+                console.log({adhrence});
                 const {forgottenCount, ...other} = adhrence;
                 updateCurrentVisit('adherenceAssessment', () => {
                   navigation.navigate('ctc.assessment_summary');
@@ -404,19 +412,23 @@ export default function CTCFlow({fullName}: {fullName: string}) {
         />
         <Stack.Screen
           name="ctc.assessment_summary"
-          component={withFlowContext(CTCAssessmentSummaryScreenGroup, {
+          component={withFlowContext(AssessmentSummary, {
             entry: {
-              condition:
-                currentVisit.symptomAssessment?.elsa_differentials?.[0].id,
-              conditionValuePairs: (
-                currentVisit.symptomAssessment?.elsa_differentials || []
-              )
-                .map(cx => [
-                  cx.id,
-                  // Round to 2 d.p.
-                  Math.round((cx.p + Number.EPSILON) * 100) / 100,
-                ])
-                .slice(0, 3),
+              value: {
+                summary: {
+                  condition:
+                    currentVisit.symptomAssessment?.elsa_differentials?.[0]?.id,
+                  conditionValuePairs: (
+                    currentVisit.symptomAssessment?.elsa_differentials || []
+                  )
+                    .map(cx => [
+                      cx.id,
+                      // Round to 2 d.p.
+                      Math.round((cx.p + Number.EPSILON) * 100) / 100,
+                    ])
+                    .slice(0, 3),
+                },
+              },
               // [
               //   ['cryptococcal-meningitis', 0.8],
               //   ['asthma', 0.5],
@@ -424,16 +436,28 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               // ],
             },
             actions: ({navigation}) => ({
+              onCancel: () => {
+                ToastAndroid.show('Cancelled', ToastAndroid.LONG);
+              },
               onConclude: data => {
                 // console.log('Conclude App', data);
                 updateCurrentVisit('assessmentSummary', async final => {
                   try {
-                    const {appointment} = final;
+                    const {appointment, assessmentSummary} = final;
                     const appointmentDate =
                       final.assessmentSummary.summary?.appointmentDate?.toString();
                     if (appointmentDate) {
                       const visitId = await cVisitsRef.addDoc({
                         ...final,
+                        investigations: assessmentSummary.investigations.map(
+                          inv => {
+                            return {
+                              obj: Investigation.fromKey(inv),
+                              investigationId: inv,
+                              result: undefined,
+                            };
+                          },
+                        ),
                         dateTime: new Date(),
                       });
 
@@ -491,7 +515,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
           })}
         />
         <Stack.Screen
-          name="ctc.patientProfile"
+          name="ctc.patient_profile"
           component={withFlowContext(PatientProfileScreen, {
             actions: ({navigation}) => ({
               onNewPatientVisit: patient => {
@@ -509,7 +533,53 @@ export default function CTCFlow({fullName}: {fullName: string}) {
         />
         <Stack.Screen
           name="ctc.view_patient_visit"
-          component={withFlowContext(PatientVisitScreen)}
+          component={withFlowContext(PatientVisitScreen, {
+            actions: ({navigation}) => ({
+              onViewUpdateInvestigation: (id, data, err) => {
+                ToastAndroid.show(
+                  `View Investigation: ${id}`,
+                  ToastAndroid.LONG,
+                );
+                navigation.navigate('ctc.view_investigation', {
+                  investigation: {
+                    id,
+                    ...data,
+                  },
+                  result: data.result,
+                });
+              },
+              getInvestigation,
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.view_investigation"
+          component={withFlowContext(InvestigationResultsFormScreen, {
+            actions: ({navigation}) => ({
+              onClose: () => {},
+              onUpdateInvestigation: (id, data) => {
+                console.log({id, data});
+
+                // set the document
+                cInvsRef
+                  .doc(id)
+                  .set(data)
+                  .then(() => {
+                    ToastAndroid.show(
+                      'Investigation updated',
+                      ToastAndroid.SHORT,
+                    );
+                    navigation.goBack();
+                  })
+                  .catch(() => {
+                    ToastAndroid.show(
+                      'Unable to update investigation',
+                      ToastAndroid.LONG,
+                    );
+                  });
+              },
+            }),
+          })}
         />
       </Stack.Navigator>
       <Portal>

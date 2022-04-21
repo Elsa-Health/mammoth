@@ -9,10 +9,17 @@ import {ScrollView, useWindowDimensions, View, ViewProps} from 'react-native';
 
 import {useTheme} from '../../../@libs/elsa-ui/theme';
 import {WorkflowScreen} from '../../../@workflows';
-import {CTC, Condition, Medication} from '@elsa-health/data-fns';
+import {CTC, Condition, Medication, Investigation} from '@elsa-health/data-fns';
 import {BarChart} from 'react-native-chart-kit';
 
-import {Button, Divider, IconButton, TextInput} from 'react-native-paper';
+import {
+  Button,
+  Divider,
+  IconButton,
+  TextInput,
+  Checkbox,
+  HelperText,
+} from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {format} from 'date-fns';
 import produce from 'immer';
@@ -36,25 +43,29 @@ export type AssessmentSummaryData = {
   summary: CTCAssessmentData;
   nextSteps: CTC.NextStepsObject;
   //   riskNonAdherence: number;
-  investigations: CTC.Test[];
+  investigations: Investigation[];
   medicationInfo: HIVDispenseMedication<Medication.All>;
 };
 type Disease = Condition | CTC.Condition;
 
 const getMedicationList = () =>
   Medication.all.pairs().map(([m, v]) => ({id: m, name: v}));
-const getMedicationText = Medication.all.fromKey;
 
+const checkHasNextSteps = (condition: Disease) =>
+  CTC.nextSteps.keys().includes(condition);
+
+type SetterValue<T> = T | ((prev: T) => T);
 export default function AssessmentSummaryScreen({
-  entry: {value: initialValue},
+  entry: {value: initialValue, recommendedTests},
   actions: $,
 }: WorkflowScreen<
   {
+    recommendedTests: CTC.Test[] | undefined;
     value: Partial<AssessmentSummaryData>;
   },
   {
+    onCancel: () => void;
     onConclude: (data: AssessmentSummaryData) => void;
-    checkHasNextSteps: (disease: Disease) => boolean;
   }
 >) {
   const {spacing} = useTheme();
@@ -86,33 +97,68 @@ export default function AssessmentSummaryScreen({
       });
     });
   });
+
   const [showApptDate, setShowApptDate] = React.useState(false);
 
   const data = state.summary;
+  const showRecommendedTests = (recommendedTests?.length || 0) > 0;
+
   const {treatments, status} = state.nextSteps;
   const hasNextSteps = React.useMemo(
     () =>
-      data.condition !== undefined
-        ? $.checkHasNextSteps(data.condition)
-        : false,
-    [data, $.checkHasNextSteps],
+      data.condition !== undefined ? checkHasNextSteps(data.condition) : false,
+    [data, checkHasNextSteps],
   );
 
-  const setter =
-    <
-      K extends keyof AssessmentSummaryData,
-      K2 extends keyof AssessmentSummaryData[K],
-    >(
-      field: K,
-      sub: K2,
-    ) =>
-    (value: AssessmentSummaryData[K][K2]) => {
+  const setter = <
+    K extends keyof AssessmentSummaryData,
+    K2 extends keyof AssessmentSummaryData[K],
+  >(
+    field: K,
+    sub?: K2,
+  ) => {
+    type AK = AssessmentSummaryData[K][K2];
+    type A = AssessmentSummaryData[K];
+
+    return (value: SetterValue<AK> | SetterValue<A>) => {
       set(s =>
         produce(s, df => {
-          df[field][sub] = value;
+          if (typeof value === 'function') {
+            if (sub !== undefined) {
+              df[field][sub] = value(df[field][sub] as AK);
+            } else {
+              df[field] = value(df[field]) as A;
+            }
+          } else {
+            if (sub !== undefined) {
+              df[field][sub] = value as AK;
+            } else {
+              df[field] = value as A;
+            }
+          }
         }),
       );
     };
+  };
+
+  const setInvestigation = React.useCallback((inv: I) => {
+    setter('investigations')(s =>
+      produce(s, df => {
+        const invIndex = df.findIndex(s => s === inv);
+        if (invIndex > -1) {
+          df.splice(invIndex, 1);
+        } else {
+          // add
+          // @ts-ignore
+          df.push(inv);
+        }
+      }),
+    );
+  }, []);
+
+  const dateInputError = () => {
+    return state.summary.appointmentDate === undefined;
+  };
 
   return (
     <Layout style={{padding: 0}}>
@@ -125,6 +171,55 @@ export default function AssessmentSummaryScreen({
               values={data.conditionValuePairs}
             />
           )}
+        {/* Appointment Date */}
+        <View style={{marginTop: 8}}>
+          <Text font="bold">Please set the next appointment date</Text>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 4,
+            }}>
+            <View style={{flex: 1}}>
+              <TextInput
+                value={
+                  data.appointmentDate !== undefined
+                    ? format(data.appointmentDate, 'MMMM dd, yyyy')
+                    : undefined
+                }
+                mode="outlined"
+                label="Next Appointment Date"
+                onPressIn={() => setShowApptDate(s => !s)}
+                showSoftInputOnFocus={false}
+                style={{flex: 1}}
+                onChange={null}
+              />
+              <HelperText type="error" visible={dateInputError()}>
+                This is required
+              </HelperText>
+            </View>
+
+            <IconButton
+              icon="calendar-month"
+              color={'#555'}
+              size={24}
+              onPress={() => setShowApptDate(s => !s)}
+            />
+          </View>
+
+          {showApptDate && (
+            <DateTimePicker
+              display="calendar"
+              minimumDate={new Date()}
+              value={data.appointmentDate || new Date()}
+              onChange={(e, date) => {
+                setShowApptDate(false);
+                setter('summary', 'appointmentDate')(date);
+              }}
+            />
+          )}
+        </View>
 
         {hasNextSteps && (
           <>
@@ -147,7 +242,7 @@ export default function AssessmentSummaryScreen({
             <Text>This shows likelihood of non-adherence</Text>
             <View>
               <Text>
-                Risk of Non-adherence:{' '}
+                Risk of Non-Adherence:
                 <Text font="bold">
                   {`${(data.riskNonAdherence * 100).toFixed(1)}`}%
                 </Text>
@@ -155,51 +250,6 @@ export default function AssessmentSummaryScreen({
             </View>
           </Section>
         )}
-
-        {/* Appointment Date */}
-        <View>
-          <Text font="medium">Please set the next appointment date</Text>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 4,
-            }}>
-            <TextInput
-              value={
-                data.appointmentDate !== undefined
-                  ? format(data.appointmentDate, 'MMMM dd, yyyy')
-                  : undefined
-              }
-              mode="outlined"
-              label="Next Appointment Date"
-              onPressIn={() => setShowApptDate(s => !s)}
-              showSoftInputOnFocus={false}
-              style={{flex: 1}}
-              onChange={null}
-            />
-
-            <IconButton
-              icon="calendar-month"
-              color={'#555'}
-              size={24}
-              onPress={() => setShowApptDate(s => !s)}
-            />
-          </View>
-
-          {showApptDate && (
-            <DateTimePicker
-              display="calendar"
-              minimumDate={new Date()}
-              value={data.appointmentDate || new Date()}
-              onChange={(e, date) => {
-                setShowApptDate(false);
-                setter('summary', 'appointmentDate')(date);
-              }}
-            />
-          )}
-        </View>
 
         {/* <------- Medication section ------> */}
         <Section title="Medications Recommendations">
@@ -232,7 +282,7 @@ export default function AssessmentSummaryScreen({
               confirmText={'Confirm'}
               items={[
                 {
-                  name: 'Investigations',
+                  name: 'Medications',
                   id: 1,
                   children: getMedicationList(),
                 },
@@ -245,7 +295,7 @@ export default function AssessmentSummaryScreen({
             />
           </View>
         </Section>
-        <Section title="ARV Recommendations" style={{marginVertical: 8}}>
+        <Section title="ARV Recommendations" style={{marginTop: 8}}>
           {status !== undefined && (
             <>
               <Text style={{lineHeight: 20, marginBottom: spacing.md}}>
@@ -257,7 +307,7 @@ export default function AssessmentSummaryScreen({
               <Divider />
             </>
           )}
-          <View style={{marginVertical: spacing.md}}>
+          <View>
             <Text>What decision is made about the patient ARVs?</Text>
             <Picker
               label="Reasons"
@@ -282,14 +332,79 @@ export default function AssessmentSummaryScreen({
                   onChangeValue={setter('medicationInfo', 'reason')}
                   items={CTC.status.reason.fromKey(state.medicationInfo.status)}
                 />
-                {/* <Text>{CTC.status.reason.fromKey(state.status).join(', ')}</Text> */}
               </View>
             )}
         </Section>
+        {/* <------- Order Investigations ------> */}
+        <Section title="Order Investigations">
+          {showRecommendedTests && (
+            <>
+              <Text font="bold" style={{paddingVertical: 12}}>
+                Recommended Tests
+              </Text>
+              <Text>It is recommended that you order the following tests:</Text>
+              <View>
+                {recommendedTests?.map(inv => (
+                  <Checkbox.Item
+                    key={inv}
+                    label={getInvestigationText(inv)}
+                    status={
+                      state.investigations.includes(inv)
+                        ? 'checked'
+                        : 'unchecked'
+                    }
+                    onPress={() => setInvestigation(inv)}
+                  />
+                ))}
+              </View>
+            </>
+          )}
+          <View>
+            <Text>Select the tests to order for the patients</Text>
+            <SectionedSelect
+              confirmText={'Confirm'}
+              items={[
+                {
+                  name: 'Investigations',
+                  id: 1,
+                  children: getInvestigationList(),
+                },
+              ]}
+              uniqueKey="id"
+              searchPlaceholderText={'Search Investigations'}
+              selectText={'Search'}
+              onSelectedItemsChange={setter('investigations')}
+              selectedItems={state.investigations}
+            />
+          </View>
+        </Section>
+        <View style={{marginVertical: spacing.md}}>
+          <View style={{marginVertical: spacing.sm}}>
+            <Text color="#555" size={14}>
+              {"To finalize the form, press the 'Conclude' Button below"}
+            </Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Button onPress={$.onCancel} mode="outlined" style={{flex: 1}}>
+              Discard
+            </Button>
+            <Button
+              mode="contained"
+              disabled={!(state.summary.appointmentDate !== undefined)}
+              style={{flex: 2, marginLeft: 4}}
+              onPress={() => $.onConclude(state)}>
+              Conclude
+            </Button>
+          </View>
+        </View>
       </ScrollView>
     </Layout>
   );
 }
+
+const getInvestigationText = (inv: CTC.Test) => CTC.test.fromKey(inv);
+const getInvestigationList = () =>
+  Investigation.name.pairs().map(([k, v]) => ({id: k, name: v}));
 
 const getConditionText = (cond: Disease | string) =>
   Condition.fromKey(cond as Condition) ||
@@ -369,10 +484,10 @@ function Section({
   const {spacing} = useTheme();
 
   return (
-    <View style={[style, {marginVertical: spacing.md}]}>
+    <View style={[{marginVertical: spacing.xs}, style]}>
       {title && (
         <>
-          <Text font="medium" size={'lg'} style={{marginBottom: 8}}>
+          <Text font="medium" size={17} style={{marginBottom: 8}}>
             {title}
           </Text>
           <Divider />
