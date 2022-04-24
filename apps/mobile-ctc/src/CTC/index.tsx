@@ -12,10 +12,10 @@ import CTCPatientsScreen from '../@workflows/screens/ViewPatients';
 
 import CTCPatientIntakeScreenGroup from '../@workflows/screen-groups/CTCPatientIntake';
 import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
-import CTCAssessmentSummaryScreenGroup from '../@workflows/screen-groups/CTCAssessmentSummary';
 
 import InvestigationResultsFormScreen from '../@workflows/screens/InvestigationResultsForm';
 
+import DoctorSymptomAssessmentScreen from './screens/DoctorSymptomAssessment';
 import AssessmentSummary from './screens/AssessmentSummary';
 import PatientVisitScreen from './screens/PatientVisit';
 import PatientProfileScreen from './screens/PatientProfile';
@@ -159,6 +159,10 @@ export default function CTCFlow({fullName}: {fullName: string}) {
       },
     [setCurrentVisit],
   );
+
+  // React.useEffect(() => {
+  //   console.log('&', currentVisit);
+  // }, [currentVisit]);
 
   return (
     <>
@@ -384,10 +388,31 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               onCompleteAssessment: (data, elsa_differentials) => {
                 updateCurrentVisit('symptomAssessment', () => {
                   // console.log({data, elsa_differentials});
-                  navigation.navigate('ctc.adherence_assessment');
+                  navigation.navigate('ctc.doctor_symptom_assessment');
                 })({
                   data,
                   elsa_differentials,
+                });
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.doctor_symptom_assessment"
+          component={withFlowContext(DoctorSymptomAssessmentScreen, {
+            entry: {
+              value: currentVisit.symptomAssessment?.doctorDiagnosis,
+              patient: currentVisit.patient,
+            },
+            actions: ({navigation}) => ({
+              onMakeDesicion: conditions => {
+                setCurrentVisit(s => {
+                  const ns = produce(s, df => {
+                    df['symptomAssessment']['doctorDiagnosis'] = conditions;
+                  });
+
+                  navigation.navigate('ctc.adherence_assessment');
+                  return ns;
                 });
               },
             }),
@@ -398,7 +423,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
           component={withFlowContext(HIVAdherenceAssessmentScreen, {
             actions: ({navigation}) => ({
               onCompleteAdherence: adhrence => {
-                console.log({adhrence});
+                // console.log({adhrence});
                 const {forgottenCount, ...other} = adhrence;
                 updateCurrentVisit('adherenceAssessment', () => {
                   navigation.navigate('ctc.assessment_summary');
@@ -535,6 +560,15 @@ export default function CTCFlow({fullName}: {fullName: string}) {
           name="ctc.view_patient_visit"
           component={withFlowContext(PatientVisitScreen, {
             actions: ({navigation}) => ({
+              // onUpdateInvestigationSnapshot: (id, cb) => {
+              //   console.log({id});
+              //   cInvsRef.document(id).observe('set', data => {
+              //     cb(data);
+              //   });
+              //   cInvsRef.document(id).observe('update', data => {
+              //     cb(data);
+              //   });
+              // },
               onViewUpdateInvestigation: (id, data, err) => {
                 ToastAndroid.show(
                   `View Investigation: ${id}`,
@@ -558,7 +592,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
             actions: ({navigation}) => ({
               onClose: () => {},
               onUpdateInvestigation: (id, data) => {
-                console.log({id, data});
+                // console.log({id, data});
 
                 // set the document
                 cInvsRef

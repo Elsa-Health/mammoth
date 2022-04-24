@@ -10,8 +10,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from '../../../@libs/elsa-ui/theme';
 import {CTC as ctc, Investigation, Medication} from '@elsa-health/data-fns/lib';
 import cons from 'gun';
-import {invStrigify} from '../../fns';
+import {invParse, invStrigify} from '../../fns';
 import {store} from '../../storage/personal';
+import produce from 'immer';
 
 function Section({
   title,
@@ -63,6 +64,10 @@ export default function PatientVisit({
   },
   {
     getInvestigation: (id: string) => Promise<PatientInvestigation>;
+    onUpdateInvestigationSnapshot: (
+      id: string,
+      snap: (inv: PatientInvestigation) => void,
+    ) => void;
     onViewUpdateInvestigation: (
       id: string,
       data: PatientInvestigation,
@@ -79,33 +84,52 @@ export default function PatientVisit({
   } = visit;
 
   const {color} = useTheme();
+  const invIds = React.useMemo(
+    () =>
+      investigations
+        .filter(d => Investigation.name.fromKey(d) !== undefined)
+        .map((inv, ix) => invStrigify({ix, inv, visitId: visit.id})),
+    [],
+  );
   const [invs, setInvs] = React.useState<[string, PatientInvestigation][]>([]);
 
   React.useEffect(() => {
     Promise.all(
-      investigations
-        .filter(d => Investigation.name.fromKey(d) !== undefined)
-        .map(async (inv, ix) => {
-          const invId = invStrigify({ix, inv, visitId: visit.id});
-          // console.log({x: invId});
-          const f = await $.getInvestigation(invId);
-
-          return (
-            f ?? [
-              invId,
-              {
-                investigationId: inv,
-                obj: Investigation.fromKey(inv),
-                result: null,
-              },
-            ]
-          );
-        }),
-    ).then(out => {
-      // Set the investigations
-      setInvs(out);
-    });
+      invIds.map(async invId => {
+        const f = await $.getInvestigation(invId);
+        const {inv} = invParse(invId);
+        return (
+          f ?? [
+            invId,
+            {
+              investigationId: inv,
+              obj: Investigation.fromKey(inv),
+              result: null,
+            },
+          ]
+        );
+      }),
+    ).then(out => setInvs(out));
   }, []);
+
+  // React.useEffect(() => {
+  //   invIds.forEach(invId => {
+  //     // set update snapshot listener
+  //     $.onUpdateInvestigationSnapshot(invId, inv => {
+  //       console.log({invId, inv});
+  //       setInvs(n =>
+  //         produce(n, df => {
+  //           const ix = df.findIndex(d => d[0] === invId);
+
+  //           if (ix !== -1) {
+  //             console.log({matchedIndex: ix});
+  //             df[ix] = [invId, inv];
+  //           }
+  //         }),
+  //       );
+  //     });
+  //   });
+  // }, []);
 
   return (
     <Layout title="Patient Visit">

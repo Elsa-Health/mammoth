@@ -56,6 +56,7 @@ declare namespace CTC {
             id: string;
           }[]
         | null;
+      doctorDiagnosis?: string[];
     };
     adherenceAssessment: {
       educationLevel: string;
