@@ -618,10 +618,10 @@ export default function CTCDashboardScreen({
 
                       PushNotification.localNotification({
                         channelId: 'testing-channel',
-                        message: 'This is a test. I Believe in you!',
+                        message: 'This is a test. We believe in you!',
                       });
                     }}
-                    title="Log out"
+                    title="Test Notification"
                   />
                 </Menu>
               </View>

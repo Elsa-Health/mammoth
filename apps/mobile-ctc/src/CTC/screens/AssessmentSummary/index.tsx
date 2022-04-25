@@ -44,12 +44,17 @@ export type AssessmentSummaryData = {
   nextSteps: CTC.NextStepsObject;
   //   riskNonAdherence: number;
   investigations: Investigation[];
-  medicationInfo: HIVDispenseMedication<Medication.All>;
+  medicationInfo: HIVDispenseMedication<Medication.All | CTC.Medication>;
 };
 type Disease = Condition | CTC.Condition;
 
 const getMedicationList = () =>
-  Medication.all.pairs().map(([m, v]) => ({id: m, name: v}));
+  [...Medication.all.pairs(), ...CTC.medication.pairs()]
+    .map(([m, v]) => ({
+      id: m,
+      name: v,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
 const checkHasNextSteps = (condition: Disease) =>
   CTC.nextSteps.keys().includes(condition);
