@@ -52,8 +52,6 @@ import {ToastAndroid} from 'react-native';
 import {generateReport} from './misc';
 import {Investigation} from '@elsa-health/data-fns/lib';
 
-import PushNotification from 'react-native-push-notification';
-
 /**
  * Generate Report
  */
