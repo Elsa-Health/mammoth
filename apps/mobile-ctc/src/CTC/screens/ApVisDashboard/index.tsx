@@ -594,7 +594,7 @@ export default function CTCDashboardScreen({
                 </View>
                 <View>
                   <Text font="extra-black" size={24}>
-                    Welcome,
+                    Habari,
                   </Text>
                   <Text font="extra-black" size={24}>
                     {fullName}

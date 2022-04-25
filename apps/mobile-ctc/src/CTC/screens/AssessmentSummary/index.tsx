@@ -9,7 +9,13 @@ import {ScrollView, useWindowDimensions, View, ViewProps} from 'react-native';
 
 import {useTheme} from '../../../@libs/elsa-ui/theme';
 import {WorkflowScreen} from '../../../@workflows';
-import {CTC, Condition, Medication, Investigation} from '@elsa-health/data-fns';
+import {
+  CTC,
+  Condition,
+  Medication,
+  Investigation,
+  ARV,
+} from '@elsa-health/data-fns';
 import {BarChart} from 'react-native-chart-kit';
 
 import {
@@ -30,6 +36,7 @@ export type HIVDispenseMedication<M extends string> = {
   medications: M[];
   status: CTC.Status | undefined;
   reason?: string | undefined;
+  arvRegimens: ARV.Regimen[];
 };
 
 export type CTCAssessmentData = {
@@ -81,6 +88,7 @@ export default function AssessmentSummaryScreen({
         medications: [],
         status: undefined,
         reason: undefined,
+        arvRegimens: [],
       },
       nextSteps: {
         counselingRecommendations: [],
@@ -324,6 +332,34 @@ export default function AssessmentSummaryScreen({
               items={[undefined, ...CTC.status.keys()]}
             />
           </View>
+          {state.medicationInfo.status !== undefined &&
+            !['not-start-arv', 'stop-arv', 'continue-arv'].includes(
+              state.medicationInfo.status,
+            ) && (
+              <View style={{marginVertical: 6}}>
+                <Text>What ARV Regimen are you changing to?</Text>
+                <SectionedSelect
+                  confirmText={'Confirm'}
+                  items={[
+                    {
+                      name: 'ARV Combination Regimen',
+                      id: 1,
+                      children: ARV.regimen
+                        .pairs()
+                        .map(([id, name]) => ({id, name})),
+                    },
+                  ]}
+                  uniqueKey="id"
+                  searchPlaceholderText={'Search ARV Combination Regimen'}
+                  selectText={'Select if any'}
+                  onSelectedItemsChange={setter(
+                    'medicationInfo',
+                    'arvRegimens',
+                  )}
+                  selectedItems={state.medicationInfo.arvRegimens}
+                />
+              </View>
+            )}
           {state.medicationInfo.status !== undefined &&
             CTC.status.reason.fromKey(state.medicationInfo.status) !==
               undefined &&
