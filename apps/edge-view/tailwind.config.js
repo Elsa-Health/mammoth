@@ -1,9 +1,9 @@
 module.exports = {
-	content: ["./pages/**/*.{js,ts,jsx,tsx}", "./app/**/*.{js,ts,jsx,tsx}"],
+	content: ["./src/**/*.{js,ts,jsx,tsx}"],
 	theme: {
 		extend: {
 			fontFamily: {
-				sans: ['"Biotif"', "sans-serif"],
+				sans: ['"Avenir LT Std"', "sans-serif"],
 			},
 			colors: {
 				"elsa-primary": {

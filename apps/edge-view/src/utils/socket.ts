@@ -8,10 +8,12 @@ type NetworkStatus = "offline" | "connecting" | "online" | "error";
  */
 export function useWebSocket({
 	url,
+	onOpen,
 	onMessage,
 }: {
 	url: string;
-	onMessage?: (data: MessageEvent) => void;
+	onOpen?: (e: Event) => void;
+	onMessage?: (e: MessageEvent) => void;
 }) {
 	const [socket, setSocket] = React.useState<WebSocket | undefined>(
 		() => undefined
@@ -28,7 +30,8 @@ export function useWebSocket({
 			setSocket(socket);
 			setStatus("connecting");
 		} else {
-			socket.onopen = () => {
+			socket.onopen = (e) => {
+				onOpen?.(e);
 				setStatus("online");
 			};
 
@@ -37,7 +40,6 @@ export function useWebSocket({
 					onMessage?.(e);
 				} else {
 					if (socket.readyState !== WebSocket.CLOSED) {
-						// console.log("CLOSED... Reconnecting");
 						setStatus("connecting");
 					}
 				}
@@ -49,7 +51,6 @@ export function useWebSocket({
 
 			socket.onclose = () => {
 				setStatus("offline");
-				// console.log("Closed connection with CDRT WS.");
 			};
 		}
 	}, [socket, onMessage, url]);
@@ -58,11 +59,12 @@ export function useWebSocket({
 	 * Reconnecting to the websocket server
 	 */
 	const retry = React.useCallback(() => {
-		const socket = new WebSocket(url);
+		socket?.close();
+		const socket_ = new WebSocket(url);
 		// socket.binaryType = "arraybuffer";
-		setSocket(socket);
+		setSocket(socket_);
 		setStatus("connecting");
-	}, [url, setSocket, setStatus]);
+	}, [url, setSocket, setStatus, socket]);
 
 	return { socket, retry, status };
 }

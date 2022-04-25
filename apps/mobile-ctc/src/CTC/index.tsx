@@ -61,7 +61,7 @@ const Stack = createNativeStackNavigator();
 /**
  * Network Related Code
  */
-const wsURL_DEV = 'wss://2819-197-250-225-79.ngrok.io/channel/cmrdt';
+const wsURL_DEV = 'wss://2bd1-197-250-230-24.ngrok.io/channel/cmrdt';
 const wsURL_PROD = 'wss://ctc-bounce-server.herokuapp.com/channel/cmrdt';
 
 const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
@@ -182,6 +182,7 @@ export default function CTCFlow({fullName}: {fullName: string}) {
               onRetrySyncServer: retry,
               syncPushAllData: async () => {
                 if (socket !== undefined) {
+                  console.log('Pushing to the edge');
                   // Syncronize
                   pushRecordsAsMessagesOnSocket(
                     socket,
