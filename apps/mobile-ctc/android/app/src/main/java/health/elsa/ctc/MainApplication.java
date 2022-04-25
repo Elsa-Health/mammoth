@@ -5,9 +5,9 @@ import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 
-// import com.microsoft.appcenter.reactnative.crashes.AppCenterReactNativeCrashesPackage;
-// import com.microsoft.appcenter.reactnative.analytics.AppCenterReactNativeAnalyticsPackage;
-// import com.microsoft.appcenter.reactnative.appcenter.AppCenterReactNativePackage;
+import com.microsoft.appcenter.reactnative.crashes.AppCenterReactNativeCrashesPackage;
+import com.microsoft.appcenter.reactnative.analytics.AppCenterReactNativeAnalyticsPackage;
+import com.microsoft.appcenter.reactnative.appcenter.AppCenterReactNativePackage;
 
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -18,6 +18,8 @@ import java.util.List;
 
 import androidx.multidex.MultiDexApplication;
 import androidx.appcompat.app.AppCompatDelegate;
+
+import com.microsoft.codepush.react.CodePush;
 
 import com.facebook.react.bridge.JSIModulePackage; // <- add
 import com.swmansion.reanimated.ReanimatedJSIModulePackage; // <- add
@@ -34,10 +36,10 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
         // // 2. Override the getJSBundleFile method in order to let
         // // the CodePush runtime determine where to get the JS
         // // bundle location from on each app start
-        // @Override
-        // protected String getJSBundleFile() {
-        //   return CodePush.getJSBundleFile();
-        // }
+        @Override
+        protected String getJSBundleFile() {
+          return CodePush.getJSBundleFile();
+        }
 
         @Override
         protected List<ReactPackage> getPackages() {
@@ -67,6 +69,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
   @Override
   public void onCreate() {
     super.onCreate();
+    
     // force adding the light theme when using Elsa app
     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     SoLoader.init(this, /* native exopackage */ false);

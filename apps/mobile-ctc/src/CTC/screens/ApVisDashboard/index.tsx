@@ -1,11 +1,12 @@
 import React from 'react';
 import {ScrollView, ToastAndroid, View} from 'react-native';
-import {WorkflowScreen} from '../..';
+import {WorkflowScreen} from '../../../@workflows';
 import {Layout, Text} from '../../../@libs/elsa-ui/components';
 import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 import {ElsaColorableIcon} from '../../../@libs/elsa-ui/visuals/vectors';
 
 import {format} from 'date-fns';
+import PushNotification from 'react-native-push-notification';
 
 import {
   ActivityIndicator,
@@ -612,7 +613,14 @@ export default function CTCDashboardScreen({
                   <Menu.Item onPress={generateReport} title="Get Report" />
                   <Divider />
                   <Menu.Item
-                    onPress={() => console.log('Logout')}
+                    onPress={() => {
+                      console.log('Logout');
+
+                      PushNotification.localNotification({
+                        channelId: 'testing-channel',
+                        message: 'This is a test. I Believe in you!',
+                      });
+                    }}
                     title="Log out"
                   />
                 </Menu>

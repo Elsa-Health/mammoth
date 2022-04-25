@@ -1,4 +1,6 @@
 apply plugin: "com.android.application"
+apply plugin: 'com.google.gms.google-services' 
+
 
 import com.android.build.OutputFile
 
@@ -85,6 +87,9 @@ project.ext.vectoricons = [
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
+apply from: "../../node_modules/@sentry/react-native/sentry.gradle"
+apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
+
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -202,8 +207,13 @@ dependencies {
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
-    // Include IPFS for java
-    implementation "com.github.ipfs:java-ipfs-http-client:v1.2.3"
+  // Import the Firebase BoM
+  implementation platform('com.google.firebase:firebase-bom:29.3.1')
+
+  implementation 'com.google.firebase:firebase-analytics'
+  implementation 'com.google.firebase:firebase-auth'
+  implementation 'com.google.firebase:firebase-firestore'
+  implementation 'com.google.firebase:firebase-messaging'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.fbjni'
