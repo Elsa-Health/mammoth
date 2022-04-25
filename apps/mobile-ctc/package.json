@@ -1,12 +1,13 @@
 {
   "name": "mobile-ctc",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
+    "deploy:staging": "appcenter codepush release-react -a Elsa-Health/Elsa-CTC-1 -d Staging -t",
     "coverage": "jest --coverage",
     "coverage:ci": "jest --ci --coverage --silent --maxWorkers=2 --bail",
     "clean": "rm -rf .turbo && rm -rf node_modules",
