@@ -614,8 +614,6 @@ export default function CTCDashboardScreen({
                   <Divider />
                   <Menu.Item
                     onPress={() => {
-                      console.log('Logout');
-
                       PushNotification.localNotification({
                         channelId: 'testing-channel',
                         message: 'This is a test. We believe in you!',
