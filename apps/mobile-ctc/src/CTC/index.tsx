@@ -51,6 +51,7 @@ import {ToastAndroid} from 'react-native';
 
 import {generateReport} from './misc';
 import {Investigation} from '@elsa-health/data-fns/lib';
+import {ElsaProvider} from '../provider/backend';
 
 /**
  * Generate Report
@@ -99,7 +100,12 @@ const pushRecordsAsMessagesOnSocket = <T,>(
 type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'> & {
   appointment?: CTC.Appointment | undefined;
 };
-export default function CTCFlow({fullName}: {fullName: string}) {
+export default function CTCFlow({
+  provider,
+}: {
+  provider: ElsaProvider;
+  logout: () => void;
+}) {
   const [message, setMessage] = React.useState<{
     text: string;
     type: 'error' | 'success' | 'default';
@@ -108,6 +114,8 @@ export default function CTCFlow({fullName}: {fullName: string}) {
   const dismiss = () => {
     setMessage(null);
   };
+
+  const fullName = provider.user.displayName || '';
 
   const {
     socket,
