@@ -65,8 +65,8 @@ const Stack = createNativeStackNavigator();
 const wsURL_DEV = 'wss://2bd1-197-250-230-24.ngrok.io/channel/cmrdt';
 const wsURL_PROD = 'wss://ctc-bounce-server.herokuapp.com/channel/cmrdt';
 
-const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
-// const wsURL = wsURL_PROD;
+// const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
+const wsURL = wsURL_PROD;
 
 const pushMessagesOnSocket = (socket: WebSocket) => {
   const crdt_messages = crdt.messages();
@@ -102,8 +102,10 @@ type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'> & {
 };
 export default function CTCFlow({
   provider,
+  fullName,
 }: {
-  provider: ElsaProvider;
+  fullName: string;
+  // provider: ElsaProvider;
   logout: () => void;
 }) {
   const [message, setMessage] = React.useState<{
@@ -115,7 +117,7 @@ export default function CTCFlow({
     setMessage(null);
   };
 
-  const fullName = provider.user.displayName || '';
+  // const fullName = provider.user.displayName || '';
 
   const {
     socket,
