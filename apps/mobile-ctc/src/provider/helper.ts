@@ -1,7 +1,10 @@
+import {addWeeks, hoursToSeconds} from 'date-fns';
+import {ProviderSession} from './@types';
+
 export const session = (
   opt:
     | {type: 'default' | 'short'}
-    | {type: 'custom'; expiresAt: Date; expiresIn?: number},
+    | {type: 'custom'; expiresAt: Date; expiresIn?: number} = {type: 'default'},
 ): ProviderSession => {
   if (opt['type'] === 'custom') {
     return {
@@ -12,13 +15,13 @@ export const session = (
 
   if (opt['type'] === 'short') {
     return {
-      expiresAt: new Date(2022, 5, 14),
-      expiresIn: 2400,
+      expiresAt: addWeeks(new Date(), 1),
+      expiresIn: hoursToSeconds(8),
     };
   }
 
   return {
-    expiresAt: new Date(2022, 12, 12),
-    expiresIn: 86400,
+    expiresAt: addWeeks(new Date(), 4),
+    expiresIn: hoursToSeconds(24),
   };
 };

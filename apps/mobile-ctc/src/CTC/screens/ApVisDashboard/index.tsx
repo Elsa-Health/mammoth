@@ -411,6 +411,7 @@ export default function CTCDashboardScreen({
 }: WorkflowScreen<
   {fullName: string; networkStatus?: NetworkStatus | undefined},
   {
+    onLogout: () => void;
     syncPushAllData: () => Promise<void>;
     getRecentUpcomingAppointments: () => Promise<CTC.Appointment[]>;
     getRecentMissedAppointments: () => Promise<CTC.Appointment[]>;
@@ -612,6 +613,7 @@ export default function CTCDashboardScreen({
                   }>
                   <Menu.Item onPress={generateReport} title="Get Report" />
                   <Divider />
+                  <Menu.Item onPress={$.onLogout} title="Logout" />
                   <Menu.Item
                     onPress={() => {
                       PushNotification.localNotification({

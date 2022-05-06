@@ -102,10 +102,11 @@ type CurrentVisit = Omit<CTC.Visit, 'dateTime' | 'id'> & {
 };
 export default function CTCFlow({
   provider,
-  fullName,
-}: {
-  fullName: string;
-  // provider: ElsaProvider;
+  logout,
+}: // fullName,
+{
+  // fullName: string;
+  provider: ElsaProvider;
   logout: () => void;
 }) {
   const [message, setMessage] = React.useState<{
@@ -117,7 +118,7 @@ export default function CTCFlow({
     setMessage(null);
   };
 
-  // const fullName = provider.user.displayName || '';
+  const fullName = provider.user.displayName || '';
 
   const {
     socket,
@@ -188,6 +189,10 @@ export default function CTCFlow({
               networkStatus,
             },
             actions: ({navigation}) => ({
+              onLogout: () => {
+                logout();
+                console.warn('Logging out happended');
+              },
               generateReport,
               onRetrySyncServer: retry,
               syncPushAllData: async () => {

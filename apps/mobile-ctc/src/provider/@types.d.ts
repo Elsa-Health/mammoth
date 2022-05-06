@@ -1,7 +1,7 @@
 import {Identity} from './backend';
 import {FirebaseFirestoreTypes} from '@react-native-firebase/firestore';
 
-type ProviderSession = {
+export type ProviderSession = {
   expiresAt: Date;
   expiresIn: number;
 };
@@ -101,7 +101,10 @@ export declare namespace ElsaDBTypes {
   };
 
   type Credential = {
-    phoneNumber?: string;
+    /**
+     * Required as it's the means for logging in
+     */
+    phoneNumber: string;
     email?: string;
     displayName?: string;
 

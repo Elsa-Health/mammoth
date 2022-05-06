@@ -4,7 +4,7 @@ import produce from 'immer';
 import {session} from './helper';
 
 import {isBefore} from 'date-fns';
-import {ElsaDBTypes, ElsaTypes, Serialized} from './@types';
+import {ElsaDBTypes, ElsaTypes, Serialized, ProviderSession} from './@types';
 
 type Platform = 'ctc' | 'addo' | 'labs';
 type PlatformAction =
@@ -174,28 +174,30 @@ export async function authenticateProvider(
 
   console.log('Facility confirmed.. Creating Session and Finishing up');
 
-  // Create the session for the user
-  const uSession = session({type: 'short'});
+  // Creates the session for the user
+  const uSession = session();
 
-  try {
-    // update session record
-    await profileRef.update({
-      platform: produce(platform, df => {
-        const session = {
-          credentialId: cred.id,
-          ...uSession,
-        };
-        if (df.ctc === undefined) {
-          df.ctc = {};
-        }
+  // update session for the credentials
+  // profileRef.collection('credentials').doc(identity.credentialId);
+  // try {
+  //   // update session record
+  //   await profileRef.update({
+  //     platform: produce(platform, df => {
+  //       const session = {
+  //         credentialId: cred.id,
+  //         ...uSession,
+  //       };
+  //       if (df.ctc === undefined) {
+  //         df.ctc = {};
+  //       }
 
-        df.ctc.session = session;
-      }),
-    });
-  } catch (err) {
-    console.log("Couldn't update the session object for user");
-    throw {code: 'elsa/dunno', message: 'Unable log user in'};
-  }
+  //       df.ctc.session = session;
+  //     }),
+  //   });
+  // } catch (err) {
+  //   console.log("Couldn't update the session object for user");
+  //   throw {code: 'elsa/dunno', message: 'Unable log user in'};
+  // }
 
   console.log('Done!');
 
@@ -336,6 +338,9 @@ export class ElsaProvider {
 export type Identity = {profileId: string; credentialId: string};
 
 export const Identity = {
+  isParsable(str: string) {
+    return str.match(/[a-zA-Z0-9_-]@[a-zA-Z0-9_-]/g) !== null;
+  },
   /**
    *
    * @param identity

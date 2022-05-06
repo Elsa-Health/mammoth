@@ -19,13 +19,10 @@ import {
   useBlurOnFulfill,
   useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
-import {
-  authenticateCredential,
-  authenticateProvider,
-  ElsaProvider,
-} from '../../../provider/backend';
+import {authenticateProvider} from '../../../provider/backend';
+import type {ElsaProvider, Identity} from '../../../provider/backend';
+import {AuthOutput} from '../../../provider/context';
 
-let render = 0;
 function ConfirmationField({
   value,
   onChangeValue,
@@ -117,7 +114,7 @@ function VerifyCodeFromProvider({
       return x;
     }
 
-    return null;
+    throw new Error('Unable to log you in. Please try again later.');
   });
   return (
     <>
@@ -149,26 +146,12 @@ function VerifyCodeFromProvider({
   );
 }
 
-const authenticateUser = async (identity: Identity) => {
-  const cred = await authenticateCredential(firestore(), identity);
-
-  if (cred.phoneNumber === undefined) {
-    throw {
-      code: 'elsa/missing-login-info',
-      message:
-        'Missing phoneNumber details needed to login. Please make sure the phone number if entered in the Dashboard',
-    };
-  }
-  const confirm = await auth().signInWithPhoneNumber(cred.phoneNumber, true);
-  return [cred.phoneNumber, confirm];
-};
-
 export default function QRAuthenticationScreen({
   actions: $,
 }: WorkflowScreen<
   {},
   {
-    convertCodeToData: <T>(data: string) => T;
+    authenticate: (qrCodeDigest: string) => Promise<AuthOutput>;
     onQueryProvider: (provider: ElsaProvider) => void;
   }
 >) {
@@ -176,21 +159,35 @@ export default function QRAuthenticationScreen({
   const scanner = React.useRef();
 
   //
-  const [identity, set] = React.useState<null | Identity>(() => null);
+  const [identity, set] = React.useState<null | string>(() => null);
   // confirmation code
   const [visible, setVisible] = React.useState(false);
 
   const [state, auth] = useAsyncFn(
-    async identity => {
-      const [phoneNumber, confirm] = await authenticateUser(identity);
-      return {phoneNumber, confirm};
+    async authStr => {
+      const out = await $.authenticate(authStr);
+
+      if (out.type === 'v1') {
+        // pass along the provider
+        $.onQueryProvider(out.obj);
+        return undefined;
+      }
+
+      if (out.type === 'v2') {
+        return out.obj;
+      }
+
+      // You shouldn't see this
+      throw new Error(
+        "Unsupported authentication method. You shouldn't even see this",
+      );
     },
     [identity],
   );
 
-  React.useEffect(() => {
-    console.log({state});
-  }, [state]);
+  // React.useEffect(() => {
+  //   console.log({state});
+  // }, [state]);
 
   React.useEffect(() => {
     if (identity !== null) {
@@ -226,7 +223,7 @@ export default function QRAuthenticationScreen({
             <VerifyCodeFromProvider
               phoneNumber={state.value.phoneNumber}
               confirmResult={state.value.confirm}
-              identity={identity}
+              identity={state.value.identity}
               onQueryProvider={$.onQueryProvider}
             />
           ) : (
@@ -284,7 +281,7 @@ export default function QRAuthenticationScreen({
               onRead={e => {
                 // Scan the code
                 // converts the data to proper information
-                set($.convertCodeToData(e.data));
+                set(e.data);
               }}
               // ca
               vibrate
