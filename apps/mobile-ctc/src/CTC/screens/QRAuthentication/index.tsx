@@ -259,16 +259,20 @@ export default function QRAuthenticationScreen({
               padding: spacing.lg,
               flex: 0.6,
             }}>
-            <ElsaColorableIcon color={color.primary.base} />
-            <View style={{marginTop: 8}}>
+            <ElsaColorableIcon
+              width={35}
+              height={35}
+              color={color.primary.base}
+            />
+            <View style={{marginTop: 16}}>
               <Text size={28} font="bold">
                 Scan to login
               </Text>
-              <Text
+              {/* <Text
                 color={color.secondary.base}
                 style={{lineHeight: 22, marginTop: 8}}>
                 To gain access, please scan the code on your credentials card
-              </Text>
+              </Text> */}
             </View>
           </View>
         </View>
