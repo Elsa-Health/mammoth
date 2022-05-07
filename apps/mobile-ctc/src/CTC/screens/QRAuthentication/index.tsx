@@ -7,7 +7,13 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {useTheme} from '../../../@libs/elsa-ui/theme';
 import {Text} from '../../../@libs/elsa-ui/components';
 import {ElsaColorableIcon} from '../../../@libs/elsa-ui/visuals/vectors';
-import {Modal, Portal, Button, ActivityIndicator} from 'react-native-paper';
+import {
+  Modal,
+  Portal,
+  Button,
+  ActivityIndicator,
+  IconButton,
+} from 'react-native-paper';
 
 import firestore from '@react-native-firebase/firestore';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
@@ -264,10 +270,24 @@ export default function QRAuthenticationScreen({
               height={35}
               color={color.primary.base}
             />
-            <View style={{marginTop: 16}}>
+            <View style={{marginTop: 12}}>
               <Text size={28} font="bold">
                 Scan to login
               </Text>
+              {__DEV__ && (
+                <View style={{marginVertical: 5}}>
+                  <Button
+                    icon="code-json"
+                    mode="outlined"
+                    onPress={() =>
+                      // auth login
+                      set('JWVHbExokY0mXsRcabAg@C9U3KgCvUof410gynImJ')
+                    }>
+                    Dev Login
+                  </Button>
+                  {/* <Text>Something</Text> */}
+                </View>
+              )}
               {/* <Text
                 color={color.secondary.base}
                 style={{lineHeight: 22, marginTop: 8}}>

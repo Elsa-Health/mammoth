@@ -16,7 +16,7 @@ import InvestigationResultsFormScreen from '../@workflows/screens/InvestigationR
 
 import DoctorSymptomAssessmentScreen from './screens/DoctorSymptomAssessment';
 import AssessmentSummary from './screens/AssessmentSummary';
-import ApVisDahboardScreen from './screens/ApVisDashboard';
+import ApVisDahboardScreen from './screens/Dashboard';
 import PatientVisitScreen from './screens/PatientVisit';
 import PatientProfileScreen from './screens/PatientProfile';
 

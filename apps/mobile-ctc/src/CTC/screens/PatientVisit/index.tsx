@@ -86,7 +86,7 @@ export default function PatientVisit({
   const {color} = useTheme();
   const invIds = React.useMemo(
     () =>
-      investigations
+      (investigations || [])
         .filter(d => Investigation.name.fromKey(d) !== undefined)
         .map((inv, ix) => invStrigify({ix, inv, visitId: visit.id})),
     [],

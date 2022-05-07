@@ -15,6 +15,7 @@ import {
   Menu,
   Modal,
   Portal,
+  TextInput,
   TouchableRipple,
 } from 'react-native-paper';
 import {useAsyncRetry} from 'react-use';
@@ -405,6 +406,81 @@ function NetworkChip({
   );
 }
 
+import {Chip} from 'react-native-paper';
+
+function CTCSearchBox({
+  value,
+  onChangeValue,
+  onHandleSearch,
+}: {
+  value: string;
+  onChangeValue: (s: string) => void;
+  onHandleSearch: (val: string) => void;
+}) {
+  const [ctc, setCtc] = React.useState('');
+  const [id, setId] = React.useState('');
+
+  return (
+    <View>
+      <Text font="bold" size="md">
+        Find a Patient
+      </Text>
+      <Text style={{lineHeight: 24}}>Search patient using the patient ID</Text>
+
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginTop: 10,
+        }}>
+        <View style={{flexDirection: 'row'}}>
+          <TextInput
+            style={{flex: 1, marginRight: 8}}
+            mode="outlined"
+            label="CTC Code"
+            value={ctc}
+            onChangeText={setCtc}
+            maxLength={8}
+          />
+          <TextInput
+            style={{flex: 2}}
+            mode="outlined"
+            label="Patient ID"
+            value={id}
+            onChangeText={setId}
+          />
+
+          {/* <Searchbar
+            placeholder="Ex. 02020100123456"
+            blurOnSubmit
+            onChangeText={onChangeValue}
+            onSubmitEditing={onHandleSearch}
+            value={value}
+          /> */}
+        </View>
+      </View>
+      <View
+        style={{paddingVertical: 12, flexDirection: 'row', flexWrap: 'wrap'}}>
+        <Chip
+          icon="plus"
+          mode="outlined"
+          style={{marginRight: 8}}
+          onPress={() => console.log('Pressed')}>
+          My CTC Code
+        </Chip>
+        <Chip
+          icon="plus"
+          mode="outlined"
+          style={{marginRight: 8}}
+          onPress={() => console.log('Pressed')}>
+          Add Facility
+        </Chip>
+      </View>
+    </View>
+  );
+}
+
 export default function CTCDashboardScreen({
   entry: {fullName, networkStatus},
   actions: $,
@@ -629,29 +705,11 @@ export default function CTCDashboardScreen({
           </View>
           {/* Search Patient */}
           <View style={{marginTop: DefaultSpacing.md}}>
-            <Text font="bold" size="md">
-              Find a Patient
-            </Text>
-            <Text style={{lineHeight: 24}}>
-              Search patient using the patient ID
-            </Text>
-
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 10,
-              }}>
-              <Searchbar
-                placeholder="Ex. 02020100123456"
-                style={{flex: 1}}
-                blurOnSubmit
-                onChangeText={setSearchQuery}
-                onSubmitEditing={handleSearch}
-                value={searchQuery}
-              />
-            </View>
+            <CTCSearchBox
+              value={searchQuery}
+              onChangeValue={setSearchQuery}
+              onHandleSearch={handleSearch}
+            />
           </View>
 
           {patients !== null ? (
