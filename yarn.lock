@@ -1520,10 +1520,10 @@
   resolved "https://npm.pkg.github.com/download/@elsa-health/data-fns/1.3.1/e98cf463997f046bfe736e982a156ea3c8e1332a92c08d0c38cdf1ff0be526ce#efdd2c775c6d6b5609f96be15c8b40dc6355e162"
   integrity sha512-jATFfJA9vHIE4C8GGL5/q6CeQr66a5QR4OcuoOjhl1v5nmtwurrtqmjzNbmL2mFi0rwp6CwjJeAzLiKXKWb3qg==
 
-"@elsa-health/data-fns@1.5.4":
-  version "1.5.4"
-  resolved "https://npm.pkg.github.com/download/@elsa-health/data-fns/1.5.4/86be44a4a01ba63448a72c4b35b13ed5066743e17da04a46fc4413f0c8f7fb4b#70a9f7864acafdb7032ea77fd2a9a3421bb76fa0"
-  integrity sha512-Ot6WlRNoYRuShTcic/eGqtYNqRwDE8aWafsC2e8R+DWfLhFF+T0b0tBfWkDlE2olwfzAmzkaFEy7iii827+Xcg==
+"@elsa-health/data-fns@1.5.5":
+  version "1.5.5"
+  resolved "https://npm.pkg.github.com/download/@elsa-health/data-fns/1.5.5/e2f2f05f33a5736ac2c6163d2a41f81b3504819c9df901ab4b2f0dde588e74db#0ae0a3e4d956923730d4f4ef584f74014986e042"
+  integrity sha512-7TmRA9rCaidqquaZhLzpGAurZ3lZ5DGh9NpgdJ5hMEtBvyPPrNknBHi+unsy4MFtF5gkWn9uv4fOe8AXzRw05g==
 
 "@emotion/is-prop-valid@^1.1.0":
   version "1.1.2"
