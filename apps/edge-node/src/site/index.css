@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*:focus {
+	outline: none;
+}
+/* 
+@font-face {
+    font-family: "Avenir LT Std";
+    src: url("/assets/fonts/AvenirLTStd-Roman.otf");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Avenir LT Std";
+    src: url("/assets/fonts/AvenirLTStd-Heavy.otf");
+    font-style: medium;
+    font-weight: 500;
+} */
+
+/* font-light */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 300;
+	src: url(../public/assets/fonts/AvenirLTStd-Light.otf);
+}
+
+/* font-light italic */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 300;
+	font-style: italic;
+	src: url(../public/assets/fonts/AvenirLTStd-LightOblique.otf);
+}
+
+/* font-normal */
+@font-face {
+	font-family: "Avenir LT Std";
+	src: url(../public/assets/fonts/AvenirLTStd-Roman.otf);
+}
+
+/* font-normal italic */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-style: italic;
+	src: url(../public/assets/fonts/AvenirLTStd-Oblique.otf);
+}
+
+/* font-medium */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 500;
+	font-style: medium;
+	src: url(../public/assets/fonts/AvenirLTStd-Medium.otf);
+}
+
+/* font-medium italic */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 500;
+	font-style: italic;
+	src: url(../public/assets/fonts/AvenirLTStd-MediumOblique.otf);
+}
+
+/* font-bold */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 700;
+	src: url(../public/assets/fonts/AvenirLTStd-Heavy.otf);
+}
+
+/* font-bold italic */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 700;
+	font-style: italic;
+	src: url(../public/assets/fonts/AvenirLTStd-HeavyOblique.otf);
+}
+
+/* font-extrabold !! NOT WORKING */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 800;
+	src: url(../public/assets/fonts/AvenirLTStd-Book.otf);
+}
+
+/* font-extrabold italic  !! NOT WORKING */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 800;
+	font-style: italic;
+	src: url(../public/assets/fonts/AvenirLTStd-BookOblique.otf);
+}
+
+/* font-black */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 900;
+	src: url(../public/assets/fonts/AvenirLTStd-Black.otf);
+}
+
+/* font-black italic */
+@font-face {
+	font-family: "Avenir LT Std";
+	font-weight: 900;
+	font-style: italic;
+	src: url(../public/assets/fonts/AvenirLTStd-BlackOblique.otf);
+}
