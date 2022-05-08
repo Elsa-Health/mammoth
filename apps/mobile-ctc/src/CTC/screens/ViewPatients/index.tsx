@@ -1,10 +1,12 @@
 import React from 'react';
 import {ScrollView, View} from 'react-native';
-import {WorkflowScreen} from '../..';
+import {WorkflowScreen} from '../../../@workflows';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 import {format} from 'date-fns';
+
+import {useAsync} from 'react-use';
 
 import {
   ActivityIndicator,
@@ -29,36 +31,37 @@ export default function ViewPatientsScreen({
     searchPatientsById: (partialId: string) => Promise<CTC.Patient[]>;
   }
 >) {
-  const [patients, setPatients] = React.useState<CTC.Patient[] | undefined>(
-    undefined,
-  );
-  const [searchQuery, setSearchQuery] = React.useState('');
+  // const [patients, setPatients] = React.useState<CTC.Patient[] | undefined>(
+  //   undefined,
+  // );
+  // const [searchQuery, setSearchQuery] = React.useState('');
 
-  // Fired on mount
-  React.useEffect(() => {
-    const d = $.onMount?.();
-    return d;
-  }, []);
+  // React.useEffect(() => {
+  //   if (searchQuery.trim().length === 0) {
+  //     $.getPatients().then(patients => setPatients(patients));
+  //   }
+  // }, [searchQuery]);
 
-  React.useEffect(() => {
-    if (searchQuery.trim().length === 0) {
-      $.getPatients().then(patients => setPatients(patients));
-    }
-  }, [searchQuery]);
+  // const handleSearch = e => {
+  //   $.searchPatientsById(searchQuery).then(vals => setPatients(vals));
+  //   return null;
+  // };
 
-  const handleSearch = e => {
-    $.searchPatientsById(searchQuery).then(vals => setPatients(vals));
-    return null;
-  };
-
-  React.useEffect(() => {
-    $.getPatients().then(patients => setPatients(patients));
+  const {
+    value: patients,
+    loading,
+    error,
+  } = useAsync(async () => {
+    return await $.getPatients();
   }, []);
 
   const [open, setOpen] = React.useState(false);
-  const onStateChange = ({open}: {open: boolean}) => setOpen(open);
+  const onStateChange = React.useCallback(
+    ({open}: {open: boolean}) => setOpen(open),
+    [setOpen],
+  );
 
-  if (patients === undefined) {
+  if (loading) {
     return (
       <View
         style={{
@@ -81,11 +84,19 @@ export default function ViewPatientsScreen({
     );
   }
 
+  if (patients === undefined) {
+    return (
+      <View>
+        <Text>Failed to fetch the patients stuff</Text>
+      </View>
+    );
+  }
+
   return (
     <Layout title="Patients" style={{padding: 0}}>
       <ScrollView
         contentContainerStyle={{paddingHorizontal: DefaultSpacing.lg}}>
-        <View style={{marginVertical: DefaultSpacing.sm}}>
+        {/* <View style={{marginVertical: DefaultSpacing.sm}}>
           <Searchbar
             placeholder="Patient ID"
             style={{flex: 1}}
@@ -94,7 +105,7 @@ export default function ViewPatientsScreen({
             onSubmitEditing={handleSearch}
             value={searchQuery}
           />
-        </View>
+        </View> */}
         {/*  */}
         <View>
           <View

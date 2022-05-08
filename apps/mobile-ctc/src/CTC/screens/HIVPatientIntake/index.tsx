@@ -1,13 +1,17 @@
 import React from 'react';
 import {ScrollView, View} from 'react-native';
-import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
-import {Picker} from '@react-native-picker/picker';
+import {
+  AltLayout as Layout,
+  Picker,
+  Text,
+} from '../../../@libs/elsa-ui/components';
+// import {Picker} from '@react-native-picker/picker';
 import produce from 'immer';
 import {DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 import {SectionedSelect} from '../../../@libs/elsa-ui/components';
 import {Button, Checkbox, Divider, RadioButton} from 'react-native-paper';
-import {WorkflowScreen} from '../..';
+import {WorkflowScreen} from '../../../@workflows';
 import {ARV, CTC, Medication} from '@elsa-health/data-fns';
 
 const ARV_WHO_STAGES = ['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4'];
@@ -32,7 +36,7 @@ export default function HIVPatientIntakeScreen({
   {
     value: Partial<HIVPatientIntake>;
   },
-  {onNext: (hivInfoIntake: HIVPatientIntake, isAssessment) => void}
+  {onNext: (hivInfoIntake: HIVPatientIntake, isAssessment: boolean) => void}
 >) {
   const [patientIntake, set] = React.useState<HIVPatientIntake>({
     whoStage: value.whoStage ?? ARV_WHO_STAGES[0],
@@ -45,15 +49,22 @@ export default function HIVPatientIntakeScreen({
   });
 
   const changeValue = React.useCallback(
-    (field: keyof typeof patientIntake) => (value: string) => {
-      set(s =>
-        produce(s, df => {
-          df[field] = value;
-        }),
-      );
-    },
+    <P extends HIVPatientIntake, K extends keyof P>(field: K) =>
+      (value: P[K]) => {
+        set(s =>
+          produce(s, df => {
+            // @ts-ignore
+            df[field] = value;
+          }),
+        );
+      },
     [set],
   );
+
+  React.useEffect(() => {
+    console.log('--> [ENTERED]: HIVPatientIntakeScreen');
+    return () => console.log('--> [EXIT]: HIVPatientIntakeScreen');
+  }, []);
 
   const [isAssessment, setIsAssessment] = React.useState(false);
   return (
@@ -65,6 +76,12 @@ export default function HIVPatientIntakeScreen({
           <View style={{marginTop: 12}}>
             <Text>WHO Stage</Text>
             <Picker
+              selectedKey={patientIntake.whoStage}
+              onChangeValue={changeValue('whoStage')}
+              renderText={text => (text ? text : 'Not selected')}
+              items={[undefined, ...ARV_WHO_STAGES]}
+            />
+            {/* <Picker
               selectedValue={patientIntake.whoStage}
               onValueChange={(itemValue, itemIndex) =>
                 changeValue('whoStage')(itemValue)
@@ -72,12 +89,18 @@ export default function HIVPatientIntakeScreen({
               {ARV_WHO_STAGES.map(stage => {
                 return <Picker.Item key={stage} label={stage} value={stage} />;
               })}
-            </Picker>
+            </Picker> */}
           </View>
           {/* Functional Status */}
           <View style={{marginTop: 12}}>
             <Text>Functional Status</Text>
             <Picker
+              selectedKey={patientIntake.functionalStatus}
+              onChangeValue={changeValue('functionalStatus')}
+              renderText={text => (text ? text : 'Not selected')}
+              items={[undefined, ...FUNCTIONAL_STATUS]}
+            />
+            {/* <Picker
               selectedValue={patientIntake.functionalStatus}
               onValueChange={(itemValue, itemIndex) =>
                 changeValue('functionalStatus')(itemValue)
@@ -85,7 +108,7 @@ export default function HIVPatientIntakeScreen({
               {FUNCTIONAL_STATUS.map(stage => {
                 return <Picker.Item key={stage} label={stage} value={stage} />;
               })}
-            </Picker>
+            </Picker> */}
           </View>
           {/* Known Co-Morbidities */}
 

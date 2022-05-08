@@ -22,6 +22,7 @@ import theme from '../../../@libs/elsa-ui/theme';
 import {RevealContent} from '../../../@libs/elsa-ui/components/misc';
 import {useTranslation} from 'react-i18next';
 import {Differential, SymptomData, SymptomId} from '../../../../@types';
+import {useAsyncFn} from 'react-use';
 
 type SymptomSummaryItemProps = {
   id: string;
@@ -307,36 +308,18 @@ export default function BasicSummaryScreen({
   entry: {patient, symptoms},
   actions: $,
 }: Props) {
-  const [ready, setReady] = React.useState(false);
-  const [elsaDifferentials, setConditions] = React.useState<Differential[]>([]);
-
-  // console.log(patient);
-
-  React.useEffect(() => {
-    if (!ready) {
-      fetchFromElsaLambda(
+  const [{loading, value: differentials}, fetchElsaDiffs] =
+    useAsyncFn(async () => {
+      return await fetchFromElsaLambda(
         convertPatientForElsa(patient),
         symptoms.present,
         symptoms.absent,
-      )
-        .then(c =>
-          setConditions(
-            c.map(s => ({
-              id: s.condition,
-              p: s.p,
-              condition: s.label,
-              symptoms: s.symptoms,
-            })),
-          ),
-        )
-        .catch(() => setConditions([]))
-        .finally(() => setReady(true));
-    }
-  }, [ready, symptoms]);
+      );
+    }, [symptoms]);
 
   React.useEffect(() => {
-    setReady(false);
-  }, [symptoms]);
+    fetchElsaDiffs();
+  }, []);
 
   const getDiscretizedConditions = React.useCallback(
     (elsa_conditions: Differential[], asstr: string[]) => {
@@ -468,7 +451,7 @@ export default function BasicSummaryScreen({
             borderTopColor: '#4BB8E9',
             marginTop: 16,
           }}>
-          {!ready ? (
+          {loading ? (
             <View
               style={{
                 flex: 1,
@@ -488,10 +471,10 @@ export default function BasicSummaryScreen({
                     onSearchSymptom={$.onSearchSymptom}
                     onSelectSymptom={$.onSelectSymptom}
                     conditions={
-                      elsaDifferentials.length === 0
+                      differentials.length === 0
                         ? []
                         : getDiscretizedConditions(
-                            elsaDifferentials,
+                            differentials,
                             symptoms.absent,
                           )
                     }
@@ -528,7 +511,7 @@ export default function BasicSummaryScreen({
           <RevealContent show={revealedSymptomsCount > 0}>
             <Pressable
               android_ripple={{borderless: true, radius: 16}}
-              onPress={() => $.onNext(elsaDifferentials)}
+              onPress={() => $.onNext(differentials)}
               style={{
                 alignItems: 'center',
                 justifyContent: 'flex-end',

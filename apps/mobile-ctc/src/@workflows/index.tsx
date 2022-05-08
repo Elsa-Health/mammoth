@@ -189,7 +189,10 @@ export const withFlowContext = <T, A extends FnList>(
   } = {},
 ) => {
   return ({navigation, route}: any) => {
-    const entryData = {...k.entry, ...(route?.params || {})};
+    const entryData = React.useMemo(
+      () => ({...k.entry, ...(route?.params || {})}),
+      [k.entry, route?.params],
+    );
     return (
       <Provider createStore={createStore(entryData)}>
         <Component

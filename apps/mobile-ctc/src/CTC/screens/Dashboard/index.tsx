@@ -340,10 +340,10 @@ const statusCITMap: {[s in NetworkStatus]: [string, string, string]} = {
  * @param s
  * @returns
  */
-const getColor = (s: NetworkStatus) => {
-  const [color, ..._other] = statusCITMap[s];
-  return color;
-};
+// const getColor = (s: NetworkStatus) => {
+//   const [color, ..._other] = statusCITMap[s];
+//   return color;
+// };
 
 const setNxMessage = (s: NetworkStatus | undefined) => {
   if (s === undefined) {
@@ -508,6 +508,7 @@ export default function CTCDashboardScreen({
       setPatients(null);
     }
   }, [searchQuery]);
+
   const [patients, setPatients] = React.useState<CTC.Patient[] | null>([]);
   const handleSearch = e => {
     // FIXME: Needs to be callback
@@ -545,7 +546,7 @@ export default function CTCDashboardScreen({
       const filePath = await $.generateReport();
       ToastAndroid.show('Report saved!', ToastAndroid.SHORT);
     } catch (err) {
-      ToastAndroid.show(err.message, ToastAndroid.LONG);
+      ToastAndroid.show(err?.message, ToastAndroid.LONG);
     } finally {
       setGrModal(false);
     }

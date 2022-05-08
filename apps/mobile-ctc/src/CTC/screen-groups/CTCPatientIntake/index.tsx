@@ -7,7 +7,7 @@ import BasicV2PatientIntakeScreen, {
 import HIVPatientIntakeScreen, {
   HIVPatientIntake,
 } from '../../screens/HIVPatientIntake';
-import {withFlowContext, WorkflowScreen} from '../..';
+import {withFlowContext, WorkflowScreen} from '../../../@workflows';
 import produce from 'immer';
 import _ from 'lodash';
 import {format} from 'date-fns';
@@ -31,6 +31,7 @@ type CTCHivIntake = {
   isTakingMedications: boolean;
   medications?: string[];
 };
+
 export type CTCPatientIntake = CTCBasicIntake & CTCHivIntake;
 
 const transformToProperBasicIntake = (
@@ -92,24 +93,10 @@ export default function CTCPatientIntakeScreenGroup({
   }
 >) {
   const [intake, set] = React.useState<CTCPatientIntake>(value || {});
-
-  // const changeValue = React.useCallback(
-  //   <K extends keyof CTCPatientIntake>(
-  //     field: K,
-  //     value: CTCPatientIntake[K],
-  //     cb?: (v: CTCPatientIntake) => void,
-  //   ) => {
-  //     set(s => {
-  //       const p = produce(s, df => {
-  //         df[field] = value;
-  //       });
-  //       cb && cb(p);
-  //       return p;
-  //     });
-  //   },
-  //   [set],
-  // );
-
+  React.useEffect(() => {
+    console.log('-> [ENTERED]: CTCPatientIntakeScreenGroup!');
+    return () => console.log('-> [EXIT]: CTCPatientIntakeScreenGroup!');
+  }, []);
   return (
     <Stack.Navigator
       screenOptions={{headerShown: false}}

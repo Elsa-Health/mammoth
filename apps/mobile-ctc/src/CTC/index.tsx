@@ -5,18 +5,15 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import CTCRegisterNewPatientScreen, {
   convertMartial,
-} from '../@workflows/screens/CTCRegisterNewPatient';
-import HIVAdherenceAssessmentScreen from '../@workflows/screens/HIVAdherenceAssessment';
-import CTCPatientsScreen from '../@workflows/screens/ViewPatients';
+} from './screens/RegisterNewPatient';
+import CTCPatientsScreen from './screens/ViewPatients';
 
-import CTCPatientIntakeScreenGroup from '../@workflows/screen-groups/CTCPatientIntake';
-import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
+import VisitFlowScreenGroup from './screen-groups/VisitFlow';
 
 import InvestigationResultsFormScreen from '../@workflows/screens/InvestigationResultsForm';
 
-import DoctorSymptomAssessmentScreen from './screens/DoctorSymptomAssessment';
 import AssessmentSummary from './screens/AssessmentSummary';
-import ApVisDahboardScreen from './screens/Dashboard';
+import CTCDashboardScreen from './screens/Dashboard';
 import PatientVisitScreen from './screens/PatientVisit';
 import PatientProfileScreen from './screens/PatientProfile';
 
@@ -27,7 +24,6 @@ import {
   cAppointRef,
   cPatientsRef,
   cVisitsRef,
-  dateToAge,
   fetchMissedAppointment,
   fetchPatients,
   searchPatientsFromId,
@@ -118,7 +114,10 @@ export default function CTCFlow({
     setMessage(null);
   };
 
-  const fullName = provider.user.displayName || '';
+  const fullName = React.useMemo(
+    () => provider.user.displayName || '',
+    [provider],
+  );
 
   const {
     socket,
@@ -179,11 +178,10 @@ export default function CTCFlow({
     <>
       <Stack.Navigator
         screenOptions={{headerShown: false}}
-        // initialRouteName={__DEV__ ? 'ctc.assessment_summary' : undefined}
-      >
+        initialRouteName={__DEV__ ? 'ctc.patients' : undefined}>
         <Stack.Screen
           name="ctc.dashboard"
-          component={withFlowContext(ApVisDahboardScreen, {
+          component={withFlowContext(CTCDashboardScreen, {
             entry: {
               fullName,
               networkStatus,
@@ -229,7 +227,7 @@ export default function CTCFlow({
                       type: 'success',
                     });
                   } else {
-                    navigation.navigate('ctc.patient_intake', {
+                    navigation.navigate('ctc.patient_visit_flow', {
                       patient,
                       appointment,
                     });
@@ -244,7 +242,7 @@ export default function CTCFlow({
                 navigation.navigate('ctc.register_patient', {patientId});
               },
               onNewPatientVisit: patient => {
-                navigation.navigate('ctc.patient_intake', {patient});
+                navigation.navigate('ctc.patient_visit_flow', {patient});
               },
               onViewPatientProfile: patient => {
                 navigation.navigate('ctc.patient_profile', {patient});
@@ -358,7 +356,7 @@ export default function CTCFlow({
                 return await searchPatientsFromId(partialId);
               },
               onNewPatientVisit: patient => {
-                navigation.navigate('ctc.patient_intake', {patient});
+                navigation.navigate('ctc.patient_visit_flow', {patient});
               },
               onDashboard: () => {
                 navigation.navigate('ctc.dashboard');
@@ -367,7 +365,90 @@ export default function CTCFlow({
           })}
         />
         <Stack.Screen
-          name="ctc.patient_intake"
+          name="ctc.patient_visit_flow"
+          component={withFlowContext(VisitFlowScreenGroup, {
+            actions: ({navigation}) => ({
+              onDismiss: () => console.log('Cancel Visit'),
+              onConclude: async final => {
+                console.log('Something');
+                try {
+                  // NEXT: To clean
+                  const {appointment, assessmentSummary} = final;
+
+                  if (assessmentSummary !== undefined) {
+                    const appointmentDate =
+                      assessmentSummary.summary?.appointmentDate?.toString();
+
+                    if (appointmentDate) {
+                      const visitId = await cVisitsRef.addDoc({
+                        ...final,
+                        investigations: assessmentSummary.investigations.map(
+                          inv => {
+                            return {
+                              obj: Investigation.fromKey(inv),
+                              investigationId: inv,
+                              result: undefined,
+                            };
+                          },
+                        ),
+                        dateTime: new Date(),
+                      });
+
+                      const date = new Date(appointmentDate).toUTCString();
+
+                      let fulfilledAppointmentId = null;
+                      if (
+                        appointment?.id !== null &&
+                        appointment?.id !== undefined
+                      ) {
+                        cAppointRef.document(appointment.id).update({
+                          visitIdFullfilled: visitId,
+                          fulfilledDate: new Date().toUTCString(),
+                        });
+
+                        fulfilledAppointmentId = appointment.id;
+                      }
+
+                      const appointmentId = await cAppointRef.addDoc({
+                        patientId: currentVisit.patientId,
+                        visitIdCreated: visitId,
+                        date,
+                      });
+
+                      await cVisitsRef
+                        .document(visitId)
+                        .update(
+                          fulfilledAppointmentId === null
+                            ? {appointmentId, fulfilledAppointmentId}
+                            : {appointmentId},
+                        );
+
+                      setMessage({
+                        text: `Visit complete! Next appointment set for ${date}`,
+                        type: 'success',
+                      });
+                      pushMessages();
+                      navigation.navigate('ctc.dashboard');
+                    } else {
+                      console.warn(
+                        'THERE IS NO APPOINTMENT DATE',
+                        appointmentDate,
+                      );
+                    }
+                  }
+                } catch (err) {
+                  console.log('ERROR:', err);
+                  setMessage({
+                    text: 'Unable to conclude assessment',
+                    type: 'error',
+                  });
+                }
+              },
+            }),
+          })}
+        />
+        {/* <Stack.Screen
+          name="ctc.patient_visit_flow"
           component={withFlowContext(CTCPatientIntakeScreenGroup, {
             actions: ({navigation}) => ({
               onNext: (patientForm, patient, isAssess, appointment) => {
@@ -450,8 +531,8 @@ export default function CTCFlow({
               },
             }),
           })}
-        />
-        <Stack.Screen
+        /> */}
+        {/* <Stack.Screen
           name="ctc.assessment_summary"
           component={withFlowContext(AssessmentSummary, {
             entry: {
@@ -554,13 +635,13 @@ export default function CTCFlow({
               },
             }),
           })}
-        />
+        /> */}
         <Stack.Screen
           name="ctc.patient_profile"
           component={withFlowContext(PatientProfileScreen, {
             actions: ({navigation}) => ({
               onNewPatientVisit: patient => {
-                navigation.navigate('ctc.patient_intake', {patient});
+                navigation.navigate('ctc.patient_visit_flow', {patient});
               },
               onViewPatientVisit: visit => {
                 navigation.navigate('ctc.view_patient_visit', {visit});

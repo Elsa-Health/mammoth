@@ -49,6 +49,11 @@ export default function BasicV2PatientIntakeScreen({
     whoStage: 'Stage 1',
   });
 
+  React.useEffect(() => {
+    console.log('--> [ENTERED]: BasicV2PatientIntakeScreen');
+    return () => console.log('--> [EXIT]: BasicV2PatientIntakeScreen');
+  }, []);
+
   const changeValue = React.useCallback(
     (field: keyof typeof patientIntake) => (value: string) => {
       set(s =>

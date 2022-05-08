@@ -20,7 +20,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import produce from 'immer';
 import dayjs from 'dayjs';
-import {WorkflowScreen} from '../..';
+import {WorkflowScreen} from '../../../@workflows';
 
 type MaritalStatus =
   | 'single'
