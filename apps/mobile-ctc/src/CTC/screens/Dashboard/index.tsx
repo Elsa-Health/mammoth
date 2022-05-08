@@ -6,7 +6,6 @@ import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 import {ElsaColorableIcon} from '../../../@libs/elsa-ui/visuals/vectors';
 
 import {format} from 'date-fns';
-import PushNotification from 'react-native-push-notification';
 
 import {
   ActivityIndicator,
@@ -500,6 +499,7 @@ export default function CTCDashboardScreen({
     onNewPatient: () => void;
     generateReport: () => Promise<void>;
     onRetrySyncServer: () => void;
+    onTestNotification: () => void;
   }
 >) {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -692,12 +692,7 @@ export default function CTCDashboardScreen({
                   <Divider />
                   <Menu.Item onPress={$.onLogout} title="Logout" />
                   <Menu.Item
-                    onPress={() => {
-                      PushNotification.localNotification({
-                        channelId: 'testing-channel',
-                        message: 'This is a test. We believe in you!',
-                      });
-                    }}
+                    onPress={$.onTestNotification}
                     title="Test Notification"
                   />
                 </Menu>

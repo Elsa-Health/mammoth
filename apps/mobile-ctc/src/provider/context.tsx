@@ -109,6 +109,7 @@ type V2Code = string;
 import firestore from '@react-native-firebase/firestore';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import {AuthInfoMap, authV1} from '../app/utils';
+import {Analytics} from '../CTC/analytics';
 
 async function authV2(identity: Identity) {
   const cred = await authenticateCredential(firestore(), identity);

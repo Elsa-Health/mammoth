@@ -26,6 +26,7 @@ import QRLogin from './CTC/screens/QRAuthentication';
 import * as Sentry from '@sentry/react-native';
 
 import {View, Text} from 'react-native';
+import {Analytics} from './CTC/analytics';
 
 // FIXME: Remove API key and secret
 if (!__DEV__) {
@@ -46,6 +47,13 @@ function _Application() {
 
   const {loading, state, logout, set} = useApplication();
 
+  React.useEffect(() => {
+    if (state) {
+      //
+      Analytics.init(state.provider);
+    }
+  }, [state]);
+
   if (loading) {
     return (
       <View>
@@ -57,7 +65,13 @@ function _Application() {
   if (state !== null) {
     return (
       <NavigationContainer>
-        <CTC provider={state.provider} logout={logout} />
+        <CTC
+          provider={state.provider}
+          logout={async () => {
+            logout();
+            await Analytics.logEvent('logout');
+          }}
+        />
       </NavigationContainer>
     );
   }
@@ -66,9 +80,9 @@ function _Application() {
     <QRLogin
       actions={{
         authenticate: authenticate,
-        onQueryProvider: provider => {
+        onQueryProvider: async provider => {
           set({provider, settings: null});
-          console.log('Logged in as provider', provider.user.uid);
+          await Analytics.logEvent('login');
         },
       }}
     />

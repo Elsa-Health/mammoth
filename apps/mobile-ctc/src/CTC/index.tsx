@@ -54,6 +54,10 @@ import {generateReport} from './misc';
 import {Investigation} from '@elsa-health/data-fns/lib';
 import {ElsaProvider} from '../provider/backend';
 
+import PushNotification from 'react-native-push-notification';
+import {useAsync} from 'react-use';
+
+import {Analytics} from './analytics';
 /**
  * Generate Report
  */
@@ -193,6 +197,16 @@ export default function CTCFlow({
               onLogout: () => {
                 logout();
                 console.warn('Logging out happended');
+              },
+              onTestNotification: () => {
+                Analytics.logEvent('testEvent', {name: 'Testing Event'}).then(
+                  () => {
+                    PushNotification.localNotification({
+                      channelId: 'testing-channel',
+                      message: 'This is a test. We believe in you!',
+                    });
+                  },
+                );
               },
               generateReport,
               onRetrySyncServer: retry,

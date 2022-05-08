@@ -157,12 +157,10 @@ export async function authenticateProvider(
 
   console.log('Credentials Pulled.. Confirming Facility');
 
-  const {exists: doesfacilityExist, data: facilityData} = await firestore
-    .collection('facilities')
-    .doc(facilityId)
-    .get();
+  const fac = await firestore.collection('facilities').doc(facilityId).get();
 
-  if (!doesfacilityExist) {
+  console.log({facilityId});
+  if (!fac.exists) {
     console.log('[FACILITY ID]: ', facilityId);
     throw {
       code: 'elsa/unknown-facility',
@@ -170,7 +168,11 @@ export async function authenticateProvider(
     };
   }
 
-  const facility = facilityData() as ElsaDBTypes.Facility;
+  const facility = fac.data() as ElsaDBTypes.Facility;
+
+  if (facility === undefined) {
+    throw new Error(`${facilityId} is MISSING (not defined)`);
+  }
 
   console.log('Facility confirmed.. Creating Session and Finishing up');
 
