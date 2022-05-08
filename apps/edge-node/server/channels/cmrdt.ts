@@ -1,7 +1,7 @@
 import { Server } from "http";
 import { CRDTMessageBox, SBSet } from "sabertooth-core";
 import { WebSocket, WebSocketServer } from "ws";
-import { store } from "../server/store";
+import { store } from "../core/store";
 
 import _ from "lodash";
 

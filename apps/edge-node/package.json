@@ -1,13 +1,13 @@
 {
-	"name": "super-node",
+	"name": "edge-node",
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
 		"build": "tsc -P .",
 		"start": "node dist/server/index.js",
 		"docker": "docker-compose up --remove-orphans",
-		"dev:start": "tsnd --respawn src/server/index.ts",
-		"dev:watch": "tsnd --respawn src/server/index.ts --watch src",
+		"dev:start": "tsnd --respawn server/core/index.ts",
+		"dev:watch": "tsnd --respawn server/core/index.ts --watch server",
 		"test": "echo \"Error: no test script specified\" && exit 1"
 	},
 	"keywords": [],
