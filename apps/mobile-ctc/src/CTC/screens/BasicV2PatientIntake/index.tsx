@@ -16,6 +16,7 @@ import produce from 'immer';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export type BasicIntakeForm = {
+  doctorIndicatesFromAppointment: boolean;
   isPregnant: boolean | undefined;
   dateOfPregancy: Date;
   weight: undefined | string;
@@ -40,6 +41,7 @@ export default function BasicV2PatientIntakeScreen({
   }
 >) {
   const [patientIntake, set] = React.useState<BasicIntakeForm>({
+    doctorIndicatesFromAppointment: appointmentDate !== undefined,
     isPregnant: sex === 'female' ? false : undefined,
     dateOfPregancy: new Date(),
     weight: undefined,
@@ -49,10 +51,10 @@ export default function BasicV2PatientIntakeScreen({
     whoStage: 'Stage 1',
   });
 
-  React.useEffect(() => {
-    console.log('--> [ENTERED]: BasicV2PatientIntakeScreen');
-    return () => console.log('--> [EXIT]: BasicV2PatientIntakeScreen');
-  }, []);
+  // React.useEffect(() => {
+  //   console.log('--> [ENTERED]: BasicV2PatientIntakeScreen');
+  //   return () => console.log('--> [EXIT]: BasicV2PatientIntakeScreen');
+  // }, []);
 
   const changeValue = React.useCallback(
     (field: keyof typeof patientIntake) => (value: string) => {
@@ -72,9 +74,30 @@ export default function BasicV2PatientIntakeScreen({
         contentContainerStyle={{paddingHorizontal: DefaultSpacing.md, flex: 1}}>
         <View style={{flex: 1}}>
           <View>
-            {appointmentDate && (
+            <View style={{marginTop: 12}}>
+              <Text>Is this visit fulfilling an appointment?</Text>
+              <RadioButton.Group
+                onValueChange={val =>
+                  changeValue('doctorIndicatesFromAppointment')(
+                    val === 'yes' ? true : false,
+                  )
+                }
+                value={
+                  patientIntake.doctorIndicatesFromAppointment ? 'yes' : 'no'
+                }>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly',
+                  }}>
+                  <RadioButton.Item label="Yes" value={'yes'} />
+                  <RadioButton.Item label="No" value={'no'} />
+                </View>
+              </RadioButton.Group>
+            </View>
+            {/* {appointmentDate && (
               <>
-                {/* Appointment Date */}
                 <View
                   style={{
                     display: 'flex',
@@ -101,7 +124,7 @@ export default function BasicV2PatientIntakeScreen({
                   <Text>{format(appointmentDate, 'dd MMMM yyyy')}</Text>
                 </View>
               </>
-            )}
+            )} */}
 
             {/* Patient ID */}
             <View

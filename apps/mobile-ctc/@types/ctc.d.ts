@@ -30,6 +30,8 @@ declare namespace CTC {
       sex: Sex;
     };
     intake: {
+      // for doctor to explicitly indicate
+      doctorIndicatesFromAppointment?: boolean;
       isPregnant?: boolean;
       dateOfPregancy?: DBDateTime;
       weight?: number;
@@ -41,6 +43,7 @@ declare namespace CTC {
       coMorbidities: string[];
       isTakingARV: boolean;
       ARVRegimens?: string[];
+      regimenDuration?: string;
       isTakingMedications: boolean;
       medications?: string[];
     };
@@ -76,19 +79,20 @@ declare namespace CTC {
       };
       nextSteps: CTC.NextStepsObject;
       investigations: CTC.Test[];
-      medicationInfo: HIVDispenseMedication<Medication.All>;
+      medicationInfo: HIVDispenseMedication;
     };
     investigations: {
       [key in Investigation]?: any;
     };
   };
 
-  export type HIVDispenseMedication<M extends string> = {
-    medications: M[];
+  export type HIVDispenseMedication = {
+    medications: Medication.All | CTC.Medication[];
     status: CTC.Status | undefined;
     reason?: string | undefined;
+    arvRegimens: ARV.Regimen[];
+    regimenDuration?: string | undefined;
   };
-
   type Patient = {
     id: string;
     sex: Sex;
