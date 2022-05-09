@@ -103,7 +103,7 @@ const kvmConfig = configuration({
 });
 
 const wsURL_DEV = "ws://localhost:5005/channel/cmrdt";
-const wsURL_PROD = "wss://ctc-bounce-server.herokuapp.com/channel/cmrdt";
+const wsURL_PROD = "wss://ctc-edge-server.fly.dev/channel/cmrdt";
 
 const wsURL = process.env.NODE_ENV === "development" ? wsURL_DEV : wsURL_PROD;
 // const wsURL = wsURL_PROD;
