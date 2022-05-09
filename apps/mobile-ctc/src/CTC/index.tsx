@@ -119,9 +119,9 @@ export default function CTCFlow({
     type: 'error' | 'success' | 'default';
   } | null>(null);
 
-  const dismiss = React.useEffect(() => {
+  const dismiss = () => {
     setMessage(null);
-  }, [setMessage]);
+  };
 
   const fullName = React.useMemo(
     () => provider.user.displayName || '',
@@ -239,9 +239,8 @@ export default function CTCFlow({
               onAttendPatient: appointment => {
                 getPatient(appointment.patientId).then(patient => {
                   if (patient === null) {
-                    const message = 'Unable to start a appointment';
                     setMessage({
-                      text: message,
+                      text: 'Patient record is missing. Unable to start appointment',
                       type: 'success',
                     });
                   } else {
