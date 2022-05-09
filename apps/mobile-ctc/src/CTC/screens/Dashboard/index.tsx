@@ -2,7 +2,11 @@ import React from 'react';
 import {ScrollView, ToastAndroid, View} from 'react-native';
 import {WorkflowScreen} from '../../../@workflows';
 import {Layout, Text} from '../../../@libs/elsa-ui/components';
-import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
+import {
+  DefaultColor,
+  DefaultSpacing,
+  useTheme,
+} from '../../../@libs/elsa-ui/theme';
 import {ElsaColorableIcon} from '../../../@libs/elsa-ui/visuals/vectors';
 
 import {format} from 'date-fns';
@@ -407,84 +411,153 @@ function NetworkChip({
 
 import {Chip} from 'react-native-paper';
 
+const availableCTCCodes = [
+  {ctc: '02020105', name: 'Makiba'},
+  {ctc: '02020500', name: 'Usa Government'},
+  {ctc: '02020100', name: 'Patandi'},
+  {ctc: '02020118', name: 'Momela'},
+  {ctc: '02020300', name: 'Nkoaranga Lutheran Hospital'},
+  {ctc: '02020250', name: 'Usa Dreams CTC'},
+  {ctc: '02020120', name: 'Mareu'},
+  {ctc: '02020103', name: 'Ngarenanyuki Health Centre'},
+].sort((a, b) => {
+  return a.ctc.localeCompare(b.ctc);
+});
+
 function CTCSearchBox({
   value,
+  selfCTCCode,
   onChangeValue,
   onHandleSearch,
 }: {
   value: string;
+  selfCTCCode?: string;
   onChangeValue: (s: string) => void;
   onHandleSearch: (val: string) => void;
 }) {
-  const [ctc, setCtc] = React.useState('');
-  const [id, setId] = React.useState('');
+  const [showSelectionModal, setShow] = React.useState(false);
+
+  const {color} = useTheme();
+  const searchRef = React.useRef();
+
+  const prefillIdWithCode = (code: string) => {
+    onChangeValue(code);
+    searchRef.current?.focus();
+  };
 
   return (
-    <View>
-      <Text font="bold" size="md">
-        Find a Patient
-      </Text>
-      <Text style={{lineHeight: 24}}>Search patient using the patient ID</Text>
+    <>
+      <Portal>
+        <Modal
+          visible={showSelectionModal}
+          onDismiss={() => setShow(false)}
+          contentContainerStyle={{
+            backgroundColor: 'white',
+            margin: 36,
+          }}>
+          <View>
+            <View style={{paddingHorizontal: 16, paddingVertical: 12}}>
+              <Text font="bold" size={'lg'}>
+                Select CTC
+              </Text>
+            </View>
+            <Divider />
+            <View>
+              {availableCTCCodes.map((item, ix) => (
+                <TouchableRipple
+                  key={ix}
+                  onPress={() => {
+                    setShow(false);
+                    prefillIdWithCode(item.ctc);
+                  }}>
+                  <View style={{paddingVertical: 8, paddingHorizontal: 16}}>
+                    <Text size={16} style={{marginBottom: 4, letterSpacing: 1}}>
+                      {item.name}
+                    </Text>
+                    <Text
+                      font="medium"
+                      size={16}
+                      style={{textTransform: 'uppercase', letterSpacing: 1}}>
+                      {item.ctc}
+                    </Text>
+                  </View>
+                </TouchableRipple>
+              ))}
+            </View>
+          </View>
+        </Modal>
+      </Portal>
+      <View>
+        <Text font="bold" size="md">
+          Find a Patient
+        </Text>
+        <Text style={{lineHeight: 24}}>
+          Search patient using the patient ID
+        </Text>
 
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: 10,
-        }}>
-        <View style={{flexDirection: 'row'}}>
-          <TextInput
-            style={{flex: 1, marginRight: 8}}
-            mode="outlined"
-            label="CTC Code"
-            value={ctc}
-            onChangeText={setCtc}
-            maxLength={8}
-          />
-          <TextInput
-            style={{flex: 2}}
-            mode="outlined"
-            label="Patient ID"
-            value={id}
-            onChangeText={setId}
-          />
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginTop: 10,
+          }}>
+          <View style={{flexDirection: 'row'}}>
+            {/* <TextInput
+              style={{flex: 2}}
+              mode="outlined"
+              label="Enter Patient Full ID"
+              value={id}
+              maxLength={14}
+              onChangeText={setId}
+              left={<TextInput.Icon name="magnify" />}
+            /> */}
 
-          {/* <Searchbar
-            placeholder="Ex. 02020100123456"
-            blurOnSubmit
-            onChangeText={onChangeValue}
-            onSubmitEditing={onHandleSearch}
-            value={value}
-          /> */}
+            <Searchbar
+              ref={searchRef}
+              placeholder="Full Patient ID"
+              blurOnSubmit
+              style={{elevation: 1, borderWidth: 0.4, borderColor: '#ccc'}}
+              onChangeText={onChangeValue}
+              onSubmitEditing={onHandleSearch}
+              value={value}
+            />
+          </View>
+        </View>
+        <View
+          style={{paddingVertical: 12, flexDirection: 'row', flexWrap: 'wrap'}}>
+          <Chip
+            icon="clipboard-plus-outline"
+            mode="outlined"
+            style={{marginRight: 8}}
+            onPress={() => setShow(true)}>
+            Select CTC Code
+          </Chip>
+          {selfCTCCode !== undefined && (
+            <Chip
+              icon="home-plus"
+              mode="outlined"
+              selectedColor={color.primary.dark}
+              style={{marginRight: 8}}
+              onPress={() => prefillIdWithCode(selfCTCCode)}>
+              Use My Code
+            </Chip>
+          )}
         </View>
       </View>
-      <View
-        style={{paddingVertical: 12, flexDirection: 'row', flexWrap: 'wrap'}}>
-        <Chip
-          icon="plus"
-          mode="outlined"
-          style={{marginRight: 8}}
-          onPress={() => console.log('Pressed')}>
-          My CTC Code
-        </Chip>
-        <Chip
-          icon="plus"
-          mode="outlined"
-          style={{marginRight: 8}}
-          onPress={() => console.log('Pressed')}>
-          Add Facility
-        </Chip>
-      </View>
-    </View>
+    </>
   );
 }
 
 export default function CTCDashboardScreen({
-  entry: {fullName, networkStatus},
+  entry: {fullName, networkStatus, myCtcCode},
   actions: $,
 }: WorkflowScreen<
-  {fullName: string; networkStatus?: NetworkStatus | undefined},
+  {
+    fullName: string;
+    myCtcCode?: string;
+    networkStatus?: NetworkStatus | undefined;
+  },
   {
     onLogout: () => void;
     syncPushAllData: () => Promise<void>;
@@ -703,6 +776,7 @@ export default function CTCDashboardScreen({
           <View style={{marginTop: DefaultSpacing.md}}>
             <CTCSearchBox
               value={searchQuery}
+              selfCTCCode={myCtcCode}
               onChangeValue={setSearchQuery}
               onHandleSearch={handleSearch}
             />

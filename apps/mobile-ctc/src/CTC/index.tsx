@@ -192,6 +192,7 @@ export default function CTCFlow({
             entry: {
               fullName,
               networkStatus,
+              myCtcCode: provider.facility.ctcCode,
             },
             actions: ({navigation}) => ({
               onLogout: () => {

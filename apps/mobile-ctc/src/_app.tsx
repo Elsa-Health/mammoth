@@ -39,6 +39,18 @@ if (!__DEV__) {
   });
 }
 
+// import firestore from '@react-native-firebase/firestore';
+// (async () => {
+//   const f = firestore().collection('facilities');
+//   const s = await f.get();
+
+//   const out = s.docs
+//     .map(d => d.data())
+//     .filter(d => d.ctcCode !== undefined)
+//     .map(d => ({name: d.name, ctc: d.ctcCode}));
+//   console.log(out);
+// })();
+
 function _Application() {
   // set's the user if passed... otherwise.. doesnt
   // TODO: Set up such that the types match with the workflow -> UserObject
