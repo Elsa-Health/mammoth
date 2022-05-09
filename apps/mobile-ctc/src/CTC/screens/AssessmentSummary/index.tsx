@@ -25,6 +25,7 @@ import {
   TextInput,
   Checkbox,
   HelperText,
+  RadioButton,
 } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {format} from 'date-fns';
@@ -32,11 +33,12 @@ import produce from 'immer';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export type HIVDispenseMedication<M extends string> = {
-  medications: M[];
+export type HIVDispenseMedication = {
+  medications: Medication.All | CTC.Medication[];
   status: CTC.Status | undefined;
   reason?: string | undefined;
   arvRegimens: ARV.Regimen[];
+  regimenDuration?: string | undefined;
 };
 
 export type CTCAssessmentData = {
@@ -51,7 +53,7 @@ export type AssessmentSummaryData = {
   nextSteps: CTC.NextStepsObject;
   //   riskNonAdherence: number;
   investigations: Investigation[];
-  medicationInfo: HIVDispenseMedication<Medication.All | CTC.Medication>;
+  medicationInfo: HIVDispenseMedication;
 };
 type Disease = Condition | CTC.Condition;
 
@@ -89,6 +91,7 @@ export default function AssessmentSummaryScreen({
         status: undefined,
         reason: undefined,
         arvRegimens: [],
+        regimenDuration: undefined,
       },
       nextSteps: {
         counselingRecommendations: [],
@@ -336,29 +339,56 @@ export default function AssessmentSummaryScreen({
             !['not-start-arv', 'stop-arv', 'continue-arv'].includes(
               state.medicationInfo.status,
             ) && (
-              <View style={{marginVertical: 6}}>
-                <Text>What ARV Regimen are you changing to?</Text>
-                <SectionedSelect
-                  confirmText={'Confirm'}
-                  items={[
-                    {
-                      name: 'ARV Combination Regimen',
-                      id: 1,
-                      children: ARV.regimen
-                        .pairs()
-                        .map(([id, name]) => ({id, name})),
-                    },
-                  ]}
-                  uniqueKey="id"
-                  searchPlaceholderText={'Search ARV Combination Regimen'}
-                  selectText={'Select if any'}
-                  onSelectedItemsChange={setter(
-                    'medicationInfo',
-                    'arvRegimens',
-                  )}
-                  selectedItems={state.medicationInfo.arvRegimens}
-                />
-              </View>
+              <>
+                <View style={{marginVertical: 6}}>
+                  <Text>What ARV Regimen are you changing to?</Text>
+                  <SectionedSelect
+                    confirmText={'Confirm'}
+                    items={[
+                      {
+                        name: 'ARV Combination Regimen',
+                        id: 1,
+                        children: ARV.regimen
+                          .pairs()
+                          .map(([id, name]) => ({id, name})),
+                      },
+                    ]}
+                    uniqueKey="id"
+                    searchPlaceholderText={'Search ARV Combination Regimen'}
+                    selectText={'Select if any'}
+                    onSelectedItemsChange={setter(
+                      'medicationInfo',
+                      'arvRegimens',
+                    )}
+                    selectedItems={state.medicationInfo.arvRegimens}
+                  />
+                </View>
+
+                {state.medicationInfo.arvRegimens.length > 0 && (
+                  <View style={{marginTop: 12}}>
+                    <Text style={{lineHeight: 20}}>
+                      What is the duration of the ARVs?
+                    </Text>
+                    <RadioButton.Group
+                      onValueChange={setter(
+                        'medicationInfo',
+                        'regimenDuration',
+                      )}
+                      value={state.medicationInfo.regimenDuration ?? 'NILL'}>
+                      <View
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'space-evenly',
+                        }}>
+                        <RadioButton.Item label="Unspecified" value={'NILL'} />
+                        <RadioButton.Item label="1 month" value={'1 month'} />
+                        <RadioButton.Item label="3 months" value={'3 months'} />
+                      </View>
+                    </RadioButton.Group>
+                  </View>
+                )}
+              </>
             )}
           {state.medicationInfo.status !== undefined &&
             CTC.status.reason.fromKey(state.medicationInfo.status) !==

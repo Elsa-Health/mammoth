@@ -23,6 +23,7 @@ export type HIVPatientIntake = {
   coMorbidities: CTC.CoMorbidity[];
   isTakingARV: boolean;
   ARVRegimens: ARV.Regimen[];
+  regimenDuration?: string | undefined;
   isTakingMedications: boolean;
   medications: Medication.All[];
 };
@@ -44,6 +45,7 @@ export default function HIVPatientIntakeScreen({
     coMorbidities: value.coMorbidities ?? [],
     isTakingARV: value.isTakingARV ?? false,
     ARVRegimens: value.ARVRegimens ?? [],
+    regimenDuration: undefined,
     isTakingMedications: value.isTakingARV ?? false,
     medications: value.medications ?? [],
   });
@@ -61,10 +63,10 @@ export default function HIVPatientIntakeScreen({
     [set],
   );
 
-  React.useEffect(() => {
-    console.log('--> [ENTERED]: HIVPatientIntakeScreen');
-    return () => console.log('--> [EXIT]: HIVPatientIntakeScreen');
-  }, []);
+  // React.useEffect(() => {
+  //   console.log('--> [ENTERED]: HIVPatientIntakeScreen');
+  //   return () => console.log('--> [EXIT]: HIVPatientIntakeScreen');
+  // }, []);
 
   const [isAssessment, setIsAssessment] = React.useState(false);
   return (
@@ -161,26 +163,49 @@ export default function HIVPatientIntakeScreen({
             </View>
 
             {patientIntake.isTakingARV && (
-              <View>
-                <Text>Choose ARV Regimen Combination</Text>
-                <SectionedSelect
-                  confirmText={'Confirm'}
-                  items={[
-                    {
-                      name: 'ARV Combination Regimen',
-                      id: 1,
-                      children: ion(ARV.regimen.pairs()),
-                    },
-                  ]}
-                  uniqueKey="id"
-                  searchPlaceholderText={'Search ARV Combination Regimen'}
-                  selectText={'Select if any'}
-                  onSelectedItemsChange={(regimens: ARV.Regimen[]) => {
-                    changeValue('ARVRegimens')(regimens);
-                  }}
-                  selectedItems={patientIntake.ARVRegimens}
-                />
-              </View>
+              <>
+                <View>
+                  <Text>Choose ARV Regimen Combination</Text>
+                  <SectionedSelect
+                    confirmText={'Confirm'}
+                    items={[
+                      {
+                        name: 'ARV Combination Regimen',
+                        id: 1,
+                        children: ion(ARV.regimen.pairs()),
+                      },
+                    ]}
+                    uniqueKey="id"
+                    searchPlaceholderText={'Search ARV Combination Regimen'}
+                    selectText={'Select if any'}
+                    onSelectedItemsChange={(regimens: ARV.Regimen[]) => {
+                      changeValue('ARVRegimens')(regimens);
+                    }}
+                    selectedItems={patientIntake.ARVRegimens}
+                  />
+                </View>
+                {patientIntake.ARVRegimens.length > 0 && (
+                  <View style={{marginTop: 12}}>
+                    <Text style={{lineHeight: 20}}>
+                      What is the duration of the ARVs?
+                    </Text>
+                    <RadioButton.Group
+                      onValueChange={changeValue('regimenDuration')}
+                      value={patientIntake.regimenDuration ?? 'NILL'}>
+                      <View
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'space-evenly',
+                        }}>
+                        <RadioButton.Item label="Unspecified" value={'NILL'} />
+                        <RadioButton.Item label="1 month" value={'1 month'} />
+                        <RadioButton.Item label="3 months" value={'3 months'} />
+                      </View>
+                    </RadioButton.Group>
+                  </View>
+                )}
+              </>
             )}
             <View style={{marginTop: 12}}>
               <Text style={{lineHeight: 20}}>
