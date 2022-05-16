@@ -39,7 +39,7 @@ import {
   convert_v0_visit_to_v1,
 } from './CTC/storage/migration-v0-v1';
 import produce from 'immer';
-import {Button} from 'react-native-paper';
+import {Button, Modal, Portal} from 'react-native-paper';
 
 const nr = 'CTC-APPLICATION-STOAGE';
 const nStore = getStore(
@@ -60,7 +60,6 @@ const crdtStore = getStore(KeyValueMapStore(() => uuid.v4() as string));
 import {
   StateTrackingBox,
   onTrackStoreAddUpdateChanges,
-  updateChangesToStore,
 } from 'papai/distributed/store';
 import {HybridLogicalClock} from 'papai/distributed/clock';
 import {useWebSocket} from './app/utils';
@@ -79,10 +78,6 @@ onTrackStoreAddUpdateChanges(crdtStore, statebox, refToKey, (dr, state) => {
 });
 
 // Collections
-const patientCollection = collection(nStore, 'patients');
-const investigationCollection = collection(nStore, 'investigations');
-const appointmentCollection = collection(nStore, 'appointments');
-const visitCollection = collection(nStore, 'visits');
 
 const randomCollection = collection<{name: string; age: number}>(
   crdtStore,
@@ -93,178 +88,18 @@ function docNode(store: Store, docRef: Document.Ref) {
   return doc(collection(store, docRef.collectionId), docRef.documentId);
 }
 
-function getCollection(store: Store, collRef: Collection.Ref) {
+function collectionNode(store: Store, collRef: Collection.Ref) {
   return collection(store, collRef.collectionId);
 }
+
+import {ThemeProvider} from './@libs/elsa-ui/theme';
 
 export default function App() {
   React.useEffect(() => {
     SplashScreen.hide();
   }, []);
 
-  const UPDATE_COLLECTION_KEYS = '#v0v1Store#config';
-  // useAsync(async () => {
-  //   // remove key
-  //   await AsyncStorage.removeItem(UPDATE_COLLECTION_KEYS);
-
-  //   const config = await AsyncStorage.getItem(UPDATE_COLLECTION_KEYS);
-
-  //   if (config === null) {
-  //     await AsyncStorage.setItem(
-  //       UPDATE_COLLECTION_KEYS,
-  //       JSON.stringify({done: []}),
-  //     );
-  //   }
-
-  //   const conf: {
-  //     done: Array<'visits' | 'investigations' | 'appointments' | 'patients'>;
-  //   } = JSON.parse(
-  //     (await AsyncStorage.getItem(UPDATE_COLLECTION_KEYS)) as string,
-  //   );
-
-  //   if (!conf.done.includes('patients')) {
-  //     // converting all the visits
-  //     try {
-  //       const patients = await store.collection('patients').queryMultiple();
-
-  //       const v1_patients = patients.map(([id, data]) => {
-  //         return convert_v0_patient_to_v1(id, data);
-  //       });
-
-  //       await setDocs(
-  //         patientCollection,
-  //         v1_patients.map(({id, ...other}) => [id, other]),
-  //       );
-
-  //       // update the configuration indicator
-  //       await AsyncStorage.setItem(
-  //         UPDATE_COLLECTION_KEYS,
-  //         JSON.stringify(
-  //           produce(conf, df => {
-  //             df.done.push('patients');
-  //           }),
-  //         ),
-  //       );
-  //       console.log('Done Patients!');
-
-  //       // const patient_s = await getDocs(patientCollection);
-  //       // console.log(patient_s);
-  //     } catch (err) {
-  //       console.log('-> PATIENTs ERR: ', err);
-  //       throw err;
-  //     }
-  //   }
-
-  //   if (!conf.done.includes('visits')) {
-  //     // converting all the visits
-  //     try {
-  //       const visits = await store.collection('visits').queryMultiple();
-
-  //       const v1_visits = visits.map(([id, data]) => {
-  //         return convert_v0_visit_to_v1(id, data, uuid.v4);
-  //       });
-
-  //       const vs = v1_visits.map(s => s.visit);
-  //       // const pts = v1_visits.map(s => s.patient);
-
-  //       await setDocs(
-  //         visitCollection,
-  //         vs.map(({id, ...other}) => [id, other]),
-  //       );
-  //       // update the configuration indicator
-  //       await AsyncStorage.setItem(
-  //         UPDATE_COLLECTION_KEYS,
-  //         JSON.stringify(
-  //           produce(conf, df => {
-  //             df.done.push('visits');
-  //           }),
-  //         ),
-  //       );
-
-  //       // console.log(v1_visits[0]);
-  //     } catch (err) {
-  //       console.log('-> VISIT ERR: ', err.message);
-  //       throw err;
-  //     }
-  //   }
-
-  //   if (!conf.done.includes('appointments')) {
-  //     // converting all the appointments
-  //     try {
-  //       const appointments = await store
-  //         .collection('appointments')
-  //         .queryMultiple();
-
-  //       const v1_appointments = appointments.map(([id, data]) => {
-  //         const {appointment, appointmentRequest} =
-  //           convert_v0_appointment_to_v1(id, data, {
-  //             apptRequestId: uuid.v4,
-  //             apptResponseId: uuid.v4,
-  //           });
-
-  //         return appointment;
-  //       });
-
-  //       console.log('Done Appointment!');
-
-  //       await setDocs(
-  //         appointmentCollection,
-  //         v1_appointments.map(({id, ...other}) => [id, other]),
-  //       );
-
-  //       await AsyncStorage.setItem(
-  //         UPDATE_COLLECTION_KEYS,
-  //         JSON.stringify(
-  //           produce(conf, df => {
-  //             df.done.push('appointments');
-  //           }),
-  //         ),
-  //       );
-  //       // console.log(v1_appointments[0]);
-  //     } catch (err) {
-  //       console.log('-> APPOINTMENT ERR: ', err.message);
-  //     }
-  //   }
-
-  //   if (!conf.done.includes('investigations')) {
-  //     // converting all the
-  //     try {
-  //       const investigations = await store
-  //         .collection('investigations')
-  //         .queryMultiple();
-
-  //       const v1_invs = investigations.map(([id, data]) => {
-  //         const ninv = convert_v0_investigation_to_v1(id, data, uuid.v4);
-  //         // console.log(id, data);
-  //         return ninv;
-  //       });
-
-  //       await setDocs(
-  //         investigationCollection,
-  //         v1_invs.map(({id, ...other}) => [id, other]),
-  //       );
-
-  //       console.log('Done Investigations!');
-
-  //       // update the configuration indicator
-  //       await AsyncStorage.setItem(
-  //         UPDATE_COLLECTION_KEYS,
-  //         JSON.stringify(
-  //           produce(conf, df => {
-  //             df.done.push('investigations');
-  //           }),
-  //         ),
-  //       );
-
-  //       // console.log(v1_invs[0]);
-  //     } catch (err) {
-  //       console.log('-> INVESTIGATIONS ERR: ', err.message);
-  //     }
-  //   }
-
-  //   // const docs = await getDocs(investigationCollection);
-  //   // console.log(docs);
-  // }, []);
+  useAsync(async () => {}, []);
 
   const {socket, status, retry} = useWebSocket({
     url: 'http://f308-197-250-230-150.ngrok.io/crdt/state',
@@ -363,6 +198,26 @@ export default function App() {
       });
     });
   }, []);
+
+  return (
+    <ThemeProvider>
+      <View style={{flex: 1}}>
+        <Portal>
+          <Modal visible={true}>
+            <View
+              style={{
+                margin: 20,
+                backgroundColor: '#fff',
+                elevation: 3,
+                padding: 16,
+              }}>
+              <Text>Migrating data to new store!</Text>
+            </View>
+          </Modal>
+        </Portal>
+      </View>
+    </ThemeProvider>
+  );
 
   return (
     <View style={{flex: 1}}>

@@ -6,6 +6,8 @@ import {Patient, Practitioner} from '../../../@types/hdd/v1/personnel';
 import {Investigation, Report} from '../../../@types/hdd/v1/investigation';
 import {Appointment} from '../../../@types/hdd/v1/appointment';
 import {Medication, Prescription} from '../../../@types/hdd/v1/prescription';
+import {Store} from 'papai/collection/core';
+import {collection, setDocs} from 'papai/collection';
 
 export function convert_v0_patient_to_v1(id: string, data: CTC.Patient) {
   return resource(
@@ -246,6 +248,86 @@ export function convert_v0_visit_to_v1(
      */
     practitioner: practitioner_,
   };
+}
+
+// uuid generator
+import uuid from 'react-native-uuid';
+
+/**
+ * Migrate data from od store to the new store
+ * @param oldStore
+ * @param newStore
+ */
+export async function migrateDataAcrossStores(
+  v0Store: any,
+  v1Store: Store,
+  cb?: () => void,
+) {
+  const patientCollection = collection(v1Store, 'patients');
+  const investigationCollection = collection(v1Store, 'investigations');
+  const appointmentCollection = collection(v1Store, 'appointments');
+  const visitCollection = collection(v1Store, 'visits');
+
+  // migrate...
+
+  // migrate patient data
+  const patients = await v0Store.collection('patients').queryMultiple();
+
+  const v1_patients = patients.map(([id, data]) => {
+    return convert_v0_patient_to_v1(id, data);
+  });
+
+  await setDocs(
+    patientCollection,
+    v1_patients.map(({id, ...other}) => [id, other]),
+  );
+
+  // migrate visits
+  const visits = await v0Store.collection('visits').queryMultiple();
+
+  const v1_visits = visits.map(([id, data]) => {
+    return convert_v0_visit_to_v1(id, data, uuid.v4);
+  });
+
+  await setDocs(
+    visitCollection,
+    v1_visits.map(s => s.visit).map(({id, ...other}) => [id, other]),
+  );
+
+  // migrate investigations
+  const investigations = await v0Store
+    .collection('investigations')
+    .queryMultiple();
+
+  const v1_invs = investigations.map(([id, data]) => {
+    const ninv = convert_v0_investigation_to_v1(id, data, uuid.v4);
+    // console.log(id, data);
+    return ninv;
+  });
+
+  await setDocs(
+    investigationCollection,
+    v1_invs.map(({id, ...other}) => [id, other]),
+  );
+
+  // migrate appointments
+  const appointments = await v0Store.collection('appointments').queryMultiple();
+
+  const v1_appointments = appointments.map(([id, data]) => {
+    const {appointment} = convert_v0_appointment_to_v1(id, data, {
+      apptRequestId: () => uuid.v4() as string,
+      apptResponseId: () => uuid.v4() as string,
+    });
+
+    return appointment;
+  });
+
+  console.log('Done Appointment!');
+
+  await setDocs(
+    appointmentCollection,
+    v1_appointments.map(({id, ...other}) => [id, other]),
+  );
 }
 
 export function visit<T extends Data>(
