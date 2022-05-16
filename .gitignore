@@ -37,3 +37,6 @@ coverage
 
 # all dist folders 
 ./dist
+# Supabase
+**/supabase/.branches
+**/supabase/.temp

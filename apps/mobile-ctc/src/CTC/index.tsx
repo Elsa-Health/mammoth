@@ -244,7 +244,7 @@ export default function CTCFlow({
                       type: 'success',
                     });
                   } else {
-                    navigation.navigate('ctc.patient_visit_flow', {
+                    navigation.navigate('ctc.patient_intake', {
                       patient,
                       appointment,
                     });
@@ -674,7 +674,7 @@ export default function CTCFlow({
           component={withFlowContext(PatientProfileScreen, {
             actions: ({navigation}) => ({
               onNewPatientVisit: patient => {
-                navigation.navigate('ctc.patient_visit_flow', {patient});
+                navigation.navigate('ctc.patient_intake', {patient});
               },
               onViewPatientVisit: visit => {
                 navigation.navigate('ctc.view_patient_visit', {visit});

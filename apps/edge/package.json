@@ -1,13 +1,13 @@
 {
-	"name": "edge-node",
+	"name": "edge",
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
 		"build": "tsc -P .",
-		"start": "node dist/core/index.js",
+		"start": "node dist/index.js",
 		"docker": "docker-compose up --remove-orphans",
+		"dev": "tsnd --respawn server/index.ts --watch server",
 		"dev:start": "tsnd --respawn server/core/index.ts",
-		"dev:watch": "tsnd --respawn server/core/index.ts --watch server",
 		"test": "echo \"Error: no test script specified\" && exit 1"
 	},
 	"keywords": [],
@@ -17,29 +17,33 @@
 	},
 	"license": "ISC",
 	"devDependencies": {
+		"@types/": "supabase/supabase-js",
 		"@types/cors": "^2.8.12",
 		"@types/express": "^4.17.13",
 		"@types/lodash": "^4.14.182",
 		"@types/node": "^17.0.21",
 		"@types/object-hash": "^2.2.1",
-		"@types/uuid": "^8.3.4",
 		"@types/ws": "^8.5.3",
 		"nodemon": "^2.0.15",
+		"prettier-plugin-prisma": "^3.14.0",
+		"prisma": "^3.14.0",
 		"ts-node-dev": "^1.1.8",
 		"typescript": "^4.5.5"
 	},
 	"dependencies": {
+		"@prisma/client": "^3.14.0",
+		"@supabase/supabase-js": "^1.35.3",
 		"cors": "^2.8.5",
+		"dotenv": "^16.0.1",
 		"express": "^4.17.3",
 		"firebase": "^9.8.1",
 		"immer": "^9.0.12",
+		"level": "^8.0.0",
 		"lodash": "^4.17.21",
+		"nanoid": "^3.3.4",
 		"object-hash": "^3.0.0",
-		"react-native-uuid": "^2.0.1",
+		"papai": "/home/iam-kevin/Projects/personal/@packages/papai/papai",
 		"rxjs": "^7.5.4",
-		"sabertooth-core": "^0.2.1",
-		"sabertooth-stores": "^0.1.5",
-		"uuid": "^8.3.2",
 		"ws": "^8.5.0"
 	}
 }
