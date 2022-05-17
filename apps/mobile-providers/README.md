@@ -23,17 +23,17 @@ please follow the instructions on the official react-native website here
 After setting up your local computer, proceed to clone and install the packages as follows:
 
 ```bash
-  # After cloning the project, navigate to the repository
-  cd apps/mobile-providers
+# After cloning the project, navigate to the project
+cd apps/mobile-providers
 
-  # install the node modules/packages listed in package.json
-  yarn install
+# install the node modules/packages listed in package.json
+yarn install
 
-  # run the app on your phone or emulator
-  yarn android
+# run the app on your phone or emulator
+yarn android
 
-  # if your android phone is connected and set up in debugging mode, the app will be
-  # started on your phone, otherwise it will launch an emulator locally.
+# if your android phone is connected and set up in debugging mode, the app will be
+# started on your phone, otherwise it will launch an emulator locally.
 ```
 
 To set your phone up for development and debugging on it, follow the instructions here: https://reactnative.dev/docs/running-on-device
@@ -103,4 +103,4 @@ This is a great way to support our overall vision.
 
 ## License
 
-[Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/)
+[Apache License 2.0](./LICENSE)

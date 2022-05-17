@@ -1,13 +1,13 @@
 {
   "name": "mobile-addo",
-  "version": "0.0.1",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-		"clean": "rm -rf .turbo && rm -rf node_modules",
+    "clean": "rm -rf .turbo && rm -rf node_modules",
     "lint": "eslint ."
   },
   "dependencies": {

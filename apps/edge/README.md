@@ -1,3 +1,5 @@
-# Super Node
+![ELSA HEALTH](https://www.elsa.health/elsa-logo.png)
 
-This is super node that client devices should talk to
+# Elsa Edge
+
+Resource for coordination of CTCs
