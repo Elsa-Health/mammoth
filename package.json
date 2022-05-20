@@ -13,13 +13,7 @@
 			"**/mobile-addo/",
 			"**/mobile-addo/**",
 			"**/mobile-ctc/",
-			"**/mobile-ctc/**",
-			"**/@elsa-ui/react-native/",
-			"**/@elsa-ui/react-native/**",
-			"**/@elsa-ui/utils/",
-			"**/@elsa-ui/utils/**",
-			"**/@elsa-ui/react-native-workflows/",
-			"**/@elsa-ui/react-native-workflows/**"
+			"**/mobile-ctc/**"
 		]
 	},
 	"scripts": {
