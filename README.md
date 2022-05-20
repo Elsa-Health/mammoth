@@ -1,5 +1,8 @@
 ![ELSA HEALTH](https://www.elsa.health/elsa-logo.png)
 
+![CI](https://github.com/Elsa-Health/mammoth/actions/workflows/test.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/Elsa-Health/mammoth/badge.svg?branch=main)](https://coveralls.io/github/Elsa-Health/mammoth?branch=main)
+
 # Elsa Health Monolith
 
 This repository is a Monolithic that contains Providers-related Elsa Health projects.
@@ -11,16 +14,6 @@ Project Structure:
     -   [`mobile-ctc`](apps/mobile-ctc/) CTC-focused providers application
     -   [`mobile-addo`](apps/mobile-addo/) ADDO-focused providers application.
     -   [`edge`](apps/edge/) Server for client analytics and supporting distributed architeture
--   [`packages/`](packages/) - UI and Utility Library
-    -   [`@elsa-ui/react-native`](packages/elsa-ui-react-native/) Elsa Health's UI package for React Native Apps
-    -   [`@elsa-ui/react-native-workflows`](packages/elsa-ui-workflows/) React Native UI Workflows. These are screens that when put together, build the elsa app.
-
-## Badges
-
-![CI](https://github.com/Elsa-Health/mammoth/actions/workflows/test.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/Elsa-Health/mammoth/badge.svg?branch=main)](https://coveralls.io/github/Elsa-Health/mammoth?branch=main)
-
-The badges are for the entire repository. Soon, there will be tests that are attached against each
 
 ## Get Started
 
@@ -30,6 +23,10 @@ Requirements:
 
 -   node `>=14.*`
 -   yarn `>=1.22.*`
+
+## Discussions & Feedbacks
+
+Check out the [Discussions]() page, look around at any discussions you might be interested in _(or start one yourself)_. For new comers, check out this discussion
 
 ## FAQ
 

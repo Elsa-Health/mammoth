@@ -13,7 +13,7 @@
 		"lint": "eslint ."
 	},
 	"dependencies": {
-		"@elsa-health/data-fns": "1.3.1",
+		"elsa-health-data-fns": "1.5.8",
 		"@gorhom/bottom-sheet": "^4",
 		"@react-native-async-storage/async-storage": "^1.16.1",
 		"@react-native-community/checkbox": "^0.5.11",
