@@ -30,7 +30,6 @@
     "@react-navigation/native-stack": "^6.2.5",
     "@sentry/react-native": "^3.2.3",
     "@syncedstore/core": "^0.3.7",
-    "@types/gun": "^0.9.3",
     "@types/websocket": "^1.0.5",
     "appcenter": "4.3.0",
     "appcenter-analytics": "4.3.0",

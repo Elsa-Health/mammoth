@@ -36,7 +36,7 @@ export type Recommendations = {
   recommendations: string;
 };
 
-type StateAssessmentRecord = {
+export type StateAssessmentRecord = {
   record: AssessmentRecord;
   recommendations: Partial<Recommendations>;
 };

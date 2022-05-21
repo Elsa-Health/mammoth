@@ -20,6 +20,7 @@ import {Pressable} from './components/pressable';
 import {Text} from './components';
 import {useTranslation} from 'react-i18next';
 import theme from './theme';
+import StatisticsScreen from './pages/stats';
 
 const Stack = createNativeStackNavigator();
 
@@ -118,6 +119,7 @@ function MainAppInteraction() {
             <Stack.Screen name="app.core" component={CoreApp} />
             <Stack.Screen name="app.settings" component={SettingsPage} />
             <Stack.Screen name="app.history" component={HistoryPage} />
+            <Stack.Screen name="app.stats" component={StatisticsScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </ElsaAssessmentsProvider>
