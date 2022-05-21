@@ -10,17 +10,16 @@ import {
 } from '../app/context/main';
 
 import {differenceInDays, differenceInHours, format} from 'date-fns';
-import {
-  ActivityIndicator,
-  Button as RNPButton,
-  Divider,
-} from 'react-native-paper';
+import {ActivityIndicator, Button, Divider} from 'react-native-paper';
 import {properAgeString} from '../app/utils';
 
 import {Medication} from 'elsa-health-data-fns';
 import _ from 'lodash';
-import {Button} from '../components/input';
 import {useNavigation} from '@react-navigation/native';
+
+import FileViewer from 'react-native-file-viewer';
+import HtmlToPdf from 'react-native-html-to-pdf';
+import {renderToStaticMarkup} from 'react-dom/server';
 
 function StatItem({title, subtitle, count}) {
   return (
@@ -72,7 +71,7 @@ function RecentVisit({visits, top}: {visits: Visit[]; top?: number}) {
             .sort(recenyDiff)
             .slice(0, top ?? 3)
             .map((visit, ix) => (
-              <View style={{marginVertical: 4}}>
+              <View style={{marginVertical: 4}} key={visit.record.id}>
                 {ix !== 0 && <Divider />}
                 <VisitItem {...visit} />
               </View>
@@ -125,9 +124,9 @@ function TopMedications({
             .sort((a, b) => -(a[1] - b[1]))
             .slice(0, top ?? 3)
             .map(([med, count]) => (
-              <>
+              <React.Fragment key={med}>
                 <MedicationItem id={med} count={count} />
-              </>
+              </React.Fragment>
             ))}
         </View>
       )}
@@ -160,6 +159,7 @@ export default function StatisticsScreen() {
   }, [assessments]);
 
   const navigation = useNavigation();
+
   return (
     <Layout title="Statistics" style={{padding: 0}} navigation={navigation}>
       {value === undefined ? (
@@ -184,83 +184,234 @@ export default function StatisticsScreen() {
               justifyContent: 'center',
             }}>
             <Text>Something went wrong. Please try again</Text>
-            <RNPButton icon="refresh" onPress={retry}>
+            <Button icon="refresh" onPress={retry}>
               Retry
-            </RNPButton>
+            </Button>
           </View>
         )
       ) : (
         <>
-          <View
-            style={{
-              flex: 1,
-              borderBottomColor: '#4665af',
-              borderBottomWidth: 0.5,
-            }}>
-            <View style={{flex: 1}}>
-              <View style={{display: 'flex', flexDirection: 'row', flex: 1}}>
-                <StatItem
-                  title="Total Last 24hrs"
-                  count={value.visitsIn24Hrs}
-                  subtitle="Visits"
-                />
-                <StatItem
-                  title="Daily Avg."
-                  count={value.visitsDailyAvg}
-                  subtitle="Visits"
-                />
-              </View>
-              <View style={{display: 'flex', flexDirection: 'row', flex: 1}}>
-                <StatItem
-                  title="Dispensed Last 24hrs"
-                  count={value.medsIn24Hrs}
-                  subtitle="Medication"
-                />
-                <StatItem
-                  title="Daily Avg."
-                  count={value.medsDailyAvg}
-                  subtitle="Medication"
-                />
-              </View>
-            </View>
-          </View>
-          <View style={{flex: 2}}>
-            <ScrollView contentContainerStyle={{padding: 16}}>
-              {/* Top medications */}
-              <TopMedications medications={value.medications} top={3} />
-
-              {/* Recent Visits */}
-              <View style={{marginTop: 6}}>
-                <RecentVisit visits={value.visits} top={3} />
-              </View>
-            </ScrollView>
+          <PageToRender {...value} />
+          <View>
             <View
               style={{
                 paddingHorizontal: 16,
                 flexDirection: 'row',
                 marginVertical: 8,
               }}>
-              <RNPButton
+              <Button
                 style={{flex: 1}}
                 mode="contained"
                 color="#4665af"
-                onPress={() => {
-                  console.log('Get copy');
+                onPress={async () => {
+                  const html_ = renderToStaticMarkup(
+                    <PageToPrint {...value} />,
+                  );
+                  console.log(html_);
+
+                  try {
+                    const file = await HtmlToPdf.convert({
+                      html: html_,
+                      fileName: `ADDO-Statistics-${format(
+                        new Date(),
+                        'yyyy-MM-dd-HH:mm:ss',
+                      )}`,
+                      directory: 'Documents',
+                    });
+                    // console.log(file.filePath);
+
+                    if (file.filePath !== undefined) {
+                      await FileViewer.open(file.filePath);
+                    }
+                    // Alert.alert(file.filePath || 'Save here!');
+                  } catch (err) {
+                    throw new Error('Failed! Unable to generate report');
+                  }
                 }}>
                 <Text style={{color: '#FFF'}}>Get Copy</Text>
-              </RNPButton>
-              <RNPButton
+              </Button>
+              <Button
                 style={{flex: 1}}
                 onPress={() => {
                   navigation.goBack();
                 }}>
                 <Text style={{color: '#4665af'}}>Go Back</Text>
-              </RNPButton>
+              </Button>
             </View>
           </View>
         </>
       )}
     </Layout>
+  );
+}
+
+function tCell({text, value}: {text: string; value: number}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+      <p>{text}</p>
+      <span style={{display: 'block', fontSize: 30}}>{value}</span>
+    </div>
+  );
+}
+
+function PageToPrint(stats: {
+  visits: Visit[];
+  medications: [Medication.All, number][];
+  visitsIn24Hrs: number;
+  medsIn24Hrs: number;
+  visitsDailyAvg: number;
+  medsDailyAvg: number;
+}) {
+  return (
+    <>
+      <html>
+        <body style={{minHeight: '100v'}}>
+          <div style={{height: '100%'}}>
+            <header>
+              {/* Elsa Logo */}
+              <svg
+                width={50}
+                height={50}
+                viewBox="0 0 126 126"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M125.5 34.8V96.7H38.4C33.4 96.7 29.3 92.6 29.3 87.6V58H40.1V84.5C40.1 85.2 40.7 85.9 41.5 85.9H114.8V35.6C114.8 22.2 103.9 11.3 90.5 11.3H0.5V0.5H91.2C110.1 0.5 125.5 15.9 125.5 34.8Z"
+                  fill="#4666AE"
+                />
+                <path
+                  d="M0.5 91.2V29.3H87.6C92.6 29.3 96.7 33.4 96.7 38.4V68H85.9V41.5C85.9 40.7 85.3 40.1 84.5 40.1H11.3V90.5C11.3 103.9 22.2 114.8 35.6 114.8H125.5V125.6H34.8C15.9 125.5 0.5 110.1 0.5 91.2Z"
+                  fill="#4666AE"
+                />
+              </svg>
+              <h2>Report</h2>
+              <label>Date: {format(new Date(), 'MMMM dd, yyyy')}</label>
+            </header>
+            <main
+              style={{display: 'flex', flexDirection: 'column', flexGrow: 1}}>
+              {/* summary table */}
+              <table style={{}}>
+                <div>
+                  <h3>Visits</h3>
+                </div>
+                <div>
+                  {tCell({
+                    text: 'Total Visits In 24hrs',
+                    value: stats.visitsIn24Hrs,
+                  })}
+                  {tCell({
+                    text: 'Daily Average Visits',
+                    value: stats.visitsDailyAvg,
+                  })}
+                </div>
+                <div>
+                  <h3>Medication</h3>
+                </div>
+                <div>
+                  {tCell({
+                    text: 'Total Dispensed Medication In 24hrs',
+                    value: stats.visitsIn24Hrs,
+                  })}
+                  {tCell({
+                    text: 'Daily Average Dispensed Medication',
+                    value: stats.visitsDailyAvg,
+                  })}
+                </div>
+              </table>
+              {stats.medications.length !== 0 && (
+                <div>
+                  <h3>Top 10 Medications</h3>
+                  <div>
+                    {stats.medications.slice(0, 10).map(([md, count]) => (
+                      <div key={md}>
+                        {count > 0 ? (
+                          <>
+                            <label>
+                              <b>{count}</b>
+                            </label>
+                            &nbsp;
+                            <label>{Medication.all.fromKey(md)}</label>
+                          </>
+                        ) : (
+                          <div>-</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </main>
+            <hr />
+            <footer>
+              <i>*This document was generated through the Elsa ADDO</i>
+            </footer>
+          </div>
+        </body>
+      </html>
+    </>
+  );
+}
+
+function PageToRender(stats: {
+  visits: Visit[];
+  medications: [Medication.All, number][];
+  visitsIn24Hrs: number;
+  medsIn24Hrs: number;
+  visitsDailyAvg: number;
+  medsDailyAvg: number;
+}) {
+  return (
+    <>
+      <View
+        style={{
+          flex: 1,
+          borderBottomColor: '#4665af',
+          borderBottomWidth: 0.5,
+        }}>
+        <View style={{flex: 1}}>
+          <View style={{display: 'flex', flexDirection: 'row', flex: 1}}>
+            <StatItem
+              title="Total Last 24hrs"
+              count={stats.visitsIn24Hrs}
+              subtitle="Visits"
+            />
+            <StatItem
+              title="Daily Avg."
+              count={stats.visitsDailyAvg}
+              subtitle="Visits"
+            />
+          </View>
+          <View style={{display: 'flex', flexDirection: 'row', flex: 1}}>
+            <StatItem
+              title="Dispensed Last 24hrs"
+              count={stats.medsIn24Hrs}
+              subtitle="Medication"
+            />
+            <StatItem
+              title="Daily Avg."
+              count={stats.medsDailyAvg}
+              subtitle="Medication"
+            />
+          </View>
+        </View>
+      </View>
+      <View style={{flex: 2}}>
+        <ScrollView contentContainerStyle={{padding: 16}}>
+          {/* Top medications */}
+          <TopMedications medications={stats.medications} top={10} />
+
+          {/* Recent Visits */}
+          <View style={{marginTop: 6}}>
+            <RecentVisit visits={stats.visits} top={3} />
+          </View>
+        </ScrollView>
+      </View>
+    </>
   );
 }
 
