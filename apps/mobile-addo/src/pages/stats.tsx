@@ -173,6 +173,7 @@ export default function StatisticsScreen() {
               justifyContent: 'center',
             }}>
             <ActivityIndicator animating={true} color={'#4665af'} />
+            <Text>Loading...</Text>
           </View>
         ) : (
           <View
@@ -207,7 +208,7 @@ export default function StatisticsScreen() {
                   const html_ = renderToStaticMarkup(
                     <PageToPrint {...value} />,
                   );
-                  console.log(html_);
+                  // console.log(html_);
 
                   try {
                     const file = await HtmlToPdf.convert({
