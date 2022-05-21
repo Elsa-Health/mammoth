@@ -4,7 +4,6 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import HtmlToPdf from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 
-import {ToastAndroid} from 'react-native';
 import {fetchPatients, fetchAppointments, fetchVisits} from './fns';
 
 import {format} from 'date-fns';
