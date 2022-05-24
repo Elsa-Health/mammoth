@@ -29,6 +29,7 @@ app.get("/", function (req, res) {
  */
 const paths = {
 	WS_CRDT_STATE_PATH: "/crdt/state",
+	TUNNEL_PATH: "/tunnel/migration/v0/v1",
 };
 
 // store to mirror from sockets

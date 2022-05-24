@@ -1,0 +1,8 @@
+{
+	"plugins": [
+		[
+			"@babel/plugin-proposal-pipeline-operator",
+			{ "topicToken": "%", "proposal": "hack" }
+		]
+	]
+}
