@@ -17,7 +17,7 @@ import {
 } from './interactionSymptoms';
 import {PatientIntake, withFlowContext} from '../..';
 import {Differential} from '../../../../@types';
-import type {Symptom} from '@elsa-health/data-fns';
+import type {Symptom} from 'elsa-health-data-fns';
 
 const Stack = createNativeStackNavigator();
 

@@ -7,7 +7,7 @@ import {
   Condition,
   SymptomDescription as Donpar,
   Symptom,
-} from '@elsa-health/data-fns';
+} from 'elsa-health-data-fns';
 
 const symptoms: SymptomDescription[] = Donpar.pairs().map(([id, vals]) => ({
   id,

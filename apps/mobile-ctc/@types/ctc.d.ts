@@ -1,4 +1,4 @@
-/// <reference types="@elsa-health/data-fns/lib/index" />
+/// <reference types="elsa-health-data-fns/lib/index" />
 /**
  * Appoinment object for CTC
  */

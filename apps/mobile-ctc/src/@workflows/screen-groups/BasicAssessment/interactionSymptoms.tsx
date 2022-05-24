@@ -49,7 +49,7 @@ import {
 import {useDeviceBreak, useSymptomsInfo} from '../../helpers/context/utils';
 
 // NOTE: Temporary fix
-import {SymptomDescription as Donpar} from '@elsa-health/data-fns';
+import {SymptomDescription as Donpar} from 'elsa-health-data-fns';
 
 // state used to managed how the components are revealed to the user
 interface InteractionState {

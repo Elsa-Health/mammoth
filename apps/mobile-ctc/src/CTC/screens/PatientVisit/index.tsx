@@ -8,7 +8,7 @@ import {properAgeString} from '../../../app/utils';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from '../../../@libs/elsa-ui/theme';
-import {CTC as ctc, Investigation, Medication} from '@elsa-health/data-fns/lib';
+import {CTC as ctc, Investigation, Medication} from 'elsa-health-data-fns/lib';
 import cons from 'gun';
 import {invParse, invStrigify} from '../../fns';
 import {store} from '../../storage/personal';

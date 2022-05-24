@@ -9,7 +9,7 @@ import {
 } from 'react-native-paper';
 import {Layout, Text} from '../../../@libs/elsa-ui/components';
 
-import {Investigation} from '@elsa-health/data-fns';
+import {Investigation} from 'elsa-health-data-fns';
 import {ScrollView} from 'react-native-gesture-handler';
 import produce from 'immer';
 

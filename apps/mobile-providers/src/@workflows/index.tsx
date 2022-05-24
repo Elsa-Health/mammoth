@@ -1,4 +1,4 @@
-import type * as data from "@elsa-health/data-fns";
+import type * as data from "elsa-health-data-fns";
 
 import React from "react";
 import create from "zustand";

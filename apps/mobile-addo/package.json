@@ -91,6 +91,7 @@
     "@types/styled-components": "^5.1.15",
     "@types/styled-components-react-native": "^5.1.2",
     "babel-jest": "^27.3.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^8.1.0",
     "get-dev-paths": "^0.2.0",
     "jest": "^27.3.1",

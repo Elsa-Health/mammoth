@@ -11,7 +11,7 @@ import CTCPatientsScreen from './screens/ViewPatients';
 import InvestigationResultsFormScreen from '../@workflows/screens/InvestigationResultsForm';
 
 import BasicAssessmentScreenGroup from '../@workflows/screen-groups/BasicAssessment';
-import HIVAdherenceAssessmentScreen from '../@workflows/screens/HIVAdherenceAssessment';
+import HIVAdherenceAssessmentScreen from './screens/HIVAdherenceAssessment';
 
 import CTCPatientIntakeScreenGroup from './screen-groups/CTCPatientIntake';
 
@@ -51,13 +51,21 @@ import {useWebSocket} from '../app/utils';
 import {ToastAndroid} from 'react-native';
 
 import {generateReport} from './misc';
-import {Investigation} from '@elsa-health/data-fns/lib';
+import {Investigation} from 'elsa-health-data-fns';
 import {ElsaProvider} from '../provider/backend';
 
 import PushNotification from 'react-native-push-notification';
 import {useAsync} from 'react-use';
 
 import {Analytics} from './analytics';
+
+function DEV_inspectingData(msgs: any) {
+  console.log(msgs.length); // 348
+
+  const crdt = msgs[0];
+  console.log(crdt);
+}
+
 /**
  * Generate Report
  */
@@ -70,8 +78,8 @@ const Stack = createNativeStackNavigator();
 const wsURL_DEV = 'wss://2bd1-197-250-230-24.ngrok.io/channel/cmrdt';
 const wsURL_PROD = 'wss://ctc-edge-server.fly.dev/channel/cmrdt';
 
-const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
-// const wsURL = wsURL_PROD;
+// const wsURL = __DEV__ ? wsURL_DEV : wsURL_PROD;
+const wsURL = wsURL_PROD;
 
 const pushMessagesOnSocket = (socket: WebSocket) => {
   const crdt_messages = crdt.messages();
@@ -139,6 +147,7 @@ export default function CTCFlow({
       pushMessagesOnSocket(socket);
     },
     onData: crdt_messages => {
+      DEV_inspectingData(crdt_messages);
       // merge the current CRDT messages with the remote
       mergeWithRemote(crdt_messages);
       // flatten the contents

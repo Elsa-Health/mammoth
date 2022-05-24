@@ -14,7 +14,7 @@ import rnpTheme from "./@libs/elsa-ui/theme/rnp";
 
 import { View, Text } from "react-native";
 // import { Chip, Text } from "@elsa-ui/react-native/components";
-// import * as data from "@elsa-health/data-fns";
+// import * as data from "elsa-health-data-fns";
 
 // import { LanguageProvider } from "@elsa-ui/utils/locale";
 import { LanguageProvider } from "./@libs/elsa-utils/locale";

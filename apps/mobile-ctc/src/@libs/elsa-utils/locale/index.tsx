@@ -7,7 +7,7 @@ import en from './lang/en';
 import sw from './lang/sw';
 
 // building the maps for the texts
-import {Symptom, SymptomDescription} from '@elsa-health/data-fns';
+import {Symptom, SymptomDescription} from 'elsa-health-data-fns';
 
 i18n.init(
   {

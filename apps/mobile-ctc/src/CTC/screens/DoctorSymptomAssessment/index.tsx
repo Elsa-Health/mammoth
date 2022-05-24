@@ -4,7 +4,7 @@ import {Layout, Text, SectionedSelect} from '../../../@libs/elsa-ui/components';
 import {View, ScrollView} from 'react-native';
 import {useTheme} from '../../../@libs/elsa-ui/theme';
 
-import {Condition} from '@elsa-health/data-fns';
+import {Condition} from 'elsa-health-data-fns';
 import {Button} from 'react-native-paper';
 
 import {WorkflowScreen} from '../../../@workflows';

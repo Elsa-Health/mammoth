@@ -3,7 +3,7 @@ import produce from 'immer';
 import React from 'react';
 import {ScrollView, View} from 'react-native';
 import {Button, RadioButton, TextInput} from 'react-native-paper';
-import {WorkflowScreen} from '../..';
+import {WorkflowScreen} from '../../../@workflows';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import {DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 

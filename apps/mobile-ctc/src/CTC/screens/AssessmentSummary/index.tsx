@@ -15,7 +15,7 @@ import {
   Medication,
   Investigation,
   ARV,
-} from '@elsa-health/data-fns';
+} from 'elsa-health-data-fns';
 import {BarChart} from 'react-native-chart-kit';
 
 import {

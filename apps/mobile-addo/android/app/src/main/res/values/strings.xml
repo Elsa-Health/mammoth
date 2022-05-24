@@ -2,6 +2,8 @@
     <string name="app_name">Elsa ADDO</string>
     <string name="appCenterCrashes_whenToSendCrashes" moduleConfig="true" translatable="false">DO_NOT_ASK_JAVASCRIPT</string>
     <string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
+    <!-- Using the `Inspired` key (only for members in the inpspired team)-->
+    <!-- <string moduleConfig="true" name="CodePushDeploymentKey">KDolkacPHys5pDlNNurBNh6kojb3HIR4D8ofS</string> -->
     <!-- Using the kibaha key -->
     <string moduleConfig="true" name="CodePushDeploymentKey">EMW7jcV3zr8TUuD4jeRQVjuPhBPf-CWj5nQfI</string>
     <!-- This is the `elsa-ddx-kibaha` key -->

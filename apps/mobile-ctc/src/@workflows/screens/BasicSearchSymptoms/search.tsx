@@ -8,7 +8,7 @@ import create from 'zustand';
 import createContext from 'zustand/context';
 import {buildSearch} from './misc';
 
-import {Symptom} from '@elsa-health/data-fns';
+import {Symptom} from 'elsa-health-data-fns';
 import {symptoms} from '../../helpers/symptoms';
 import {SymptomId} from '../../../../@types';
 
