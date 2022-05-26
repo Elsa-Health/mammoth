@@ -20,10 +20,21 @@ import {
 	convert_v0_appointment_to_v1,
 	convert_v0_patient_to_v1,
 	convert_v0_visit_to_v1,
+	investigationRequest,
+	investigationResult,
+	_reference,
 } from "./emr/fns";
-import { outputValue } from "./compute";
+import {
+	AppointmentPair,
+	InvestigationPair,
+	outputValue,
+	PatientPair,
+	VisitPair,
+} from "./compute";
 
 import commaNum from "comma-number";
+
+import { Seq } from "immutable";
 
 // const store = getStore(KeyValueMapStore(() => nanoid(10)));
 
@@ -60,16 +71,16 @@ function rDoc<C extends string>(
 }
 
 function doSomethingOnData(data: v0Message[]) {
-	// console.log(
-	// 	data
-	// 		.map((s, ix) => [ix, s])
-	// 		.filter(
-	// 			([ix, s]) =>
-	// 				!["patients", "appointments", "visits"].includes(
-	// 					(s as v0Message).state.op.collectionId
-	// 				)
-	// 		)
-	// );
+	console.log(
+		data
+			.map((s, ix) => [ix, s])
+			.filter(
+				([ix, s]) =>
+					!["patients", "appointments", "visits"].includes(
+						(s as v0Message).state.op.collectionId
+					)
+			)
+	);
 
 	const vsingle = data[106];
 	// console.log(vsingle);
@@ -106,6 +117,11 @@ function doSomethingOnData(data: v0Message[]) {
 function updateData(data: v0Message[]) {
 	const s: [Document.Ref, Document.Data][] = [];
 
+	const visits: VisitPair[] = [];
+	const patients: PatientPair[] = [];
+	const appointments: AppointmentPair[] = [];
+	const investigationResults: InvestigationPair[] = [];
+
 	// return data.map()
 	data.forEach((vsingle) => {
 		const { id, collectionId } = vsingle.state.op;
@@ -113,7 +129,8 @@ function updateData(data: v0Message[]) {
 		const entry = vsingle.state.result;
 
 		if (collectionId === "patients") {
-			s.push([dr, convert_v0_patient_to_v1(id, entry)]);
+			// @ts-ignore
+			patients.push([dr, convert_v0_patient_to_v1(id, entry)]);
 			return;
 		}
 
@@ -121,20 +138,48 @@ function updateData(data: v0Message[]) {
 			const { visit: v1v } = convert_v0_visit_to_v1(id, entry, {
 				assessmentId: nanoid,
 				observationId: nanoid,
+				medicationRequestId: nanoid,
+				investigationsRequestId: nanoid,
 			});
 
-			s.push([dr, v1v]);
+			// @ts-ignore
+			visits.push([dr, v1v]);
 			return;
 		}
 
 		if (collectionId === "appointments") {
 			const v1a = convert_v0_appointment_to_v1(id, entry);
-			s.push([dr, v1a]);
+			// @ts-ignore
+			appointments.push([dr, v1a]);
 			return;
+		}
+
+		if (collectionId === "investigations") {
+			const { result, ...other } = entry;
+			// create investigation result and link to investigation request
+			// 1. investigation request
+
+			if (result === undefined) {
+				return;
+			}
+
+			// Attach investigation result with the record
+			const v1invRes = investigationResult(entry, {
+				id: nanoid,
+				// @ts-ignore
+				authorizingRequest: _reference({
+					id: `inv-request-${id}`,
+					resourceType: "InvestigationRequest",
+				}),
+				recorder: null,
+			});
+
+			// @ts-ignore
+			investigationResults.push([dr, v1invRes]);
 		}
 	});
 
-	return s;
+	return { visits, appointments, investigationResults, patients };
 }
 
 function ActualActivity({ data }: { data: v0Message[] }) {
@@ -143,8 +188,8 @@ function ActualActivity({ data }: { data: v0Message[] }) {
 	// data
 	const _data = updateData(data);
 	const props = outputValue(_data);
-	console.log(props);
 
+	// console.log(props)
 	return (
 		<div>
 			{/* <h2>Check your logs</h2> */}
@@ -411,7 +456,7 @@ export function PageToRender({
 									</tr>
 								</thead>
 								<tbody className="divide-y divide-gray-200 bg-white">
-									{top10s.diseaseByClinicians.map(
+									{top10s.topDiseasesWithinClinician.map(
 										([id, text, count]) => (
 											<tr key={id}>
 												<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -449,7 +494,7 @@ export function PageToRender({
 									</tr>
 								</thead>
 								<tbody className="divide-y divide-gray-200 bg-white">
-									{top10s.diseasesByElsa.map(
+									{top10s.topDiseaseWithElsaTop3.map(
 										([id, text, count]) => (
 											<tr key={id}>
 												<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

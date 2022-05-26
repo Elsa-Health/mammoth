@@ -4,7 +4,20 @@ import { Patient, Practitioner } from "./personnel";
 export type InvestigationRequest<IRq extends Data> = Resource<
 	"InvestigationRequest",
 	{
+		/**
+		 * Date associated with the investigation request
+		 */
 		data: IRq;
+
+		/**
+		 * Intended subjected of the investigation
+		 */
+		subject: Referred<Patient>;
+
+		/**
+		 * Personnel requesting the investigation
+		 * (ideally should be someone with authority)
+		 */
 		requester: Nullable<Referred<Practitioner>>;
 	}
 >;
@@ -13,28 +26,20 @@ export type InvestigationResult<IRs extends Data> = Resource<
 	"InvestigationResult",
 	{
 		/**
-		 * Reporter of the observation
+		 * Request that warrants the result to be generated
+		 */
+		authorizingRequest: Referred<InvestigationRequest>;
+
+		/**
+		 * Recorder of the observation
+		 * (e.g. Lab Tech)
 		 */
 		recorder: Nullable<Referred<Practitioner>>;
 
-		// result
+		/**
+		 * observation collected from the investigation
+		 */
 		observation: Referred<Observation<IRs>>;
-	}
->;
-
-// export type Investigation<D extends Data> = Report<"investigation", D>;
-export type Investigation<
-	IRq extends Data = Data,
-	IRs extends Data = Data
-> = Resource<
-	"Investigation",
-	{
-		subject: Referred<Patient>;
-
-		// nullable is set for the
-		request: Nullable<Referred<InvestigationRequest<IRq>>>;
-
-		result: Nullable<Referred<InvestigationResult<IRs>>>;
 	}
 >;
 

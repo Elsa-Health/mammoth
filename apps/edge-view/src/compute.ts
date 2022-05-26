@@ -1,6 +1,8 @@
 import { Appointment } from "./emr/v1/appointment";
 import { Patient } from "./emr/v1/personnel";
-import { Visit } from "./emr/v1/visit";
+import { Assessment, Visit } from "./emr/v1/visit";
+
+import { Seq as iSeq, Map as iMap, List as iList } from "immutable";
 
 import { facilities, getFacilityFromCode } from "./facilities";
 import {
@@ -13,16 +15,32 @@ import {
 import {
 	differenceInCalendarMonths,
 	differenceInDays,
-	differenceInYears,
 	format,
 	isBefore,
 } from "date-fns";
-import { Link } from "./emr/adept";
-import { getAgeGroup, getMonthsFromYears } from "./emr/helpers";
+import {
+	InvestigationRequest,
+	InvestigationResult,
+} from "./emr/v1/investigation";
+import { Document } from "papai/collection";
+import {
+	MedicationRequest,
+	Medication as HMedication,
+} from "./emr/v1/prescription";
+import { InvestigationTypeRecord } from "elsa-health-data-fns/lib/investigations";
+import _ from "lodash";
+import { Observation } from "./emr/v1/observation";
 
-type PatientPair = [{ collectionId: "patients"; documentId: string }, Patient];
-type VisitPair = [{ collectionId: "visits"; documentId: string }, Visit];
-type AppointmentPair = [
+export type PatientPair = [
+	{ collectionId: "patients"; documentId: string },
+	Patient
+];
+export type VisitPair = [{ collectionId: "visits"; documentId: string }, Visit];
+export type InvestigationPair = [
+	{ collectionId: "investigations"; documentId: string },
+	InvestigationResult<Data>
+];
+export type AppointmentPair = [
 	{ collectionId: "appointments"; documentId: string },
 	Appointment
 ];
@@ -30,14 +48,22 @@ type AppointmentPair = [
 // Data for emr
 type EmrDataPair = PatientPair | VisitPair | AppointmentPair;
 
+const docref = <Dr extends Document.Ref>(dr: Dr) =>
+	`${dr.collectionId}/${dr.documentId}`;
+
 //
-export function outputValue(data_: any[], patientFacilityLinks?: Link[]) {
-	const data: EmrDataPair[] = data_;
+export function outputValue(v: {
+	patients: PatientPair[];
+	visits: VisitPair[];
+	appointments: AppointmentPair[];
+	investigationResults: InvestigationPair[];
+}) {
+	// const data: EmrDataPair[] = data_;
 
-	const patients = patientsFrom(data);
-	const visits = visitsFrom(data);
-	const appointments = appointmentsFrom(data);
+	// const patients = patientsFrom(data);
+	// const visits = visitsFrom(data);
 
+	// const appointments = appointmentsFrom(data);
 	const now = new Date();
 	// const patientsByAgeGroup = groupByFn(patients, ([_, t]) => {
 	// 	return getAgeGroup(
@@ -49,88 +75,279 @@ export function outputValue(data_: any[], patientFacilityLinks?: Link[]) {
 	// 	return t.sex ?? "unknown";
 	// });
 
+	//
+	const patients = iSeq(
+		iMap(
+			Object.fromEntries(v.patients.map(([dr, val]) => [docref(dr), val]))
+		)
+	);
+	const visits = iSeq(
+		iMap(Object.fromEntries(v.visits.map(([dr, val]) => [docref(dr), val])))
+	);
+	const appointments = iSeq(
+		iMap(
+			Object.fromEntries(
+				v.appointments.map(([dr, val]) => [docref(dr), val])
+			)
+		)
+	);
+
+	const investigationResults = iSeq(
+		iMap(
+			Object.fromEntries(
+				v.investigationResults.map(([dr, val]) => [docref(dr), val])
+			)
+		)
+	);
+
+	const investigationRequests = iList<
+		InvestigationRequest<{
+			investigationId: Investigation;
+			res: InvestigationTypeRecord<string>;
+		}>
+	>(
+		visits
+			.map((s) => s.investigationRequests)
+			// @ts-ignore
+			.reduceRight((d, c) => [...d, ...c])
+	);
+
+	const invRqs = _.countBy(
+		investigationRequests.map((s) => s.data.investigationId).toArray()
+	);
+
+	type ArvMedicationRequest = MedicationRequest<{
+		regimen: ARV.Regimen;
+		class: ARV.Class;
+	}>;
+	type StandardMedicationRequest = MedicationRequest<{
+		medication: Medication.All;
+	}>;
+	const medications = iList<ArvMedicationRequest | StandardMedicationRequest>(
+		visits
+			// @ts-ignore
+			.map((s) => s.prescriptions)
+			// @ts-ignore
+			.reduceRight((d, c) => [...d, ...c])
+	);
+
+	// @ts-ignore
+	const arvMedications: iList<ArvMedicationRequest> = medications
+		// @ts-ignore
+		.filter((s) => s.medication?.code === "arv");
+
+	const standardMedicationReq = _.countBy(
+		medications
+			// @ts-ignore
+			.filter((s) => s.medication.code === "standard")
+			.map(
+				(s) =>
+					(
+						s.medication as HMedication<
+							"standard",
+							{ medication: Medication.All }
+						>
+					).data.medication
+			)
+			.toArray()
+	);
+
+	console.log({
+		invRqs,
+		standardMedicationReq,
+	});
+
+	const symptomAssessment = iList<
+		Assessment<{
+			data: {
+				present: { id: string; location: string; donparhere: string }[];
+				absent: string[];
+			};
+			elsa_differentials:
+				| {
+						condition: string;
+						p: number;
+						id: string;
+				  }[]
+				| null;
+			doctorDiagnosis?: string[];
+		}>
+	>(
+		visits
+			.map((s) =>
+				s.assessments.filter(
+					// @ts-ignore
+					(s: Assessment<Data>) =>
+						s.reportCode === "assessment" &&
+						s.code === "symptom.assessment"
+				)
+			)
+			// @ts-ignore
+			.reduceRight((d, c) => [...d, ...c])
+	);
+
+	const elsaTop3ClinianPair = symptomAssessment.map((as) => {
+		if (as.result.resourceType === "Observation") {
+			return [
+				(
+					as.result.data.elsa_differentials?.map((d) => d.id) || []
+				).slice(0, 3),
+				as.result.data.doctorDiagnosis || [],
+			];
+		}
+
+		return [[], []];
+	});
+
+	const elsaTop3Lists = elsaTop3ClinianPair.map(
+		([elsaTop10, _]) => elsaTop10
+	);
+	const clinicianLists = elsaTop3ClinianPair.map(
+		([_, clinicianTop10]) => clinicianTop10
+	);
+
+	const top3ElsaPicks = _.countBy(
+		elsaTop3Lists
+			// @ts-ignore
+			.reduceRight((d, c) => [...d, ...c])
+	);
+
+	const clinicianPicks = _.countBy(
+		clinicianLists
+			// @ts-ignore
+			.reduceRight((d, c) => [...d, ...c])
+	);
+
+	const patientsOnARV = new Set(
+		arvMedications
+			.map((m) => {
+				return m.subject.id;
+			})
+			.values()
+	).size;
+
 	return {
 		district: {
-			totalPatients: count(patients),
-			visitsWithInMonth: count(visits.map(cDate).filter(isWithInMonth)),
-			appointmentsWithInMonth: count(
-				appointments.map(cDate).filter(isWithInMonth)
-			),
-			patientsWithInMonth: count(
-				patients.map(cDate).filter(isWithInMonth)
-			),
-			totalVisits: count(visits),
-			totalAppointments: count(appointments),
-			missedAppointments: count(appointments.filter(isMissedAppointment)),
-			upcomingAppointments: count(
-				appointments.filter(isUpcomingAppointment)
-			),
+			totalPatients: patients.count(),
+			visitsWithInMonth: visits.map(cDate).filter(isWithInMonth).count(),
+			appointmentsWithInMonth: appointments
+				.map(cDate)
+				.filter(isWithInMonth)
+				.count(),
+			patientsWithInMonth: patients
+				.map(cDate)
+				.filter(isWithInMonth)
+				.count(),
+			totalVisits: visits.count(),
+			totalAppointments: appointments.count(),
+			missedAppointments: appointments
+				.filter(isMissedAppointment)
+				.count(),
+			upcomingAppointments: appointments
+				.filter(isUpcomingAppointment)
+				.count(),
 			lostToFollowUpPatients: 0,
 			patientsTransferred: 0,
 			nonTransferredPatientsPickMedsElsewhere: 0,
+			totalSymptomAssessments: symptomAssessment.count(),
 			// patientsFrom(data).map(s => s |> dateField(s) |> isWithInMonth(%))
 		},
 		// to be done
 		arv: {
-			patientsOnARV: 23,
-			groups: ARV.class.pairs().map(([s, x]) => [s, x, 0]),
+			totalAdministered: arvMedications.count(),
+			patientsOnARV,
+			groups: ARV.class.pairs().map(([s, x]) => {
+				const ac = arvMedications
+					.filter((f) => {
+						if (f.medication.resourceType === "Medication") {
+							return f.medication.data.class === s;
+						}
+
+						// skip those you can't see
+						return false;
+					})
+					.map((d) => d.subject.id)
+					.toSet().size;
+				return [s, x, ac];
+			}),
 		},
 		top10s: {
 			// symptoms,
-			diseasesByElsa: [
-				[
-					"bacterial-vaginosis",
-					Condition.fromKey("bacterial-vaginosis"),
-					4,
-				],
-				["bronchitis", Condition.fromKey("bronchitis"), 1],
-			] as [Condition, string, number][],
-			diseaseByClinicians: [
-				["anaemia", Condition.fromKey("anaemia"), 30],
-				["asthma", Condition.fromKey("asthma"), 3],
-			] as [Condition, string, number][],
-			investigationsRequested: [
-				[
-					"1-2-beta-d-glucan",
-					Investigation.name.fromKey("1-2-beta-d-glucan"),
-					32,
-				],
-				[
-					"chest-x-ray-cxr",
-					Investigation.name.fromKey("chest-x-ray-cxr"),
-					5,
-				],
-			] as [Investigation, string, number][],
-			medicationsRequested: [
-				["albendazole", Medication.all.fromKey("albendazole"), 10],
-				[
-					"amoxicillin-capsules",
-					Medication.all.fromKey("amoxicillin-capsules"),
-					4,
-				],
-			] as [Medication.All, string, number][],
+			topDiseaseWithElsaTop3: iList<[string, number]>(
+				Object.entries(top3ElsaPicks)
+			)
+				.map(([inv, freq]) => {
+					return [
+						inv,
+						Condition.fromKey(inv as Condition) ?? inv,
+						freq,
+					];
+				})
+				.sortBy((s) => -s[2])
+				.slice(0, 10)
+				.toArray() as [Condition, string, number][],
+			topDiseasesWithinClinician: iList<[string, number]>(
+				Object.entries(clinicianPicks)
+			)
+				.map(([inv, freq]) => {
+					return [
+						inv,
+						Condition.fromKey(inv as Condition) ?? inv,
+						freq,
+					];
+				})
+				.sortBy((s) => -s[2])
+				.slice(0, 10)
+				.toArray() as [Condition, string, number][],
+			investigationsRequested: iList<[string, number]>(
+				Object.entries(invRqs)
+			)
+				.map(([inv, freq]) => {
+					return [
+						inv,
+						Investigation.name.fromKey(inv as Investigation) ?? inv,
+						freq,
+					];
+				})
+				.sortBy((s) => -s[2])
+				.slice(0, 10)
+				.toArray() as [Investigation, string, number][],
+			medicationsRequested: iList<[string, number]>(
+				Object.entries(standardMedicationReq)
+			)
+				.map(([med, freq]) => {
+					return [
+						med,
+						Medication.all.fromKey(med as Medication.All) ?? med,
+						freq,
+					];
+				})
+				.sortBy((s) => -s[2])
+				.slice(0, 10)
+				.toArray() as [Medication.All, string, number][],
 		},
 		facilities: facilities().map(({ uid, ...f }) => {
-			const patients_ = fromFacility(patients, f.facilityCode);
-			const appts_ = count(
-				appointments
+			const patients_ = patients.filter(
+				(p) => p.id.slice(0, 8) === f.facilityCode
+			);
+			return {
+				id: uid,
+				...f,
+				totalPatients: patients_.count(),
+				totalPatientWithInMonths: patients_
+					.map(cDate)
+					.filter(isWithInMonth)
+					.count(),
+				lostToFollowUpPatients: 0,
+				missingAppointments: appointments
 					.filter(
-						([_, appt]) =>
+						(appt) =>
 							// this is used temporarily
 							// @ts-ignore
 							appt.subject.id.slice(0, 8) === f.facilityCode
 					)
 					.filter(isMissedAppointment)
-			);
-			return {
-				id: uid,
-				...f,
-				totalPatients: count(patients_),
-				totalPatientWithInMonths: count(
-					patients_.map(cDate).filter(isWithInMonth)
-				),
-				lostToFollowUpPatients: 0,
-				missingAppointments: appts_,
+					.count(),
 				users: [],
 				lastActivity: new Date(),
 			};
@@ -140,26 +357,24 @@ export function outputValue(data_: any[], patientFacilityLinks?: Link[]) {
 
 // boolean-fns
 
-export const belongsInFacility =
-	(facilityCode: string) => (data: PatientPair) => {
-		return data[1].id.slice(0, 8) === facilityCode;
-	};
+const belongsInFacility = (facilityCode: string) => (data: PatientPair) => {
+	return data[1].id.slice(0, 8) === facilityCode;
+};
 
-export const isApptResponded = ([_, appt]: AppointmentPair) => {
+export const isApptResponded = (appt: Appointment) => {
 	return appt.response !== null;
 };
 
-export const isMissedAppointment = (apptData: AppointmentPair) => {
-	const [_, appt] = apptData;
+export const isMissedAppointment = (appt: Appointment) => {
 	return (
-		!isApptResponded(apptData) &&
-		isBefore(cDate(apptData), new Date()) &&
-		differenceInDays(new Date(), cDate(apptData)) <= 3
+		!isApptResponded(appt) &&
+		isBefore(cDate(appt), new Date()) &&
+		differenceInDays(new Date(), cDate(appt)) <= 3
 	);
 };
 
-export const isUpcomingAppointment = (apptData: AppointmentPair) => {
-	return !isApptResponded(apptData) && isBefore(new Date(), cDate(apptData));
+export const isUpcomingAppointment = (appt: Appointment) => {
+	return !isApptResponded(appt) && isBefore(new Date(), cDate(appt));
 };
 
 // filters
@@ -180,30 +395,11 @@ export function fromFacility<F extends string>(
 // fns
 // ---------
 
-export const cDate = ([_, data]: EmrDataPair) => new Date(data.createdAt);
+export const cDate = (data: Resource<string, Data>) => new Date(data.createdAt);
 export const isWithInMonth = (date: Date) => {
 	return differenceInCalendarMonths(new Date(), date) === 0;
 };
 export const getYYYY_MM = (date: Date) => format(date, "yyyy-MM");
-
-// Select data
-// ----------------------
-
-export function patientsFrom(data: EmrDataPair[]) {
-	return data.filter(
-		(d) => d[0].collectionId === "patients"
-	) as PatientPair[];
-}
-
-export function appointmentsFrom(data: EmrDataPair[]) {
-	return data.filter(
-		(d) => d[0].collectionId === "appointments"
-	) as AppointmentPair[];
-}
-
-export function visitsFrom(data: EmrDataPair[]) {
-	return data.filter((d) => d[0].collectionId === "visits") as VisitPair[];
-}
 
 // ll-fns
 // ----------------
@@ -230,6 +426,10 @@ export function groupByFn<G extends string | number, A, O = [G, A]>(
 	return Array.from(groups.entries()).map(([id, set]) => {
 		return _ofn(id, Array.from(set.values()));
 	});
+}
+
+export function array(iter: any) {
+	return Array.from(iter);
 }
 
 export const gKeys = <G extends string, A>(data: [G, A][]) =>

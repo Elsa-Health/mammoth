@@ -1,3 +1,5 @@
+import { HealthcareService, Organization } from "./administration";
+
 /**
  * Representation of the patient object
  *
@@ -5,80 +7,121 @@
  * Reason I thought of, might want to mask `Identifier`, special indexing?
  */
 export type Patient<PatientBody extends Data = Data> = Resource<
-  'Patient',
-  {
-    /**
-     * Object containing the patient's indentifying information
-     * This can include name, address, phone number, etc.
-     *
-     */
-    info: Nullable<{
-      name: string;
-      address: Nullable<string>;
-    }>;
+	"Patient",
+	{
+		/**
+		 * Object containing the patient's indentifying information
+		 * This can include name, address, phone number, etc.
+		 *
+		 */
+		info: Nullable<{
+			name: string;
+			address: Nullable<string>;
+		}>;
 
-    /**
-     * Means of contacting the patient
-     */
-    contact: Nullable<Contact>;
+		/**
+		 * Is the record active for use?
+		 */
+		active: boolean;
 
-    /**
-     * Sex of the patient
-     */
-    sex: 'male' | 'female';
+		/**
+		 * Organization managing the patient record
+		 */
+		managingOrganization: Nullable<Organization>;
 
-    /**
-     * The patient's date of birth
-     * Should be set as `YYYY-MM-DD`
-     */
-    birthDate: YYYYMMDDDateString;
+		/**
+		 * Means of contacting the patient
+		 */
+		contact: Nullable<Contact>;
 
-    /**
-     * Marital Status
-     */
-    maritalStatus: string;
+		/**
+		 * Sex of the patient
+		 */
+		sex: "male" | "female";
 
-    /**
-     * more information about the patient
-     */
-    extendedData: Nullable<PatientBody>;
+		/**
+		 * The patient's date of birth
+		 * Should be set as `YYYY-MM-DD`
+		 */
+		birthDate: YYYYMMDDDateString;
 
-    /**
-     * Language to use to communicate with the person
-     */
-    communicaton: Nullable<{
-      language: 'en' | 'sw';
-    }>;
+		/**
+		 * Marital Status
+		 */
+		maritalStatus: Nullable<string>;
 
-    /**
-     * Business identifier for the patient
-     */
-  } & Identifier
+		/**
+		 * more information about the patient
+		 */
+		extendedData: Nullable<PatientBody>;
+
+		/**
+		 * Language to use to communicate with the person
+		 */
+		communicaton: Nullable<{
+			language: "en" | "sw";
+		}>;
+
+		/**
+		 * Link that is associated by this patient record
+		 */
+		link: Nullable<{
+			/**
+			 * Time the link was created
+			 * THINK: Might remove.
+			 */
+			createdAt: UTCDateTimeString;
+
+			/**
+			 * The other patient document being linked
+			 */
+			other: Referred<Patient>;
+
+			/**
+			 * Type of association of with the patient record
+			 */
+			type: "replaces" | "replaced-by";
+		}>;
+
+		/**
+		 * Business identifier for the patient
+		 */
+	} & Identifier
 >;
 
 /**
  * Related with contact inforamtion
  */
-type Contact = {phoneNumber: Nullable<string>; email: Nullable<string>};
+type Contact = { phoneNumber: Nullable<string>; email: Nullable<string> };
 
 /**
  * Practitioner
  */
 export type Practitioner = Resource<
-  'Practitioner',
-  {
-    active: boolean;
-    name: string;
-    address: Nullable<string>;
-    contact: Nullable<Contact>;
-    birthDate: Nullable<YYYYMMDDDateString>;
-    gender: 'male' | 'female' | 'other' | 'unknown';
-    communication: Nullable<{
-      language: 'en' | 'sw';
-    }>;
+	"Practitioner",
+	{
+		active: boolean;
+		name: string;
+		address: Nullable<string>;
+		contact: Nullable<Contact>;
+		birthDate: Nullable<YYYYMMDDDateString>;
+		gender: "male" | "female" | "other" | "unknown";
+		communication: Nullable<{
+			language: "en" | "sw";
+		}>;
 
-    /**
-     * Identifier used in the business
-     */
-  } & Identifier
+		/**
+		 * Service the practitioner is providing
+		 */
+		serviceProvider: Referred<HealthcareService>;
+
+		/**
+		 * Organization associated with the practioner
+		 */
+		organization: Referred<Organization>;
+
+		/**
+		 * Identifier used in the business
+		 */
+	} & Identifier
 >;

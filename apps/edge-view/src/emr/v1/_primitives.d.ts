@@ -39,9 +39,7 @@ type Resource<N extends ResourceOptions, T, C extends string = string> = {
 /**
  * Link to the reou
  */
-type Referred<Obj extends Resource<string, object>> =
-	| ReferenceIdentifier
-	| Omit<Obj, "createdAt">;
+type Referred<Obj extends Resource<string, object>> = ReferenceIdentifier | Obj;
 /**
  * Represent date
  * Format `YYYY-MM-DD`
@@ -84,20 +82,19 @@ type Identifier = {
  * Identifies a object that can be used
  * to uniquely identify a resource
  */
-type ReferenceIdentifier<RF extends string = string> =
-	| {
-			resourceType: "reference";
-			resourceReferenced: RF;
-			id: string;
-	  }
-	| {
-			resourceType: "reference";
-			resourceReferenced: RF;
-			data: {
-				// Other means to reference resource with an identifier
-				[x: string]: string;
-			};
-	  };
+type ReferenceIdentifier<RF extends string = string> = {
+	resourceType: "Reference";
+	resourceReferenced: RF;
+	id: string;
+};
+// | {
+// 		resourceType: "Reference";
+// 		resourceReferenced: RF;
+// 		data: {
+// 			// Other means to reference resource with an identifier
+// 			[x: string]: string;
+// 		};
+//   };
 
 /**
  * Something

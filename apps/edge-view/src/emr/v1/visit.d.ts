@@ -20,17 +20,17 @@ export type Visit<Value extends Data = Data> = Resource<
 		/**
 		 * Records for the observations that were made udring the visit
 		 */
-		assessments: Nullable<Array<Referred<Assessment<Data>>>>;
+		assessments: Array<Referred<Assessment<Data>>>;
 
 		/**
 		 * Identifies the prescriptions details that were made in visit
 		 */
-		prescriptions: Nullable<Array<Referred<MedicationRequest>>>;
+		prescriptions: Array<Referred<MedicationRequest>>;
 
 		/**
-		 * Identifies the investigations that were performed
+		 * Identifies the investigation requests made during visit
 		 */
-		investigations: Nullable<Array<Referred<Investigation<Data>>>>;
+		investigationRequests: Array<Referred<Investigation<Data>>>;
 
 		/**
 		 * More information about the visit
@@ -40,7 +40,7 @@ export type Visit<Value extends Data = Data> = Resource<
 		/**
 		 * Referencing the appintmnt that's associated with the visit
 		 */
-		appointmentOrigin: Nullable<Referred<Appointment>>;
+		authorizingAppointment: Nullable<Referred<Appointment>>;
 	}
 >;
 

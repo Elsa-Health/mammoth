@@ -10,6 +10,7 @@
 		"duration-fns": "^3.0.0",
 		"elsa-health-data-fns": "^1.5.8",
 		"immer": "^9.0.12",
+		"immutable": "^4.1.0",
 		"lodash": "^4.17.21",
 		"nanoid": "^3.3.4",
 		"papai": "^0.1.11",
@@ -44,6 +45,7 @@
 	},
 	"devDependencies": {
 		"@babel/plugin-proposal-pipeline-operator": "^7.17.12",
+		"@jridgewell/gen-mapping": "^0.3.1",
 		"@tailwindcss/forms": "^0.5.0",
 		"@tailwindcss/line-clamp": "^0.3.1",
 		"@testing-library/jest-dom": "^5.16.4",

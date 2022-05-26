@@ -1,18 +1,23 @@
 import { HealthcareService } from "./administration";
 import { Practitioner, Patient } from "./personnel";
 
-export type MedicationRequest = Resource<
+export type MedicationRequest<D extends Data = Data> = Resource<
 	"MedicationRequest",
 	{
 		/**
+		 * With whom the request concerns
+		 */
+		subject: Referred<Patient>;
+
+		/**
 		 * Requester or the medicaiton
 		 */
-		requester: Referred<Patient> | Referred<Practitioner>;
+		requester: Nullable<Referred<Patient> | Referred<Practitioner>>;
 
 		/**
 		 * Medication requested
 		 */
-		medication: Referred<Medication<string, Data>>;
+		medication: Referred<Medication<string, D>>;
 
 		/**
 		 * Date the medication request was issued
@@ -84,9 +89,6 @@ export type Medication<
 		 */
 		name: string;
 
-		// categorical
-		category: Category;
-
 		/**
 		 * Alternative name
 		 */
@@ -102,5 +104,6 @@ export type Medication<
 		 * Data about
 		 */
 		data: D;
-	}
+	},
+	Category
 >;
