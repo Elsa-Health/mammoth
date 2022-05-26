@@ -1,6 +1,6 @@
 import React from 'react';
 import {ScrollView, ToastAndroid, View} from 'react-native';
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 import {Layout, Text} from '../../../@libs/elsa-ui/components';
 import {
   DefaultColor,
@@ -552,7 +552,7 @@ function CTCSearchBox({
 export default function CTCDashboardScreen({
   entry: {fullName, networkStatus, myCtcCode},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {
     fullName: string;
     myCtcCode?: string;

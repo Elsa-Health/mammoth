@@ -11,7 +11,7 @@ import {DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
 import {SectionedSelect} from '../../../@libs/elsa-ui/components';
 import {Button, Checkbox, Divider, RadioButton} from 'react-native-paper';
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 import {ARV, CTC, Medication} from 'elsa-health-data-fns';
 
 const ARV_WHO_STAGES = ['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4'];
@@ -33,7 +33,7 @@ const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 export default function HIVPatientIntakeScreen({
   entry: {value = {}},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {
     value: Partial<HIVPatientIntake>;
   },

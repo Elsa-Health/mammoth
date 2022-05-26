@@ -7,12 +7,12 @@ import {useTheme} from '../../../@libs/elsa-ui/theme';
 import {Condition} from 'elsa-health-data-fns';
 import {Button} from 'react-native-paper';
 
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 
 export default function DoctorSymptomAssessmentScreen({
   entry: {value: state},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {value: Condition[]},
   {
     onMakeDesicion: (condition: Condition[]) => void;

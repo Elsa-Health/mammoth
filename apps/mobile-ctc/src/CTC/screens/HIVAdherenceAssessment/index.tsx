@@ -3,7 +3,7 @@ import produce from 'immer';
 import React from 'react';
 import {ScrollView, View} from 'react-native';
 import {Button, RadioButton, TextInput} from 'react-native-paper';
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import {DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
@@ -47,7 +47,7 @@ const YNQuestions: Array<{text: string; key: keyof PatientAdherence}> = [
 export default function HIVAdherenceAssessmentScreen({
   entry: {value},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {value: Partial<PatientAdherence>},
   {onCompleteAdherence: (adhrence: PatientAdherence) => void}
 >) {

@@ -8,7 +8,7 @@ import {
 import {ScrollView, useWindowDimensions, View, ViewProps} from 'react-native';
 
 import {useTheme} from '../../../@libs/elsa-ui/theme';
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 import {
   CTC,
   Condition,
@@ -72,7 +72,7 @@ type SetterValue<T> = T | ((prev: T) => T);
 export default function AssessmentSummaryScreen({
   entry: {value: initialValue, recommendedTests},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {
     recommendedTests: CTC.Test[] | undefined;
     value: Partial<AssessmentSummaryData>;

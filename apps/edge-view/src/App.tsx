@@ -433,9 +433,47 @@ export function PageToRender({
 				{/* Facility + Devices */}
 				<div>
 					<div className="mx-auto container px-8 py-10 space-y-4">
+						{/* Presenting Symptoms */}
+						<h3 className="text-lg leading-6 font-medium text-gray-900">
+							Top 10 from Presenting Symptoms
+						</h3>
+						<div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+							<table className="min-w-full divide-y divide-gray-300">
+								<thead className="bg-gray-50">
+									<tr>
+										<th
+											scope="col"
+											className="py-3 pl-4 pr-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 sm:pl-6"
+										>
+											Name
+										</th>
+										<th
+											scope="col"
+											className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
+										>
+											Count
+										</th>
+									</tr>
+								</thead>
+								<tbody className="divide-y divide-gray-200 bg-white">
+									{top10s.presentingSymptoms.map(
+										([id, text, count]) => (
+											<tr key={id}>
+												<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+													{text}
+												</td>
+												<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+													{count}
+												</td>
+											</tr>
+										)
+									)}
+								</tbody>
+							</table>
+						</div>
 						{/* Disease / Clinicians */}
 						<h3 className="text-lg leading-6 font-medium text-gray-900">
-							Disease by Clinicians
+							Top 10 from Clinicians' Picks
 						</h3>
 						<div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
 							<table className="min-w-full divide-y divide-gray-300">
@@ -473,7 +511,7 @@ export function PageToRender({
 						</div>
 						{/* Disease / Elsa */}
 						<h3 className="text-lg leading-6 font-medium text-gray-900">
-							Disease by Clinicians
+							Top 10 from Elsa's Top 3
 						</h3>
 						<div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
 							<table className="min-w-full divide-y divide-gray-300">
@@ -511,7 +549,7 @@ export function PageToRender({
 						</div>
 						{/* Investigation Requested */}
 						<h3 className="text-lg leading-6 font-medium text-gray-900">
-							Investigations Requested
+							Top 10 Investigations Requested
 						</h3>
 						<div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
 							<table className="min-w-full divide-y divide-gray-300">
@@ -549,7 +587,7 @@ export function PageToRender({
 						</div>
 						{/* Medication Requested */}
 						<h3 className="text-lg leading-6 font-medium text-gray-900">
-							Medications Requested
+							Top 10 Medications Requested
 						</h3>
 						<div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
 							<table className="min-w-full divide-y divide-gray-300">

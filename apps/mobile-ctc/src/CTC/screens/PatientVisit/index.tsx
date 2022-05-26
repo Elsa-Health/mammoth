@@ -3,16 +3,13 @@ import React from 'react';
 import {View, ScrollView, ViewProps, ToastAndroid} from 'react-native';
 import {Button, Divider} from 'react-native-paper';
 import {Layout, Text} from '../../../@libs/elsa-ui/components';
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 import {properAgeString} from '../../../app/utils';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from '../../../@libs/elsa-ui/theme';
 import {CTC as ctc, Investigation, Medication} from 'elsa-health-data-fns/lib';
-import cons from 'gun';
 import {invParse, invStrigify} from '../../fns';
-import {store} from '../../storage/personal';
-import produce from 'immer';
 
 function Section({
   title,
@@ -58,7 +55,7 @@ type PatientInvestigation = {
 export default function PatientVisit({
   entry: {visit},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {
     visit: CTC.Visit;
   },

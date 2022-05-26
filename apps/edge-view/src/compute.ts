@@ -10,6 +10,7 @@ import {
 	Condition,
 	Investigation,
 	Medication,
+	Symptom,
 } from "elsa-health-data-fns";
 
 import {
@@ -228,6 +229,15 @@ export function outputValue(v: {
 
 	return {
 		district: {
+			transferedPatient: patients.filter((patient) => {
+				const link = patient.link;
+
+				if (link === null) {
+					return false;
+				}
+
+				return link.type === "replaced-by";
+			}),
 			totalPatients: patients.count(),
 			visitsWithInMonth: visits.map(cDate).filter(isWithInMonth).count(),
 			appointmentsWithInMonth: appointments
@@ -272,7 +282,38 @@ export function outputValue(v: {
 			}),
 		},
 		top10s: {
-			// symptoms,
+			presentingSymptoms: iList<[string, number]>(
+				Object.entries(
+					_.countBy(
+						symptomAssessment
+							.map((s) => {
+								if (s.result.resourceType === "Observation") {
+									return s.result;
+								}
+
+								return null;
+							})
+							.filter((s) => s !== null)
+							.map(
+								(s) =>
+									s?.data.data.present.map((s) => s.id) || []
+							)
+							// @ts-ignore
+							.reduceRight((a, b) => [...a, ...b])
+					)
+				)
+			)
+				.map(([sym, freq]) => {
+					return [
+						sym,
+						Symptom.locale("en").api.fromKey(sym as Symptom).name ??
+							sym,
+						freq,
+					];
+				})
+				.sortBy((s) => -s[2])
+				.slice(0, 10)
+				.toArray() as [Symptom, string, number][],
 			topDiseaseWithElsaTop3: iList<[string, number]>(
 				Object.entries(top3ElsaPicks)
 			)

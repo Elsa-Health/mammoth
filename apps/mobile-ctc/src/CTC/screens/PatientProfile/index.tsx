@@ -2,7 +2,7 @@ import React, {Children} from 'react';
 import {ScrollView, View} from 'react-native';
 import {Text, Layout} from '../../../@libs/elsa-ui/components';
 import {useTheme} from '../../../@libs/elsa-ui/theme';
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 
 import {Button, Divider} from 'react-native-paper';
 import {getFacilityFromCode} from '../../facilities';
@@ -83,7 +83,7 @@ function Section<T>({
 export default function PatientProfileScreen({
   entry: {patient},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {patient: CTC.Patient},
   {
     onNewPatientVisit: (patient: CTC.Patient) => void;

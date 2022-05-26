@@ -3,5 +3,9 @@ module.exports = {
     'module:metro-react-native-babel-preset',
     '@babel/preset-typescript',
   ],
-  plugins: ['react-native-reanimated/plugin'],
+  plugins: [
+    // ...
+    // This needs to be listed last
+    'react-native-reanimated/plugin',
+  ],
 };

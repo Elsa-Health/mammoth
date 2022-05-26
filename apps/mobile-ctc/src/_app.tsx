@@ -7,9 +7,9 @@ import SplashScreen from 'react-native-splash-screen';
 // } from './app/context/application';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {ThemeProvider} from './@libs/elsa-ui/theme';
+import {ThemeProvider} from '@elsa-ui/react-native/theme';
 
-import {LanguageProvider} from './@libs/elsa-utils/locale';
+import {LanguageProvider} from '@elsa-ui/react-native-workflows/utilities/locale';
 
 import _ from 'lodash';
 import {

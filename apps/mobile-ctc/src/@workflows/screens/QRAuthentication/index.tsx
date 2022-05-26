@@ -1,5 +1,5 @@
 import React from 'react';
-import {WorkflowScreen} from '../..';
+import {WorkflowScreenProps} from '../..';
 
 import {StyleSheet, View} from 'react-native';
 
@@ -154,7 +154,7 @@ function VerifyCodeFromProvider({
 
 export default function QRAuthenticationScreen({
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {},
   {
     authenticate: (qrCodeDigest: string) => Promise<AuthOutput>;

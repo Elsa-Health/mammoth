@@ -1,6 +1,6 @@
 import React from 'react';
 import {ScrollView, View} from 'react-native';
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 import {AltLayout as Layout, Text} from '../../../@libs/elsa-ui/components';
 import {DefaultColor, DefaultSpacing} from '../../../@libs/elsa-ui/theme';
 
@@ -18,7 +18,7 @@ import {
 
 export default function ViewPatientsScreen({
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {},
   {
     onMount?: () => void | (() => void);

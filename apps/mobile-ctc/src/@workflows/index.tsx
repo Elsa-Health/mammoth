@@ -89,7 +89,7 @@ export type VisitSession = BaseVisitType & {
 type InitialPropsType = {[field: string]: any};
 type ActionList = {[fnName: string]: (...a: any[]) => any};
 
-export type WorkflowScreen<
+export type WorkflowScreenProps<
   InitialProps extends InitialPropsType,
   Actions extends ActionList = {},
 > = {

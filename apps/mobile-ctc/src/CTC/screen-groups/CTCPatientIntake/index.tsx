@@ -7,7 +7,7 @@ import BasicV2PatientIntakeScreen, {
 import HIVPatientIntakeScreen, {
   HIVPatientIntake,
 } from '../../screens/HIVPatientIntake';
-import {withFlowContext, WorkflowScreen} from '../../../@workflows';
+import {withFlowContext, WorkflowScreenProps} from '../../../@workflows';
 import produce from 'immer';
 import _ from 'lodash';
 import {format} from 'date-fns';
@@ -77,7 +77,7 @@ const transformToProperHIVIntake = (intake: HIVPatientIntake): CTCHivIntake => {
 export default function CTCPatientIntakeScreenGroup({
   entry: {value, patient, appointment},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {
     appointment?: CTC.Appointment;
     patient: CTC.Patient;

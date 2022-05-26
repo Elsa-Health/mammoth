@@ -20,7 +20,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import produce from 'immer';
 import dayjs from 'dayjs';
-import {WorkflowScreen} from '../../../@workflows';
+import {WorkflowScreenProps} from '../../../@workflows';
 
 type MaritalStatus =
   | 'single'
@@ -121,7 +121,7 @@ const CTCValues = Object.entries(CTCCodeMap);
 export default function CTCRegisterNewPatientScreen({
   entry: {patientId},
   actions: $,
-}: WorkflowScreen<
+}: WorkflowScreenProps<
   {
     patientId?: string | undefined;
   },
