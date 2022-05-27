@@ -33,7 +33,6 @@ export function Column(rp: {
       <View
         style={[
           {
-            flex: 1,
             flexDirection: 'column',
           },
           rp.contentStyle,
@@ -66,7 +65,14 @@ export function Row(rp: {
         rp.spaceTop ?? false ? {marginTop: spacing.sm} : undefined,
         rp.spaceBottom ?? false ? {marginBottom: spacing.sm} : undefined,
       ]}>
-      {rp.icon && <Icon color={color.primary.base} size={24} name={rp.icon} />}
+      {rp.icon && (
+        <Icon
+          color={color.primary.base}
+          size={24}
+          name={rp.icon}
+          style={{marginRight: 8}}
+        />
+      )}
       <View
         style={[
           {
@@ -282,6 +288,7 @@ export function Section(props: {
   spaceBottom?: boolean;
   noPad?: boolean;
   children?: React.ReactNode;
+  removeLine?: boolean;
 }) {
   const {spacing} = useTheme();
 
@@ -317,7 +324,7 @@ export function Section(props: {
               </Text>
             )}
           </View>
-          <Divider />
+          {(!props.removeLine ?? true) && <Divider />}
         </>
       )}
       {props.children && (
