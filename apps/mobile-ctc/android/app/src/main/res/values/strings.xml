@@ -4,10 +4,10 @@
 	<string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
 
 	<!-- Inspired Key -->
-	<!-- <string moduleConfig="true" name="CodePushDeploymentKey">S7_V0bwNmg_xTzuW7SbD8ZrJNMwtAbdWsNWKm</string> -->
+	<string moduleConfig="true" name="CodePushDeploymentKey">S7_V0bwNmg_xTzuW7SbD8ZrJNMwtAbdWsNWKm</string>
 
 	<!-- Staging Key -->
-	<string moduleConfig="true" name="CodePushDeploymentKey">rNHyV6Z1UPwCQALHezVW_dM44x_jR27T3Fxrk</string>
+	<!-- <string moduleConfig="true" name="CodePushDeploymentKey">rNHyV6Z1UPwCQALHezVW_dM44x_jR27T3Fxrk</string> -->
 
 	<!-- Production Key: Uncomment when ready -->
 	<!-- <string moduleConfig="true" name="CodePushDeploymentKey">KseB48cf5ageNAJ1ShxyQ9ZAdzUUuDOXP79WJ</string> -->
