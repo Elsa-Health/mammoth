@@ -4,7 +4,13 @@ import {View, ViewProps} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {Layout, Text} from '@elsa-ui/react-native/components';
-import {Block, Column, Row, Section} from '../../temp-components';
+import {
+  Block,
+  Column,
+  Row,
+  Section,
+  TouchableItem,
+} from '../../temp-components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {Searchbar, TouchableRipple} from 'react-native-paper';
 import {ElsaColorableIcon} from '@elsa-ui/react-native/visuals/vectors';
@@ -75,51 +81,5 @@ export default function DashboardScreen({
         </Column>
       </Section>
     </Layout>
-  );
-}
-
-function TouchableItem({
-  onPress,
-  children,
-  ...other
-}: ItemProps & {onPress?: () => void}) {
-  const {color} = useTheme();
-  return (
-    <Item
-      style={{
-        borderColor: color.primary.base,
-        borderWidth: 1,
-        borderRadius: 3,
-      }}
-      {...other}>
-      <TouchableRipple onPress={onPress} rippleColor="#4665af">
-        <View
-          style={{
-            padding: 8,
-          }}>
-          {children}
-        </View>
-      </TouchableRipple>
-    </Item>
-  );
-}
-
-type ItemProps = {
-  children: React.ReactNode;
-  style?: ViewProps['style'];
-  spaceTop?: boolean;
-  spaceBottom?: boolean;
-};
-function Item(rp: ItemProps) {
-  const {spacing} = useTheme();
-  return (
-    <View
-      style={[
-        rp.style,
-        rp.spaceTop ?? false ? {marginTop: spacing.sm} : undefined,
-        rp.spaceBottom ?? false ? {marginBottom: spacing.sm} : undefined,
-      ]}>
-      {rp.children}
-    </View>
   );
 }

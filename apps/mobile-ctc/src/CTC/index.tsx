@@ -3,6 +3,7 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import DashboardScreen from './_screens/Dashboard';
+import ViewAppointmentsScreen from './_screens/ViewAppointment';
 
 import NewVisitEntryScreen from './_screens/BasicPatientIntake';
 import HIVStageIntakeScreen from './_screens/HIVStageIntake';
@@ -17,7 +18,9 @@ const Stack = createNativeStackNavigator();
 
 export default function ({provider}: {provider: ElsaProvider}) {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator
+      initialRouteName="ctc.view-appointments"
+      screenOptions={{headerShown: false}}>
       <Stack.Screen
         name="ctc.dashboard"
         component={withFlowContext(DashboardScreen, {
@@ -27,6 +30,10 @@ export default function ({provider}: {provider: ElsaProvider}) {
             onViewPatients() {},
           }),
         })}
+      />
+      <Stack.Screen
+        name="ctc.view-appointments"
+        component={withFlowContext(ViewAppointmentsScreen)}
       />
       <Stack.Screen
         name="ctc.first-patient-intake"

@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet, View, ViewProps} from 'react-native';
 import {Text} from '@elsa-ui/react-native/components';
 
-import {Divider, HelperText} from 'react-native-paper';
+import {Divider, HelperText, TouchableRipple} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {TextInput} from 'react-native-paper';
@@ -269,6 +269,52 @@ export function MultiSelect<T>(
         },
       }}
     />
+  );
+}
+
+export function TouchableItem({
+  onPress,
+  children,
+  ...other
+}: ItemProps & {onPress?: () => void}) {
+  const {color} = useTheme();
+  return (
+    <Item
+      style={{
+        borderColor: color.primary.base,
+        borderWidth: 1,
+        borderRadius: 3,
+      }}
+      {...other}>
+      <TouchableRipple onPress={onPress} rippleColor="#4665af">
+        <View
+          style={{
+            padding: 8,
+          }}>
+          {children}
+        </View>
+      </TouchableRipple>
+    </Item>
+  );
+}
+
+type ItemProps = {
+  children: React.ReactNode;
+  style?: ViewProps['style'];
+  spaceTop?: boolean;
+  spaceBottom?: boolean;
+};
+export function Item(rp: ItemProps) {
+  const {spacing} = useTheme();
+  return (
+    <View
+      style={[
+        rp.style,
+        rp.spaceTop ?? false ? {marginTop: spacing.sm} : undefined,
+        rp.spaceBottom ?? false ? {marginBottom: spacing.sm} : undefined,
+      ]}>
+      {rp.children}
+    </View>
   );
 }
 
