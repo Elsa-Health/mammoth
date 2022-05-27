@@ -5,10 +5,13 @@ import {useTheme} from '@elsa-ui/react-native/theme';
 import {ScrollView, View} from 'react-native';
 import {Button, RadioButton, TextInput} from 'react-native-paper';
 import {Block, Column, Row, Section} from '../../temp-components';
+import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 
 const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 
-export default function HIVAdherenceAssessmentScreen() {
+export default function HIVAdherenceAssessmentScreen({
+  actions: $,
+}: WorkflowScreenProps<{}, {onNext: () => void}>) {
   const {spacing} = useTheme();
   const [state, set] = React.useState(() => ({
     coMorbidities: [] as any[],
@@ -88,7 +91,7 @@ export default function HIVAdherenceAssessmentScreen() {
         {/* ARV */}
       </ScrollView>
       <Block>
-        <Button mode="contained" icon="arrow-right">
+        <Button mode="contained" onPress={$.onNext} icon="arrow-right">
           Finish up: Conclude Visit
         </Button>
       </Block>

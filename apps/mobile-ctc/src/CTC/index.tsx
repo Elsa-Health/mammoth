@@ -16,22 +16,6 @@ export default function ({provider}: {provider: ElsaProvider}) {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen
-        name="ctc.conclude-assessment"
-        component={withFlowContext(ConcludeAssessmentScreen, {
-          entry: {
-            initial: {
-              patientId: '1234567890111213',
-              facility: 'Meru District CTC',
-            },
-          },
-          actions: ({navigation}) => ({
-            onNext() {
-              // ...
-            },
-          }),
-        })}
-      />
-      <Stack.Screen
         name="ctc.first-patient-intake"
         component={withFlowContext(NewVisitEntryScreen, {
           entry: {
@@ -78,6 +62,23 @@ export default function ({provider}: {provider: ElsaProvider}) {
             onNext() {
               navigation.navigate('ctc.conclude-assessment');
               // ...
+            },
+          }),
+        })}
+      />
+      <Stack.Screen
+        name="ctc.conclude-assessment"
+        component={withFlowContext(ConcludeAssessmentScreen, {
+          entry: {
+            initial: {
+              patientId: '1234567890111213',
+              facility: 'Meru District CTC',
+            },
+          },
+          actions: ({navigation}) => ({
+            onNext() {
+              // ...
+              navigation.navigate('ctc.first-patient-intake');
             },
           }),
         })}

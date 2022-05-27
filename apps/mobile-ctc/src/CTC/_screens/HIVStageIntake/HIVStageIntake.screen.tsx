@@ -8,10 +8,13 @@ import {Block, Column, MultiSelect, Row, Section} from '../../temp-components';
 
 import {ARV, CTC, Medication} from 'elsa-health-data-fns';
 import produce from 'immer';
+import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 
 const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 
-export default function HIVStageIntakeScreen() {
+export default function HIVStageIntakeScreen({
+  actions: $,
+}: WorkflowScreenProps<{}, {onNext: () => void}>) {
   const {spacing} = useTheme();
   const [state, set] = React.useState(() => ({
     coMorbidities: [] as any[],
@@ -95,7 +98,7 @@ export default function HIVStageIntakeScreen() {
         </Section>
       </ScrollView>
       <Block>
-        <Button mode="contained" icon="arrow-right">
+        <Button mode="contained" onPress={$.onNext} icon="arrow-right">
           Next: Patient Adherence
         </Button>
       </Block>
