@@ -30,6 +30,7 @@
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "@sentry/react-native": "^3.2.3",
+    "@stdlib/random-sample": "^0.0.7",
     "@syncedstore/core": "^0.3.7",
     "@types/websocket": "^1.0.5",
     "appcenter": "4.3.0",
@@ -45,10 +46,12 @@
     "fuse.js": "^6.4.6",
     "i18next": "^21.4.0",
     "immer": "^9.0.6",
+    "immutable": "^4.1.0",
     "lodash": "^4.17.21",
     "papai": "/home/iam-kevin/Projects/personal/@packages/papai/papai",
     "react": "17.0.2",
     "react-dom": "^17",
+    "react-hook-form": "^7.31.3",
     "react-i18next": "^11.13.0",
     "react-native": "0.66.1",
     "react-native-camera": "^4.2.1",
@@ -89,6 +92,7 @@
     "text-encoding": "^0.7.0",
     "uuid": "^8.3.2",
     "validator": "^13.7.0",
+    "yup": "^0.32.11",
     "zustand": "^3.6.0"
   },
   "devDependencies": {

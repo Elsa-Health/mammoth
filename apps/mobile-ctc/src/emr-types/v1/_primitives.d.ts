@@ -1,7 +1,7 @@
 type Nullable<T> = T | null;
 type OneOrMany<T> = T | T[];
 type Mapping<K extends string, T> = {
-	[k in K]: T;
+  [k in K]: T;
 };
 
 /**
@@ -15,25 +15,25 @@ type Mapping<K extends string, T> = {
  */
 type ResourceOptions = string;
 type Resource<N extends ResourceOptions, T, C extends string = string> = {
-	/**
-	 * Code associated with grouping the object
-	 */
-	code: Nullable<C>;
+  /**
+   * Code associated with grouping the object
+   */
+  code: Nullable<C>;
 
-	/**
-	 * Type of resource
-	 */
-	resourceType: N;
+  /**
+   * Type of resource
+   */
+  resourceType: N;
 
-	/**
-	 * Global Unique Identifier for a resource
-	 */
-	id: string;
+  /**
+   * Global Unique Identifier for a resource
+   */
+  id: string;
 
-	/**
-	 * Date and time the resource was issued
-	 */
-	createdAt: DateTimeString;
+  /**
+   * Date and time the resource was issued
+   */
+  createdAt: DateTimeString;
 } & T;
 
 /**
@@ -62,12 +62,12 @@ type DateTimeString = string;
  * Defines a data type used of the present the contents of an object
  */
 type Data =
-	| string
-	| number
-	| boolean
-	| {
-			[x: string]: Data | Data[] | null;
-	  };
+  | string
+  | number
+  | boolean
+  | {
+      [x: string]: Data | Data[] | null;
+    };
 
 /**
  *
@@ -75,7 +75,7 @@ type Data =
  * problems in the future.
  */
 type Identifier = {
-	[x: string]: string;
+  [x: string]: string;
 };
 
 /**
@@ -83,9 +83,9 @@ type Identifier = {
  * to uniquely identify a resource
  */
 type ReferenceIdentifier<RF extends string = string> = {
-	resourceType: "Reference";
-	resourceReferenced: RF;
-	id: string;
+  resourceType: 'Reference';
+  resourceReferenced: RF;
+  id: string;
 };
 // | {
 // 		resourceType: "Reference";

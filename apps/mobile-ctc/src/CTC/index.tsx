@@ -6,21 +6,58 @@ import DashboardScreen from './_screens/Dashboard';
 import ViewAppointmentsScreen from './_screens/ViewAppointments';
 import ViewVisitsScreen from './_screens/ViewVisits';
 
+import InvestigationsDashboardScreen from './_screens/InvestigationDashboard';
+import MedicationsDashboardScreen from './_screens/MedicationDashboard';
+
 import NewVisitEntryScreen from './_screens/BasicPatientIntake';
 import HIVStageIntakeScreen from './_screens/HIVStageIntake';
 import HIVAdherenceAssessmentScreen from './_screens/HIVAdherenceAssessment';
 import ConcludeAssessmentScreen from './_screens/ConcludeAssessment';
 
 import {withFlowContext} from '@elsa-ui/react-native-workflows';
+import uuid from 'react-native-uuid';
 
 import {ElsaProvider} from '../provider/backend';
+import {useStore} from './emr';
+import {Medication} from 'elsa-health-data-fns/lib';
+import {Practitioner} from '../emr-types/v1/personnel';
 
 const Stack = createNativeStackNavigator();
 
-export default function ({provider}: {provider: ElsaProvider}) {
+function practitioner(ep: ElsaProvider): Practitioner {
+  return {
+    active: true,
+    address: ep.facility.address ?? null,
+    birthDate: null,
+    code: null,
+    communication: {language: 'en'},
+    contact: {
+      email: ep.user.email ?? null,
+      phoneNumber: ep.user.phoneNumber ?? null,
+    },
+    createdAt: new Date().toISOString(),
+    gender: 'unknown',
+    id: ep.user.uid,
+    name: ep.user.displayName ?? ep.user.uid,
+    organization: {
+      resourceType: 'Reference',
+      resourceReferenced: 'Organization',
+      // id: ep.facility.name,
+      data: {
+        name: ep.facility.name,
+        ctcCode: ep.facility.ctcCode ?? null,
+      },
+    },
+    resourceType: 'Practitioner',
+    serviceProvider: null,
+  };
+}
+
+function App({provider}: {provider: ElsaProvider}) {
+  const store = useStore();
   return (
     <Stack.Navigator
-      initialRouteName="ctc.view-visits"
+      initialRouteName="ctc.medications-dashboard"
       screenOptions={{headerShown: false}}>
       <Stack.Screen
         name="ctc.dashboard"
@@ -39,6 +76,84 @@ export default function ({provider}: {provider: ElsaProvider}) {
       <Stack.Screen
         name="ctc.view-visits"
         component={withFlowContext(ViewVisitsScreen)}
+      />
+      <Stack.Screen
+        name="ctc.investigations-dashboard"
+        component={withFlowContext(InvestigationsDashboardScreen)}
+      />
+      <Stack.Screen
+        name="ctc.medications-dashboard"
+        component={withFlowContext(MedicationsDashboardScreen, {
+          actions: ({navigation}) => ({
+            getMedicationRequests() {
+              return store.medicationRequests.toArray();
+            },
+            getMedicationDispenses() {
+              return store.medicationDispenses.toArray();
+            },
+            onAcceptStandardMedicationRequest(medicationRequest, finish) {
+              console.log('Requesting Medication');
+              // medicationRequest.authoredOn;
+
+              // send's finish message over
+              // e.g. might trigger close modal
+              finish();
+            },
+            onShowAllMedicationRequests() {
+              console.log('Navigating');
+            },
+            onMakeRequest(data, finish) {
+              // add medications to the list
+              console.log('Making the something....');
+              const now = new Date();
+
+              store.addMedicationRequest({
+                authoredOn: now.toUTCString(),
+                code: null,
+                createdAt: now.toISOString(),
+                id: uuid.v4() as string,
+                instructions: null,
+                medication: {
+                  resourceType: 'Medication',
+                  alias:
+                    data.type === 'standard'
+                      ? Medication.all.fromKey(data.medication)
+                      : null,
+                  code: data.type ?? 'standard',
+                  data:
+                    data.type === 'arv'
+                      ? {className: data.className, regimen: data.regimen}
+                      : {
+                          medication: data.medication,
+                          text: Medication.all.fromKey(data.medication),
+                        },
+                  id:
+                    data.type === 'arv'
+                      ? `ctc-arv:${data.regimen}`
+                      : `ctc-standard:${data.medication}`,
+                  ingredients: [],
+                  name: data.type === 'arv' ? data.regimen : data.medication,
+                  createdAt: now.toISOString(),
+                },
+                requester: practitioner(provider),
+
+                subject: {
+                  id: data.patientId,
+                  resourceReferenced: 'Patient',
+                  resourceType: 'Reference',
+                },
+                reason: data.reason,
+                method: 'Unspecified',
+                route: 'Non specific',
+                status: 'active',
+                resourceType: 'MedicationRequest',
+              });
+              // ...
+              console.log(data);
+              finish();
+            },
+          }),
+        })}
       />
       <Stack.Screen
         name="ctc.first-patient-intake"
@@ -110,4 +225,8 @@ export default function ({provider}: {provider: ElsaProvider}) {
       />
     </Stack.Navigator>
   );
+}
+
+export default function (props: {provider: ElsaProvider}) {
+  return <App {...props} />;
 }

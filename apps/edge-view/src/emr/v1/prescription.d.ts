@@ -31,7 +31,7 @@ export type MedicationRequest<D extends Data = Data> = Resource<
 		status: "active" | "cancelled" | "completed" | "on-hold" | "stopped";
 
 		/**
-		 * Houw the drug should enter the body
+		 * How the drug should enter the body
 		 */
 		route: string;
 
@@ -74,6 +74,28 @@ export type MedicationDispense = Resource<
 			rateRatio: any;
 			rateQuantity: number;
 		}>;
+	}
+>;
+
+export type MedicationPickupReport = Resource<
+	"MedicationDispenseReport",
+	{
+		authorizingDispenseNotice: Referred<MedicationDispense>;
+
+		/**
+		 * Person who geve the medication
+		 */
+		dispenser: Referred<Practitioner>;
+
+		/**
+		 * Date and Time the medication was picked up
+		 */
+		pickedUpAt: UTCDateTimeString;
+
+		/**
+		 * Information to elaborate more during the medication pickup
+		 */
+		info: Data;
 	}
 >;
 

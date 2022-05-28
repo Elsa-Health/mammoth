@@ -275,16 +275,21 @@ export function MultiSelect<T>(
 export function TouchableItem({
   onPress,
   children,
+  style,
   ...other
 }: ItemProps & {onPress?: () => void}) {
   const {color} = useTheme();
   return (
     <Item
-      style={{
-        borderColor: color.primary.base,
-        borderWidth: 1,
-        borderRadius: 3,
-      }}
+      style={[
+        {
+          borderColor: color.primary.base,
+          borderWidth: 1,
+          borderRadius: 6,
+          elevation: 1,
+        },
+        style,
+      ]}
       {...other}>
       <TouchableRipple onPress={onPress} rippleColor="#4665af">
         <View
@@ -335,6 +340,7 @@ export function Section(props: {
   noPad?: boolean;
   children?: React.ReactNode;
   removeLine?: boolean;
+  right?: React.ReactNode;
 }) {
   const {spacing} = useTheme();
 
@@ -355,20 +361,25 @@ export function Section(props: {
       {isT && (
         <>
           <View style={{marginBottom: 8}}>
-            {props.title && (
-              <Text font="bold" size={19} color="#1c2846">
-                {props.title}
-              </Text>
-            )}
-            {props.desc && (
-              <Text
-                font="medium"
-                size={14}
-                style={{marginTop: 4}}
-                color={'#777'}>
-                {props.desc}
-              </Text>
-            )}
+            <Row>
+              <View>
+                {props.title && (
+                  <Text font="bold" size={19} color="#1c2846">
+                    {props.title}
+                  </Text>
+                )}
+                {props.desc && (
+                  <Text
+                    font="medium"
+                    size={14}
+                    style={{marginTop: 4}}
+                    color={'#777'}>
+                    {props.desc}
+                  </Text>
+                )}
+              </View>
+              {props.right && <View>{props.right}</View>}
+            </Row>
           </View>
           {(!props.removeLine ?? true) && <Divider />}
         </>

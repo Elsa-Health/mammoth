@@ -12,7 +12,7 @@
     "strict": true,
     "target": "esnext"
   },
-  "include": ["@types/**/*", "./src/*"],
+  "include": ["@types/**/*", "./src/**/*", "./src/emr-types/v1/"],
   "exclude": [
     "node_modules",
     "babel.config.js",

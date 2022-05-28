@@ -60,7 +60,7 @@ export type Report<
 		/**
 		 * Reporter of the observation
 		 */
-		reporter: Nullable<Referred<Patient | Practitioner>>;
+		reporter: Nullable<Referred<Practitioner> | Referred<Patient>>;
 
 		/**
 		 * observation attached to the report
