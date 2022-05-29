@@ -4,10 +4,11 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import DashboardScreen from './_screens/Dashboard';
 import ViewAppointmentsScreen from './_screens/ViewAppointments';
-import ViewVisitsScreen from './_screens/ViewVisits';
+import ViewVisitScreen from './_screens/ViewVisit';
 
 import InvestigationsDashboardScreen from './_screens/InvestigationDashboard';
 import MedicationsDashboardScreen from './_screens/MedicationDashboard';
+import PatientDashboard from './_screens/PatientDashboard';
 
 import NewVisitEntryScreen from './_screens/BasicPatientIntake';
 import HIVStageIntakeScreen from './_screens/HIVStageIntake';
@@ -57,7 +58,7 @@ function App({provider}: {provider: ElsaProvider}) {
   const store = useStore();
   return (
     <Stack.Navigator
-      initialRouteName="ctc.medications-dashboard"
+      initialRouteName="ctc.view-visit"
       screenOptions={{headerShown: false}}>
       <Stack.Screen
         name="ctc.dashboard"
@@ -74,12 +75,20 @@ function App({provider}: {provider: ElsaProvider}) {
         component={withFlowContext(ViewAppointmentsScreen)}
       />
       <Stack.Screen
-        name="ctc.view-visits"
-        component={withFlowContext(ViewVisitsScreen)}
+        name="ctc.view-patient"
+        component={withFlowContext(PatientDashboard)}
+      />
+      <Stack.Screen
+        name="ctc.view-visit"
+        component={withFlowContext(ViewVisitScreen)}
       />
       <Stack.Screen
         name="ctc.investigations-dashboard"
-        component={withFlowContext(InvestigationsDashboardScreen)}
+        component={withFlowContext(InvestigationsDashboardScreen, {
+          actions: ({navigation}) => ({
+            onNext() {},
+          }),
+        })}
       />
       <Stack.Screen
         name="ctc.medications-dashboard"

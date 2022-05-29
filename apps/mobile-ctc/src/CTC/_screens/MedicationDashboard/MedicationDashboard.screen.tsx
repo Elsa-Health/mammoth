@@ -12,11 +12,11 @@ import {
   MultiSelect,
   Row,
   Section,
+  TitledItem,
   TouchableItem,
 } from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {Button, RadioButton, TextInput} from 'react-native-paper';
-import {useAsyncRetry} from 'react-use';
 import {MedicaReq} from '../../emr';
 import {List} from 'immutable';
 
@@ -25,6 +25,8 @@ import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {useBottomModal} from './components';
 import {ARV, Medication} from 'elsa-health-data-fns/lib';
 import _ from 'lodash';
+
+import {useAsyncRetry} from 'react-use';
 
 type MakeRequestHandlerProps = {
   reason: string | null;
@@ -51,26 +53,6 @@ type ScreenProps = WorkflowScreenProps<
     getPatientsToRequestFor: () => Promise<Array<{id: string; name: string}>>;
   }
 >;
-
-function AsyncComponent<T>({
-  loader,
-  children: LoadingChild,
-}: {
-  loader: () => Promise<T>;
-  children: (
-    props: {retry: () => void} & (
-      | {loading: true; error: undefined; value: undefined}
-      | {loading: false; error: undefined; value: T}
-      | {loading: false; error: Error; value: undefined}
-    ),
-  ) => JSX.Element;
-}) {
-  const {value, retry, loading, error} = useAsyncRetry<T>(async () => {
-    return await loader();
-  });
-
-  return <LoadingChild {...{loading, retry, value, error}} />;
-}
 
 function MedicationDashboardScreen({actions: $}: ScreenProps) {
   const {spacing, color} = useTheme();
@@ -524,26 +506,6 @@ function RespondToMedicationRequestForm({
         </Row>
       </Section>
     </>
-  );
-}
-
-function TitledItem({
-  title,
-  children,
-  ...props
-}: {
-  title: string;
-  children: string | React.ReactNode;
-} & any) {
-  return (
-    <Item {...props}>
-      <Text font="bold" size={'sm'} color="#708dcc">
-        {title}
-      </Text>
-      <View style={{marginTop: 2}}>
-        <Text>{children}</Text>
-      </View>
-    </Item>
   );
 }
 

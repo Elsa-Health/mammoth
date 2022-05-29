@@ -11,6 +11,8 @@ import SectionedMultiSelect, {
   SectionedMultiSelectProps,
 } from 'react-native-sectioned-multi-select';
 
+import {useAsyncRetry} from 'react-use';
+
 export function Column(rp: {
   icon?: string;
   children: React.ReactNode;
@@ -323,6 +325,47 @@ export function Item(rp: ItemProps) {
   );
 }
 
+export function AsyncComponent<T>({
+  loader,
+  children: LoadingChild,
+}: {
+  loader: () => Promise<T>;
+  children: (
+    props: {retry: () => void} & (
+      | {loading: true; error: undefined; value: undefined}
+      | {loading: false; error: undefined; value: T}
+      | {loading: false; error: Error; value: undefined}
+    ),
+  ) => JSX.Element;
+}) {
+  const {value, retry, loading, error} = useAsyncRetry<T>(async () => {
+    return await loader();
+  });
+
+  // @ts-ignore
+  return <LoadingChild {...{loading, retry, value, error}} />;
+}
+
+export function TitledItem({
+  title,
+  children,
+  ...props
+}: {
+  title: string;
+  children: string | React.ReactNode;
+} & ItemProps) {
+  return (
+    <Item {...props}>
+      <Text font="bold" size={'sm'} color="#708dcc">
+        {title}
+      </Text>
+      <View style={{marginTop: 2}}>
+        <Text>{children}</Text>
+      </View>
+    </Item>
+  );
+}
+
 /**
  * Sectioned Component
  * @param props
@@ -363,12 +406,12 @@ export function Section(props: {
           <View style={{marginBottom: 8}}>
             <Row>
               <View>
-                {props.title && (
+                {Boolean(props.title) && (
                   <Text font="bold" size={19} color="#1c2846">
                     {props.title}
                   </Text>
                 )}
-                {props.desc && (
+                {Boolean(props.desc) && (
                   <Text
                     font="medium"
                     size={14}
