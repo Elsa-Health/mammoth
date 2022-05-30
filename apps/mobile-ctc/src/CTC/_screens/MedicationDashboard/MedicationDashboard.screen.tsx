@@ -6,6 +6,7 @@ import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {
+  AsyncComponent,
   Block,
   Column,
   Item,
@@ -17,7 +18,7 @@ import {
 } from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {Button, RadioButton, TextInput} from 'react-native-paper';
-import {MedicaReq} from '../../emr';
+import {MedicaDisp, MedicaReq} from '../../emr';
 import {List} from 'immutable';
 
 import {format, formatDistanceToNow} from 'date-fns';
@@ -38,19 +39,15 @@ type MakeRequestHandlerProps = {
 type ScreenProps = WorkflowScreenProps<
   {},
   {
-    onShowAllMedicationRequests: () => void;
-    onAcceptStandardMedicationRequest: (
-      medicationRequest: MedicaReq,
-      finish: () => void,
-    ) => void;
+    onShowAllMedicationDispenses: () => void;
+
     onMakeRequest: (data: MakeRequestHandlerProps, finish: () => void) => void;
-    onAcceptARVMedicationRequest: (
-      medicationRequest: MedicaReq,
-      finish: () => void,
-    ) => void;
-    getMedicationRequests: () => Promise<any[]>;
-    getMedicationDispenses: () => Promise<any[]>;
+    onShowMedicationRequest: (medicationRequest: MedicaReq) => void;
+    getMedicationRequests: () => Promise<MedicaReq[]>;
     getPatientsToRequestFor: () => Promise<Array<{id: string; name: string}>>;
+    getMedicationDispenseFrom: (
+      medicationRequest: MedicaReq,
+    ) => Promise<MedicaDisp | null>;
   }
 >;
 
@@ -64,34 +61,29 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
     return List((await $.getMedicationRequests?.()) || []);
   });
 
-  const {BottomModal, presentModal, closeModal} = useBottomModal({
-    snapPoints: ['25%', '90%'],
-  });
-
   const {BottomModal: RequestBottomModal, presentModal: showRequestModal} =
     useBottomModal();
 
-  const [currentRequest, set] = React.useState<MedicaReq | null>(null);
   return (
-    <Layout title="Kuhusu Dawa" style={{padding: 0}}>
+    <Layout title="Medications" style={{padding: 0}}>
       <ScrollView
         contentContainerStyle={{padding: spacing.md}}
         style={{flex: 1}}>
-        <Section mode="raised" desc="Inawezekana kuna shida!">
-          <Text>Stoku za dawa zipo kwa upungufu ?</Text>
+        <Section mode="raised" desc="Potential Problem!">
+          <Text>Medication stock might be low ?</Text>
         </Section>
         {/* Actions to do here */}
         <Section
-          title="Tufanye nini?"
+          title="Get Started"
           removeLine
-          desc="Mambo unayoweza fanya"
+          desc="Things that can be done"
           spaceTop>
           <TouchableItem
             style={{backgroundColor: '#FFF'}}
             onPress={showRequestModal}>
             <Row icon="medical-bag">
               <Text font="medium" size={17} style={{letterSpacing: 1}}>
-                Omba dawa
+                Request Medication
               </Text>
               {/* <Icon name="arrow-right" color={color.primary.base} size={24} /> */}
             </Row>
@@ -99,10 +91,10 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
           <TouchableItem
             spaceTop
             style={{backgroundColor: '#FFF'}}
-            onPress={$.onShowAllMedicationRequests}>
+            onPress={$.onShowAllMedicationDispenses}>
             <Row icon="file-document-multiple-outline">
               <Text font="medium" size={17} style={{letterSpacing: 1}}>
-                Maombi yaliotimizwa
+                View responded requests
               </Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
@@ -110,18 +102,18 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
         </Section>
         {/* Medication Requests */}
         <Section
-          title="Maombi Mapya"
-          desc="Orodha ya maombi ya dawa mapya"
+          title="Meds. Request"
+          desc="Request for medications"
           removeLine
           right={
             <Button icon="refresh" onPress={retry}>
-              Pakua
+              Refresh
             </Button>
           }>
           {(medicaRequests?.count() || 0) === 0 ? (
             <Column contentStyle={{alignItems: 'center'}}>
-              <Text italic>Hamna maombi yaliyoonakana.</Text>
-              <Text italic>Boyeza `Pakua` kujaribu tena</Text>
+              <Text italic>No request as of now.</Text>
+              <Text italic>Try pressing on `Refresh`</Text>
             </Column>
           ) : (
             <Column>
@@ -132,6 +124,7 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
                   }
 
                   return {
+                    actualRequestTime: new Date(req.authoredOn),
                     reqTime: formatDistanceToNow(new Date(req.authoredOn)),
                     subject: req.subject.id,
                     requestedBy: req.requester?.id,
@@ -145,38 +138,22 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
                   };
                 })
                 .filter(d => d !== null)
+                .sortBy(d => -d.actualRequestTime.getTime())
                 .map((d, ix) => (
                   <React.Fragment key={ix}>
-                    <Column
-                      spaceTop={ix !== 0}
-                      wrapperStyle={{
-                        borderColor: '#ccc',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        padding: 10,
-                      }}>
-                      <Text>
-                        {_.capitalize(d?.type)} Dawa:{' '}
-                        <Text font="bold">{d?.medicationId}</Text>
-                      </Text>
-                      <Text>
-                        Kwa ajili ya: <Text font="bold">{d?.subject}</Text>
-                      </Text>
-                      <Column spaceTop>
-                        <Text italic size={14}>
-                          Iliombwa {d?.reqTime} ago
-                        </Text>
-                        <Button
-                          onPress={() => {
-                            if (d !== null) {
-                              set(d._full);
-                              presentModal();
-                            }
-                          }}>
-                          Show More
-                        </Button>
-                      </Column>
-                    </Column>
+                    <Item spaceTop={ix !== 0}>
+                      <MedicationRequestItem
+                        data={d}
+                        onViewRequest={() => {
+                          if (d !== null) {
+                            $.onShowMedicationRequest(d._full);
+                          }
+                        }}
+                        loadMedicationDispense={() =>
+                          $.getMedicationDispenseFrom(d?._full)
+                        }
+                      />
+                    </Item>
                   </React.Fragment>
                 ))}
             </Column>
@@ -184,38 +161,6 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
         </Section>
       </ScrollView>
 
-      {/* Modal to show information needed */}
-      <BottomModal>
-        {({close}) =>
-          currentRequest !== null && (
-            <RespondToMedicationRequestForm
-              data={currentRequest}
-              onIgnoreRequest={close}
-              onAcceptRequest={() => {
-                if (currentRequest.medication.resourceType === 'Medication') {
-                  if (currentRequest.medication.code === 'standard') {
-                    $.onAcceptStandardMedicationRequest(
-                      currentRequest,
-                      closeModal,
-                    );
-                    return;
-                  }
-
-                  if (currentRequest.medication.code === 'arv') {
-                    $.onAcceptARVMedicationRequest(currentRequest, closeModal);
-                    return;
-                  }
-                }
-
-                console.log(
-                  "Didn't accpet request.. didn't know how to for",
-                  currentRequest.medication,
-                );
-              }}
-            />
-          )
-        }
-      </BottomModal>
       <RequestBottomModal>
         {({close}) => (
           <RequestMedicationForm
@@ -231,6 +176,82 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
         )}
       </RequestBottomModal>
     </Layout>
+  );
+}
+
+function MedicationRequestItem({
+  data: d,
+  loadMedicationDispense,
+  onViewRequest,
+}: {
+  data: any;
+  loadMedicationDispense: () => Promise<MedicaDisp | null>;
+  onViewRequest: () => void;
+}) {
+  return (
+    <Column
+      wrapperStyle={{
+        borderColor: '#b5c1df',
+        borderWidth: 1,
+        borderRadius: 4,
+        padding: 10,
+      }}>
+      <Text>
+        {_.capitalize(d?.type)} Meds: <Text font="bold">{d?.medicationId}</Text>
+      </Text>
+      <Text>
+        For patient: <Text font="bold">{d?.subject}</Text>
+      </Text>
+      <Text italic size={14}>
+        Request made {d?.reqTime} ago
+      </Text>
+      <View>
+        <AsyncComponent loader={loadMedicationDispense}>
+          {({loading, error, value}) => {
+            if (loading) {
+              return (
+                <View>
+                  <Text>Checking for Results...</Text>
+                </View>
+              );
+            }
+
+            if (error) {
+              return (
+                <View>
+                  <Text size={14} italic>
+                    Something went wrong. Unable to laod resutls
+                  </Text>
+                </View>
+              );
+            }
+            console.log(value);
+
+            if (value === null) {
+              return (
+                <Column spaceTop>
+                  <Button onPress={onViewRequest}>View Request</Button>
+                </Column>
+              );
+            }
+
+            return (
+              <View>
+                <TitledItem title="Status" spaceTop>
+                  Dispense Notice
+                  <Icon name="check" color="green" size={20} />
+                </TitledItem>
+                {value?.createdAt && (
+                  <TitledItem title="Date Dispensed" spaceTop>
+                    {format(new Date(value.createdAt), 'yyyy, MMMM dd')}
+                  </TitledItem>
+                )}
+              </View>
+            );
+          }}
+        </AsyncComponent>
+      </View>
+    </Column>
   );
 }
 
@@ -432,70 +453,6 @@ function RequestMedicationForm(props: {
           </Row>
         </Section>
       </View>
-    </>
-  );
-}
-
-function RespondToMedicationRequestForm({
-  data,
-  ...props
-}: {
-  data: MedicaReq;
-  onIgnoreRequest?: () => void;
-  onAcceptRequest: () => void;
-}) {
-  return (
-    <>
-      <View style={{paddingHorizontal: 16}}>
-        {/* Current stock notice */}
-        <Section
-          title="You have enough"
-          desc="Looking at your stock. You are able to properly respond to the medication request."
-          mode="raised"
-          removeLine
-        />
-        {/* See full details of the request */}
-        {/* Information included:
-            
-                - Name of medication
-                - Doctor requesting 
-                - Patient requesting for (by ID)
-                - Date of request
-            */}
-        <Section
-          title="Request Details"
-          desc="Below are the details of the medication request.">
-          <TitledItem title="Request Date">
-            {format(new Date(data.authoredOn), 'yyyy, MMMM dd. HH:MM')}
-          </TitledItem>
-          <TitledItem title="Medication Name" spaceTop>
-            {Medication.all.fromKey(data.medication.name) ??
-              data.medication.name}
-          </TitledItem>
-          <TitledItem title="Patient ID" spaceTop>
-            {data.subject.id}
-          </TitledItem>
-          <TitledItem title="Reason for request" spaceTop>
-            {data.reason}
-          </TitledItem>
-          <TitledItem title="Instructions" spaceTop>
-            {data.instructions ?? 'None'}
-          </TitledItem>
-        </Section>
-      </View>
-      <Section>
-        <Row>
-          <Button style={{flex: 1}} onPress={props.onIgnoreRequest}>
-            Ignore
-          </Button>
-          <Button
-            mode="contained"
-            style={{flex: 1}}
-            onPress={props.onAcceptRequest}>
-            Accept Request
-          </Button>
-        </Row>
-      </Section>
     </>
   );
 }
