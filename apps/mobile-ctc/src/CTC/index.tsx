@@ -91,7 +91,7 @@ function App({provider}: {provider: ElsaProvider}) {
   // Create provider
   const emr = React.useMemo(() => new EMR(provider), [provider]);
   const {socket} = useWebSocket({
-    url: 'https://0564-197-250-60-110.eu.ngrok.io/crdt/state',
+    url: 'https://bounce-edge.fly.io/crdt/state',
     onOpen(socket) {
       // Connected
       console.log('Connection established!!!');
