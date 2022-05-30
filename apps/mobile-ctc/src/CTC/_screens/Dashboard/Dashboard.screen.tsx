@@ -24,6 +24,7 @@ export default function DashboardScreen({
     onNewPatient: () => void;
     onViewPatients: () => void;
     onViewAppointments: () => void;
+    onViewMedications: () => void;
   }
 >) {
   const {color} = useTheme();
@@ -75,6 +76,17 @@ export default function DashboardScreen({
           <TouchableItem spaceTop onPress={$.onViewAppointments}>
             <Row icon="format-list-bulleted-type">
               <Text>View Appointments</Text>
+              <Icon name="arrow-right" color={color.primary.base} size={24} />
+            </Row>
+          </TouchableItem>
+        </Column>
+      </Section>
+      {/* Others */}
+      <Section removeLine title="More" desc="What else you can do">
+        <Column>
+          <TouchableItem onPress={$.onViewMedications}>
+            <Row icon="pill">
+              <Text>Medications</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem>

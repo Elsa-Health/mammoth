@@ -16,11 +16,7 @@ const docRefToKeyStr = (d: Document.Ref) => {
 const crdtStore = getStore(KeyValueMapCollection(() => nanoid(6)));
 const statebox = new StateTrackingBox(getServerClock());
 // build quick bubble to cache the state
-export default function initiateWebSocket(
-	wsPath: string,
-	server: Server,
-	store: Store
-) {
+export default function initiateWebSocket(wsPath: string, server: Server) {
 	// set up socket
 	const wss = new WebSocketServer({
 		path: wsPath,

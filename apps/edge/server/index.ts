@@ -32,11 +32,8 @@ const paths = {
 	TUNNEL_PATH: "/tunnel/migration/v0/v1",
 };
 
-// store to mirror from sockets
-const store = getStore(KeyValueMapStore(generateId));
-
 // Initiate websocket server to listen to changes
-initiateWebSocket(paths.WS_CRDT_STATE_PATH, server, store);
+initiateWebSocket(paths.WS_CRDT_STATE_PATH, server);
 
 // Listening...
 server.listen(PORT, () => {

@@ -122,7 +122,7 @@ function App({provider}: {provider: ElsaProvider}) {
 
   return (
     <Stack.Navigator
-      initialRouteName="ctc.medications-dashboard"
+      // initialRouteName="ctc.medications-dashboard"
       screenOptions={{headerShown: false}}>
       <Stack.Screen
         name="ctc.dashboard"
@@ -131,6 +131,9 @@ function App({provider}: {provider: ElsaProvider}) {
             onNewPatient() {},
             onViewAppointments() {},
             onViewPatients() {},
+            onViewMedications() {
+              navigation.navigate('ctc.medications-dashboard');
+            },
           }),
         })}
       />
@@ -221,7 +224,7 @@ function App({provider}: {provider: ElsaProvider}) {
               navigation.goBack();
             },
             onAcceptMedicationRequest(medicationRequest, finish) {
-              console.log('Accepting ARV Medication');
+              // console.log('Accepting ARV Medication');
               const now = new Date();
 
               const dispense: MedicaDisp = {
@@ -277,7 +280,6 @@ function App({provider}: {provider: ElsaProvider}) {
               return match?.[1] ?? null;
             },
             onShowMedicationRequest(request) {
-              console.log({request});
               navigation.navigate('ctc.view-single-medication-request', {
                 request,
               });

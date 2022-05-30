@@ -289,6 +289,7 @@ export function TouchableItem({
           borderWidth: 1,
           borderRadius: 6,
           elevation: 1,
+          backgroundColor: '#FFF',
         },
         style,
       ]}
