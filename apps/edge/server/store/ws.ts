@@ -55,6 +55,7 @@ export default function initiateWebSocket(
 						const [dr, state] = statepair;
 
 						// something
+						// @ts-ignore
 						statebox.append(docRefToKeyStr(dr), dr, {
 							state,
 							source,

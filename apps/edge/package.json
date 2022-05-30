@@ -17,7 +17,6 @@
 	},
 	"license": "ISC",
 	"devDependencies": {
-		"@types/": "supabase/supabase-js",
 		"@types/cors": "^2.8.12",
 		"@types/express": "^4.17.13",
 		"@types/lodash": "^4.14.182",
