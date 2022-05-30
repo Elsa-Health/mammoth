@@ -6,10 +6,7 @@ import { collection, doc, getStore, setDoc, Document } from "papai/collection";
 import type { Store } from "papai/collection/core";
 import KeyValueMapCollection from "papai/stores/collection/KeyValueMap";
 
-import {
-	StateTrackingBox,
-	onTrackStoreAddUpdateChanges,
-} from "papai/distributed/store";
+import { StateTrackingBox } from "papai/distributed/store";
 import { getServerClock } from "../config";
 
 const docRefToKeyStr = (d: Document.Ref) => {
@@ -36,9 +33,10 @@ export default function initiateWebSocket(
 		// Send everything at once...
 		// Will be a problem for huge payload
 
-		const iter = Array.from(statebox.latest());
-		console.log({ iter });
-		socket.send(JSON.stringify(iter));
+		// console.log(Array.from(statebox.latest())[0]);
+
+		// Send to all new
+		socket.send(JSON.stringify(Array.from(statebox.latest())));
 
 		// send over all latest state
 		// for (let s of statebox.latest()) {
@@ -48,19 +46,34 @@ export default function initiateWebSocket(
 		// show
 		socket.on("message", function (messages, binary) {
 			wss.clients.forEach((client) => {
+				console.log(messages);
 				if (client.readyState === WebSocket.OPEN) {
-					const [id, state] = JSON.parse(messages.toString());
-					statebox.append(docRefToKeyStr(id), id, state);
-					console.log(Array.from(statebox.latest()));
+					const _crdt_messages = JSON.parse(messages.toString());
 
-					// console.log("Message", messages.toString());
+					console.log(_crdt_messages[0]);
+					for (let [statepair, source] of _crdt_messages) {
+						const [dr, state] = statepair;
+
+						// something
+						statebox.append(docRefToKeyStr(dr), dr, {
+							state,
+							source,
+						});
+
+						console.log("Received. Bouncing to others");
+						// console.log(statepair, source);
+					}
+
 					if (client !== socket) {
-						// Send to other clients on the network
-						// client.send(messages, { binary });
-						client.send(JSON.stringify([[id, state]]));
+						// Send to other clients on the networkr
+						client.send(messages, { binary });
+						// client.send(JSON.stringify([[id, state]]));
 					}
 				}
 			});
 		});
 	});
 }
+
+type State = [Document.Ref, Document.Data];
+type CRDTMessage = [State, { facility: any; user: any }];

@@ -64,7 +64,7 @@ export type MedicationDispense<
 > = Resource<
   'MedicationDispense',
   {
-    supplier: Referred<HealthcareService<Data>>;
+    supplier: Referred<Practitioner>;
     medication: Referred<M>;
     authorizingRequest: Referred<MedicationRequest<M>>;
 

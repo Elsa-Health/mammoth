@@ -80,116 +80,12 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
         <Section mode="raised" desc="Inawezekana kuna shida!">
           <Text>Stoku za dawa zipo kwa upungufu ?</Text>
         </Section>
-        {/* Medication Requests */}
-        <Section
-          title="Maombi Mapya"
-          desc="Orodha ya maombi ya dawa mapya"
-          removeLine
-          right={
-            <Button icon="refresh" onPress={retry}>
-              Pakua
-            </Button>
-          }>
-          <Column>
-            {medicaRequests
-              ?.map((req, ix) => {
-                if (req.medication.resourceType !== 'Medication') {
-                  return null;
-                }
-
-                return {
-                  reqTime: formatDistanceToNow(new Date(req.authoredOn)),
-                  subject: req.subject.id,
-                  requestedBy: req.requester?.id,
-                  type: req.medication.code,
-                  medicationId:
-                    (req.medication.type === 'arv'
-                      ? ARV.regimen.fromKey(req.medication.name)
-                      : Medication.all.fromKey(req.medication.name)) ??
-                    req.medication.name,
-                  _full: req,
-                };
-              })
-              .filter(d => d !== null)
-              .map((d, ix) => (
-                <React.Fragment key={ix}>
-                  <Column
-                    spaceTop={ix !== 0}
-                    wrapperStyle={{
-                      borderColor: '#ccc',
-                      borderWidth: 1,
-                      borderRadius: 4,
-                      padding: 10,
-                    }}>
-                    <Text>
-                      {_.capitalize(d?.type)} Dawa:{' '}
-                      <Text font="bold">{d?.medicationId}</Text>
-                    </Text>
-                    <Text>
-                      Kwa ajili ya: <Text font="bold">{d?.subject}</Text>
-                    </Text>
-                    <Column spaceTop>
-                      <Text italic size={14}>
-                        Iliombwa {d?.reqTime} ago
-                      </Text>
-                      <Button
-                        onPress={() => {
-                          if (d !== null) {
-                            set(d._full);
-                            presentModal();
-                          }
-                        }}>
-                        Show More
-                      </Button>
-                    </Column>
-                  </Column>
-                </React.Fragment>
-              ))}
-          </Column>
-        </Section>
-
-        {/* Accepted requested */}
-        <Section
-          title="Maombi yaliyokubaliwa"
-          desc="Orodha ya maombi ya dawa mapya"
-          removeLine
-          right={
-            <Button icon="refresh" onPress={retry}>
-              Pakua
-            </Button>
-          }>
-          <AsyncComponent
-            loader={async () =>
-              await List<MedicaReq>($.getMedicationDispenses() || [])
-            }>
-            {({loading, error, value}) => {
-              if (loading) {
-                return (
-                  <Column>
-                    <Text>Loading data...</Text>
-                  </Column>
-                );
-              }
-
-              if (error !== undefined) {
-                return (
-                  <Column>
-                    <Text>There seems to be a problem..</Text>
-                  </Column>
-                );
-              }
-
-              return (
-                <Column>
-                  <Text>You are done</Text>
-                </Column>
-              );
-            }}
-          </AsyncComponent>
-        </Section>
-
         {/* Actions to do here */}
-        <Section title="Tufanye nini?" removeLine desc="Mambo unayoweza fanya">
+        <Section
+          title="Tufanye nini?"
+          removeLine
+          desc="Mambo unayoweza fanya"
+          spaceTop>
           <TouchableItem
             style={{backgroundColor: '#FFF'}}
             onPress={showRequestModal}>
@@ -212,6 +108,80 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
             </Row>
           </TouchableItem>
         </Section>
+        {/* Medication Requests */}
+        <Section
+          title="Maombi Mapya"
+          desc="Orodha ya maombi ya dawa mapya"
+          removeLine
+          right={
+            <Button icon="refresh" onPress={retry}>
+              Pakua
+            </Button>
+          }>
+          {(medicaRequests?.count() || 0) === 0 ? (
+            <Column contentStyle={{alignItems: 'center'}}>
+              <Text italic>Hamna maombi yaliyoonakana.</Text>
+              <Text italic>Boyeza `Pakua` kujaribu tena</Text>
+            </Column>
+          ) : (
+            <Column>
+              {medicaRequests
+                ?.map((req, ix) => {
+                  if (req.medication.resourceType !== 'Medication') {
+                    return null;
+                  }
+
+                  return {
+                    reqTime: formatDistanceToNow(new Date(req.authoredOn)),
+                    subject: req.subject.id,
+                    requestedBy: req.requester?.id,
+                    type: req.medication.code,
+                    medicationId:
+                      (req.medication.type === 'arv'
+                        ? ARV.regimen.fromKey(req.medication.name)
+                        : Medication.all.fromKey(req.medication.name)) ??
+                      req.medication.name,
+                    _full: req,
+                  };
+                })
+                .filter(d => d !== null)
+                .map((d, ix) => (
+                  <React.Fragment key={ix}>
+                    <Column
+                      spaceTop={ix !== 0}
+                      wrapperStyle={{
+                        borderColor: '#ccc',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        padding: 10,
+                      }}>
+                      <Text>
+                        {_.capitalize(d?.type)} Dawa:{' '}
+                        <Text font="bold">{d?.medicationId}</Text>
+                      </Text>
+                      <Text>
+                        Kwa ajili ya: <Text font="bold">{d?.subject}</Text>
+                      </Text>
+                      <Column spaceTop>
+                        <Text italic size={14}>
+                          Iliombwa {d?.reqTime} ago
+                        </Text>
+                        <Button
+                          onPress={() => {
+                            if (d !== null) {
+                              set(d._full);
+                              presentModal();
+                            }
+                          }}>
+                          Show More
+                        </Button>
+                      </Column>
+                    </Column>
+                  </React.Fragment>
+                ))}
+            </Column>
+          )}
+        </Section>
       </ScrollView>
 
       {/* Modal to show information needed */}
@@ -221,9 +191,27 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
             <RespondToMedicationRequestForm
               data={currentRequest}
               onIgnoreRequest={close}
-              onAcceptRequest={() =>
-                $.onAcceptStandardMedicationRequest(currentRequest, closeModal)
-              }
+              onAcceptRequest={() => {
+                if (currentRequest.medication.resourceType === 'Medication') {
+                  if (currentRequest.medication.code === 'standard') {
+                    $.onAcceptStandardMedicationRequest(
+                      currentRequest,
+                      closeModal,
+                    );
+                    return;
+                  }
+
+                  if (currentRequest.medication.code === 'arv') {
+                    $.onAcceptARVMedicationRequest(currentRequest, closeModal);
+                    return;
+                  }
+                }
+
+                console.log(
+                  "Didn't accpet request.. didn't know how to for",
+                  currentRequest.medication,
+                );
+              }}
             />
           )
         }
@@ -234,7 +222,10 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
             onCancel={close}
             onRequest={props => {
               // re-request the medication list
-              $.onMakeRequest(props, retry);
+              $.onMakeRequest(props, () => {
+                retry();
+                close && close();
+              });
             }}
           />
         )}

@@ -22,26 +22,27 @@ export type InvestigationRequest<IRq extends Data> = Resource<
   }
 >;
 
-export type InvestigationResult<IRs extends Data> = Resource<
-  'InvestigationResult',
-  {
-    /**
-     * Request that warrants the result to be generated
-     */
-    authorizingRequest: Referred<InvestigationRequest<Data>>;
+export type InvestigationResult<InvReq extends InvestigationRequest<Data>> =
+  Resource<
+    'InvestigationResult',
+    {
+      /**
+       * Request that warrants the result to be generated
+       */
+      authorizingRequest: Referred<InvReq>;
 
-    /**
-     * Recorder of the observation
-     * (e.g. Lab Tech)
-     */
-    recorder: Nullable<Referred<Practitioner>>;
+      /**
+       * Recorder of the observation
+       * (e.g. Lab Tech)
+       */
+      recorder: Nullable<Referred<Practitioner>>;
 
-    /**
-     * observation collected from the investigation
-     */
-    observation: Referred<Observation<IRs>>;
-  }
->;
+      /**
+       * observation collected from the investigation
+       */
+      observation: Referred<Observation<InvReq['data']>>;
+    }
+  >;
 
 export type Report<
   Code extends string,

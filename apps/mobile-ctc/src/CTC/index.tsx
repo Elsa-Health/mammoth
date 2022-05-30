@@ -19,13 +19,29 @@ import {withFlowContext} from '@elsa-ui/react-native-workflows';
 import uuid from 'react-native-uuid';
 
 import {ElsaProvider} from '../provider/backend';
-import {useStore} from './emr';
-import {Medication} from 'elsa-health-data-fns/lib';
+import {MedicaDisp, MedicaReq} from './emr';
+import {Investigation, Medication} from 'elsa-health-data-fns/lib';
 import {Practitioner} from '../emr-types/v1/personnel';
+import {EMR} from './emr/store';
+import {useWebSocket} from '../app/utils';
+import {HealthcareService} from '../emr-types/v1/administration';
+
+import {
+  collection,
+  doc,
+  getStore,
+  setDoc,
+  Document,
+  setDocs,
+  getDocs,
+} from 'papai/collection';
+import {HybridLogicalClock} from 'papai/distributed/clock';
 
 const Stack = createNativeStackNavigator();
 
-function practitioner(ep: ElsaProvider): Practitioner {
+type DoctorService = HealthcareService<{role: 'doctor'}>;
+
+function practitioner(ep: ElsaProvider): Practitioner<DoctorService> {
   return {
     active: true,
     address: ep.facility.address ?? null,
@@ -50,15 +66,61 @@ function practitioner(ep: ElsaProvider): Practitioner {
       },
     },
     resourceType: 'Practitioner',
-    serviceProvider: null,
+    serviceProvider: {
+      active: true,
+      code: null,
+      createdAt: new Date().toISOString(),
+      extendedData: {role: 'doctor'},
+      id: `ctc-doctor-${ep.user.uid} `,
+      name: 'CTC Doctor',
+      resourceType: 'HealthcareService',
+    },
   };
 }
 
+type State = [Document.Ref, Document.Data, HybridLogicalClock];
+type CRDTMessage = [State, {facility: any; user: any}];
+
 function App({provider}: {provider: ElsaProvider}) {
-  const store = useStore();
+  // Create provider
+  const emr = React.useMemo(() => new EMR(provider), [provider]);
+  const {socket} = useWebSocket({
+    url: 'https://0564-197-250-60-110.eu.ngrok.io/crdt/state',
+    onOpen(socket) {
+      // Connected
+      console.log('Connection established!!!');
+    },
+    onMessage(e) {
+      //
+      console.log('Received Message');
+    },
+    onData(data: CRDTMessage[]) {
+      console.log('Sending to something...');
+      // Received data
+      emr.merge(data);
+      console.log('Received data... merging');
+      emr
+        .sync()
+        .then(() => console.log('Sync complete'))
+        .catch(() => console.log('Sync failed'));
+    },
+  });
+
+  React.useEffect(() => {
+    if (socket !== undefined) {
+      const sub = emr.onSnapshotUpdate((token, source) => {
+        console.log('Sending', {token, source});
+        // send message
+        socket.send(JSON.stringify([[token, source]]));
+      });
+
+      return () => sub.unsubscribe();
+    }
+  }, [socket]);
+
   return (
     <Stack.Navigator
-      initialRouteName="ctc.view-visit"
+      initialRouteName="ctc.medications-dashboard"
       screenOptions={{headerShown: false}}>
       <Stack.Screen
         name="ctc.dashboard"
@@ -80,7 +142,49 @@ function App({provider}: {provider: ElsaProvider}) {
       />
       <Stack.Screen
         name="ctc.view-visit"
-        component={withFlowContext(ViewVisitScreen)}
+        component={withFlowContext(ViewVisitScreen, {
+          actions: ({navigation}) => ({
+            onNext() {},
+            // Load result from investigation request
+            async getInvestigationResult(invRequest) {},
+          }),
+          entry: {
+            visit: {
+              assessments: [],
+              authorizingAppointment: null,
+              createdAt: new Date().toISOString(),
+              code: null,
+              extendedData: {},
+              id: uuid.v4() as string,
+              investigationRequests: [
+                {
+                  code: null,
+                  createdAt: new Date().toISOString(),
+                  id: uuid.v4() as string,
+                  requester: practitioner(provider),
+                  resourceType: 'InvestigationRequest',
+                  subject: {
+                    id: '11111111111111',
+                    resourceReferenced: 'Patient',
+                    resourceType: 'Reference',
+                  },
+                  data: {
+                    investigationId: 'cd-4-count',
+                    obj: Investigation.fromKey('cd-4-count'),
+                  },
+                },
+              ],
+              practitioner: practitioner(provider),
+              prescriptions: [],
+              subject: {
+                id: '11111111111111',
+                resourceReferenced: 'Patient',
+                resourceType: 'Reference',
+              },
+              resourceType: 'Visit',
+            },
+          },
+        })}
       />
       <Stack.Screen
         name="ctc.investigations-dashboard"
@@ -94,29 +198,87 @@ function App({provider}: {provider: ElsaProvider}) {
         name="ctc.medications-dashboard"
         component={withFlowContext(MedicationsDashboardScreen, {
           actions: ({navigation}) => ({
-            getMedicationRequests() {
-              return store.medicationRequests.toArray();
+            async getMedicationRequests() {
+              return (await getDocs(emr.collections.medicationRequests)).map(
+                d => d[1],
+              );
             },
-            getMedicationDispenses() {
-              return store.medicationDispenses.toArray();
+            getMedicationDispenseFrom(medicationRequest: MedicaReq) {},
+            async getMedicationDispenses() {
+              return (await getDocs(emr.collections.medicationDispenses)).map(
+                d => d[1],
+              );
+            },
+
+            onAcceptARVMedicationRequest(medicationRequest, finish) {
+              console.log('Accepting ARV Medication');
+              const now = new Date();
+
+              const dispense: MedicaDisp = {
+                authorizingRequest: {
+                  id: medicationRequest.id,
+                  resourceType: 'Reference',
+                  resourceReferenced: 'MedicationRequest',
+                },
+                code: 'arv-response',
+                createdAt: now.toISOString(),
+                dosageAndRate: null,
+                id: uuid.v4() as string,
+                medication: medicationRequest.medication,
+                resourceType: 'MedicationDispense',
+                supplier: practitioner(provider),
+              };
+              setDoc(
+                doc(EMR.collections.medicationDispenses, dispense.id),
+                dispense,
+              )
+                .then(() => {
+                  console.log('ARV Request accepted', dispense.id);
+                })
+                .then(finish)
+                .catch(() => {
+                  console.log('Unable to accept medication request');
+                });
             },
             onAcceptStandardMedicationRequest(medicationRequest, finish) {
-              console.log('Requesting Medication');
-              // medicationRequest.authoredOn;
+              console.log('Accepting Standard Medication');
+              const now = new Date();
 
-              // send's finish message over
-              // e.g. might trigger close modal
-              finish();
+              const dispense: MedicaDisp = {
+                authorizingRequest: {
+                  id: medicationRequest.id,
+                  resourceType: 'Reference',
+                  resourceReferenced: 'MedicationRequest',
+                },
+                code: 'standard-response',
+                createdAt: now.toISOString(),
+                dosageAndRate: null,
+                id: uuid.v4() as string,
+                medication: medicationRequest.medication,
+                resourceType: 'MedicationDispense',
+                supplier: practitioner(provider),
+              };
+              setDoc(
+                doc(emr.collections.medicationDispenses, dispense.id),
+                dispense,
+              )
+                .then(() => {
+                  console.log('Standard Request accepted', dispense.id);
+                })
+                .then(finish)
+                .catch(() => {
+                  console.log('Unable to accept medication request');
+                });
             },
             onShowAllMedicationRequests() {
               console.log('Navigating');
             },
             onMakeRequest(data, finish) {
               // add medications to the list
-              console.log('Making the something....');
+              console.log('Sending request....');
               const now = new Date();
 
-              store.addMedicationRequest({
+              const request: MedicaReq = {
                 authoredOn: now.toUTCString(),
                 code: null,
                 createdAt: now.toISOString(),
@@ -156,10 +318,21 @@ function App({provider}: {provider: ElsaProvider}) {
                 route: 'Non specific',
                 status: 'active',
                 resourceType: 'MedicationRequest',
-              });
+              };
+
+              // Send over request
               // ...
-              console.log(data);
-              finish();
+              setDoc(
+                doc(emr.collections.medicationRequests, request.id),
+                request,
+              )
+                .then(() => {
+                  console.log('SUCESSS!!!');
+                })
+                .then(finish)
+                .catch(() => {
+                  console.log('Failed to add medication request');
+                });
             },
           }),
         })}

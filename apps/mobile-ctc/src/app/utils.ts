@@ -313,5 +313,12 @@ export function useWebSocket({
     setStatus('connecting');
   }, [url, socket, setStatus]);
 
-  return {socket: socket, retry, status};
+  const send = React.useCallback(
+    <T>(data: T) => {
+      socket?.send(JSON.stringify(data));
+    },
+    [socket],
+  );
+
+  return {socket: socket, retry, status, send};
 }

@@ -10,12 +10,23 @@ import {ARV, Medication as Med} from 'elsa-health-data-fns';
 import {List, Seq} from 'immutable';
 
 import uuid from 'react-native-uuid';
+import {
+  InvestigationRequest,
+  InvestigationResult,
+} from '../../emr-types/v1/investigation';
+import {InvestigationTypeRecord} from 'elsa-health-data-fns/lib/investigations';
 
 export type Medica =
   | Medication<'arv', {className: ARV.Class; regimen: ARV.Regimen}>
   | Medication<'standard', {medication: Med.All; text: string}>;
 export type MedicaReq = MedicationRequest<Medica>;
 export type MedicaDisp = MedicationDispense<Medica>;
+
+export type InvReq = InvestigationRequest<{
+  investigationId: Investigation;
+  obj: InvestigationTypeRecord<string>;
+}>;
+export type InvResult = InvestigationResult<InvReq>;
 
 const rMeds = randomSample.factory(
   Med.all.pairs().map(([id, text]) => {
