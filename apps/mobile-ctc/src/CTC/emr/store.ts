@@ -103,6 +103,7 @@ export class EMR {
     // merge the states:
 
     msgs.forEach(msg => {
+      console.log(msg);
       const [token, source] = msg;
       const [ref_, data, clock] = token;
 

@@ -26,8 +26,10 @@ import {MedicaDisp, MedicaReq} from './emr';
 import {Investigation, Medication} from 'elsa-health-data-fns/lib';
 import {Practitioner} from '../emr-types/v1/personnel';
 import {EMR} from './emr/store';
-import {useWebSocket} from '../app/utils';
+import {NetworkStatus, useWebSocket} from '../app/utils';
 import {HealthcareService} from '../emr-types/v1/administration';
+
+import {Text} from '@elsa-ui/react-native/components';
 
 import {withFlowContext} from '../@workflows/index';
 
@@ -42,6 +44,10 @@ import {
 } from 'papai/collection';
 import {HybridLogicalClock} from 'papai/distributed/clock';
 import {List} from 'immutable';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {View} from 'react-native';
+import {TouchableRipple} from 'react-native-paper';
+import _ from 'lodash';
 
 const Stack = createNativeStackNavigator();
 
@@ -90,8 +96,9 @@ type CRDTMessage = [State, {facility: any; user: any}];
 function App({provider}: {provider: ElsaProvider}) {
   // Create provider
   const emr = React.useMemo(() => new EMR(provider), [provider]);
-  const {socket} = useWebSocket({
-    url: 'https://bounce-edge.fly.io/crdt/state',
+  const {socket, status, retry} = useWebSocket({
+    // url: 'https://bounce-edge.fly.io/crdt/state',
+    url: 'https://cfe3-197-250-60-110.eu.ngrok.io/crdt/state',
     onOpen(socket) {
       // Connected
       console.log('Connection established!!!');
@@ -121,305 +128,344 @@ function App({provider}: {provider: ElsaProvider}) {
   }, [socket]);
 
   return (
-    <Stack.Navigator
-      // initialRouteName="ctc.medications-dashboard"
-      screenOptions={{headerShown: false}}>
-      <Stack.Screen
-        name="ctc.dashboard"
-        component={withFlowContext(DashboardScreen, {
-          actions: ({navigation}) => ({
-            onNewPatient() {},
-            onViewAppointments() {},
-            onViewPatients() {},
-            onViewMedications() {
-              navigation.navigate('ctc.medications-dashboard');
-            },
-          }),
-        })}
-      />
-      <Stack.Screen
-        name="ctc.view-appointments"
-        component={withFlowContext(ViewAppointmentsScreen)}
-      />
-      <Stack.Screen
-        name="ctc.view-patient"
-        component={withFlowContext(PatientDashboard)}
-      />
-      <Stack.Screen
-        name="ctc.view-visit"
-        component={withFlowContext(ViewVisitScreen, {
-          actions: ({navigation}) => ({
-            onNext() {},
-            // Load result from investigation request
-            async getInvestigationResult(invRequest) {},
-          }),
-          entry: {
-            visit: {
-              assessments: [],
-              authorizingAppointment: null,
-              createdAt: new Date().toISOString(),
-              code: null,
-              extendedData: {},
-              id: uuid.v4() as string,
-              investigationRequests: [
-                {
-                  code: null,
-                  createdAt: new Date().toISOString(),
-                  id: uuid.v4() as string,
-                  requester: practitioner(provider),
-                  resourceType: 'InvestigationRequest',
-                  subject: {
-                    id: '11111111111111',
-                    resourceReferenced: 'Patient',
-                    resourceType: 'Reference',
-                  },
-                  data: {
-                    investigationId: 'cd-4-count',
-                    obj: Investigation.fromKey('cd-4-count'),
-                  },
-                },
-              ],
-              practitioner: practitioner(provider),
-              prescriptions: [],
-              subject: {
-                id: '11111111111111',
-                resourceReferenced: 'Patient',
-                resourceType: 'Reference',
+    <>
+      <Stack.Navigator
+        // initialRouteName="ctc.medications-dashboard"
+        screenOptions={{headerShown: false}}>
+        <Stack.Screen
+          name="ctc.dashboard"
+          component={withFlowContext(DashboardScreen, {
+            actions: ({navigation}) => ({
+              onNewPatient() {},
+              onViewAppointments() {},
+              onViewPatients() {},
+              onViewMedications() {
+                navigation.navigate('ctc.medications-dashboard');
               },
-              resourceType: 'Visit',
-            },
-          },
-        })}
-      />
-      <Stack.Screen
-        name="ctc.investigations-dashboard"
-        component={withFlowContext(InvestigationsDashboardScreen, {
-          actions: ({navigation}) => ({
-            onNext() {},
-          }),
-        })}
-      />
-      <Stack.Screen
-        name="ctc.view-medication-dispenses"
-        component={withFlowContext(MedicationDispenseScreen, {
-          actions: ({navigation}) => ({
-            async getMedicationDispenses() {
-              return (await getDocs(emr.collections.medicationDispenses)).map(
-                d => d[1],
-              );
-            },
-          }),
-        })}
-      />
-      <Stack.Screen
-        name="ctc.view-single-medication-request"
-        component={withFlowContext(MedicationRequestScreen, {
-          actions: ({navigation}) => ({
-            async getMedicationDispenses() {
-              return (await getDocs(emr.collections.medicationDispenses)).map(
-                d => d[1],
-              );
-            },
-            onIgnoreRequest() {
-              navigation.goBack();
-            },
-            onAcceptMedicationRequest(medicationRequest, finish) {
-              // console.log('Accepting ARV Medication');
-              const now = new Date();
-
-              const dispense: MedicaDisp = {
-                authorizingRequest: {
-                  id: medicationRequest.id,
-                  resourceType: 'Reference',
-                  resourceReferenced: 'MedicationRequest',
-                },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.view-appointments"
+          component={withFlowContext(ViewAppointmentsScreen)}
+        />
+        <Stack.Screen
+          name="ctc.view-patient"
+          component={withFlowContext(PatientDashboard)}
+        />
+        <Stack.Screen
+          name="ctc.view-visit"
+          component={withFlowContext(ViewVisitScreen, {
+            actions: ({navigation}) => ({
+              onNext() {},
+              // Load result from investigation request
+              async getInvestigationResult(invRequest) {},
+            }),
+            entry: {
+              visit: {
+                assessments: [],
+                authorizingAppointment: null,
+                createdAt: new Date().toISOString(),
                 code: null,
-                createdAt: now.toISOString(),
-                dosageAndRate: null,
+                extendedData: {},
                 id: uuid.v4() as string,
-                medication: medicationRequest.medication,
-                resourceType: 'MedicationDispense',
-                supplier: practitioner(provider),
-              };
-              setDoc(
-                doc(emr.collections.medicationDispenses, dispense.id),
-                dispense,
-              )
-                .then(() => {
-                  console.log('Medication Request accepted', dispense.id);
-                })
-                .then(finish)
-                .then(() => navigation.goBack())
-                .catch(() => {
-                  console.log('Unable to accept medication request');
-                });
-            },
-          }),
-        })}
-      />
-      <Stack.Screen
-        name="ctc.medications-dashboard"
-        component={withFlowContext(MedicationsDashboardScreen, {
-          actions: ({navigation}) => ({
-            async getMedicationRequests() {
-              return (await getDocs(emr.collections.medicationRequests)).map(
-                d => d[1],
-              );
-            },
-
-            async getMedicationDispenseFrom(medicationRequest: MedicaReq) {
-              const d = List(
-                await getDocs(emr.collections.medicationDispenses),
-              );
-
-              const match = d.find(
-                ([_, data]) =>
-                  data.authorizingRequest.id === medicationRequest.id,
-              );
-
-              return match?.[1] ?? null;
-            },
-            onShowMedicationRequest(request) {
-              navigation.navigate('ctc.view-single-medication-request', {
-                request,
-              });
-            },
-            onShowAllMedicationDispenses() {
-              navigation.navigate('ctc.view-medication-dispenses');
-            },
-            onMakeRequest(data, finish) {
-              // add medications to the list
-              console.log('Sending request....');
-              const now = new Date();
-
-              const request: MedicaReq = {
-                authoredOn: now.toUTCString(),
-                code: null,
-                createdAt: now.toISOString(),
-                id: uuid.v4() as string,
-                instructions: null,
-                medication: {
-                  resourceType: 'Medication',
-                  alias:
-                    data.type === 'standard'
-                      ? Medication.all.fromKey(data.medication)
-                      : null,
-                  code: data.type ?? 'standard',
-                  data:
-                    data.type === 'arv'
-                      ? {className: data.className, regimen: data.regimen}
-                      : {
-                          medication: data.medication,
-                          text: Medication.all.fromKey(data.medication),
-                        },
-                  id:
-                    data.type === 'arv'
-                      ? `ctc-arv:${data.regimen}`
-                      : `ctc-standard:${data.medication}`,
-                  ingredients: [],
-                  name: data.type === 'arv' ? data.regimen : data.medication,
-                  createdAt: now.toISOString(),
-                },
-                requester: practitioner(provider),
-
+                investigationRequests: [
+                  {
+                    code: null,
+                    createdAt: new Date().toISOString(),
+                    id: uuid.v4() as string,
+                    requester: practitioner(provider),
+                    resourceType: 'InvestigationRequest',
+                    subject: {
+                      id: '11111111111111',
+                      resourceReferenced: 'Patient',
+                      resourceType: 'Reference',
+                    },
+                    data: {
+                      investigationId: 'cd-4-count',
+                      obj: Investigation.fromKey('cd-4-count'),
+                    },
+                  },
+                ],
+                practitioner: practitioner(provider),
+                prescriptions: [],
                 subject: {
-                  id: data.patientId,
+                  id: '11111111111111',
                   resourceReferenced: 'Patient',
                   resourceType: 'Reference',
                 },
-                reason: data.reason,
-                method: 'Unspecified',
-                route: 'Non specific',
-                status: 'active',
-                resourceType: 'MedicationRequest',
-              };
+                resourceType: 'Visit',
+              },
+            },
+          })}
+        />
+        <Stack.Screen
+          name="ctc.investigations-dashboard"
+          component={withFlowContext(InvestigationsDashboardScreen, {
+            actions: ({navigation}) => ({
+              onNext() {},
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.view-medication-dispenses"
+          component={withFlowContext(MedicationDispenseScreen, {
+            actions: ({navigation}) => ({
+              async getMedicationDispenses() {
+                return (await getDocs(emr.collections.medicationDispenses)).map(
+                  d => d[1],
+                );
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.view-single-medication-request"
+          component={withFlowContext(MedicationRequestScreen, {
+            actions: ({navigation}) => ({
+              async getMedicationDispenses() {
+                return (await getDocs(emr.collections.medicationDispenses)).map(
+                  d => d[1],
+                );
+              },
+              onIgnoreRequest() {
+                navigation.goBack();
+              },
+              onAcceptMedicationRequest(medicationRequest, finish) {
+                // console.log('Accepting ARV Medication');
+                const now = new Date();
 
-              // Send over request
-              // ...
-              setDoc(
-                doc(emr.collections.medicationRequests, request.id),
-                request,
-              )
-                .then(() => {
-                  console.log('SUCESSS!!!');
-                })
-                .then(finish)
-                .catch(() => {
-                  console.log('Failed to add medication request');
+                const dispense: MedicaDisp = {
+                  authorizingRequest: {
+                    id: medicationRequest.id,
+                    resourceType: 'Reference',
+                    resourceReferenced: 'MedicationRequest',
+                  },
+                  code: null,
+                  createdAt: now.toISOString(),
+                  dosageAndRate: null,
+                  id: uuid.v4() as string,
+                  medication: medicationRequest.medication,
+                  resourceType: 'MedicationDispense',
+                  supplier: practitioner(provider),
+                };
+                setDoc(
+                  doc(emr.collections.medicationDispenses, dispense.id),
+                  dispense,
+                )
+                  .then(() => {
+                    console.log('Medication Request accepted', dispense.id);
+                  })
+                  .then(finish)
+                  .then(() => navigation.goBack())
+                  .catch(() => {
+                    console.log('Unable to accept medication request');
+                  });
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.medications-dashboard"
+          component={withFlowContext(MedicationsDashboardScreen, {
+            actions: ({navigation}) => ({
+              async getMedicationRequests() {
+                return (await getDocs(emr.collections.medicationRequests)).map(
+                  d => d[1],
+                );
+              },
+
+              async getMedicationDispenseFrom(medicationRequest: MedicaReq) {
+                const d = List(
+                  await getDocs(emr.collections.medicationDispenses),
+                );
+
+                const match = d.find(
+                  ([_, data]) =>
+                    data.authorizingRequest.id === medicationRequest.id,
+                );
+
+                return match?.[1] ?? null;
+              },
+              onShowMedicationRequest(request) {
+                navigation.navigate('ctc.view-single-medication-request', {
+                  request,
                 });
+              },
+              onShowAllMedicationDispenses() {
+                navigation.navigate('ctc.view-medication-dispenses');
+              },
+              onMakeRequest(data, finish) {
+                // add medications to the list
+                console.log('Sending request....');
+                const now = new Date();
+
+                const request: MedicaReq = {
+                  authoredOn: now.toUTCString(),
+                  code: null,
+                  createdAt: now.toISOString(),
+                  id: uuid.v4() as string,
+                  instructions: null,
+                  medication: {
+                    resourceType: 'Medication',
+                    alias:
+                      data.type === 'standard'
+                        ? Medication.all.fromKey(data.medication)
+                        : null,
+                    code: data.type ?? 'standard',
+                    data:
+                      data.type === 'arv'
+                        ? {className: data.className, regimen: data.regimen}
+                        : {
+                            medication: data.medication,
+                            text: Medication.all.fromKey(data.medication),
+                          },
+                    id:
+                      data.type === 'arv'
+                        ? `ctc-arv:${data.regimen}`
+                        : `ctc-standard:${data.medication}`,
+                    ingredients: [],
+                    name: data.type === 'arv' ? data.regimen : data.medication,
+                    createdAt: now.toISOString(),
+                  },
+                  requester: practitioner(provider),
+
+                  subject: {
+                    id: data.patientId,
+                    resourceReferenced: 'Patient',
+                    resourceType: 'Reference',
+                  },
+                  reason: data.reason,
+                  method: 'Unspecified',
+                  route: 'Non specific',
+                  status: 'active',
+                  resourceType: 'MedicationRequest',
+                };
+
+                // Send over request
+                // ...
+                setDoc(
+                  doc(emr.collections.medicationRequests, request.id),
+                  request,
+                )
+                  .then(() => {
+                    console.log('SUCESSS!!!');
+                  })
+                  .then(finish)
+                  .catch(() => {
+                    console.log('Failed to add medication request');
+                  });
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.first-patient-intake"
+          component={withFlowContext(NewVisitEntryScreen, {
+            entry: {
+              initial: {
+                patientId: '1234567890111213',
+                facility: 'Meru District CTC',
+              },
             },
-          }),
-        })}
-      />
-      <Stack.Screen
-        name="ctc.first-patient-intake"
-        component={withFlowContext(NewVisitEntryScreen, {
-          entry: {
-            initial: {
-              patientId: '1234567890111213',
-              facility: 'Meru District CTC',
+            actions: ({navigation}) => ({
+              onNext() {
+                navigation.navigate('ctc.hiv-stage-intake');
+                // ...
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.hiv-stage-intake"
+          component={withFlowContext(HIVStageIntakeScreen, {
+            entry: {
+              initial: {
+                patientId: '1234567890111213',
+                facility: 'Meru District CTC',
+              },
             },
-          },
-          actions: ({navigation}) => ({
-            onNext() {
-              navigation.navigate('ctc.hiv-stage-intake');
-              // ...
+            actions: ({navigation}) => ({
+              onNext() {
+                navigation.navigate('ctc.adherence-assessment');
+                // ...
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.adherence-assessment"
+          component={withFlowContext(HIVAdherenceAssessmentScreen, {
+            entry: {
+              initial: {
+                patientId: '1234567890111213',
+                facility: 'Meru District CTC',
+              },
             },
-          }),
-        })}
-      />
-      <Stack.Screen
-        name="ctc.hiv-stage-intake"
-        component={withFlowContext(HIVStageIntakeScreen, {
-          entry: {
-            initial: {
-              patientId: '1234567890111213',
-              facility: 'Meru District CTC',
+            actions: ({navigation}) => ({
+              onNext() {
+                navigation.navigate('ctc.conclude-assessment');
+                // ...
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.conclude-assessment"
+          component={withFlowContext(ConcludeAssessmentScreen, {
+            entry: {
+              initial: {
+                patientId: '1234567890111213',
+                facility: 'Meru District CTC',
+              },
             },
-          },
-          actions: ({navigation}) => ({
-            onNext() {
-              navigation.navigate('ctc.adherence-assessment');
-              // ...
-            },
-          }),
-        })}
-      />
-      <Stack.Screen
-        name="ctc.adherence-assessment"
-        component={withFlowContext(HIVAdherenceAssessmentScreen, {
-          entry: {
-            initial: {
-              patientId: '1234567890111213',
-              facility: 'Meru District CTC',
-            },
-          },
-          actions: ({navigation}) => ({
-            onNext() {
-              navigation.navigate('ctc.conclude-assessment');
-              // ...
-            },
-          }),
-        })}
-      />
-      <Stack.Screen
-        name="ctc.conclude-assessment"
-        component={withFlowContext(ConcludeAssessmentScreen, {
-          entry: {
-            initial: {
-              patientId: '1234567890111213',
-              facility: 'Meru District CTC',
-            },
-          },
-          actions: ({navigation}) => ({
-            onNext() {
-              // ...
-              navigation.navigate('ctc.first-patient-intake');
-            },
-          }),
-        })}
-      />
-    </Stack.Navigator>
+            actions: ({navigation}) => ({
+              onNext() {
+                // ...
+                navigation.navigate('ctc.first-patient-intake');
+              },
+            }),
+          })}
+        />
+      </Stack.Navigator>
+      <ConnectionStatus status={status} retry={retry} />
+    </>
+  );
+}
+
+function ConnectionStatus({
+  status,
+  retry,
+}: {
+  status: NetworkStatus;
+  retry: () => void;
+}) {
+  return (
+    <TouchableRipple
+      onPress={status === 'error' || status === 'offline' ? retry : undefined}>
+      <View
+        style={{
+          backgroundColor:
+            status === 'connecting'
+              ? '#CCC'
+              : status === 'offline'
+              ? '#EEE'
+              : status === 'online'
+              ? '#4665af'
+              : '#F00',
+
+          paddingVertical: 2,
+        }}>
+        <Text
+          size="sm"
+          font="medium"
+          style={{textAlign: 'center'}}
+          color={status === 'online' || status === 'error' ? '#FFF' : '#000'}>
+          {_.capitalize(status)}{' '}
+          {(status === 'error' || status === 'offline') && 'Reconnect?'}
+        </Text>
+      </View>
+    </TouchableRipple>
   );
 }
 
