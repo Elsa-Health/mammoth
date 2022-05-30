@@ -44,7 +44,7 @@ export default function MedicationDispenseScreen({
               </Button>
             }>
             {value.count() > 0 ? (
-              value.map(dis => <MedicationResponseItem />)
+              value.map(dis => <MedicationResponseItem response={dis} />)
             ) : (
               <View style={{flex: 1}}>
                 <Text style={{textAlign: 'center'}} italic>
@@ -59,12 +59,12 @@ export default function MedicationDispenseScreen({
   );
 }
 
-function MedicationResponseItem() {
+function MedicationResponseItem({response}: {response: MedicaDisp}) {
   return (
     <View>
       <View>
-        <Text>Something</Text>
-        <Text>Here</Text>
+        <Text>{response.id}</Text>
+        <Text>{JSON.stringify(response.medication)}</Text>
       </View>
     </View>
   );
