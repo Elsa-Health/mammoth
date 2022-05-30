@@ -3,7 +3,6 @@ import { nanoid } from "nanoid";
 import { WebSocketServer, WebSocket } from "ws";
 
 import { collection, doc, getStore, setDoc, Document } from "papai/collection";
-import type { Store } from "papai/collection/core";
 import KeyValueMapCollection from "papai/stores/collection/KeyValueMap";
 
 import { StateTrackingBox } from "papai/distributed/store";
@@ -14,7 +13,7 @@ const docRefToKeyStr = (d: Document.Ref) => {
 };
 
 const crdtStore = getStore(KeyValueMapCollection(() => nanoid(6)));
-const statebox = new StateTrackingBox(getServerClock());
+const statebox = new StateTrackingBox(getServerClock(), docRefToKeyStr);
 // build quick bubble to cache the state
 export default function initiateWebSocket(wsPath: string, server: Server) {
 	// set up socket
@@ -29,10 +28,16 @@ export default function initiateWebSocket(wsPath: string, server: Server) {
 		// Send everything at once...
 		// Will be a problem for huge payload
 
-		// console.log(Array.from(statebox.latest())[0]);
-
 		// Send to all new
-		socket.send(JSON.stringify(Array.from(statebox.latest())));
+		socket.send(
+			JSON.stringify(
+				Array.from(statebox.latest()).map((t) => [
+					t,
+					// source
+					{ type: "node" },
+				])
+			)
+		);
 
 		// send over all latest state
 		// for (let s of statebox.latest()) {
@@ -48,14 +53,11 @@ export default function initiateWebSocket(wsPath: string, server: Server) {
 
 					console.log(_crdt_messages[0]);
 					for (let [statepair, source] of _crdt_messages) {
-						const [dr, state] = statepair;
+						const [dr, state, clock] = statepair;
 
 						// something
 						// @ts-ignore
-						statebox.append(docRefToKeyStr(dr), dr, {
-							state,
-							source,
-						});
+						statebox.append(dr, state, clock);
 
 						console.log("Received. Bouncing to others");
 						// console.log(statepair, source);
