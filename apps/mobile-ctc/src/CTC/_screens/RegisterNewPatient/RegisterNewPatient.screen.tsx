@@ -452,47 +452,53 @@ const CTCOptionsAvailable = Object.entries({
   'Other - Not Registered': '',
 });
 
-function DateInput({
-  onChange,
-  ...props
-}: {
-  value: string;
-  onBlur: () => void;
-  onChange: (text: string) => void;
-}) {
-  const [show, setShow] = React.useState(false);
-  return (
-    <>
-      <Row>
-        <TextInput
-          style={{flex: 1}}
-          mode="outlined"
-          {...props}
-          onChangeText={onChange}
-          placeholder="DD / MM / YYYY"
-          keyboardType="number-pad"
-          render={props => (
-            <TextInputMask {...props} mask="[00] / [00] / [0000]" />
-          )}
-        />
-        <IconButton icon="calendar" onPress={() => setShow(true)} />
-      </Row>
+const DateInput = React.forwardRef(
+  (
+    {
+      onChange,
+      ...props
+    }: {
+      value: string;
+      onBlur: () => void;
+      onChange: (text: string) => void;
+    },
+    ref,
+  ) => {
+    const [show, setShow] = React.useState(false);
+    return (
+      <>
+        <Row>
+          <TextInput
+            style={{flex: 1}}
+            mode="outlined"
+            {...props}
+            ref={ref}
+            onChangeText={onChange}
+            placeholder="DD / MM / YYYY"
+            keyboardType="number-pad"
+            render={props => (
+              <TextInputMask {...props} mask="[00] / [00] / [0000]" />
+            )}
+          />
+          <IconButton icon="calendar" onPress={() => setShow(true)} />
+        </Row>
 
-      {show && (
-        <DateTimePicker
-          style={{flex: 1}}
-          value={new Date()}
-          display="calendar"
-          onChange={(e, date) => {
-            if (date !== undefined) onChange(format(date, 'dd / MM / yyyy'));
+        {show && (
+          <DateTimePicker
+            style={{flex: 1}}
+            value={new Date()}
+            display="calendar"
+            onChange={(e, date) => {
+              if (date !== undefined) onChange(format(date, 'dd / MM / yyyy'));
 
-            setShow(false);
-          }}
-        />
-      )}
-    </>
-  );
-}
+              setShow(false);
+            }}
+          />
+        )}
+      </>
+    );
+  },
+);
 
 export function Picker<T>(props: {
   selectedKey?: string;

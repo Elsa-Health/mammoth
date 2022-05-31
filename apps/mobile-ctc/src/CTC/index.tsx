@@ -132,13 +132,15 @@ function App({provider}: {provider: ElsaProvider}) {
   return (
     <>
       <Stack.Navigator
-        initialRouteName="ctc.register-new-patient"
+        // initialRouteName="ctc.register-new-patient"
         screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(DashboardScreen, {
             actions: ({navigation}) => ({
-              onNewPatient() {},
+              onNewPatient() {
+                navigation.navigate('ctc.register-new-patient');
+              },
               onViewAppointments() {},
               onViewPatients() {},
               onViewMedications() {
