@@ -10,6 +10,8 @@ import InvestigationsDashboardScreen from './_screens/InvestigationDashboard';
 import MedicationsDashboardScreen from './_screens/MedicationDashboard';
 import PatientDashboard from './_screens/PatientDashboard';
 
+import RegisterNewPatientScreen from './_screens/RegisterNewPatient';
+
 import MedicationDispenseScreen from './_screens/MedicationDispense';
 import MedicationRequestScreen from './_screens/MedicationRequest';
 
@@ -130,7 +132,7 @@ function App({provider}: {provider: ElsaProvider}) {
   return (
     <>
       <Stack.Navigator
-        // initialRouteName="ctc.medications-dashboard"
+        initialRouteName="ctc.register-new-patient"
         screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="ctc.dashboard"
@@ -141,6 +143,17 @@ function App({provider}: {provider: ElsaProvider}) {
               onViewPatients() {},
               onViewMedications() {
                 navigation.navigate('ctc.medications-dashboard');
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.register-new-patient"
+          component={withFlowContext(RegisterNewPatientScreen, {
+            entry: {myCtcId: '11111111'},
+            actions: ({navigation}) => ({
+              onRegisterPatient(patient) {
+                console.log('Register people');
               },
             }),
           })}

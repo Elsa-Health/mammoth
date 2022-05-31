@@ -13,7 +13,9 @@
 			"**/mobile-addo/",
 			"**/mobile-addo/**",
 			"**/mobile-ctc/",
-			"**/mobile-ctc/**"
+			"**/mobile-ctc/**",
+			"**/react-hook-form/",
+			"**/react-hook-form/**"
 		]
 	},
 	"scripts": {
