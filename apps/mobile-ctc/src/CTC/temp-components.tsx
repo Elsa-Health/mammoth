@@ -406,7 +406,9 @@ export function Section(props: {
       {isT && (
         <>
           <View style={{marginBottom: 8}}>
-            <Row>
+            <Row
+              icon={props.icon}
+              contentStyle={props.icon ? {marginLeft: 4} : undefined}>
               <View>
                 {Boolean(props.title) && (
                   <Text font="bold" size={19} color="#1c2846">

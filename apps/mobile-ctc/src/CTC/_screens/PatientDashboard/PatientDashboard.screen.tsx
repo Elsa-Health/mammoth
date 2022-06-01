@@ -5,8 +5,7 @@ import {useTheme} from '@elsa-ui/react-native/theme';
 import {ScrollView, View} from 'react-native';
 import {Block, Column, Row, Section, TitledItem} from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
-import {Patient} from '../../../emr-types/v1/personnel';
-import {IconButton, Searchbar, Chip, Button, FAB} from 'react-native-paper';
+import {Searchbar, Chip, Button, FAB} from 'react-native-paper';
 import _ from 'lodash';
 
 import {Set} from 'immutable';

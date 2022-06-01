@@ -10,6 +10,7 @@ import MedicationsDashboardScreen from './_screens/MedicationDashboard';
 import ViewAppointmentsScreen from './_screens/ViewAppointments';
 import ViewVisitScreen from './_screens/ViewVisit';
 import ViewPatientScreen from './_screens/ViewPatient';
+import ViewInvestigationScreen from './_screens/ViewInvestigation';
 
 import RegisterNewPatientScreen from './_screens/RegisterNewPatient';
 
@@ -125,7 +126,7 @@ function App({provider}: {provider: ElsaProvider}) {
   return (
     <>
       <Stack.Navigator
-        // initialRouteName="ctc.register-new-patient"
+        initialRouteName="ctc.view-investigation"
         screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="ctc.dashboard"
@@ -182,6 +183,10 @@ function App({provider}: {provider: ElsaProvider}) {
         <Stack.Screen
           name="ctc.view-patient"
           component={withFlowContext(ViewPatientScreen, {})}
+        />
+        <Stack.Screen
+          name="ctc.view-investigation"
+          component={withFlowContext(ViewInvestigationScreen, {})}
         />
         <Stack.Screen
           name="ctc.view-visit"
