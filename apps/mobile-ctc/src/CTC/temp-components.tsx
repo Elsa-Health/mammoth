@@ -62,6 +62,7 @@ export function Row(rp: {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'flex-start',
+          flexWrap: 'wrap',
         },
         rp.wrapperStyle,
         rp.spaceTop ?? false ? {marginTop: spacing.sm} : undefined,

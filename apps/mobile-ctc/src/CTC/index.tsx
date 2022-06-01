@@ -3,12 +3,13 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import DashboardScreen from './_screens/Dashboard';
-import ViewAppointmentsScreen from './_screens/ViewAppointments';
-import ViewVisitScreen from './_screens/ViewVisit';
-
+import PatientDashboard from './_screens/PatientDashboard';
 import InvestigationsDashboardScreen from './_screens/InvestigationDashboard';
 import MedicationsDashboardScreen from './_screens/MedicationDashboard';
-import PatientDashboard from './_screens/PatientDashboard';
+
+import ViewAppointmentsScreen from './_screens/ViewAppointments';
+import ViewVisitScreen from './_screens/ViewVisit';
+import ViewPatientScreen from './_screens/ViewPatient';
 
 import RegisterNewPatientScreen from './_screens/RegisterNewPatient';
 
@@ -35,15 +36,7 @@ import {Text} from '@elsa-ui/react-native/components';
 
 import {withFlowContext} from '../@workflows/index';
 
-import {
-  collection,
-  doc,
-  getStore,
-  setDoc,
-  Document,
-  setDocs,
-  getDocs,
-} from 'papai/collection';
+import {doc, setDoc, Document, getDocs} from 'papai/collection';
 import {HybridLogicalClock} from 'papai/distributed/clock';
 import {List} from 'immutable';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -141,8 +134,12 @@ function App({provider}: {provider: ElsaProvider}) {
               onNewPatient() {
                 navigation.navigate('ctc.register-new-patient');
               },
-              onViewAppointments() {},
-              onViewPatients() {},
+              onViewPatients() {
+                navigation.navigate('ctc.patient-dashboard');
+              },
+              onViewAppointments() {
+                navigation.navigate('ctc.view-appointments');
+              },
               onViewMedications() {
                 navigation.navigate('ctc.medications-dashboard');
               },
@@ -156,6 +153,7 @@ function App({provider}: {provider: ElsaProvider}) {
             actions: ({navigation}) => ({
               onRegisterPatient(patient) {
                 console.log('Register people');
+                navigation.goBack();
               },
             }),
           })}
@@ -165,8 +163,25 @@ function App({provider}: {provider: ElsaProvider}) {
           component={withFlowContext(ViewAppointmentsScreen)}
         />
         <Stack.Screen
+          name="ctc.patient-dashboard"
+          component={withFlowContext(PatientDashboard, {
+            entry: {},
+            actions: ({navigation}) => ({
+              onNewVisit(patientId) {
+                navigation.navigate('ctc.first-patient-intake');
+              },
+              onViewProfile(patientId) {
+                navigation.navigate('ctc.view-patient');
+              },
+              onNewPatient() {
+                navigation.navigate('ctc.register-new-patient');
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
           name="ctc.view-patient"
-          component={withFlowContext(PatientDashboard)}
+          component={withFlowContext(ViewPatientScreen, {})}
         />
         <Stack.Screen
           name="ctc.view-visit"
