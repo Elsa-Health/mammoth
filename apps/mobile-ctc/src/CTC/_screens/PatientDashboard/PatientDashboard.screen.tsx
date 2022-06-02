@@ -2,31 +2,77 @@ import React from 'react';
 
 import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
-import {ScrollView, View} from 'react-native';
+import {ActivityIndicator, ScrollView, View} from 'react-native';
 import {Block, Column, Row, Section, TitledItem} from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {Searchbar, Chip, Button, FAB} from 'react-native-paper';
 import _ from 'lodash';
 
-import {Set} from 'immutable';
-import {format} from 'date-fns';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const options = [
+import {List, Set} from 'immutable';
+import {format} from 'date-fns';
+import produce from 'immer';
+import {CTCPatient} from '../../emr/types';
+import {useAsyncFn} from 'react-use';
+
+const options: Array<{name: Option; icon: string}> = [
+  // {name: 'id', icon: 'tag-text-outline'},
   {name: 'name', icon: 'file'},
   {name: 'phone', icon: 'phone'},
 ];
+
+type Option = 'name' | 'phone';
+type SearchInOption = {[f in Option]: boolean};
+type SearchQuery = {input?: string; searchIn?: SearchInOption};
 export default function PatientDashboardScreen({
+  entry,
   actions: $,
 }: WorkflowScreenProps<
-  {},
+  {searchText?: string},
   {
+    getPatientsFromQuery: (
+      query: SearchQuery,
+    ) => Promise<Array<PatientItemProps>>;
     onNewPatient: () => void;
-    onNewVisit: (patientId: string) => void;
-    onViewProfile: (patientId: string) => void;
   }
 >) {
   const {spacing} = useTheme();
-  const [searchOptions, setOpts] = React.useState<string[]>([]);
+  const [searchOptions, setOpts] = React.useState<SearchInOption>({
+    name: false,
+    phone: false,
+  });
+
+  const [searchText, onChangeSearchText] = React.useState('');
+  // const [patients, set] = React.useState<null | CTCPatient[]>(null);
+
+  const [{loading, value, error}, query] = useAsyncFn(
+    async (q: SearchQuery) => {
+      return [await $.getPatientsFromQuery(q), q] as [
+        List<CTCPatient>,
+        SearchQuery,
+      ];
+    },
+    [],
+  );
+
+  const searchTextInputRef = React.useRef();
+
+  const search = () => query({input: searchText, searchIn: searchOptions});
+  const resetSearch = () => {
+    query({});
+    onChangeSearchText('');
+  };
+
+  React.useEffect(() => {
+    resetSearch();
+    if (entry.searchText !== undefined) {
+      onChangeSearchText(entry.searchText);
+      searchTextInputRef.current?.focus();
+    }
+  }, []);
+
+  console.log(loading, value);
 
   return (
     <Layout title="Patient Dashboard" style={{padding: 0}}>
@@ -39,23 +85,26 @@ export default function PatientDashboardScreen({
           removeLine>
           <Column wrapperStyle={{marginBottom: 8}}>
             <Searchbar
+              ref={searchTextInputRef}
+              value={searchText}
+              onChangeText={onChangeSearchText}
+              onSubmitEditing={search}
               style={{borderColor: '#CCC', borderWidth: 0.6, elevation: 2}}
             />
           </Column>
           <Row spaceTop contentStyle={{justifyContent: 'flex-start'}}>
             {options.map(({name, icon}) => {
-              const selected = searchOptions.includes(name);
+              const selected = searchOptions[name];
               return (
                 <Chip
                   icon={selected ? 'check' : icon}
                   selected={selected}
                   onPress={() =>
-                    setOpts(d => {
-                      const x = Set(d);
-                      if (x.has(name)) return x.remove(name).toArray();
-
-                      return x.add(name).toArray();
-                    })
+                    setOpts(d =>
+                      produce(d, df => {
+                        df[name] = !df[name];
+                      }),
+                    )
                   }
                   style={{
                     borderWidth: 1,
@@ -70,21 +119,43 @@ export default function PatientDashboardScreen({
           </Row>
         </Section>
         {/* Past Visits */}
-        <Section>
-          <Text font="bold" size={19} color="#1c2846">
-            Patients / {34}
-          </Text>
+        {loading ? (
           <Column>
-            {[3, 4, 5].map(ix => (
-              <Section mode="raised" key={ix} spaceTop={ix !== 0}>
-                <PatientItem
-                  onNewVisit={() => $.onNewVisit(ix)}
-                  onViewProfile={() => $.onViewProfile(ix)}
-                />
-              </Section>
-            ))}
+            <ActivityIndicator animating />
+            <Text>Loading Patients...</Text>
           </Column>
-        </Section>
+        ) : error || value === undefined ? (
+          <Column spaceTop>
+            {console.log({error})}
+            <Row contentStyle={{justifyContent: 'center'}}>
+              <Icon name="exclamation-thick" size={30} />
+              <Text style={{paddingRight: 50}}>
+                Unable to load the patients. Please try again in a few.
+              </Text>
+            </Row>
+            <Row contentStyle={{justifyContent: 'center'}} spaceTop>
+              <Button icon="refresh" onPress={resetSearch}>
+                Reset
+              </Button>
+              <Button icon="magnify" onPress={search}>
+                Re-search
+              </Button>
+            </Row>
+          </Column>
+        ) : (
+          <Section>
+            <Text font="bold" size={19} color="#1c2846">
+              Patients / {value[0].count()}
+            </Text>
+            <Column>
+              {value[0].map((d, ix) => (
+                <Section mode="raised" key={d.id} spaceTop>
+                  <PatientItem {...d} />
+                </Section>
+              ))}
+            </Column>
+          </Section>
+        )}
       </ScrollView>
       <FAB
         style={{
@@ -100,13 +171,42 @@ export default function PatientDashboardScreen({
   );
 }
 
-function PatientItem(props: any) {
+type AwaitComponentProps =
+  | {loading: true; error: undefined; value: undefined}
+  | {loading: false; error: undefined; value: T}
+  | {loading: false; error: Error; value: undefined};
+function AwaitedState<T>({
+  state,
+  children: Child,
+}: {
+  state: {loading: boolean; value: T; error?: Error | undefined};
+  children: (props: AwaitComponentProps) => JSX.Element;
+}) {
+  return (
+    <>
+      {/* @ts-ignore */}
+      <Child {...state} />
+    </>
+  );
+}
+
+type PatientItemProps = {
+  id: string;
+  name: string | null;
+  registeredDate: Date;
+  onNewVisit: () => void;
+  onViewProfile: () => void;
+};
+function PatientItem(props: PatientItemProps) {
   return (
     <>
       <Column wrapperStyle={{marginBottom: 12}}>
-        <TitledItem title="Patient ID">09876543-123456</TitledItem>
+        <TitledItem title="Patient Name">{props.name ?? '-'}</TitledItem>
+        <TitledItem spaceTop title="Patient ID">
+          {props.id}
+        </TitledItem>
         <TitledItem spaceTop title="Registered Date">
-          {format(new Date(), 'yyyy, MMMM dd')}
+          {format(props.registeredDate, 'yyyy, MMMM dd')}
         </TitledItem>
       </Column>
       <Row spaceTop>

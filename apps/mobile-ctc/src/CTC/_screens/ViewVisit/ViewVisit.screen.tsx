@@ -18,7 +18,7 @@ import {Visit} from '../../../emr-types/v1/visit';
 import CollapsibleView from 'react-native-collapsible';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Animated, {EasingNode} from 'react-native-reanimated';
-import {InvReq} from '../../emr';
+import {InvReq} from '../../emr/hook';
 import {Investigation} from 'elsa-health-data-fns/lib';
 import {useAsyncRetry} from 'react-use';
 

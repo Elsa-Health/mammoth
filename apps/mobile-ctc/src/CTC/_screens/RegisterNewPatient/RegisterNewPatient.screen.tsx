@@ -23,7 +23,7 @@ import TextInputMask from 'react-native-text-input-mask';
 import {format} from 'date-fns';
 import _ from 'lodash';
 
-import {useForm, Field, Controller} from 'react-hook-form';
+import {useForm, Controller, useController} from 'react-hook-form';
 const DISTRICTS = [
   'Meru',
   'Arusha City',
@@ -52,8 +52,7 @@ const TYPE_O_TREATMENT_SUPPORT = [
 ];
 
 export type PatientFormType = {
-  facilityId: string;
-  patientId: string | undefined;
+  patientId: string;
   firstName: string;
   familyName: string;
   phoneNumber: string;
@@ -99,28 +98,32 @@ export default function RegisterNewPatientScreen({
   const [showSelectionModal, setShow] = React.useState(false);
 
   const patientCTCIDRef = React.useRef();
-  const {handleSubmit, control, setValue} = useForm<PatientFormType>({
-    defaultValues: {
-      patientId,
-      firstName: '',
-      familyName: '',
-      phoneNumber: '',
-      facilityId: '', // added late
-      resident: DISTRICTS[0],
-      dateOfBirth: '',
-      maritalStatus: 'single', // modified late
-      hasPositiveTest: false,
-      dateOfTest: '',
-      hasPatientOnARVs: false,
-      dateStartedARVs: '',
-      whoStage: 'Stage 1',
-      hasTreatmentSupport: false,
-      typeOfSupport: 'Family',
-      sex: 'male',
+  const {handleSubmit, control, setValue, getValues} = useForm<PatientFormType>(
+    {
+      defaultValues: {
+        patientId,
+        firstName: '',
+        familyName: '',
+        phoneNumber: '',
+        resident: DISTRICTS[0],
+        dateOfBirth: '',
+        maritalStatus: 'Single', // modified late
+        hasPositiveTest: false,
+        dateOfTest: '',
+        hasPatientOnARVs: false,
+        dateStartedARVs: '',
+        whoStage: 'Stage 1',
+        hasTreatmentSupport: false,
+        typeOfSupport: 'Family',
+        sex: 'male',
+      },
     },
-  });
+  );
 
-  const onSubmit = handleSubmit($.onRegisterPatient);
+  const onSubmit = React.useCallback(handleSubmit($.onRegisterPatient), [
+    handleSubmit,
+    $.onRegisterPatient,
+  ]);
 
   return (
     <>
@@ -235,23 +238,9 @@ export default function RegisterNewPatientScreen({
                 )}
               />
             </Column>
-
             <Column spaceTop>
               <Text>Date of Birth</Text>
-              <Controller
-                name="dateOfBirth"
-                control={control}
-                render={({field, formState}) => (
-                  <>
-                    <DateInput {...field} />
-                    {formState.isDirty && (
-                      <HelperText type="error">
-                        {formState.errors.dateOfBirth}
-                      </HelperText>
-                    )}
-                  </>
-                )}
-              />
+              <ControlDateInput name="dateOfBirth" control={control} />
             </Column>
           </Section>
           {/* Register Patient*/}
@@ -311,7 +300,7 @@ export default function RegisterNewPatientScreen({
               />
             </Item>
           </Section>
-          {/* Knowing Co-morbidities Status */}
+          {/* More on Patient  */}
           <Section title="Other Patient Information" spaceTop>
             <Column>
               <Text>Marital Status</Text>
@@ -346,7 +335,7 @@ export default function RegisterNewPatientScreen({
               />
             </Column>
           </Section>
-          {/* ARV */}
+          {/* More about the HIV side of the patient*/}
           <Section
             title="HIV Related Information"
             desc="Asking HIV related information">
@@ -357,14 +346,35 @@ export default function RegisterNewPatientScreen({
                 name="hasPositiveTest"
                 control={control}
                 render={({field}) => (
-                  <RadioButton.Group
-                    value={field.value ? 'yes' : 'no'}
-                    onValueChange={d => field.onChange(d === 'yes')}>
-                    <View style={{flexDirection: 'row'}}>
-                      <RadioButton.Item label="Yes" value="yes" />
-                      <RadioButton.Item label="No" value="no" />
-                    </View>
-                  </RadioButton.Group>
+                  <>
+                    <RadioButton.Group
+                      value={field.value ? 'yes' : 'no'}
+                      onValueChange={d => field.onChange(d === 'yes')}>
+                      <View style={{flexDirection: 'row'}}>
+                        <RadioButton.Item label="Yes" value="yes" />
+                        <RadioButton.Item label="No" value="no" />
+                      </View>
+                    </RadioButton.Group>
+                    {field.value && (
+                      <Column spaceTop>
+                        <Text>Date since known status</Text>
+                        <Controller
+                          name="dateOfTest"
+                          control={control}
+                          render={({field, formState}) => (
+                            <>
+                              <DateInput {...field} />
+                              {formState.isDirty && (
+                                <HelperText type="error">
+                                  {formState.errors.dateOfBirth}
+                                </HelperText>
+                              )}
+                            </>
+                          )}
+                        />
+                      </Column>
+                    )}
+                  </>
                 )}
               />
             </Column>
@@ -377,14 +387,35 @@ export default function RegisterNewPatientScreen({
                 name="hasPatientOnARVs"
                 control={control}
                 render={({field}) => (
-                  <RadioButton.Group
-                    value={field.value ? 'yes' : 'no'}
-                    onValueChange={d => field.onChange(d === 'yes')}>
-                    <View style={{flexDirection: 'row'}}>
-                      <RadioButton.Item label="Yes" value="yes" />
-                      <RadioButton.Item label="No" value="no" />
-                    </View>
-                  </RadioButton.Group>
+                  <>
+                    <RadioButton.Group
+                      value={field.value ? 'yes' : 'no'}
+                      onValueChange={d => field.onChange(d === 'yes')}>
+                      <View style={{flexDirection: 'row'}}>
+                        <RadioButton.Item label="Yes" value="yes" />
+                        <RadioButton.Item label="No" value="no" />
+                      </View>
+                    </RadioButton.Group>
+                    {field.value && (
+                      <Column spaceTop>
+                        <Text>ARV Start Date</Text>
+                        <Controller
+                          name="dateStartedARVs"
+                          control={control}
+                          render={({field, formState}) => (
+                            <>
+                              <DateInput {...field} />
+                              {formState.isDirty && (
+                                <HelperText type="error">
+                                  {formState.errors.dateOfBirth}
+                                </HelperText>
+                              )}
+                            </>
+                          )}
+                        />
+                      </Column>
+                    )}
+                  </>
                 )}
               />
             </Column>
@@ -416,14 +447,31 @@ export default function RegisterNewPatientScreen({
                 name="hasTreatmentSupport"
                 control={control}
                 render={({field}) => (
-                  <RadioButton.Group
-                    value={field.value ? 'yes' : 'no'}
-                    onValueChange={d => field.onChange(d === 'yes')}>
-                    <View style={{flexDirection: 'row'}}>
-                      <RadioButton.Item label="Yes" value="yes" />
-                      <RadioButton.Item label="No" value="no" />
-                    </View>
-                  </RadioButton.Group>
+                  <>
+                    <RadioButton.Group
+                      value={field.value ? 'yes' : 'no'}
+                      onValueChange={d => field.onChange(d === 'yes')}>
+                      <View style={{flexDirection: 'row'}}>
+                        <RadioButton.Item label="Yes" value="yes" />
+                        <RadioButton.Item label="No" value="no" />
+                      </View>
+                    </RadioButton.Group>
+                    {field.value && (
+                      <Controller
+                        name="typeOfSupport"
+                        control={control}
+                        render={({field}) => (
+                          <Picker
+                            label="Support Type"
+                            items={TYPE_O_TREATMENT_SUPPORT}
+                            selectedKey={field.value}
+                            renderText={_.capitalize}
+                            onChangeValue={field.onChange}
+                          />
+                        )}
+                      />
+                    )}
+                  </>
                 )}
               />
             </Column>
@@ -451,6 +499,43 @@ const CTCOptionsAvailable = Object.entries({
   Mareu: '02020120',
   'Other - Not Registered': '',
 });
+
+function ControlDateInput({control, name}: {control: any; name: string}) {
+  const {field} = useController({control, name});
+  const [show, setShow] = React.useState(false);
+
+  return (
+    <>
+      <Row>
+        <TextInput
+          style={{flex: 1}}
+          mode="outlined"
+          value={field.value}
+          onChangeText={field.onChange}
+          placeholder="DD / MM / YYYY"
+          keyboardType="number-pad"
+          render={props => (
+            <TextInputMask {...props} mask="[00] / [00] / [0000]" />
+          )}
+        />
+        {/* <IconButton icon="calendar" onPress={() => setShow(true)} /> */}
+      </Row>
+
+      {show && (
+        <DateTimePicker
+          style={{flex: 1}}
+          value={new Date()}
+          display="calendar"
+          onChange={(e, date) => {
+            if (date !== undefined)
+              field.onChange(format(date, 'dd / MM / yyyy'));
+            setShow(false);
+          }}
+        />
+      )}
+    </>
+  );
+}
 
 const DateInput = React.forwardRef(
   (
@@ -480,7 +565,7 @@ const DateInput = React.forwardRef(
               <TextInputMask {...props} mask="[00] / [00] / [0000]" />
             )}
           />
-          <IconButton icon="calendar" onPress={() => setShow(true)} />
+          {/* <IconButton icon="calendar" onPress={() => setShow(true)} /> */}
         </Row>
 
         {show && (

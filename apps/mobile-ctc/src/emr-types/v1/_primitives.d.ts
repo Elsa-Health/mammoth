@@ -14,7 +14,7 @@ type Mapping<K extends string, T> = {
  *  - ...
  */
 type ResourceOptions = string;
-type Resource<N extends ResourceOptions, T, C extends string = string> = {
+type Resource<N extends ResourceOptions, T, C extends string | null = null> = {
   /**
    * Code associated with grouping the object
    */

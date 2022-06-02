@@ -26,7 +26,7 @@ import ConcludeAssessmentScreen from './_screens/ConcludeAssessment';
 import uuid from 'react-native-uuid';
 
 import {ElsaProvider} from '../provider/backend';
-import {MedicaDisp, MedicaReq} from './emr';
+import {MedicaDisp, MedicaReq} from './emr/hook';
 import {Investigation, Medication} from 'elsa-health-data-fns/lib';
 import {Practitioner} from '../emr-types/v1/personnel';
 import {EMR} from './emr/store';
@@ -43,7 +43,12 @@ import {List} from 'immutable';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {View} from 'react-native';
 import {TouchableRipple} from 'react-native-paper';
-import _ from 'lodash';
+import _, {padStart} from 'lodash';
+import {translatePatient} from './actions/translate';
+import {getOrganizationFromProvider} from './actions/basic';
+import {queryCollection} from './emr/actions';
+import {CTCPatient} from './emr/types';
+import {lower, removeWhiteSpace} from './emr/utils';
 
 const Stack = createNativeStackNavigator();
 
@@ -91,7 +96,11 @@ type CRDTMessage = [State, {facility: any; user: any}];
 
 function App({provider}: {provider: ElsaProvider}) {
   // Create provider
-  const emr = React.useMemo(() => new EMR(provider), [provider]);
+  const [emr, organization] = React.useMemo(
+    () => [new EMR(provider), getOrganizationFromProvider(provider)],
+    [provider],
+  );
+
   const {socket, status, retry} = useWebSocket({
     url: 'https://bounce-edge.fly.dev/crdt/state',
     // url: 'https://cfe3-197-250-60-110.eu.ngrok.io/crdt/state',
@@ -114,7 +123,7 @@ function App({provider}: {provider: ElsaProvider}) {
   React.useEffect(() => {
     if (socket !== undefined) {
       const sub = emr.onSnapshotUpdate((token, source) => {
-        console.log('Sending', {token, source});
+        // console.log('Sending', {token, source});
         // send message
         socket.send(JSON.stringify([[token, source]]));
       });
@@ -126,12 +135,15 @@ function App({provider}: {provider: ElsaProvider}) {
   return (
     <>
       <Stack.Navigator
-        initialRouteName="ctc.view-investigation"
+        // initialRouteName="ctc.patient-dashboard"
         screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(DashboardScreen, {
             actions: ({navigation}) => ({
+              onSearchPatient() {
+                navigation.navigate('ctc.patient-dashboard', {searchText: ''});
+              },
               onNewPatient() {
                 navigation.navigate('ctc.register-new-patient');
               },
@@ -150,11 +162,20 @@ function App({provider}: {provider: ElsaProvider}) {
         <Stack.Screen
           name="ctc.register-new-patient"
           component={withFlowContext(RegisterNewPatientScreen, {
-            entry: {myCtcId: '11111111'},
+            entry: {myCtcId: provider.facility.ctcCode},
             actions: ({navigation}) => ({
               onRegisterPatient(patient) {
-                console.log('Register people');
-                navigation.goBack();
+                const d = translatePatient(patient, organization);
+
+                setDoc(doc(emr.collections.patients, d.id), d)
+                  .then(() => {
+                    console.log('Register people', d);
+                  })
+                  .then(() => navigation.goBack())
+                  .catch(err => {
+                    console.log('FAILED TO REGISTER PATIENT');
+                    console.error(err);
+                  });
               },
             }),
           })}
@@ -166,13 +187,84 @@ function App({provider}: {provider: ElsaProvider}) {
         <Stack.Screen
           name="ctc.patient-dashboard"
           component={withFlowContext(PatientDashboard, {
-            entry: {},
+            entry: {
+              text: 'Something',
+              searchActive: true,
+            },
             actions: ({navigation}) => ({
-              onNewVisit(patientId) {
-                navigation.navigate('ctc.first-patient-intake');
-              },
-              onViewProfile(patientId) {
-                navigation.navigate('ctc.view-patient');
+              getPatientsFromQuery(query) {
+                const orQueries: Array<(p: CTCPatient) => boolean> = [];
+                const {input, searchIn} = query;
+                if (input !== undefined) {
+                  // add function to search ID
+                  orQueries.push(p => {
+                    //  search in ID
+                    if (input.trim().length === 0) {
+                      return true;
+                    }
+
+                    return (p.id ?? '').includes(input.trim());
+                  });
+
+                  // add function to search from name
+                  if (Boolean(searchIn?.name)) {
+                    console.log('Name Q');
+                    orQueries.push(p => {
+                      const firstName = lower((p.info?.firstName ?? '').trim());
+                      const familyName = lower(
+                        (p.info?.familyName ?? '').trim(),
+                      );
+                      const fullName = lower(
+                        `${firstName} ${familyName}`.trim(),
+                      );
+
+                      return (
+                        firstName.startsWith(input) ||
+                        familyName.startsWith(input) ||
+                        fullName.startsWith(input)
+                      );
+                    });
+                  }
+
+                  // search phoneNumber
+                  if (Boolean(searchIn?.phone)) {
+                    console.log('Phone Q');
+                    orQueries.push(p => {
+                      const phoneNumber = p.contact?.phoneNumber ?? '';
+                      return removeWhiteSpace(phoneNumber).includes(
+                        removeWhiteSpace(input),
+                      );
+                    });
+                  }
+                }
+
+                console.log(query);
+                return queryCollection(emr.collections.patients, {
+                  where: {
+                    $or: orQueries,
+                  },
+                  order: {
+                    type: 'desc',
+                    field: p => new Date(p.createdAt).getTime(),
+                  },
+                }).then(ps =>
+                  ps.map(p => {
+                    const firstName = (p.info?.firstName ?? '').trim();
+                    const familyName = (p.info?.familyName ?? '').trim();
+                    const fullName = (firstName + ' ' + familyName).trim();
+                    return {
+                      id: p.id,
+                      name: fullName.length === 0 ? null : fullName,
+                      registeredDate: new Date(p.createdAt),
+                      onNewVisit: () => {
+                        navigation.navigate('ctc.first-patient-intake');
+                      },
+                      onViewProfile: () => {
+                        navigation.navigate('ctc.view-patient');
+                      },
+                    };
+                  }),
+                );
               },
               onNewPatient() {
                 navigation.navigate('ctc.register-new-patient');
@@ -182,7 +274,9 @@ function App({provider}: {provider: ElsaProvider}) {
         />
         <Stack.Screen
           name="ctc.view-patient"
-          component={withFlowContext(ViewPatientScreen, {})}
+          component={withFlowContext(ViewPatientScreen, {
+            // patient:
+          })}
         />
         <Stack.Screen
           name="ctc.view-investigation"
@@ -463,7 +557,7 @@ function App({provider}: {provider: ElsaProvider}) {
           })}
         />
       </Stack.Navigator>
-      <ConnectionStatus status={status} retry={retry} />
+      {/* <ConnectionStatus status={status} retry={retry} /> */}
     </>
   );
 }

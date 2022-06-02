@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, ViewProps} from 'react-native';
+import {View} from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -12,7 +12,7 @@ import {
   TouchableItem,
 } from '../../temp-components';
 import {useTheme} from '@elsa-ui/react-native/theme';
-import {Searchbar, TouchableRipple} from 'react-native-paper';
+import {Searchbar} from 'react-native-paper';
 import {ElsaColorableIcon} from '@elsa-ui/react-native/visuals/vectors';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 
@@ -21,6 +21,7 @@ export default function DashboardScreen({
 }: WorkflowScreenProps<
   {},
   {
+    onSearchPatient: () => void;
     onNewPatient: () => void;
     onViewPatients: () => void;
     onViewAppointments: () => void;
@@ -50,8 +51,9 @@ export default function DashboardScreen({
       <Section
         removeLine
         title="Search Patient"
-        desc="Look up patient using CTC ID">
+        desc="Look up patient in the CTC">
         <Searchbar
+          onPressOut={$.onSearchPatient}
           style={{borderColor: '#CCC', borderWidth: 0.6, elevation: 2}}
         />
       </Section>

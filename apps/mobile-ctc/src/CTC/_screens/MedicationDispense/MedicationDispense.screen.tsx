@@ -6,7 +6,7 @@ import {ScrollView, View} from 'react-native';
 import {Button, RadioButton, TextInput} from 'react-native-paper';
 import {Block, Column, Row, Section} from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
-import {MedicaDisp} from '../../emr';
+import {MedicaDisp} from '../../emr/hook';
 import {useAsyncRetry} from 'react-use';
 import {List} from 'immutable';
 

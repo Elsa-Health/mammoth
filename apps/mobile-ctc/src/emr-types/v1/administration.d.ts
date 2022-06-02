@@ -60,7 +60,7 @@ export type Organization<
     /**
      * Information useful in properly identifying an organization
      */
-    identifier: Identifier;
+    identifier: Nullable<Identifier>;
 
     /**
      * Other organization associated with this

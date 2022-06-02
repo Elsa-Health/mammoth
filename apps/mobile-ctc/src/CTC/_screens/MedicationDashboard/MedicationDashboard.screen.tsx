@@ -18,7 +18,7 @@ import {
 } from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {Button, RadioButton, TextInput} from 'react-native-paper';
-import {MedicaDisp, MedicaReq} from '../../emr';
+import {MedicaDisp, MedicaReq} from '../../emr/hook';
 import {List} from 'immutable';
 
 import {format, formatDistanceToNow} from 'date-fns';

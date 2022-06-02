@@ -6,7 +6,10 @@ import {HealthcareService, Organization} from './administration';
  * THINK: Should really seperate `Identifier` from `body`?
  * Reason I thought of, might want to mask `Identifier`, special indexing?
  */
-export type Patient<PatientBody extends Data = Data> = Resource<
+export type Patient<
+  PatientBody extends Data = Data,
+  Info extends Data = Data,
+> = Resource<
   'Patient',
   {
     /**
@@ -14,10 +17,7 @@ export type Patient<PatientBody extends Data = Data> = Resource<
      * This can include name, address, phone number, etc.
      *
      */
-    info: Nullable<{
-      name: string;
-      address: Nullable<string>;
-    }>;
+    info: Nullable<Info>;
 
     /**
      * Is the record active for use?

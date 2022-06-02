@@ -19,8 +19,9 @@ import KeyValueMapStore from 'papai/stores/collection/KeyValueMap';
 import FastAsyncStorage from 'react-native-fast-storage';
 
 import uuid from 'react-native-uuid';
-import {InvReq, InvResult, Medica, MedicaDisp, MedicaReq} from '.';
+import {InvReq, InvResult, Medica, MedicaDisp, MedicaReq} from './hook';
 import {ElsaProvider} from '../../provider/backend';
+import {CTCPatient} from './types';
 
 const STORE_NAME = 'DEV_TEST_STORE@TEMP';
 
@@ -103,7 +104,7 @@ export class EMR {
     // merge the states:
 
     msgs.forEach(msg => {
-      console.log(msg);
+      // console.log(msg);
       const [token, source] = msg;
       const [ref_, data, clock] = token;
 
@@ -179,6 +180,7 @@ export class EMR {
    */
   get collections() {
     return {
+      patients: collection<CTCPatient>(storage, 'patients'),
       medications: collection<Medica>(storage, 'medications'),
       medicationRequests: collection<MedicaReq>(storage, 'medication-requests'),
       medicationDispenses: collection<MedicaDisp>(

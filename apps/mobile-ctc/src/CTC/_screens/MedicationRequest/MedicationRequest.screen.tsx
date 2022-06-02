@@ -13,7 +13,7 @@ import {
   TitledItem,
 } from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
-import {MedicaDisp, MedicaReq} from '../../emr';
+import {MedicaDisp, MedicaReq} from '../../emr/hook';
 
 import {ARV, Medication} from 'elsa-health-data-fns/lib';
 import {format} from 'date-fns';
