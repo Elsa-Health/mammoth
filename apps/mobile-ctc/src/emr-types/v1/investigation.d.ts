@@ -47,7 +47,7 @@ export type InvestigationResult<InvReq extends InvestigationRequest<Data>> =
 export type Report<
   Code extends string,
   D extends Data,
-  C extends string = string,
+  C extends string | null = string,
 > = Resource<
   'Report',
   {
@@ -66,7 +66,7 @@ export type Report<
     /**
      * observation attached to the report
      */
-    result: Referred<Observation<D>>;
+    result: D;
   },
   C
 >;

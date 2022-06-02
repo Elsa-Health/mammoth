@@ -39,12 +39,19 @@ type Resource<N extends ResourceOptions, T, C extends string | null = null> = {
 /**
  * Link to the reou
  */
-type Referred<Obj extends Resource<string, object>> = ReferenceIdentifier | Obj;
+type Referred<Obj extends Resource<string, Data>> = ReferenceIdentifier | Obj;
+
 /**
  * Represent date
  * Format `YYYY-MM-DD`
  */
 type YYYYMMDDDateString = string;
+
+/**
+ * Represent date
+ * Format `DD/MM/YYYY`
+ */
+type DDMMYYYYDateString = string;
 
 /**
  * Represent the UTC Date and Time

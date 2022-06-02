@@ -98,6 +98,7 @@ type Contact = {phoneNumber: Nullable<string>; email: Nullable<string>};
  * Practitioner
  */
 export type Practitioner<
+  Org extends Organization = Organization,
   HS extends HealthcareService<Data> = HealthcareService<Data>,
 > = Resource<
   'Practitioner',
@@ -120,7 +121,7 @@ export type Practitioner<
     /**
      * Organization associated with the practioner
      */
-    organization: Referred<Organization>;
+    organization: Referred<Org>;
 
     /**
      * Identifier used in the business

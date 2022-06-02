@@ -4,7 +4,7 @@
  *
  * e.g. X-Ray.
  */
-export type HealthcareService<Data> = Resource<
+export type HealthcareService<D extends Data> = Resource<
   'HealthcareService',
   {
     /**
@@ -15,7 +15,7 @@ export type HealthcareService<Data> = Resource<
     /**
      * More information about the provided service
      */
-    extendedData: Data;
+    extendedData: D;
 
     /**
      * Name of the service

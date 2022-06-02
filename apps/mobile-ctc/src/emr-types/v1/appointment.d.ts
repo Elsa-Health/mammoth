@@ -4,7 +4,10 @@ import {Visit} from './visit';
 /**
  * Appointment
  */
-export type Appointment = Resource<
+export type Appointment<
+  ARq extends AppointmentRequest,
+  ARs extends AppointmentResponse,
+> = Resource<
   'Appointment',
   {
     subject: Referred<Patient>;
@@ -12,25 +15,27 @@ export type Appointment = Resource<
     /**
      * Identifies the patient that the appointment concerns
      */
-    request: Referred<AppointmentRequest>;
+    request: Referred<ARq>;
 
     /**
      * information concerning the appointment
      */
-    response: Nullable<Referred<AppointmentResponse>>;
+    response: Nullable<Referred<ARs>>;
   }
 >;
 
 /**
  * Appointment Request
  */
-type AppointmentRequest = Resource<
+type AppointmentRequest<
+  Actor extends Patient | Practitioner = Patient | Practitioner,
+> = Resource<
   'AppointmentRequest',
   {
     /**
      * Identifies the visit that fulfilled the appointment
      */
-    visit: Nullable<Referred<Visit>>;
+    visit: Nullable<ReferenceIdentifier<'Visit'>>;
 
     /**
      * Reason for having the appointment
@@ -45,18 +50,19 @@ type AppointmentRequest = Resource<
     /**
      * Participants
      */
-    participants: Array<Referred<Patient> | Referred<Practitioner>>;
+    participants: Array<ReferenceIdentifier<Actor['resourceType']>>;
   }
 >;
 
-type AppointmentResponse = Resource<
+type AppointmentResponse<
+  Actor extends Patient | Practitioner = Patient | Practitioner,
+> = Resource<
   'AppointmentResponse',
   {
-    visit: Nullable<Referred<Visit>>;
+    visit: Nullable<ReferenceIdentifier<'Visit'>>;
     startTime: number;
     endTime: number;
-    actors: Array<Referred<Patient> | Referred<Practitioner>>;
-    // actors: Referred<Practitioner>;
-    comment: string;
+    actors: Array<ReferenceIdentifier<Actor['resourceType']>>;
+    comment: Nullable<string>;
   }
 >;

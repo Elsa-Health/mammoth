@@ -3,8 +3,26 @@
  * need by screen and that needed in storage
  */
 
-import {CTCOrganization, CTCPatient} from '../emr/types';
+import {format} from 'date-fns';
+import {Investigation} from 'elsa-health-data-fns/lib';
+import {uniqueId} from 'lodash';
+import {Patient, Practitioner} from '../../emr-types/v1/personnel';
+import {
+  ConcludingAssessment,
+  CTCDoctor,
+  CTCOrganization,
+  CTCPatient,
+  HIVPatientIntakeAssessment,
+  IntialPatientIntakeAssessment,
+  PatientAdherenceAssessment,
+} from '../emr/types';
+import {removeWhiteSpace} from '../emr/utils';
+import {FirstPatientIntake} from '../_screens/BasicPatientIntake/BasicPatientIntake.screen';
+import {ConcludeAssessmentData} from '../_screens/ConcludeAssessment/ConcludeAssessment.screen';
+import {PatientAdherenceInfo} from '../_screens/HIVAdherenceAssessment/HIVAdherenceAssessment.screen';
+import {HIVPatientIntake} from '../_screens/HIVStageIntake/HIVStageIntake.screen';
 import {PatientFormType} from '../_screens/RegisterNewPatient';
+import {arv, investigationRequest, medRequest, stanMed} from './basic';
 
 /**
  * Checks if the input is a proper text
@@ -21,7 +39,7 @@ export const text = <T extends string | null>(
 };
 
 export const convertDMYToYMD = (dateStr: string) => {
-  const [dd, mm, yy] = dateStr.split('/');
+  const [dd, mm, yy] = removeWhiteSpace(dateStr).split('/');
   return `${yy}-${mm}-${dd}`;
 };
 
@@ -33,19 +51,19 @@ export const getIfTrue = <T>(
 };
 
 const runIfIsNot = <T, NT, O, F>(
-  d: T,
+  d: T | NT,
   nd: NT,
   fn: (i: T) => O,
   fallback: F,
 ) => {
   if (d !== nd) {
-    return fn(d);
+    return fn(d as T);
   }
 
   return fallback;
 };
 
-export const runIfNotUnd = <T, O>(d: T, fn: (d: T) => O) =>
+export const runIfNotUnd = <T, O>(d: T | undefined, fn: (d: T) => O) =>
   runIfIsNot(d, undefined, fn, null);
 
 /**
@@ -61,7 +79,7 @@ export function translatePatient(
   from: PatientFormType,
   organization: Nullable<CTCOrganization>,
   createdAt: Date = new Date(),
-): CTCPatient {
+) {
   const address = text(from.resident);
   const info = {
     firstName: text(from.firstName),
@@ -112,5 +130,157 @@ export function translatePatient(
       typeOfSupport: getIfTrue(data.hasTreatmentSupport, from.typeOfSupport),
       whoStage: from.whoStage ?? null,
     },
+  } as CTCPatient;
+}
+
+function report<C extends string, D extends Data>(
+  code: C,
+  data: D,
+  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  createdAt: Date = new Date(),
+) {
+  return {
+    code: 'intake',
+    createdAt: createdAt.toUTCString(),
+    resourceType: 'Report',
+    id: config.id,
+    reportCode: 'assessment',
+    reporter: config.reporter,
+    subject: config.subject,
+    result: {
+      resourceType: 'Observation',
+      code: null,
+      createdAt: createdAt.toUTCString(),
+      id: `asessment-${config.id}`,
+      data: {},
+    },
+  };
+}
+
+export function translateFirstPatientIntake(
+  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  from: FirstPatientIntake,
+  createdAt: Date = new Date(),
+): IntialPatientIntakeAssessment {
+  return {
+    code: 'intake',
+    createdAt: createdAt.toUTCString(),
+    resourceType: 'Report',
+    id: config.id,
+    reportCode: 'assessment',
+    reporter: config.reporter,
+    subject: config.subject,
+    result: {
+      associatedAppointment: null,
+      dateOfPregancy: format(from.dateOfPregancy, 'dd / MM / yyyy'),
+      diastolic: runIfNotUnd(from.diastolic, parseFloat),
+      systolic: runIfNotUnd(from.systolic, parseFloat),
+      weight: runIfNotUnd(from.weight, parseInt),
+      height: runIfNotUnd(from.height, parseInt),
+      isPregnant: from.isPregnant ?? null,
+      visitType: from.visitType,
+    },
+  };
+}
+
+export function translateHIVAssessment(
+  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  from: HIVPatientIntake,
+  createdAt: Date = new Date(),
+) {
+  const assessment: HIVPatientIntakeAssessment = {
+    code: 'hiv',
+    createdAt: createdAt.toUTCString(),
+    resourceType: 'Report',
+    id: config.id,
+    reportCode: 'assessment',
+    reporter: config.reporter,
+    subject: config.subject,
+    result: {
+      coMorbidities: from.coMorbidities,
+      ARVRegimens: from.isTakingARV ? from.ARVRegimens : null,
+      medications: from.isTakingMedications ? from.medications : null,
+      regimenDuration: from.regimenDuration,
+    },
+  };
+
+  return assessment;
+}
+
+export function translatePatientAdherence(
+  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  from: PatientAdherenceInfo,
+  createdAt: Date = new Date(),
+): PatientAdherenceAssessment {
+  return {
+    code: 'adherence',
+    createdAt: createdAt.toUTCString(),
+    resourceType: 'Report',
+    id: config.id,
+    reportCode: 'assessment',
+    reporter: config.reporter,
+    subject: config.subject,
+    result: from,
+  };
+}
+
+export function translateConclusionAssessment(
+  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  from: ConcludeAssessmentData,
+  createdAt: Date = new Date(),
+) {
+  // make investigation requests
+  const invRequests = from.investigations.map(inv => {
+    const invR = Investigation.fromKey(inv);
+    return investigationRequest(
+      {
+        id: uniqueId(config.id),
+        requester: config.reporter,
+        subject: config.subject,
+      },
+      {investigationId: inv, obj: invR},
+    );
+  });
+
+  const standMedications = from.medications.map(med =>
+    stanMed(`${config.id}-${uniqueId('standMed')}`, med),
+  );
+  const arvMeds = from.arvRegimens.map(arv_ => arv(uniqueId(config.id), arv_));
+
+  const assessment: ConcludingAssessment = {
+    code: 'adherence',
+    createdAt: createdAt.toUTCString(),
+    resourceType: 'Report',
+    id: config.id,
+    reportCode: 'assessment',
+    reporter: config.reporter,
+    subject: config.subject,
+    result: {
+      appointmentDate: from.appointmentDate,
+      arvRegimens: from.arvRegimens,
+      decisionReason: from.decisionReason,
+      investigations: from.investigations,
+      medications: from.medications,
+      regimenDecision: from.regimenDecision,
+      regimenDuration: from.regimenDuration,
+      riskOfNonAdhrence: from.riskOfNonAdhrence,
+    },
+  };
+
+  // time the medications where authored
+  const authoredOn = new Date();
+
+  return {
+    assessment,
+    medicationRequests: [...standMedications, ...arvMeds].map(med =>
+      medRequest(
+        uniqueId(`req-${med.id}`),
+        med,
+        {},
+        {requester: config.reporter, subject: config.subject},
+        authoredOn,
+      ),
+    ),
+    investigationRequests: invRequests,
   };
 }

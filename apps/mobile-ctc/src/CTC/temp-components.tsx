@@ -2,7 +2,12 @@ import React from 'react';
 import {StyleSheet, View, ViewProps} from 'react-native';
 import {Text} from '@elsa-ui/react-native/components';
 
-import {Divider, HelperText, TouchableRipple} from 'react-native-paper';
+import {
+  Divider,
+  HelperText,
+  IconButton,
+  TouchableRipple,
+} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {TextInput} from 'react-native-paper';
@@ -12,6 +17,11 @@ import SectionedMultiSelect, {
 } from 'react-native-sectioned-multi-select';
 
 import {useAsyncRetry} from 'react-use';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {format} from 'date-fns';
+import TextInputMask from 'react-native-text-input-mask';
+import {useController} from 'react-hook-form';
 
 export function Column(rp: {
   icon?: string;
@@ -463,3 +473,129 @@ const sectionStyle = StyleSheet.create({
     backgroundColor: '#FFF',
   },
 });
+
+export function ControlDateInput({
+  control,
+  name,
+}: {
+  control: any;
+  name: string;
+}) {
+  const {field} = useController({control, name});
+  const [show, setShow] = React.useState(false);
+  const [lastChosenDate, set] = React.useState<Date | undefined>(new Date());
+  return (
+    <>
+      <Row>
+        <TextInput
+          style={{flex: 1}}
+          mode="outlined"
+          value={field.value}
+          onChangeText={field.onChange}
+          placeholder="DD / MM / YYYY"
+          keyboardType="number-pad"
+          render={props => (
+            // @ts-ignore
+            <TextInputMask {...props} mask="[00] / [00] / [0000]" />
+          )}
+        />
+        <IconButton icon="calendar" onPress={() => setShow(true)} />
+      </Row>
+
+      {show && (
+        <DateTimePicker
+          style={{flex: 1}}
+          value={lastChosenDate}
+          display="calendar"
+          onChange={(e, date) => {
+            set(date);
+            if (date !== undefined)
+              field.onChange(format(date, 'dd / MM / yyyy'));
+            setShow(false);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+export const DateInput = React.forwardRef(
+  (
+    {
+      onChange,
+      ...props
+    }: {
+      value: string;
+      onBlur: () => void;
+      onChange: (text: string) => void;
+    },
+    ref,
+  ) => {
+    const [show, setShow] = React.useState(false);
+    return (
+      <>
+        <Row>
+          <TextInput
+            style={{flex: 1}}
+            mode="outlined"
+            {...props}
+            ref={ref}
+            onChangeText={onChange}
+            placeholder="DD / MM / YYYY"
+            keyboardType="number-pad"
+            render={props => (
+              <TextInputMask {...props} mask="[00] / [00] / [0000]" />
+            )}
+          />
+          {/* <IconButton icon="calendar" onPress={() => setShow(true)} /> */}
+        </Row>
+
+        {show && (
+          <DateTimePicker
+            style={{flex: 1}}
+            value={new Date()}
+            display="calendar"
+            onChange={(e, date) => {
+              if (date !== undefined) onChange(format(date, 'dd / MM / yyyy'));
+
+              setShow(false);
+            }}
+          />
+        )}
+      </>
+    );
+  },
+);
+
+export function Picker<T>(props: {
+  selectedKey?: string;
+  items: T[];
+  label?: string;
+  uniqueKey?: (item: T) => string;
+  renderText?: (item: T) => string;
+  onChangeValue?: (itemKey: string) => void;
+}) {
+  return (
+    <MultiSelect
+      confirmText="Select"
+      single
+      items={[
+        {
+          name: props.label || 'Items',
+          id: 0,
+          children: props.items.map(item => ({
+            id: props.uniqueKey ? props.uniqueKey(item) : item,
+            name: props.renderText ? props.renderText(item) : item,
+          })),
+        },
+      ]}
+      uniqueKey="id"
+      onSelectedItemsChange={items => {
+        props.onChangeValue?.(items[0]);
+      }}
+      selectedItems={
+        props.selectedKey !== undefined ? [props.selectedKey] : undefined
+      }
+    />
+  );
+}

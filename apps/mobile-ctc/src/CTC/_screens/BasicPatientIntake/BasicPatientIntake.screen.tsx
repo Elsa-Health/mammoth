@@ -9,15 +9,19 @@ import {useTheme} from '@elsa-ui/react-native/theme';
 import {TextInput, Button, RadioButton} from 'react-native-paper';
 import {format} from 'date-fns';
 
-import {Appointment, Patient} from '../../../../@types/v1';
 import produce from 'immer';
 
 import {Column, Block, Row, Section} from '../../temp-components';
+import {CTCOrganization, CTCPatient} from '../../emr/types';
+
+import {useForm, Controller} from 'react-hook-form';
+import TextInputMask from 'react-native-text-input-mask';
 
 export type FirstPatientIntake = {
   associatedAppointment: Referred<Appointment> | null;
   isPregnant: boolean | undefined;
   dateOfPregancy: Date;
+  visitType: 'home' | 'community';
   weight: undefined | string;
   height: undefined | string;
   systolic: undefined | string;
@@ -29,31 +33,37 @@ export default function BasicPatientIntakeScreen({
   actions: $,
 }: WorkflowScreenProps<
   {
-    patient: Patient;
-    initial: {
-      patientId: string;
-      facility: string;
-    };
+    patient: CTCPatient;
+    organization: CTCOrganization;
     value?: FirstPatientIntake;
   },
   {
-    onNext: () => void;
+    onNext: (
+      data: FirstPatientIntake,
+      patient: CTCPatient,
+      organization: CTCOrganization,
+    ) => void;
     fetchAppointments: () => Promise<Appointment[]>;
   }
 >) {
   const {spacing} = useTheme();
-  const [state, set] = React.useState<FirstPatientIntake>(() => {
-    return {
+  const {handleSubmit, control} = useForm<FirstPatientIntake>({
+    defaultValues: e.value ?? {
       associatedAppointment: null,
       isPregnant: e?.patient?.sex === 'female' ? false : undefined,
       dateOfPregancy: new Date(),
       weight: undefined,
       height: undefined,
+      visitType: 'community',
       systolic: undefined,
       diastolic: undefined,
-      whoStage: 'Stage 1',
-    };
+    },
   });
+
+  const onSubmit = React.useCallback(
+    handleSubmit(values => $.onNext(values, e.patient, e.organization)),
+    [handleSubmit, $.onNext],
+  );
 
   return (
     <Layout title="First Patient Intake" style={{padding: 0}}>
@@ -72,13 +82,13 @@ export default function BasicPatientIntakeScreen({
             <Text font="bold" style={{marginLeft: 8}}>
               Patient ID
             </Text>
-            <Text>{e.initial.patientId}</Text>
+            <Text>{e.patient.id}</Text>
           </Row>
           <Row icon="home" spaceTop>
             <Text font="bold" style={{marginLeft: 8}}>
               Facility
             </Text>
-            <Text>{e.initial.facility}</Text>
+            <Text>{e.organization.name}</Text>
           </Row>
         </Section>
         {/* Previous appoinment section */}
@@ -101,92 +111,125 @@ export default function BasicPatientIntakeScreen({
           desc="Is this a home visit or a community visit?"
           spaceTop
           mode="raised">
-          <RadioButton.Group value="yes" onValueChange={() => {}}>
-            <View style={{flexDirection: 'row'}}>
-              <RadioButton.Item label="Home" value="yes" />
-              <RadioButton.Item label="Community" value="no" />
-            </View>
-          </RadioButton.Group>
+          <Controller
+            name="visitType"
+            control={control}
+            render={({field}) => (
+              <>
+                <RadioButton.Group
+                  value={field.value}
+                  onValueChange={field.onChange}>
+                  <View style={{flexDirection: 'row'}}>
+                    <RadioButton.Item label="Home" value="home" />
+                    <RadioButton.Item label="Community" value="community" />
+                  </View>
+                </RadioButton.Group>
+              </>
+            )}
+          />
         </Section>
-
+        {/* Is Pregrant? */}
+        {e.patient.sex === 'female' && (
+          <Section title="Is Pregnant?" removeLine spaceTop>
+            <Controller
+              control={control}
+              name="isPregnant"
+              render={({field}) => (
+                <RadioButton.Group
+                  value={field.value ? 'yes' : 'no'}
+                  onValueChange={d => field.onChange(d === 'yes')}>
+                  <View style={{flexDirection: 'row'}}>
+                    <RadioButton.Item label="Yes" value="yes" />
+                    <RadioButton.Item label="No" value="no" />
+                  </View>
+                </RadioButton.Group>
+              )}
+            />
+          </Section>
+        )}
         {/*  */}
         <Section
           title="Vital Signs"
           desc="Signs or observation made on the patient"
           spaceTop>
           <Column>
-            <Text size="sm">Enter Patient's weight and height</Text>
+            <Text size="sm">Patient's Weight and Height</Text>
             <Row spaceTop spaceBottom>
-              <TextInput
-                value={state.weight}
-                mode="outlined"
-                label="Weight"
-                keyboardType="decimal-pad"
-                onChangeText={text =>
-                  set(p =>
-                    produce(p, d => {
-                      d.weight = text;
-                    }),
-                  )
-                }
-                style={{flex: 1, marginRight: 10}}
-                right={<TextInput.Affix text="kg" />}
+              <Controller
+                name="weight"
+                control={control}
+                render={({field}) => (
+                  <TextInput
+                    value={field.value}
+                    mode="outlined"
+                    label="Weight"
+                    keyboardType="decimal-pad"
+                    onChangeText={field.onChange}
+                    render={props => (
+                      <TextInputMask {...props} mask="[000000]" />
+                    )}
+                    style={{flex: 1, marginRight: 10}}
+                    right={<TextInput.Affix text="kg" />}
+                  />
+                )}
               />
-              <TextInput
-                value={state.weight}
-                mode="outlined"
-                label="Weight"
-                keyboardType="decimal-pad"
-                onChangeText={text =>
-                  set(p =>
-                    produce(p, d => {
-                      d.weight = text;
-                    }),
-                  )
-                }
-                style={{flex: 1}}
-                right={<TextInput.Affix text="kg" />}
+              <Controller
+                name="height"
+                control={control}
+                render={({field}) => (
+                  <TextInput
+                    value={field.value}
+                    mode="outlined"
+                    label="Height"
+                    keyboardType="decimal-pad"
+                    onChangeText={field.onChange}
+                    render={props => (
+                      <TextInputMask {...props} mask="[000000]" />
+                    )}
+                    style={{flex: 1, marginRight: 10}}
+                    right={<TextInput.Affix text="mmHg" />}
+                  />
+                )}
               />
             </Row>
-
-            <Text size="sm">Enter Patient's weight and height</Text>
+            <Text size="sm">Patient's Blood Pressure</Text>
             <Row spaceTop>
-              <TextInput
-                value={state.weight}
-                mode="outlined"
-                label="Weight"
-                keyboardType="decimal-pad"
-                onChangeText={text =>
-                  set(p =>
-                    produce(p, d => {
-                      d.weight = text;
-                    }),
-                  )
-                }
-                style={{flex: 1, marginRight: 10}}
-                right={<TextInput.Affix text="kg" />}
+              <Controller
+                name="systolic"
+                control={control}
+                render={({field}) => (
+                  <TextInput
+                    value={field.value}
+                    mode="outlined"
+                    label="Systolic"
+                    keyboardType="decimal-pad"
+                    onChangeText={field.onChange}
+                    style={{flex: 1, marginRight: 10}}
+                    right={<TextInput.Affix text="cm" />}
+                  />
+                )}
               />
-              <TextInput
-                value={state.weight}
-                mode="outlined"
-                label="Weight"
-                keyboardType="decimal-pad"
-                onChangeText={text =>
-                  set(p =>
-                    produce(p, d => {
-                      d.weight = text;
-                    }),
-                  )
-                }
-                style={{flex: 1}}
-                right={<TextInput.Affix text="kg" />}
+              <Controller
+                name="diastolic"
+                control={control}
+                render={({field}) => (
+                  <TextInput
+                    value={field.value}
+                    mode="outlined"
+                    label="Diastolic"
+                    keyboardType="decimal-pad"
+                    onChangeText={field.onChange}
+                    style={{flex: 1, marginRight: 10}}
+                    right={<TextInput.Affix text="mmHg" />}
+                  />
+                )}
               />
             </Row>
           </Column>
         </Section>
       </ScrollView>
       <Block>
-        <Button mode="contained" onPress={$.onNext} icon="arrow-right">
+        <Button mode="contained" onPress={onSubmit} icon="arrow-right">
           Next: Understanding HIV Status
         </Button>
       </Block>

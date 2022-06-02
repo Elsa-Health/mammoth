@@ -35,12 +35,12 @@ export type MedicationRequest<
     /**
      * How the drug should enter the body
      */
-    route: string;
+    route: Nullable<string>;
 
     /**
      * How medicaition is administered
      */
-    method: string;
+    method: Nullable<string>;
 
     /**
      * Free text information about the medication

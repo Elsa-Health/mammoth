@@ -1,36 +1,56 @@
-import {Appointment} from './appointment';
+import {
+  Appointment,
+  AppointmentRequest,
+  AppointmentResponse,
+} from './appointment';
 import {InvestigationRequest, Report} from './investigation';
 import {Patient, Practitioner} from './personnel';
 import {MedicationRequest} from './prescription';
 
-export type Visit<Value extends Data = Data> = Resource<
+export type Visit<
+  P extends {patient: Patient; practitioner: Practitioner} = {
+    patient: Patient;
+    practitioner: Practitioner;
+  },
+  A extends Assessment = Assessment,
+  M extends MedicationRequest = MedicationRequest,
+  IRq extends InvestigationRequest<Data> = InvestigationRequest<Data>,
+  Appt extends Appointment<
+    AppointmentRequest<P['patient'] | P['practitioner']>,
+    AppointmentResponse<P['patient'] | P['practitioner']>
+  > = Appointment<
+    AppointmentRequest<P['patient'] | P['practitioner']>,
+    AppointmentResponse<P['patient'] | P['practitioner']>
+  >,
+  Value extends Data = Data,
+> = Resource<
   'Visit',
   {
     /**
      * Information that identifies that patient that the visit concerns
      * This can be the patient's GUID, firstname and lastname (assuming this is enough), phone number.
      */
-    subject: Referred<Patient>;
+    subject: Referred<P['patient']>;
     /**
      * Practitioner that attended subject to create visit
      * ----
      */
-    practitioner: Nullable<Referred<Practitioner>>;
+    practitioner: Nullable<Referred<P['practitioner']>>;
 
     /**
      * Records for the observations that were made udring the visit
      */
-    assessments: Array<Referred<Assessment<Data>>>;
+    assessments: Array<Referred<A>>;
 
     /**
      * Identifies the prescriptions details that were made in visit
      */
-    prescriptions: Array<Referred<MedicationRequest>>;
+    prescriptions: Array<Referred<M>>;
 
     /**
      * Identifies the investigation requests made during visit
      */
-    investigationRequests: Array<Referred<InvestigationRequest<Data>>>;
+    investigationRequests: Array<Referred<IRq>>;
 
     /**
      * More information about the visit
@@ -40,8 +60,8 @@ export type Visit<Value extends Data = Data> = Resource<
     /**
      * Referencing the appintmnt that's associated with the visit
      */
-    authorizingAppointment: Nullable<Referred<Appointment>>;
+    authorizingAppointment: Nullable<Referred<Appt>>;
   }
 >;
 
-export type Assessment<D extends Data> = Report<'assessment', D>;
+export type Assessment<D extends Data = Data> = Report<'assessment', D>;

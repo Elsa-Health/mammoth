@@ -1,5 +1,26 @@
-import {Organization} from '../../emr-types/v1/administration';
-import {Patient} from '../../emr-types/v1/personnel';
+import {
+  ARV,
+  CTC,
+  Investigation,
+  Medication as Med,
+} from 'elsa-health-data-fns/lib';
+import {InvestigationTypeRecord} from 'elsa-health-data-fns/lib/investigations';
+import {
+  HealthcareService,
+  Organization,
+} from '../../emr-types/v1/administration';
+import {
+  Appointment,
+  AppointmentRequest,
+  AppointmentResponse,
+} from '../../emr-types/v1/appointment';
+import {
+  InvestigationRequest,
+  InvestigationResult,
+} from '../../emr-types/v1/investigation';
+import {Patient, Practitioner} from '../../emr-types/v1/personnel';
+import {Medication, MedicationRequest} from '../../emr-types/v1/prescription';
+import {Assessment, Visit} from '../../emr-types/v1/visit';
 
 export type CTCPatient = Patient<
   {
@@ -19,6 +40,12 @@ export type CTCPatient = Patient<
   }
 >;
 
+export type CTCDoctor = Practitioner<CTCOrganization, DoctorService>;
+type DoctorService = HealthcareService<{
+  role: 'doctor';
+  tag: 'ctc';
+}>;
+
 /**
  * To identify a CTC organization
  */
@@ -31,4 +58,114 @@ export type CTCOrganization = Organization<
     address: Nullable<string>;
     website: Nullable<string>;
   }
+>;
+
+/**
+ * Types of Assessments supported
+ * ----
+ */
+
+/**
+ * @assessment
+ * During Intial Patient Intake
+ */
+export type IntialPatientIntakeAssessment = Assessment<{
+  associatedAppointment: ReferenceIdentifier<'Appointment'> | null;
+  isPregnant: boolean | null;
+  dateOfPregancy: YYYYMMDDDateString;
+  visitType: 'home' | 'community';
+  weight: null | number;
+  height: null | number;
+  systolic: null | number;
+  diastolic: null | number;
+}>;
+
+export type HIVPatientIntakeAssessment = Assessment<{
+  coMorbidities: CTC.CoMorbidity[];
+  ARVRegimens: ARV.Regimen[] | null;
+  regimenDuration?: string | null;
+  medications: Med.All[] | null;
+}>;
+
+export type PatientAdherenceAssessment = Assessment<{
+  educationLevel: string;
+  forgottenCount: string;
+  hasJob: boolean;
+  hasFrequentAlc: boolean;
+  isShareDrugs: boolean;
+  isExperienceSideEffects: boolean;
+  doesPatientUnderstandRegimen: boolean;
+}>;
+
+export type ConcludingAssessment = Assessment<{
+  riskOfNonAdhrence: null | number;
+  appointmentDate: YYYYMMDDDateString;
+  investigations: Investigation[];
+  medications: Med.All[];
+  regimenDecision: CTC.Status | null;
+  decisionReason: string | null;
+  arvRegimens: ARV.Regimen[];
+  regimenDuration: '1-month' | '3-months';
+}>;
+
+/**
+ * Types of Medication medicationRequests
+ * ----
+ */
+
+export type ARVMedication = Medication<
+  'arv',
+  {className: ARV.Class | null; regimen: ARV.Regimen}
+>;
+export type StandardMedication = Medication<
+  'standard',
+  {medication: Med.All; text: string}
+>;
+
+/**
+ * Medication requests
+ * ------
+ */
+export type CTCMedicationRequest = MedicationRequest<
+  ARVMedication | StandardMedication
+>;
+
+/**
+ * Investigation Requests
+ * -----
+ */
+export type CTCInvestigationRequest = InvestigationRequest<{
+  investigationId: Investigation;
+  obj: InvestigationTypeRecord<string>;
+}>;
+export type CTCInvestigationResult =
+  InvestigationResult<CTCInvestigationRequest>;
+
+/**
+ * Appointment
+ * ------------
+ */
+export type CTCAppointmentRequest = AppointmentRequest<CTCPatient | CTCDoctor>;
+export type CTCAppointmentResponse = AppointmentResponse<
+  CTCPatient | CTCDoctor
+>;
+
+export type CTCAppointment = Appointment<
+  CTCAppointmentRequest,
+  CTCAppointmentResponse
+>;
+
+/**
+ * Visit
+ * ----
+ */
+export type CTCVisit = Visit<
+  {patient: CTCPatient; practitioner: CTCDoctor},
+  | IntialPatientIntakeAssessment
+  | HIVPatientIntakeAssessment
+  | PatientAdherenceAssessment
+  | ConcludingAssessment,
+  ARVMedicationRequest | StandardMedicationRequest,
+  CTCInvestigationRequest,
+  CTCAppointment
 >;

@@ -6,7 +6,7 @@ import {
   MedicationRequest,
 } from '../../emr-types/v1/prescription';
 
-import {ARV, Medication as Med} from 'elsa-health-data-fns';
+import {ARV, Investigation, Medication as Med} from 'elsa-health-data-fns';
 import {List, Seq} from 'immutable';
 
 import uuid from 'react-native-uuid';

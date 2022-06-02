@@ -23,8 +23,8 @@ const options: Array<{name: Option; icon: string}> = [
 ];
 
 type Option = 'name' | 'phone';
-type SearchInOption = {[f in Option]: boolean};
-type SearchQuery = {input?: string; searchIn?: SearchInOption};
+export type SearchInOption = {[f in Option]: boolean};
+export type SearchQuery = {input?: string; searchIn?: SearchInOption};
 export default function PatientDashboardScreen({
   entry,
   actions: $,
@@ -93,10 +93,11 @@ export default function PatientDashboardScreen({
             />
           </Column>
           <Row spaceTop contentStyle={{justifyContent: 'flex-start'}}>
-            {options.map(({name, icon}) => {
+            {options.map(({name, icon}, ix) => {
               const selected = searchOptions[name];
               return (
                 <Chip
+                  key={ix}
                   icon={selected ? 'check' : icon}
                   selected={selected}
                   onPress={() =>
@@ -126,7 +127,6 @@ export default function PatientDashboardScreen({
           </Column>
         ) : error || value === undefined ? (
           <Column spaceTop>
-            {console.log({error})}
             <Row contentStyle={{justifyContent: 'center'}}>
               <Icon name="exclamation-thick" size={30} />
               <Text style={{paddingRight: 50}}>
@@ -149,7 +149,7 @@ export default function PatientDashboardScreen({
             </Text>
             <Column>
               {value[0].map((d, ix) => (
-                <Section mode="raised" key={d.id} spaceTop>
+                <Section mode="raised" key={`${d.id}-${ix}`} spaceTop>
                   <PatientItem {...d} />
                 </Section>
               ))}
@@ -190,7 +190,7 @@ function AwaitedState<T>({
   );
 }
 
-type PatientItemProps = {
+export type PatientItemProps = {
   id: string;
   name: string | null;
   registeredDate: Date;
