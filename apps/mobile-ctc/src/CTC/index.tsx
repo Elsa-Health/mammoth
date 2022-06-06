@@ -28,10 +28,8 @@ import uuid from 'react-native-uuid';
 import {ElsaProvider} from '../provider/backend';
 import {MedicaDisp, MedicaReq} from './emr/hook';
 import {Investigation, Medication} from 'elsa-health-data-fns/lib';
-import {Practitioner} from '../emr-types/v1/personnel';
 import {EMR} from './emr/store';
 import {NetworkStatus, useWebSocket} from '../app/utils';
-import {HealthcareService} from '../emr-types/v1/administration';
 
 import {Text} from '@elsa-ui/react-native/components';
 
@@ -40,14 +38,14 @@ import {withFlowContext} from '../@workflows/index';
 import {doc, setDoc, Document, getDocs} from 'papai/collection';
 import {HybridLogicalClock} from 'papai/distributed/clock';
 import {List} from 'immutable';
-import {View} from 'react-native';
+import {ToastAndroid, View} from 'react-native';
 import {TouchableRipple} from 'react-native-paper';
 import _ from 'lodash';
 import {translatePatient} from './actions/translate';
 import {getOrganizationFromProvider} from './actions/basic';
 import {queryPatientsFromSearch} from './actions/ui';
 import {CTCDoctor} from './emr/types';
-import {useVisit} from './actions/hook';
+import {ConfirmVisitModal, useVisit} from './actions/hook';
 
 const Stack = createNativeStackNavigator();
 
@@ -121,7 +119,7 @@ function App({provider}: {provider: ElsaProvider}) {
     },
   });
 
-  const {constructVisit, setValue} = useVisit();
+  const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
 
   React.useEffect(() => {
     if (socket !== undefined) {
@@ -138,8 +136,12 @@ function App({provider}: {provider: ElsaProvider}) {
   return (
     <>
       <Stack.Navigator
-        // initialRouteName="ctc.patient-dashboard"
-        screenOptions={{headerShown: false}}>
+        screenOptions={{
+          headerShown: false,
+          presentation: 'formSheet',
+          animation: 'slide_from_right',
+          animationTypeForReplace: 'pop',
+        }}>
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(DashboardScreen, {
@@ -438,13 +440,15 @@ function App({provider}: {provider: ElsaProvider}) {
             }),
           })}
         />
+        {/* Visit something */}
         <Stack.Screen
           name="ctc.first-patient-intake"
           component={withFlowContext(NewVisitEntryScreen, {
             actions: ({navigation}) => ({
               onNext(data, patient, organization) {
-                // ...
-                navigation.navigate('ctc.hiv-stage-intake');
+                initiateVisit(doctor, patient);
+                setValue('firstPatientIntake', data);
+                navigation.push('ctc.hiv-stage-intake');
                 // ...
               },
             }),
@@ -460,9 +464,16 @@ function App({provider}: {provider: ElsaProvider}) {
               },
             },
             actions: ({navigation}) => ({
-              onNext() {
-                navigation.navigate('ctc.adherence-assessment');
-                // ...
+              onNext(values, isPerformingSymptomAssessment) {
+                setValue('currentHIVStatus', values);
+                if (!isPerformingSymptomAssessment) {
+                  navigation.push('ctc.adherence-assessment');
+                } else {
+                  ToastAndroid.show(
+                    'Unable to do that right now',
+                    ToastAndroid.LONG,
+                  );
+                }
               },
             }),
           })}
@@ -477,10 +488,11 @@ function App({provider}: {provider: ElsaProvider}) {
               },
             },
             actions: ({navigation}) => ({
-              onNext() {
-                navigation.navigate('ctc.conclude-assessment');
-                // ...
+              onNext(data) {
+                navigation.push('ctc.conclude-assessment');
+                setValue('patientAdherenceInfo', data);
               },
+              onSkip() {},
             }),
           })}
         />
@@ -496,15 +508,30 @@ function App({provider}: {provider: ElsaProvider}) {
             actions: ({navigation}) => ({
               onDiscard() {
                 console.log('Discarding the visit');
+                navigation.popToTop();
               },
               onComplete(value) {
-                navigation.navigate('ctc.dashboard');
+                setValue('conclusionAssessment', value);
+                confirm();
               },
             }),
           })}
         />
       </Stack.Navigator>
       <ConnectionStatus status={status} retry={retry} />
+      <ConfirmVisitModal
+        visible={show}
+        context={context}
+        cancelVisit={() => {
+          console.log('Visit cancelled; navigate to dashboard');
+        }}
+        generateId={uuid.v4}
+        recordVisit={async visit => {
+          console.log(visit);
+          // store
+          navigation.navigate('ctc.dashboard');
+        }}
+      />
     </>
   );
 }

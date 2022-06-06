@@ -53,16 +53,19 @@ export default function PatientDashboardScreen({
         SearchQuery,
       ];
     },
-    [],
+    [$.getPatientsFromQuery],
   );
 
   const searchTextInputRef = React.useRef();
 
-  const search = () => query({input: searchText, searchIn: searchOptions});
-  const resetSearch = () => {
+  const search = React.useCallback(
+    () => query({input: searchText, searchIn: searchOptions}),
+    [searchText, searchOptions],
+  );
+  const resetSearch = React.useCallback(() => {
     query({});
     onChangeSearchText('');
-  };
+  }, [query, onChangeSearchText]);
 
   React.useEffect(() => {
     resetSearch();
@@ -70,9 +73,7 @@ export default function PatientDashboardScreen({
       onChangeSearchText(entry.searchText);
       searchTextInputRef.current?.focus();
     }
-  }, []);
-
-  console.log(loading, value);
+  }, [onChangeSearchText, resetSearch]);
 
   return (
     <Layout title="Patient Dashboard" style={{padding: 0}}>

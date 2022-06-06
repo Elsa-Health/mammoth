@@ -29,7 +29,12 @@ export default function HIVStageIntakeScreen({
   {
     value: HIVPatientIntake;
   },
-  {onNext: () => void}
+  {
+    onNext: (
+      values: HIVPatientIntake,
+      isPerformingSymptomAssessment: boolean,
+    ) => void;
+  }
 >) {
   const {spacing} = useTheme();
   const {handleSubmit, control} = useForm({

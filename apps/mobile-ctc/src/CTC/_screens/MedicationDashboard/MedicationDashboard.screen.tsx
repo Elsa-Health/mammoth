@@ -225,7 +225,6 @@ function MedicationRequestItem({
                 </View>
               );
             }
-            console.log(value);
 
             if (value === null) {
               return (

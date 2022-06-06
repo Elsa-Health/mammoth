@@ -51,7 +51,11 @@ export function getOrganizationFromProvider(ep: ElsaProvider): CTCOrganization {
 export function investigationRequest<
   Inv extends InvestigationTypeRecord<string>,
 >(
-  config: {id: string; requester: CTCDoctor; subject: CTCPatient},
+  config: {
+    id: string;
+    requester: Referred<CTCDoctor>;
+    subject: Referred<CTCPatient>;
+  },
   data: {investigationId: Investigation; obj: Inv},
   createdAt: Date = new Date(),
 ): CTCInvestigationRequest {
@@ -71,7 +75,7 @@ export function investigationResult<InvReq extends CTCInvestigationRequest>(
   request: InvReq,
   result: any,
   reason: string | undefined,
-  practitioner: Practitioner,
+  practitioner: Referred<Practitioner>,
   createdAt: Date = new Date(),
 ): CTCInvestigationResult {
   return {

@@ -9,8 +9,6 @@ import {useTheme} from '@elsa-ui/react-native/theme';
 import {TextInput, Button, RadioButton} from 'react-native-paper';
 import {format} from 'date-fns';
 
-import produce from 'immer';
-
 import {Column, Block, Row, Section} from '../../temp-components';
 import {CTCOrganization, CTCPatient} from '../../emr/types';
 
@@ -92,18 +90,20 @@ export default function BasicPatientIntakeScreen({
           </Row>
         </Section>
         {/* Previous appoinment section */}
-        <Section
-          title="From an appointment?"
-          spaceTop
-          desc="Is this visit created from an existing appointment"
-          mode="raised">
-          <RadioButton.Group value="yes" onValueChange={() => {}}>
-            <View style={{flexDirection: 'row'}}>
-              <RadioButton.Item label="Yes" value="yes" />
-              <RadioButton.Item label="No" value="no" />
-            </View>
-          </RadioButton.Group>
-        </Section>
+        {false && (
+          <Section
+            title="From an appointment?"
+            spaceTop
+            desc="Is this visit created from an existing appointment"
+            mode="raised">
+            <RadioButton.Group value="yes" onValueChange={() => {}}>
+              <View style={{flexDirection: 'row'}}>
+                <RadioButton.Item label="Yes" value="yes" />
+                <RadioButton.Item label="No" value="no" />
+              </View>
+            </RadioButton.Group>
+          </Section>
+        )}
 
         {/* Type of visit */}
         <Section
@@ -205,7 +205,7 @@ export default function BasicPatientIntakeScreen({
                     keyboardType="decimal-pad"
                     onChangeText={field.onChange}
                     style={{flex: 1, marginRight: 10}}
-                    right={<TextInput.Affix text="cm" />}
+                    right={<TextInput.Affix text="mmHg" />}
                   />
                 )}
               />

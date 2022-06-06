@@ -26,15 +26,11 @@ export function useBottomModal(
 
   // callbacks
   const handlePresentModalPress = React.useCallback(() => {
-    console.log('Show');
-    // console.log(bottomSheetModalRef.current);
     bottomSheetModalRef.current?.present?.();
   }, [bottomSheetModalRef.current]);
 
   // callbacks
   const handleCloseModal = React.useCallback(() => {
-    console.log('Close');
-    // console.log(bottomSheetModalRef.current?.close);
     bottomSheetModalRef.current?.close();
   }, [bottomSheetModalRef.current]);
 

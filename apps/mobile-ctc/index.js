@@ -2,12 +2,14 @@
  * @format
  */
 
+import 'react-native-reanimated';
+import 'react-native-gesture-handler';
+
 import {AppRegistry} from 'react-native';
 import App from './src/_app';
 // import App from './src/_zeApp';
 import {name as appName} from './app.json';
 
-import 'react-native-gesture-handler';
 import codePush from 'react-native-code-push';
 
 import PushNotificationIOS from '@react-native-community/push-notification-ios';

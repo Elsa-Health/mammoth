@@ -149,7 +149,6 @@ export function authV1(data: string): Promise<ElsaProvider> {
     try {
       const QRInfo = data.split('|');
       const info = _.zipObject(fieldNames, QRInfo) as AuthInfoMap;
-      // console.log(data);
       if (
         Array.isArray(QRInfo) &&
         QRInfo.length === fieldNames.length &&
@@ -297,7 +296,6 @@ export function useWebSocket({
       socket.onclose = () => {
         setStatus('offline');
         socket.close();
-        // console.log("Closed connection with CDRT WS.");
       };
     }
   }, [socket, onMessage, url]);

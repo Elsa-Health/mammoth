@@ -48,7 +48,7 @@ export function queryPatientsFromSearch<T>(
     }
   }
 
-  console.log(query);
+  // console.log(query);
   return queryCollection(emr.collections.patients, {
     where: {
       $or: orQueries,

@@ -136,7 +136,11 @@ export function translatePatient(
 function report<C extends string, D extends Data>(
   code: C,
   data: D,
-  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  config: {
+    id: string;
+    reporter: Referred<CTCDoctor>;
+    subject: Referred<CTCPatient>;
+  },
   createdAt: Date = new Date(),
 ) {
   return {
@@ -158,7 +162,11 @@ function report<C extends string, D extends Data>(
 }
 
 export function translateFirstPatientIntake(
-  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  config: {
+    id: string;
+    reporter: Referred<CTCDoctor>;
+    subject: Referred<CTCPatient>;
+  },
   from: FirstPatientIntake,
   createdAt: Date = new Date(),
 ): IntialPatientIntakeAssessment {
@@ -184,7 +192,11 @@ export function translateFirstPatientIntake(
 }
 
 export function translateHIVAssessment(
-  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  config: {
+    id: string;
+    reporter: Referred<CTCDoctor>;
+    subject: Referred<CTCPatient>;
+  },
   from: HIVPatientIntake,
   createdAt: Date = new Date(),
 ) {
@@ -208,7 +220,11 @@ export function translateHIVAssessment(
 }
 
 export function translatePatientAdherence(
-  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  config: {
+    id: string;
+    reporter: Referred<CTCDoctor>;
+    subject: Referred<CTCPatient>;
+  },
   from: PatientAdherenceInfo,
   createdAt: Date = new Date(),
 ): PatientAdherenceAssessment {
@@ -225,7 +241,11 @@ export function translatePatientAdherence(
 }
 
 export function translateConclusionAssessment(
-  config: {id: string; reporter: CTCDoctor; subject: CTCPatient},
+  config: {
+    id: string;
+    reporter: Referred<CTCDoctor>;
+    subject: Referred<CTCPatient>;
+  },
   from: ConcludeAssessmentData,
   createdAt: Date = new Date(),
 ) {
