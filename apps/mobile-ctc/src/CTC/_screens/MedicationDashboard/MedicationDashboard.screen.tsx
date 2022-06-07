@@ -61,33 +61,19 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
     return List((await $.getMedicationRequests?.()) || []);
   });
 
-  const {BottomModal: RequestBottomModal, presentModal: showRequestModal} =
-    useBottomModal();
+  // const {BottomModal: RequestBottomModal, presentModal: showRequestModal} =
+  //   useBottomModal();
 
   return (
     <Layout title="Medications" style={{padding: 0}}>
       <ScrollView
-        contentContainerStyle={{padding: spacing.md}}
+        contentContainerStyle={{paddingHorizontal: spacing.md}}
         style={{flex: 1}}>
-        <Section mode="raised" desc="Potential Problem!">
+        {/* <Section mode="raised" desc="Potential Problem!">
           <Text>Medication stock might be low ?</Text>
-        </Section>
+        </Section> */}
         {/* Actions to do here */}
-        <Section
-          title="Get Started"
-          removeLine
-          desc="Things that can be done"
-          spaceTop>
-          <TouchableItem
-            style={{backgroundColor: '#FFF'}}
-            onPress={showRequestModal}>
-            <Row icon="medical-bag">
-              <Text font="medium" size={17} style={{letterSpacing: 1}}>
-                Request Medication
-              </Text>
-              {/* <Icon name="arrow-right" color={color.primary.base} size={24} /> */}
-            </Row>
-          </TouchableItem>
+        <Section title="Get Started" removeLine desc="Things that can be done">
           <TouchableItem
             spaceTop
             style={{backgroundColor: '#FFF'}}
@@ -161,7 +147,7 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
         </Section>
       </ScrollView>
 
-      <RequestBottomModal>
+      {/* <RequestBottomModal>
         {({close}) => (
           <RequestMedicationForm
             onCancel={close}
@@ -174,7 +160,7 @@ function MedicationDashboardScreen({actions: $}: ScreenProps) {
             }}
           />
         )}
-      </RequestBottomModal>
+      </RequestBottomModal> */}
     </Layout>
   );
 }

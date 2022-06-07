@@ -35,17 +35,39 @@ import {Text} from '@elsa-ui/react-native/components';
 
 import {withFlowContext} from '../@workflows/index';
 
-import {doc, setDoc, Document, getDocs} from 'papai/collection';
+import {
+  doc,
+  setDoc,
+  Document,
+  getDocs,
+  setDocs,
+  collection,
+  addDoc,
+  updateDoc,
+} from 'papai/collection';
 import {HybridLogicalClock} from 'papai/distributed/clock';
 import {List} from 'immutable';
 import {ToastAndroid, View} from 'react-native';
 import {TouchableRipple} from 'react-native-paper';
 import _ from 'lodash';
 import {translatePatient} from './actions/translate';
-import {getOrganizationFromProvider} from './actions/basic';
+import {
+  arv,
+  getOrganizationFromProvider,
+  medRequest,
+  reference,
+} from './actions/basic';
 import {queryPatientsFromSearch} from './actions/ui';
-import {CTCDoctor} from './emr/types';
+import {CTCDoctor, CTCVisit} from './emr/types';
 import {ConfirmVisitModal, useVisit} from './actions/hook';
+import MedicationVisit from './_screens/MedicationVisit';
+import MedicationStock from './_screens/MedicationStock';
+import {useCTCVisit, useMedicationStock} from './emr/react-hooks';
+
+import * as Sentry from '@sentry/react-native';
+import {runOnJS} from 'react-native-reanimated';
+import {queryCollection} from './emr/actions';
+import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 
 const Stack = createNativeStackNavigator();
 
@@ -100,38 +122,80 @@ function App({provider}: {provider: ElsaProvider}) {
     [provider],
   );
 
-  const {socket, status, retry} = useWebSocket({
-    url: 'https://bounce-edge.fly.dev/crdt/state',
-    // url: 'https://cfe3-197-250-60-110.eu.ngrok.io/crdt/state',
+  // connect with v0 edge
+  useWebSocket({
+    url: 'wss://ctc-edge-server.fly.dev/channel/cmrdt',
     onOpen(socket) {
-      // Connected
-      console.log('Connection established!!!');
+      console.log('Connection established!');
     },
-    onData(data: CRDTMessage[]) {
-      // console.log('Sending to something...');
-      // Received data
-      emr.merge(data);
-      // console.log('Received data... merging');
-      emr
-        .sync()
-        .then(() => console.log('Sync complete'))
-        .catch(() => console.log('Sync failed'));
+    onMessage(e) {
+      console.log('onMessage');
+      // assumed HUGE payload
+      // -----------------
+      const x: [Document.Ref, {[k: string]: Data}][] = e.data
+        ? JSON.parse(e.data)
+        : [];
+
+      if (x.length === 0) {
+        return;
+      }
+
+      // console.log(x[0]);
+      // console.log({collectionId, id, result});
+
+      // Might want to change this later
+      // this assumes all are coming from one collection
+      const docs = x
+        .filter(c => c.state.op.collectionId === 'patients')
+        .map(c => {
+          const {
+            state: {
+              op: {collectionId, id},
+              result,
+            },
+          } = c;
+
+          return [id, convert_v0_patient_to_v1(id, result)];
+        });
+
+      setDocs(emr.collections.patients, docs);
+      // console.log(docs[0]);
     },
   });
 
+  // const {socket, status, retry} = useWebSocket({
+  //   url: 'https://bounce-edge.fly.dev/crdt/state',
+  //   // url: 'https://cfe3-197-250-60-110.eu.ngrok.io/crdt/state',
+  //   onOpen(socket) {
+  //     // Connected
+  //     console.log('Connection established!!!');
+  //   },
+  //   onData(data: CRDTMessage[]) {
+  //     // console.log('Sending to something...');
+  //     // Received data
+  //     emr.merge(data);
+  //     // console.log('Received data... merging');
+  //     emr
+  //       .sync()
+  //       .then(() => console.log('Sync complete'))
+  //       .catch(() => console.log('Sync failed'));
+  //   },
+  // });
+
   const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
+  // React.useEffect(() => {
+  //   if (socket !== undefined) {
+  //     const sub = emr.onSnapshotUpdate((token, source) => {
+  //       // console.log('Sending', {token, source});
+  //       // send message
+  //       socket.send(JSON.stringify([[token, source]]));
+  //     });
 
-  React.useEffect(() => {
-    if (socket !== undefined) {
-      const sub = emr.onSnapshotUpdate((token, source) => {
-        // console.log('Sending', {token, source});
-        // send message
-        socket.send(JSON.stringify([[token, source]]));
-      });
+  //     return () => sub.unsubscribe();
+  //   }
+  // }, [socket]);
 
-      return () => sub.unsubscribe();
-    }
-  }, [socket]);
+  const stock = useMedicationStock(emr);
 
   return (
     <>
@@ -155,11 +219,118 @@ function App({provider}: {provider: ElsaProvider}) {
               onViewPatients() {
                 navigation.navigate('ctc.patient-dashboard');
               },
+              onViewMedicationStock() {
+                navigation.navigate('ctc.medication-stock');
+              },
               onViewAppointments() {
                 navigation.navigate('ctc.view-appointments');
               },
               onViewMedications() {
                 navigation.navigate('ctc.medications-dashboard');
+              },
+            }),
+          })}
+        />
+
+        <Stack.Screen
+          name="ctc.medication-visit"
+          component={withFlowContext(MedicationVisit, {
+            actions: ({navigation}) => ({
+              async complete(data, patient, organization) {
+                try {
+                  // create a medication request
+                  const {arvRegimens} = data;
+
+                  // ARV medication requests
+                  const arvMedRqs = arvRegimens.map(arvMedId =>
+                    medRequest(
+                      `med-req:${uuid.v4()}` as string,
+                      arv(`ctc-arv:${arvMedId}`, arvMedId),
+                      {},
+                      {
+                        requester: doctor,
+                        subject: patient,
+                      },
+                    ),
+                  );
+
+                  // create a new visit
+                  const visit: CTCVisit = {
+                    id: `visit:${uuid.v4()}`,
+                    resourceType: 'Visit',
+                    code: null,
+                    subject: reference(patient),
+                    practitioner: reference(doctor),
+                    assessments: [],
+                    authorizingAppointment: null,
+                    createdAt: new Date().toUTCString(),
+                    extendedData: data,
+                    investigationRequests: [],
+                    prescriptions: arvMedRqs.map(reference),
+                  };
+
+                  // record the medication requests
+                  await setDocs(
+                    emr.collections.medicationRequests,
+                    arvMedRqs.map(d => [d.id, d]),
+                  );
+
+                  // record the visit
+                  await setDoc(doc(emr.collections.visits, visit.id), visit);
+
+                  ToastAndroid.show(
+                    patient.id + ' visit recorded!.',
+                    ToastAndroid.SHORT,
+                  );
+                  navigation.goBack();
+                } catch (err) {
+                  ToastAndroid.show(
+                    'Failed to properly complete the visit. Try again later.',
+                    ToastAndroid.LONG,
+                  );
+                  Sentry.captureException(err);
+                }
+              },
+              onDiscard() {
+                console.log('Discard');
+              },
+            }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.medication-stock"
+          component={withFlowContext(MedicationStock, {
+            entry: {stock},
+            actions: ({navigation}) => ({
+              async setMedicationCount(data) {
+                const org =
+                  doctor.organization.resourceType === 'Organization'
+                    ? reference(doctor.organization)
+                    : doctor.organization;
+                if (data.id === undefined) {
+                  const toStock = arv(`ctc-arv:${data.regimen}`, data.regimen);
+
+                  // create new
+                  await setDoc(doc(emr.collections.stock, toStock.id), {
+                    resourceType: 'Stock',
+                    id: `stock:${toStock.id}`,
+                    code: null,
+                    createdAt: new Date().toUTCString(),
+                    lastUpdatedAt: new Date().toUTCString(),
+                    managingOrganization: org,
+                    medication: toStock,
+                    count: parseFloat(data.count.toString()),
+                  });
+                } else {
+                  if (data.id === undefined) {
+                    throw new Error('Missing Id for the medication to stock');
+                  }
+                  await updateDoc(doc(emr.collections.stock, data.id), {
+                    count: parseFloat(data.count),
+                    lastUpdatedAt: new Date().toUTCString(),
+                    managingOrganization: org,
+                  });
+                }
               },
             }),
           })}
@@ -171,15 +342,20 @@ function App({provider}: {provider: ElsaProvider}) {
             actions: ({navigation}) => ({
               onRegisterPatient(patient) {
                 const d = translatePatient(patient, organization);
-
                 setDoc(doc(emr.collections.patients, d.id), d)
                   .then(() => {
-                    console.log('Register people', d);
+                    ToastAndroid.show(
+                      'Patient ' + patient.patientId + ' registered !.',
+                      ToastAndroid.SHORT,
+                    );
                   })
                   .then(() => navigation.goBack())
                   .catch(err => {
-                    console.log('FAILED TO REGISTER PATIENT');
-                    console.error(err);
+                    ToastAndroid.show(
+                      'Unable to register patient. Please try again later',
+                      ToastAndroid.LONG,
+                    );
+                    Sentry.captureException(err);
                   });
               },
             }),
@@ -203,17 +379,25 @@ function App({provider}: {provider: ElsaProvider}) {
                     name: fullName.length === 0 ? null : fullName,
                     registeredDate: new Date(patient.createdAt),
                     onNewVisit: () => {
-                      console.log('Setting up new visit', {
+                      // console.log('Setting up new visit', {
+                      //   patient,
+                      //   organization,
+                      // });
+
+                      navigation.navigate('ctc.medication-visit', {
                         patient,
                         organization,
                       });
-                      navigation.navigate('ctc.first-patient-intake', {
-                        patient,
-                        organization,
-                      });
+                      // navigation.navigate('ctc.first-patient-intake', {
+                      //   patient,
+                      //   organization,
+                      // });
                     },
                     onViewProfile: () => {
-                      navigation.navigate('ctc.view-patient');
+                      navigation.navigate('ctc.view-patient', {
+                        patient,
+                        organization,
+                      });
                     },
                   };
                 });
@@ -228,6 +412,11 @@ function App({provider}: {provider: ElsaProvider}) {
           name="ctc.view-patient"
           component={withFlowContext(ViewPatientScreen, {
             // patient:
+            actions: ({navigation}) => ({
+              async fetchVisits() {
+                return await queryCollection(emr.collections.visits, {});
+              },
+            }),
           })}
         />
         <Stack.Screen
@@ -518,7 +707,7 @@ function App({provider}: {provider: ElsaProvider}) {
           })}
         />
       </Stack.Navigator>
-      <ConnectionStatus status={status} retry={retry} />
+      {/* <ConnectionStatus status={status} retry={retry} /> */}
       <ConfirmVisitModal
         visible={show}
         context={context}

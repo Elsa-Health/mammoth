@@ -3,14 +3,13 @@ import React from 'react';
 import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {ScrollView, View} from 'react-native';
-import {Button, RadioButton, TextInput} from 'react-native-paper';
-import {Block, Column, Row, Section} from '../../temp-components';
+import {Button, Divider, RadioButton, TextInput} from 'react-native-paper';
+import {Block, Column, Row, Section, TitledItem} from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {MedicaDisp} from '../../emr/hook';
 import {useAsyncRetry} from 'react-use';
 import {List} from 'immutable';
-
-const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
+import {format} from 'date-fns';
 
 export default function MedicationDispenseScreen({
   actions: $,
@@ -62,10 +61,29 @@ export default function MedicationDispenseScreen({
 function MedicationResponseItem({response}: {response: MedicaDisp}) {
   return (
     <View>
-      <View>
-        <Text>{response.id}</Text>
-        <Text>{JSON.stringify(response.medication)}</Text>
+      <View style={{paddingVertical: 10}}>
+        <Text size={'xs'} color="#777">
+          {response.id}
+        </Text>
+        <TitledItem title="Medication">
+          {response.medication.data.regimen} (
+          {response.medication.data.className})
+        </TitledItem>
+
+        <Row contentStyle={{justifyContent: 'flex-start'}}>
+          <TitledItem title="Associated Facility" style={{marginRight: 8}}>
+            {response.supplier?.organization.data.ctcCode}
+          </TitledItem>
+          <TitledItem title="Supplied By">{response.supplier?.name}</TitledItem>
+        </Row>
+
+        <Row contentStyle={{justifyContent: 'flex-start'}}>
+          <TitledItem title="Responded At">
+            {format(new Date(response.createdAt), 'MMMM dd, yyyy')}
+          </TitledItem>
+        </Row>
       </View>
+      <Divider />
     </View>
   );
 }

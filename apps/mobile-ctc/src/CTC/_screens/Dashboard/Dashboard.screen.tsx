@@ -23,9 +23,10 @@ export default function DashboardScreen({
   {
     onSearchPatient: () => void;
     onNewPatient: () => void;
-    onViewPatients: () => void;
-    onViewAppointments: () => void;
+    // onViewPatients: () => void;
+    // onViewAppointments: () => void;
     onViewMedications: () => void;
+    onViewMedicationStock: () => void;
   }
 >) {
   const {color} = useTheme();
@@ -53,6 +54,8 @@ export default function DashboardScreen({
         title="Search Patient"
         desc="Look up patient in the CTC">
         <Searchbar
+          value={''}
+          placeholder="Type to search"
           onPressOut={$.onSearchPatient}
           style={{borderColor: '#CCC', borderWidth: 0.6, elevation: 2}}
         />
@@ -69,15 +72,15 @@ export default function DashboardScreen({
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem>
-          <TouchableItem spaceTop onPress={$.onViewPatients}>
+          {/* <TouchableItem spaceTop onPress={$.onViewPatients}>
             <Row icon="account-group-outline">
               <Text>View Patients</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
-          </TouchableItem>
-          <TouchableItem spaceTop onPress={$.onViewAppointments}>
-            <Row icon="format-list-bulleted-type">
-              <Text>View Appointments</Text>
+          </TouchableItem> */}
+          <TouchableItem spaceTop onPress={$.onViewMedications}>
+            <Row icon="pill">
+              <Text>Medication Requests</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem>
@@ -86,9 +89,15 @@ export default function DashboardScreen({
       {/* Others */}
       <Section removeLine title="More" desc="What else you can do">
         <Column>
-          <TouchableItem onPress={$.onViewMedications}>
-            <Row icon="pill">
-              <Text>Medications</Text>
+          {/* <TouchableItem onPress={$.onViewAppointments}>
+            <Row icon="format-list-bulleted-type">
+              <Text>View Appointments</Text>
+              <Icon name="arrow-right" color={color.primary.base} size={24} />
+            </Row>
+          </TouchableItem> */}
+          <TouchableItem spaceTop onPress={$.onViewMedicationStock}>
+            <Row icon="plus-outline">
+              <Text>Medications Stock</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem>

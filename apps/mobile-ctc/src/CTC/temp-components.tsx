@@ -122,8 +122,8 @@ export function Block({
       style={[
         {
           borderColor: '#38518c',
-          borderTopWidth: borderTop ? 1 : 0,
-          borderBottomWidth: borderBottom ? 1 : 0,
+          borderTopWidth: borderTop ? 0.9 : 0,
+          borderBottomWidth: borderBottom ? 0.9 : 0,
           backgroundColor: bg ?? '#FFF',
           padding: spacing.md,
         },

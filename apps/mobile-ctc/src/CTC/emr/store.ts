@@ -21,22 +21,23 @@ import FastAsyncStorage from 'react-native-fast-storage';
 import uuid from 'react-native-uuid';
 import {InvReq, InvResult, Medica, MedicaDisp, MedicaReq} from './hook';
 import {ElsaProvider} from '../../provider/backend';
-import {CTCPatient} from './types';
+import {ARVMedication, CTCOrganization, CTCPatient, CTCVisit} from './types';
+import {Stock} from '../../emr-types/v1/prescription';
 
 const STORE_NAME = 'DEV_TEST_STORE@TEMP';
 
 // Create store to be used
 const storage = getStore(
-  KeyValueMapStore(() => uuid.v4() as string),
-  //   ItemStorageStore(
-  //     {
-  //       nameReference: STORE_NAME,
-  //       getCollRef: d => `${STORE_NAME}/${d.collectionId}`,
-  //       getDocRef: d => `${STORE_NAME}/${d.collectionId}/${d.documentId}`,
-  //       store: FastAsyncStorage,
-  //     },
-  //     () => uuid.v4() as string,
-  //   ),
+  // KeyValueMapStore(() => uuid.v4() as string),
+  ItemStorageStore(
+    {
+      nameReference: STORE_NAME,
+      getCollRef: d => `${STORE_NAME}/${d.collectionId}`,
+      getDocRef: d => `${STORE_NAME}/${d.collectionId}/${d.documentId}`,
+      store: FastAsyncStorage,
+    },
+    () => uuid.v4() as string,
+  ),
 );
 
 // storing the crdt messages
@@ -180,6 +181,11 @@ export class EMR {
    */
   get collections() {
     return {
+      stock: collection<Stock<ARVMedication, CTCOrganization>>(
+        storage,
+        'medication-stock',
+      ),
+      visits: collection<CTCVisit>(storage, 'visits'),
       patients: collection<CTCPatient>(storage, 'patients'),
       medications: collection<Medica>(storage, 'medications'),
       medicationRequests: collection<MedicaReq>(storage, 'medication-requests'),

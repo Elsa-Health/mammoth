@@ -69,5 +69,8 @@ export async function queryCollection<T extends Document.Data>(
     return List([]);
   }
 
-  return queryFrom(List(data.map(([_, doc]) => doc)), query);
+  return queryFrom(
+    List(data.map(([_, doc]) => doc).filter(d => d !== null)),
+    query,
+  );
 }

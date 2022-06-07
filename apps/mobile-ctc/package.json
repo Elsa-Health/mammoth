@@ -34,6 +34,7 @@
     "@stdlib/random-sample": "^0.0.7",
     "@syncedstore/core": "^0.3.7",
     "@types/websocket": "^1.0.5",
+    "@xstate/react": "^3.0.0",
     "appcenter": "4.3.0",
     "appcenter-analytics": "4.3.0",
     "appcenter-crashes": "4.3.0",
@@ -94,6 +95,7 @@
     "text-encoding": "^0.7.0",
     "uuid": "^8.3.2",
     "validator": "^13.7.0",
+    "xstate": "^4.32.1",
     "yup": "^0.32.11",
     "zustand": "^3.6.0"
   },

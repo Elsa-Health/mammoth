@@ -164,8 +164,9 @@ export type CTCVisit = Visit<
   | IntialPatientIntakeAssessment
   | HIVPatientIntakeAssessment
   | PatientAdherenceAssessment
-  | ConcludingAssessment,
-  ARVMedicationRequest | StandardMedicationRequest,
+  | ConcludingAssessment
+  | Assessment, // temporary assessment data
+  CTCMedicationRequest,
   CTCInvestigationRequest,
   CTCAppointment
 >;

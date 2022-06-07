@@ -21,7 +21,6 @@ import {View} from 'react-native';
 import {Text} from '@elsa-ui/react-native/components';
 import {Block, Row, Section} from '../temp-components';
 import {useAsyncFn} from 'react-use';
-import generate from '@babel/generator';
 
 type CurrentVisit = {
   firstPatientIntake: FirstPatientIntake;

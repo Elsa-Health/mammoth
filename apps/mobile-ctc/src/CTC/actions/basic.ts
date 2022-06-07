@@ -118,7 +118,7 @@ export function arv(
   createdAt: Date = new Date(),
 ): ARVMedication {
   return {
-    id: `ctc-arv:${id}`,
+    id,
     alias: null,
     code: null,
     createdAt: createdAt.toUTCString(),

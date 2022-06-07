@@ -107,8 +107,8 @@ export type MedicationPickupReport = Resource<
 >;
 
 export type Medication<
-  Category extends string,
-  D extends Data,
+  Category extends string = string,
+  D extends Data = Data,
   Ingrdients extends Data = Data,
 > = Resource<
   'Medication',
@@ -135,4 +135,14 @@ export type Medication<
     data: Nullable<D>;
   },
   Category
+>;
+
+type Stock<M extends Medication, Org extends Organization> = Resource<
+  'Stock',
+  {
+    medication: M;
+    count: number;
+    managingOrganization: Nullable<Org>;
+    lastUpdatedAt: DateTimeString;
+  }
 >;

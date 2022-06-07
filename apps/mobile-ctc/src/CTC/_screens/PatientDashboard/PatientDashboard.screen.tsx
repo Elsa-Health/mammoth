@@ -128,6 +128,7 @@ export default function PatientDashboardScreen({
           </Column>
         ) : error || value === undefined ? (
           <Column spaceTop>
+            {/* {console.log({error})} */}
             <Row contentStyle={{justifyContent: 'center'}}>
               <Icon name="exclamation-thick" size={30} />
               <Text style={{paddingRight: 50}}>

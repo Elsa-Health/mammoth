@@ -298,7 +298,7 @@ export function useWebSocket({
         socket.close();
       };
     }
-  }, [socket, onMessage, url]);
+  }, [socket, url]);
 
   /**
    * Reconnecting to the websocket server
