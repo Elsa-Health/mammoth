@@ -86,6 +86,19 @@ export function useMedicationStock(emr: EMR) {
       if (ref.collectionId === emr.collections.stock.ref.collectionId) {
         const regimen = state.medication.data.regimen;
         const className = state.medication.data.className;
+
+        console.log(state);
+        console.log({
+          category: className,
+          medication: {
+            regimen,
+            className,
+            text: ARV.regimen.fromKey(regimen) ?? regimen,
+          },
+          count: state.count,
+          lastUpdate: new Date(state.lastUpdatedAt),
+        });
+
         set(stock =>
           produce(stock, df => {
             df[ref.documentId] = {

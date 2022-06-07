@@ -307,8 +307,12 @@ function App({provider}: {provider: ElsaProvider}) {
                   doctor.organization.resourceType === 'Organization'
                     ? reference(doctor.organization)
                     : doctor.organization;
+
                 if (data.id === undefined) {
-                  const toStock = arv(`ctc-arv:${data.regimen}`, data.regimen);
+                  const toStock = arv(
+                    `ctc-arv:${data.arvRegimen}`,
+                    data.arvRegimen,
+                  );
 
                   // create new
                   await setDoc(doc(emr.collections.stock, toStock.id), {

@@ -49,10 +49,10 @@ export default function MedicationStockScreen({
   },
   {
     setMedicationCount: (data: {
-      id?: string;
-      regimen: ARV.Regimen;
-      className?: ARV.Class;
-      count: number;
+      id: string | undefined;
+      arvRegimen: ARV.Regimen;
+      regimenClass: ARV.Class | null;
+      count: string;
     }) => Promise<void>;
   }
 >) {
@@ -76,7 +76,7 @@ export default function MedicationStockScreen({
         ),
       ];
     });
-  }, []);
+  }, [e?.stock]);
 
   // form value
   const [form, setForm] = React.useState(() => ({
@@ -107,6 +107,7 @@ export default function MedicationStockScreen({
   };
 
   const showToUpdateItem = (id: string, item: StockItem) => {
+    console.log(item);
     setForm({
       id,
       arvRegimen: item.medication.regimen,
@@ -120,9 +121,10 @@ export default function MedicationStockScreen({
     await $.setMedicationCount(f);
   }, []);
 
-  const onUpdateItem = () => {
+  const onUpdateItem = (form_: typeof form) => {
+    console.log({form_});
     //
-    if (form.arvRegimen === undefined) {
+    if (form_.arvRegimen === undefined) {
       ToastAndroid.show(
         'Please select a regimen before proceeding',
         ToastAndroid.LONG,
@@ -130,15 +132,15 @@ export default function MedicationStockScreen({
       return;
     }
 
-    if (form.count.toString().length === 0) {
+    if (form_.count.toString().length === 0) {
       ToastAndroid.show(
-        'Please indicate the stock amount for ' + form.arvRegimen,
+        'Please indicate the stock amount for ' + form_.arvRegimen,
         ToastAndroid.LONG,
       );
       return;
     }
 
-    setItemStockValue(form).then(() => {
+    setItemStockValue(form_).then(() => {
       bottomSheetRef.current?.close();
     });
   };
@@ -207,13 +209,14 @@ export default function MedicationStockScreen({
                 items={ARV.regimen.keys()}
                 renderText={ARV.regimen.fromKey}
                 selectedKey={form.arvRegimen}
-                onChangeValue={item =>
+                onChangeValue={item => {
                   setForm(s =>
                     produce(s, df => {
                       df.arvRegimen = item;
+                      df.regimenClass = getRegimenClass(item) ?? null;
                     }),
-                  )
-                }
+                  );
+                }}
               />
             </Column>
             <Column spaceTop>
@@ -241,7 +244,7 @@ export default function MedicationStockScreen({
                 mode="contained"
                 loading={loading}
                 icon="update"
-                onPress={onUpdateItem}>
+                onPress={() => onUpdateItem(form)}>
                 Update Stock
               </Button>
             </Column>
