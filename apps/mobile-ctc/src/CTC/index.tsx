@@ -242,7 +242,10 @@ function App({provider}: {provider: ElsaProvider}) {
             }),
           })}
         />
-
+        <Stack.Screen
+          name="ctc.visis-dashboard"
+          component={withFlowContext(VisitDashboardScreen, {entry: report})}
+        />
         <Stack.Screen
           name="ctc.medication-visit"
           component={withFlowContext(MedicationVisit, {
@@ -278,6 +281,7 @@ function App({provider}: {provider: ElsaProvider}) {
                     ),
                   );
 
+                  const prescriptions = [...arvMedRqs, ...standardMedRqs];
                   // create a new visit
                   const visit: CTCVisit = {
                     id: `visit:${uuid.v4()}`,
@@ -287,10 +291,11 @@ function App({provider}: {provider: ElsaProvider}) {
                     practitioner: reference(doctor),
                     assessments: [],
                     associatedAppointmentResponse: null,
-                    createdAt: convertDMYToDate(data.dateOfVisit).toUTCString(),
+                    date: convertDMYToDate(data.dateOfVisit).toUTCString(),
+                    createdAt: new Date().toUTCString(),
                     extendedData: data,
                     investigationRequests: [],
-                    prescriptions: arvMedRqs.map(reference),
+                    prescriptions: prescriptions.map(reference),
                   };
 
                   // create appointment
@@ -310,7 +315,7 @@ function App({provider}: {provider: ElsaProvider}) {
                   // record the medication requests
                   await setDocs(
                     emr.collections.medicationRequests,
-                    [...arvMedRqs, ...standardMedRqs].map(d => [d.id, d]),
+                    prescriptions.map(d => [d.id, d]),
                   );
 
                   // record the visit

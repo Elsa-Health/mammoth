@@ -3,7 +3,7 @@ import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import React from 'react';
 import {ScrollView} from 'react-native';
-import {Column, Row} from '../../temp-components';
+import {Column, Row, Section} from '../../temp-components';
 
 export default function VisitDashboardScreen({
   entry: e,
@@ -21,6 +21,8 @@ export default function VisitDashboardScreen({
   const groups = Object.entries({
     Visits: e.base.visits,
     'Loss To Follow Up': e.base.ltfu,
+    'Upcoming \nAppointment': e.appt.upcoming,
+    'Missed \nAppointment': e.appt.missing,
   });
 
   return (
@@ -28,22 +30,25 @@ export default function VisitDashboardScreen({
       <ScrollView
         contentContainerStyle={{padding: spacing.md}}
         style={{flex: 1}}>
-        <Row contentStyle={{flexWrap: 'wrap'}}>
-          {groups.map(([className, count], ix) => (
-            <Column
-              key={ix}
-              wrapperStyle={{width: '50%'}}
-              contentStyle={{
-                alignContent: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text font="bold" size={32}>
-                {count}
-              </Text>
-              <Text>{className}</Text>
-            </Column>
-          ))}
-        </Row>
+        <Section title="Summary">
+          <Row contentStyle={{flexWrap: 'wrap'}}>
+            {groups.map(([title, count], ix) => (
+              <Column
+                key={ix}
+                wrapperStyle={{width: '50%', marginBottom: 8}}
+                contentStyle={{
+                  alignContent: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text font="bold" size={32}>
+                  {count}
+                </Text>
+                <Text size={14}>{title}</Text>
+              </Column>
+            ))}
+          </Row>
+        </Section>
+        <Section title="Briefing" desc="Summary information"></Section>
       </ScrollView>
     </Layout>
   );

@@ -28,6 +28,11 @@ export type Visit<
     practitioner: Nullable<Referred<P['practitioner']>>;
 
     /**
+     * Date of the visit
+     */
+    date: UTCDateTimeString;
+
+    /**
      * Records for the observations that were made udring the visit
      */
     assessments: Array<Referred<A>>;
