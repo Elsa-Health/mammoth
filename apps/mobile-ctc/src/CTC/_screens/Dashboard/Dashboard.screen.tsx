@@ -17,9 +17,12 @@ import {ElsaColorableIcon} from '@elsa-ui/react-native/visuals/vectors';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 
 export default function DashboardScreen({
+  entry: {fullName},
   actions: $,
 }: WorkflowScreenProps<
-  {},
+  {
+    fullName: string;
+  },
   {
     onSearchPatient: () => void;
     onNewPatient: () => void;
@@ -43,8 +46,9 @@ export default function DashboardScreen({
           <Text size={28} font="bold">
             Habari,
           </Text>
+
           <Text size={25} font="bold">
-            Kevin James,
+            {fullName !== undefined ? fullName : 'Daktari'}
           </Text>
         </Column>
         {/* Icons */}
@@ -68,7 +72,7 @@ export default function DashboardScreen({
         <Column>
           <TouchableItem onPress={$.onNewPatient}>
             <Row icon="account-plus-outline">
-              <Text>New Patient</Text>
+              <Text>Register New Patient</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem>
@@ -78,9 +82,9 @@ export default function DashboardScreen({
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem> */}
-          <TouchableItem spaceTop onPress={$.onViewMedications}>
-            <Row icon="pill">
-              <Text>Medication Requests</Text>
+          <TouchableItem spaceTop onPress={$.onViewMedicationStock}>
+            <Row icon="plus-outline">
+              <Text>Manage Medication Stock</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem>
@@ -95,9 +99,9 @@ export default function DashboardScreen({
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem> */}
-          <TouchableItem spaceTop onPress={$.onViewMedicationStock}>
-            <Row icon="plus-outline">
-              <Text>Medications Stock</Text>
+          <TouchableItem spaceTop onPress={$.onViewMedications}>
+            <Row icon="pill">
+              <Text>View Medication Requests</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem>
