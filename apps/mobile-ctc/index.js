@@ -79,7 +79,7 @@ PushNotification.createChannel(
 );
 
 const VersionedApp = codePush({
-  // updateDialog: true,
+  updateDialog: true,
   checkFrequency: codePush.CheckFrequency.ON_APP_START,
   installMode: codePush.InstallMode.IMMEDIATE,
 })(App);
