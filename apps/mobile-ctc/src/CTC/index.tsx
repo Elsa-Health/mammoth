@@ -209,6 +209,8 @@ function App({provider}: {provider: ElsaProvider}) {
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(DashboardScreen, {
+            entry: {fullName: provider.user.displayName},
+
             actions: ({navigation}) => ({
               onSearchPatient() {
                 navigation.navigate('ctc.patient-dashboard', {searchText: ''});
