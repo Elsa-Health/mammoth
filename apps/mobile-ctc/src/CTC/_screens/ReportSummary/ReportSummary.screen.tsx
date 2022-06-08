@@ -3,9 +3,10 @@ import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import React from 'react';
 import {ScrollView} from 'react-native';
+import {IconButton} from 'react-native-paper';
 import {Column, Row, Section} from '../../temp-components';
 
-export default function VisitDashboardScreen({
+export default function ReportSummaryScreen({
   entry: e,
 }: WorkflowScreenProps<{
   base: {
@@ -26,11 +27,11 @@ export default function VisitDashboardScreen({
   });
 
   return (
-    <Layout title="Report" style={{padding: 0}}>
+    <Layout title="Report Summary" style={{padding: 0}}>
       <ScrollView
         contentContainerStyle={{padding: spacing.md}}
         style={{flex: 1}}>
-        <Section title="Summary">
+        <Section title="In the last 30 days" removeLine mode="raised">
           <Row contentStyle={{flexWrap: 'wrap'}}>
             {groups.map(([title, count], ix) => (
               <Column
@@ -40,15 +41,35 @@ export default function VisitDashboardScreen({
                   alignContent: 'center',
                   justifyContent: 'center',
                 }}>
-                <Text font="bold" size={32}>
+                <Text font="bold" size={32} style={{textAlign: 'center'}}>
                   {count}
                 </Text>
-                <Text size={14}>{title}</Text>
+                <Text size={14} style={{textAlign: 'center'}}>
+                  {title}
+                </Text>
               </Column>
             ))}
           </Row>
         </Section>
-        <Section title="Briefing" desc="Summary information"></Section>
+        <Section
+          spaceTop
+          title="Briefing"
+          desc="Summary information on what's going on">
+          <Text>Most requested investigations</Text>
+          <Text>Most requested medications</Text>
+        </Section>
+
+        <Section
+          title="Recent Visit"
+          desc="Shows the recent visit activity"
+          removeLine
+          right={<IconButton icon="chevron-down" />}></Section>
+
+        <Section
+          title="Appointments"
+          desc="Appointment activities"
+          removeLine
+          right={<IconButton icon="chevron-down" />}></Section>
       </ScrollView>
     </Layout>
   );

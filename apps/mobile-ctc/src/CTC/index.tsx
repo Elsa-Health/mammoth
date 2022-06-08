@@ -6,7 +6,7 @@ import DashboardScreen from './_screens/Dashboard';
 import PatientDashboard from './_screens/PatientDashboard';
 import InvestigationsDashboardScreen from './_screens/InvestigationDashboard';
 import MedicationsDashboardScreen from './_screens/MedicationDashboard';
-import VisitDashboardScreen from './_screens/VisitDashboard';
+import ReportSummaryScreen from './_screens/ReportSummary';
 
 import ViewAppointmentsScreen from './_screens/ViewAppointments';
 import ViewVisitScreen from './_screens/ViewVisit';
@@ -217,6 +217,10 @@ function App({provider}: {provider: ElsaProvider}) {
           animationTypeForReplace: 'pop',
         }}>
         <Stack.Screen
+          name="ctc.report-summary"
+          component={withFlowContext(ReportSummaryScreen, {entry: report})}
+        />
+        <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(DashboardScreen, {
             entry: {fullName: provider.user.displayName},
@@ -241,10 +245,6 @@ function App({provider}: {provider: ElsaProvider}) {
               },
             }),
           })}
-        />
-        <Stack.Screen
-          name="ctc.visis-dashboard"
-          component={withFlowContext(VisitDashboardScreen, {entry: report})}
         />
         <Stack.Screen
           name="ctc.medication-visit"
