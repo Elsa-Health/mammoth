@@ -1,8 +1,4 @@
-import {
-  Appointment,
-  AppointmentRequest,
-  AppointmentResponse,
-} from './appointment';
+import {AppointmentResponse} from './appointment';
 import {InvestigationRequest, Report} from './investigation';
 import {Patient, Practitioner} from './personnel';
 import {MedicationRequest} from './prescription';
@@ -15,13 +11,7 @@ export type Visit<
   A extends Assessment = Assessment,
   M extends MedicationRequest = MedicationRequest,
   IRq extends InvestigationRequest<Data> = InvestigationRequest<Data>,
-  Appt extends Appointment<
-    AppointmentRequest<P['patient'] | P['practitioner']>,
-    AppointmentResponse<P['patient'] | P['practitioner']>
-  > = Appointment<
-    AppointmentRequest<P['patient'] | P['practitioner']>,
-    AppointmentResponse<P['patient'] | P['practitioner']>
-  >,
+  Appt extends AppointmentResponse = AppointmentResponse,
   Value extends Data = Data,
 > = Resource<
   'Visit',
@@ -60,7 +50,7 @@ export type Visit<
     /**
      * Referencing the appintmnt that's associated with the visit
      */
-    authorizingAppointment: Nullable<Referred<Appt>>;
+    associatedAppointmentResponse: Nullable<Referred<Appt>>;
   }
 >;
 

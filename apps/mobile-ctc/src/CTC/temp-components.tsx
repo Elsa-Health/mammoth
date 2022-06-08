@@ -21,7 +21,7 @@ import {useAsyncRetry} from 'react-use';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {format} from 'date-fns';
 import TextInputMask from 'react-native-text-input-mask';
-import {useController} from 'react-hook-form';
+import {useController, Validate, ValidateResult} from 'react-hook-form';
 
 export function Column(rp: {
   icon?: string;
@@ -474,31 +474,69 @@ const sectionStyle = StyleSheet.create({
   },
 });
 
+import dayjs from 'dayjs';
+var customParseFormat = require('dayjs/plugin/customParseFormat');
+dayjs.extend(customParseFormat);
+
+/**
+ * Checks to see if the date is of strict format
+ * DD / MM / YYYY
+ * @param date
+ */
+export function isDateFormatValid(date: string): boolean {
+  const isValidDate = dayjs(date, 'DD / MM / YYYY', true).isValid();
+  return isValidDate;
+}
+
 export function ControlDateInput({
   control,
   name,
+  mode = 'outlined',
+  required = false,
 }: {
   control: any;
   name: string;
+  mode?: 'outlined' | 'flat';
+  required?: boolean;
 }) {
-  const {field} = useController({control, name});
+  const {field, fieldState} = useController({
+    control,
+    name,
+    rules: {
+      required,
+      validate: isDateFormatValid,
+    },
+  });
+
   const [show, setShow] = React.useState(false);
   const [lastChosenDate, set] = React.useState<Date | undefined>(new Date());
   return (
     <>
       <Row>
-        <TextInput
-          style={{flex: 1}}
-          mode="outlined"
-          value={field.value}
-          onChangeText={field.onChange}
-          placeholder="DD / MM / YYYY"
-          keyboardType="number-pad"
-          render={props => (
-            // @ts-ignore
-            <TextInputMask {...props} mask="[00] / [00] / [0000]" />
+        <Column wrapperStyle={{flex: 1}}>
+          <TextInput
+            ref={field.ref}
+            error={Boolean(fieldState.error)}
+            style={{flex: 1, backgroundColor: '#FFF'}}
+            mode={mode}
+            value={field.value}
+            onChangeText={field.onChange}
+            placeholder="DD / MM / YYYY"
+            keyboardType="number-pad"
+            render={props => (
+              // @ts-ignore
+              <TextInputMask {...props} mask="[00] / [00] / [0000]" />
+            )}
+          />
+          {Boolean(fieldState.error?.type === 'required') && (
+            <HelperText type="error">Date is required</HelperText>
           )}
-        />
+          {Boolean(fieldState.error?.type === 'validate') && (
+            <HelperText type="error">
+              Date must be in a proper DD / MM / YYYY
+            </HelperText>
+          )}
+        </Column>
         <IconButton icon="calendar" onPress={() => setShow(true)} />
       </Row>
 

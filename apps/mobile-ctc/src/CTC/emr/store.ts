@@ -21,7 +21,13 @@ import FastAsyncStorage from 'react-native-fast-storage';
 import uuid from 'react-native-uuid';
 import {InvReq, InvResult, Medica, MedicaDisp, MedicaReq} from './hook';
 import {ElsaProvider} from '../../provider/backend';
-import {ARVMedication, CTCOrganization, CTCPatient, CTCVisit} from './types';
+import {
+  ARVMedication,
+  CTCAppointmentRequest,
+  CTCOrganization,
+  CTCPatient,
+  CTCVisit,
+} from './types';
 import {Stock} from '../../emr-types/v1/prescription';
 
 const STORE_NAME = 'DEV_TEST_STORE@TEMP';
@@ -186,6 +192,10 @@ export class EMR {
         'medication-stock',
       ),
       visits: collection<CTCVisit>(storage, 'visits'),
+      appointmentRequests: collection<CTCAppointmentRequest>(
+        storage,
+        'appointment-requests',
+      ),
       patients: collection<CTCPatient>(storage, 'patients'),
       medications: collection<Medica>(storage, 'medications'),
       medicationRequests: collection<MedicaReq>(storage, 'medication-requests'),

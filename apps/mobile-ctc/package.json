@@ -120,6 +120,7 @@
     "@types/styled-components-react-native": "^5.1.2",
     "@types/uuid": "^8.3.4",
     "@types/validator": "^13.7.2",
+    "@types/yup": "^0.29.14",
     "babel-jest": "^27.3.1",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",

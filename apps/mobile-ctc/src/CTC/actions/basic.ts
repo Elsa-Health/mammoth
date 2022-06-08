@@ -138,7 +138,7 @@ export function stanMed(
   createdAt: Date = new Date(),
 ): StandardMedication {
   return {
-    id: `ctc-standard:${id}`,
+    id,
     alias: null,
     code: null,
     createdAt: createdAt.toUTCString(),

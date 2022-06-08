@@ -4,25 +4,28 @@ import {Visit} from './visit';
 /**
  * Appointment
  */
-export type Appointment<
-  ARq extends AppointmentRequest,
-  ARs extends AppointmentResponse,
-> = Resource<
-  'Appointment',
-  {
-    subject: Referred<Patient>;
+// export type Appointment<
+//   ARq extends AppointmentRequest,
+//   ARs extends AppointmentResponse,
+// > = Resource<
+//   'Appointment',
+//   {
+//     /**
+//      * Subject
+//      */
+//     subject: Referred<Patient>;
 
-    /**
-     * Identifies the patient that the appointment concerns
-     */
-    request: Referred<ARq>;
+//     /**
+//      * Identifies the patient that the appointment concerns
+//      */
+//     request: Referred<ARq>;
 
-    /**
-     * information concerning the appointment
-     */
-    response: Nullable<Referred<ARs>>;
-  }
->;
+//     /**
+//      * information concerning the appointment
+//      */
+//     response: Nullable<Referred<ARs>>;
+//   }
+// >;
 
 /**
  * Appointment Request
@@ -48,6 +51,11 @@ type AppointmentRequest<
     description: string;
 
     /**
+     * Date of the appointment
+     */
+    appointmentDate: UTCDateTimeString;
+
+    /**
      * Participants
      */
     participants: Array<ReferenceIdentifier<Actor['resourceType']>>;
@@ -55,13 +63,29 @@ type AppointmentRequest<
 >;
 
 type AppointmentResponse<
+  ARq extends AppointmentRequest = AppointmentRequest,
   Actor extends Patient | Practitioner = Patient | Practitioner,
 > = Resource<
   'AppointmentResponse',
   {
-    visit: Nullable<ReferenceIdentifier<'Visit'>>;
+    /**
+     * The appointment request being responded to.
+     */
+    authorizingAppointmentRequest: Referred<ARq>;
+
+    /**
+     * Start of the appointment
+     */
     startTime: number;
+
+    /**
+     * End of the appoinment
+     */
     endTime: number;
+
+    /**
+     * Actors that were involved in responding to the appointment
+     */
     actors: Array<ReferenceIdentifier<Actor['resourceType']>>;
     comment: Nullable<string>;
   }

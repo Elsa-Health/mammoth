@@ -56,9 +56,15 @@ import {
   getOrganizationFromProvider,
   medRequest,
   reference,
+  stanMed,
 } from './actions/basic';
 import {queryPatientsFromSearch} from './actions/ui';
-import {CTCDoctor, CTCVisit} from './emr/types';
+import {
+  CTCAppointment,
+  CTCAppointmentRequest,
+  CTCDoctor,
+  CTCVisit,
+} from './emr/types';
 import {ConfirmVisitModal, useVisit} from './actions/hook';
 import MedicationVisit from './_screens/MedicationVisit';
 import MedicationStock from './_screens/MedicationStock';
@@ -68,6 +74,7 @@ import * as Sentry from '@sentry/react-native';
 import {runOnJS} from 'react-native-reanimated';
 import {queryCollection} from './emr/actions';
 import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
+import {convertDMYToDate} from './emr/utils';
 
 const Stack = createNativeStackNavigator();
 
@@ -241,13 +248,26 @@ function App({provider}: {provider: ElsaProvider}) {
               async complete(data, patient, organization) {
                 try {
                   // create a medication request
-                  const {arvRegimens} = data;
+                  const {arvRegimens, medications, appointmentDate} = data;
 
                   // ARV medication requests
                   const arvMedRqs = arvRegimens.map(arvMedId =>
                     medRequest(
                       `med-req:${uuid.v4()}` as string,
                       arv(`ctc-arv:${arvMedId}`, arvMedId),
+                      {},
+                      {
+                        requester: doctor,
+                        subject: patient,
+                      },
+                    ),
+                  );
+
+                  // other medication
+                  const standardMedRqs = medications.map(medId =>
+                    medRequest(
+                      `med-req:${uuid.v4()}` as string,
+                      stanMed(`ctc-standard:${medId}`, medId),
                       {},
                       {
                         requester: doctor,
@@ -264,21 +284,41 @@ function App({provider}: {provider: ElsaProvider}) {
                     subject: reference(patient),
                     practitioner: reference(doctor),
                     assessments: [],
-                    authorizingAppointment: null,
+                    associatedAppointmentResponse: null,
                     createdAt: new Date().toUTCString(),
                     extendedData: data,
                     investigationRequests: [],
                     prescriptions: arvMedRqs.map(reference),
                   };
 
+                  // create appointment
+                  const d = convertDMYToDate(appointmentDate);
+                  const appointmentReq: CTCAppointmentRequest = {
+                    id: `appt-req:${uuid.v4()}`,
+                    resourceType: 'AppointmentRequest',
+                    code: null,
+                    createdAt: new Date().toUTCString(),
+                    appointmentDate: d.toUTCString(),
+                    description: 'Auto-created appointment from a Visit',
+                    participants: [reference(patient), reference(doctor)],
+                    reason: 'Created as next appointment from visit',
+                    visit: reference(visit),
+                  };
+
                   // record the medication requests
                   await setDocs(
                     emr.collections.medicationRequests,
-                    arvMedRqs.map(d => [d.id, d]),
+                    [...arvMedRqs, ...standardMedRqs].map(d => [d.id, d]),
                   );
 
                   // record the visit
                   await setDoc(doc(emr.collections.visits, visit.id), visit);
+
+                  // record appointment request
+                  await setDoc(
+                    doc(emr.collections.appointmentRequests, appointmentReq.id),
+                    appointmentReq,
+                  );
 
                   ToastAndroid.show(
                     patient.id + ' visit recorded!.',
@@ -294,7 +334,7 @@ function App({provider}: {provider: ElsaProvider}) {
                 }
               },
               onDiscard() {
-                console.log('Discard');
+                navigation.goBack();
               },
             }),
           })}

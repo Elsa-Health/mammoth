@@ -2,11 +2,11 @@ import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {format} from 'date-fns';
-import {ARV, CTC} from 'elsa-health-data-fns/lib';
+import {ARV, CTC, Medication} from 'elsa-health-data-fns/lib';
 import React from 'react';
-import {useForm, Controller} from 'react-hook-form';
+import {useForm, Controller, ResolverResult} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
-import {Button, RadioButton} from 'react-native-paper';
+import {Button, RadioButton, TextInput} from 'react-native-paper';
 import {CTCOrganization, CTCPatient} from '../../emr/types';
 import {
   Block,
@@ -21,18 +21,22 @@ import {
 const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 
 export type MedicationRequestVisitData = {
-  regimenDecision: string;
-  decisionReason: CTC.Status;
+  // regimenDecision: string;
+  // decisionReason: CTC.Status;
   arvRegimens: ARV.Regimen[];
   regimenDuration: DurationOpt;
+  medications: Medication.All[];
   appointmentDate: string;
+  dateOfVisit: DDMMYYYYDateString;
 };
 
-type DurationOpt = '1-month' | '3-months';
+export type DurationOpt = '1-month' | '3-months' | '6-months';
 const durationOptions: Array<{value: DurationOpt; text: string}> = [
   {value: '1-month', text: '1 month'},
   {value: '3-months', text: '3 months'},
+  {value: '6-months', text: '6 months'},
 ];
+
 export default function MedicationVisitScreen({
   entry: e,
   actions: $,
@@ -50,11 +54,14 @@ export default function MedicationVisitScreen({
   const {spacing} = useTheme();
   const {handleSubmit, control} = useForm<MedicationRequestVisitData>({
     defaultValues: {
-      regimenDecision: undefined,
+      // regimenDecision: undefined,
       // @ts-ignore
-      decisionReason: '',
+      // decisionReason: '',
       arvRegimens: [],
       regimenDuration: '1-month',
+      medications: [],
+      appointmentDate: '',
+      dateOfVisit: format(new Date(), 'dd / MM / yyyy'),
     },
   });
 
@@ -63,15 +70,9 @@ export default function MedicationVisitScreen({
   );
 
   return (
-    <Layout title="Request Medication" style={{padding: 0}}>
+    <Layout title="Patient Visit" style={{padding: 0}}>
       <ScrollView contentContainerStyle={{padding: spacing.md}}>
         <Section mode="raised">
-          <Row icon="calendar">
-            <Text font="bold" style={{marginLeft: 8}}>
-              Date of Visit
-            </Text>
-            <Text>{format(new Date(), 'dd MMMM yyyy')}</Text>
-          </Row>
           <Row icon="account" spaceTop>
             <Text font="bold" style={{marginLeft: 8}}>
               Patient ID
@@ -85,114 +86,52 @@ export default function MedicationVisitScreen({
             <Text>{e.organization.name}</Text>
           </Row>
         </Section>
-        {/* Make ARV medication request */}
 
+        <Section
+          spaceTop
+          mode="raised"
+          title="Date of Visit"
+          desc="You can change the date of the visit"
+          icon="calendar">
+          <ControlDateInput
+            mode="flat"
+            name="dateOfVisit"
+            control={control}
+            required
+          />
+        </Section>
+
+        {/* Make ARV medication request */}
         <Section spaceTop title="ARV Medication">
           <Column spaceTop>
-            <Text font="medium">Decision about patient's regimen?</Text>
+            <Text font="medium" style={{marginBottom: 8}}>
+              Select regimens
+            </Text>
             <Controller
               control={control}
-              name="regimenDecision"
+              name="arvRegimens"
               render={({field}) => (
-                <>
-                  <Picker
-                    label="Regimen Decision"
-                    items={CTC.status.keys()}
-                    renderText={CTC.status.fromKey}
-                    selectedKey={field.value}
-                    onChangeValue={field.onChange}
-                  />
-                  {/* Reason for ARV regimen selection */}
-
-                  {field.value !== null &&
-                    (CTC.status.reason.fromKey(field.value) ?? []).length > 0 &&
-                    !['not-start-arv', 'stop-arv', 'continue-arv'].includes(
-                      field.value,
-                    ) && (
-                      <>
-                        <Column spaceTop>
-                          <Text font="medium" style={{marginBottom: 8}}>
-                            Reason for decision?
-                          </Text>
-                          <Controller
-                            control={control}
-                            name="decisionReason"
-                            render={({field: reasonField}) => (
-                              <>
-                                {CTC.status.reason.fromKey(field.value).length >
-                                3 ? (
-                                  <Picker
-                                    label="Levels of Education"
-                                    items={CTC.status.reason.fromKey(
-                                      field.value,
-                                    )}
-                                    selectedKey={reasonField.value}
-                                    onChangeValue={reasonField.onChange}
-                                  />
-                                ) : (
-                                  <RadioButton.Group
-                                    value={reasonField.value}
-                                    onValueChange={reasonField.onChange}>
-                                    <Row
-                                      spaceTop
-                                      contentStyle={{
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'flex-start',
-                                      }}>
-                                      {CTC.status.reason
-                                        .fromKey(field.value)
-                                        .map(val => (
-                                          <RadioButton.Item
-                                            labelStyle={{
-                                              justifyContent: 'flex-start',
-                                            }}
-                                            label={val}
-                                            key={val}
-                                            value={val}
-                                          />
-                                        ))}
-                                    </Row>
-                                  </RadioButton.Group>
-                                )}
-                              </>
-                            )}
-                          />
-                        </Column>
-                        <Column spaceTop>
-                          <Text font="medium" style={{marginBottom: 8}}>
-                            Choose new regimen
-                          </Text>
-                          <Controller
-                            control={control}
-                            name="arvRegimens"
-                            render={({field}) => (
-                              <MultiSelect
-                                confirmText={'Confirm'}
-                                items={[
-                                  {
-                                    name: 'ARV Regimens',
-                                    id: 1,
-                                    children: ion(ARV.regimen.pairs()),
-                                  },
-                                ]}
-                                uniqueKey="id"
-                                searchPlaceholderText={'Search ARV Regimen'}
-                                selectText={'Select if any'}
-                                onSelectedItemsChange={field.onChange}
-                                selectedItems={field.value}
-                              />
-                            )}
-                          />
-                        </Column>
-                      </>
-                    )}
-                </>
+                <MultiSelect
+                  confirmText={'Confirm'}
+                  items={[
+                    {
+                      name: 'ARV Regimens',
+                      id: 1,
+                      children: ion(ARV.regimen.pairs()),
+                    },
+                  ]}
+                  uniqueKey="id"
+                  searchPlaceholderText={'Search ARV Regimen'}
+                  selectText={'Select if any'}
+                  onSelectedItemsChange={field.onChange}
+                  selectedItems={field.value}
+                />
               )}
             />
           </Column>
 
           <Column spaceTop>
-            <Text font="medium">Duration of the new ARV?</Text>
+            <Text font="medium">Duration of the selected ARVs</Text>
             <Controller
               control={control}
               name="regimenDuration"
@@ -219,13 +158,45 @@ export default function MedicationVisitScreen({
             />
           </Column>
         </Section>
+
+        {/* Other Medication */}
+
+        <Section title="Other Medications">
+          <Column>
+            <Controller
+              control={control}
+              name="medications"
+              render={({field}) => (
+                <MultiSelect
+                  confirmText={'Confirm'}
+                  items={[
+                    {
+                      name: 'Medication',
+                      id: 1,
+                      children: ion(Medication.all.pairs()),
+                    },
+                  ]}
+                  uniqueKey="id"
+                  searchPlaceholderText={'Search Medication'}
+                  selectText={'Select if any'}
+                  onSelectedItemsChange={field.onChange}
+                  selectedItems={field.value}
+                />
+              )}
+            />
+          </Column>
+        </Section>
+
         {/* Date */}
         <Section
-          spaceTop
           title="Next expected pickup"
           desc="Time expected for the patient to pick up the medication">
           <Column>
-            <ControlDateInput name="appointmentDate" control={control} />
+            <ControlDateInput
+              name="appointmentDate"
+              control={control}
+              required
+            />
           </Column>
         </Section>
       </ScrollView>
