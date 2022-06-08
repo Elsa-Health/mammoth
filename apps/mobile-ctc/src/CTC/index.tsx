@@ -6,6 +6,7 @@ import DashboardScreen from './_screens/Dashboard';
 import PatientDashboard from './_screens/PatientDashboard';
 import InvestigationsDashboardScreen from './_screens/InvestigationDashboard';
 import MedicationsDashboardScreen from './_screens/MedicationDashboard';
+import VisitDashboardScreen from './_screens/VisitDashboard';
 
 import ViewAppointmentsScreen from './_screens/ViewAppointments';
 import ViewVisitScreen from './_screens/ViewVisit';
@@ -75,6 +76,7 @@ import {runOnJS} from 'react-native-reanimated';
 import {queryCollection} from './emr/actions';
 import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 import {convertDMYToDate} from './emr/utils';
+import {useReport} from './emr/react-hooks/report';
 
 const Stack = createNativeStackNavigator();
 
@@ -203,6 +205,7 @@ function App({provider}: {provider: ElsaProvider}) {
   // }, [socket]);
 
   const stock = useMedicationStock(emr);
+  const report = useReport(emr);
 
   return (
     <>
@@ -217,7 +220,6 @@ function App({provider}: {provider: ElsaProvider}) {
           name="ctc.dashboard"
           component={withFlowContext(DashboardScreen, {
             entry: {fullName: provider.user.displayName},
-
             actions: ({navigation}) => ({
               onSearchPatient() {
                 navigation.navigate('ctc.patient-dashboard', {searchText: ''});
@@ -285,7 +287,7 @@ function App({provider}: {provider: ElsaProvider}) {
                     practitioner: reference(doctor),
                     assessments: [],
                     associatedAppointmentResponse: null,
-                    createdAt: new Date().toUTCString(),
+                    createdAt: convertDMYToDate(data.dateOfVisit).toUTCString(),
                     extendedData: data,
                     investigationRequests: [],
                     prescriptions: arvMedRqs.map(reference),

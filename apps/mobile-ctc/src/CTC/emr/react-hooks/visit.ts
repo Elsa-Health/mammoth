@@ -7,6 +7,7 @@ import {createMachine, assign} from 'xstate';
 import {useMachine} from '@xstate/react';
 import produce from 'immer';
 import {Assessment} from '../../../emr-types/v1/visit';
+import {EMR} from '../store';
 
 type NotStartedVisitContext = {
   current: null;
@@ -76,7 +77,7 @@ export function useCTCVisit() {
         createdAt: new Date().toUTCString(),
         practitioner,
         subject,
-        authorizingAppointment: null,
+        associatedAppointmentResponse: null,
         extendedData: null,
         investigationRequests: [],
         prescriptions: [],
@@ -100,7 +101,7 @@ export function useCTCVisit() {
     if (states.matches('started')) {
       set(s =>
         produce(s, df => {
-          df.investigationRequests?.push(medicationRequest);
+          df.prescriptions?.push(medicationRequest);
         }),
       );
     } else {
