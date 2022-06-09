@@ -23,6 +23,8 @@ import {format} from 'date-fns';
 import TextInputMask from 'react-native-text-input-mask';
 import {useController, Validate, ValidateResult} from 'react-hook-form';
 
+import CollapsibleView from 'react-native-collapsible';
+
 export function Column(rp: {
   icon?: string;
   children: React.ReactNode;
@@ -378,12 +380,7 @@ export function TitledItem({
   );
 }
 
-/**
- * Sectioned Component
- * @param props
- * @returns
- */
-export function Section(props: {
+type SectionProps = {
   title?: string;
   desc?: string;
   icon?: string;
@@ -396,7 +393,48 @@ export function Section(props: {
   children?: React.ReactNode;
   removeLine?: boolean;
   right?: React.ReactNode;
-}) {
+};
+
+export function CollapsibleSection({
+  reveal = false,
+  children,
+  ...props
+}: SectionProps & {reveal?: boolean}) {
+  const [collapse, set] = React.useState(() => !reveal);
+  const spin = useSharedValue(new Animated.Value(0));
+
+  // animated style
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        rotate: collapse ? '0deg' : '180deg',
+      },
+    ],
+  }));
+
+  const press = React.useCallback(() => {
+    set(s => !s);
+  }, []);
+
+  return (
+    <Section
+      {...props}
+      right={
+        <Animated.View style={animatedStyle}>
+          <IconButton icon="chevron-down" onPress={press} />
+        </Animated.View>
+      }>
+      <CollapsibleView collapsed={collapse}>{children}</CollapsibleView>
+    </Section>
+  );
+}
+
+/**
+ * Sectioned Component
+ * @param props
+ * @returns
+ */
+export function Section(props: SectionProps) {
   const {spacing} = useTheme();
 
   const isT = Boolean(props.title) || Boolean(props.desc);
@@ -475,6 +513,11 @@ const sectionStyle = StyleSheet.create({
 });
 
 import dayjs from 'dayjs';
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 var customParseFormat = require('dayjs/plugin/customParseFormat');
 dayjs.extend(customParseFormat);
 

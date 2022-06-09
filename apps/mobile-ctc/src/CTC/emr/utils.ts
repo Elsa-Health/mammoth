@@ -1,3 +1,5 @@
+/** String related utils */
+
 export function removeWhiteSpace(text: string) {
   return text.replace(/\s+/g, '').trim();
 }
@@ -22,3 +24,41 @@ export function convertDMYToDate(date: DDMMYYYYDateString): Date {
     throw new Error('Unable to parse the number into a proper Date object');
   }
 }
+
+/**
+ * Others
+ */
+
+export const pluck = <T extends {[x: string]: any}, F extends keyof T>(
+  data: T,
+  field: F,
+) => data[field];
+
+export const pick = <
+  T extends {[x: string]: any},
+  F extends keyof T,
+  K extends F | F[],
+  PickOutput extends K extends F ? T[F] | null : Pick<T, F>,
+>(
+  data: T,
+  fields: F | F[],
+): PickOutput => {
+  if (Array.isArray(fields)) {
+    const d = fields.map(field => {
+      return [field, data[field] ?? null];
+    });
+    return Object.fromEntries(d);
+  }
+
+  return data[fields];
+};
+
+export const single =
+  <T extends {[x: string]: any}, F extends keyof T>(field: F) =>
+  (data: T) =>
+    data[field];
+
+export const select =
+  <T extends {[x in string]: any}>(fields: keyof T | Array<keyof T>) =>
+  (data: T) =>
+    pick(data, fields);

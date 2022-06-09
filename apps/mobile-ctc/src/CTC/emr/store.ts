@@ -24,6 +24,7 @@ import {ElsaProvider} from '../../provider/backend';
 import {
   ARVMedication,
   CTCAppointmentRequest,
+  CTCAppointmentResponse,
   CTCOrganization,
   CTCPatient,
   CTCVisit,
@@ -196,6 +197,12 @@ export class EMR {
         storage,
         'appointment-requests',
       ),
+
+      appointmentResponse: collection<CTCAppointmentResponse>(
+        storage,
+        'appointment-response',
+      ),
+
       patients: collection<CTCPatient>(storage, 'patients'),
       medications: collection<Medica>(storage, 'medications'),
       medicationRequests: collection<MedicaReq>(storage, 'medication-requests'),

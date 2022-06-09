@@ -1,6 +1,8 @@
 // ll-fns
 // ----------------
 
+import {List} from 'immutable';
+
 export function groupByFn<G extends string | number, A, O = [G, A]>(
   data: A[],
   fn: (item: A) => G,
@@ -20,9 +22,11 @@ export function groupByFn<G extends string | number, A, O = [G, A]>(
     s.add(item);
   });
 
-  return Array.from(groups.entries()).map(([id, set]) => {
-    return _ofn(id, Array.from(set.values()));
-  });
+  return List(
+    Array.from(groups.entries()).map(([id, set]) => {
+      return _ofn(id, Array.from(set.values()));
+    }),
+  ) as List<[G, A[]]>;
 }
 
 export function array(iter: any) {

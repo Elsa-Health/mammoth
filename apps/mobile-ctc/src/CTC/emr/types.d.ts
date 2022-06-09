@@ -148,6 +148,7 @@ export type CTCInvestigationResult =
  */
 export type CTCAppointmentRequest = AppointmentRequest<CTCPatient | CTCDoctor>;
 export type CTCAppointmentResponse = AppointmentResponse<
+  CTCAppointmentRequest,
   CTCPatient | CTCDoctor
 >;
 

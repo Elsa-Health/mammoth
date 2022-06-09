@@ -30,6 +30,7 @@ export default function DashboardScreen({
     // onViewAppointments: () => void;
     onViewMedications: () => void;
     onViewMedicationStock: () => void;
+    onViewReports: () => void;
   }
 >) {
   const {color} = useTheme();
@@ -102,6 +103,12 @@ export default function DashboardScreen({
           <TouchableItem spaceTop onPress={$.onViewMedications}>
             <Row icon="pill">
               <Text>View Medication Requests</Text>
+              <Icon name="arrow-right" color={color.primary.base} size={24} />
+            </Row>
+          </TouchableItem>
+          <TouchableItem spaceTop onPress={$.onViewReports}>
+            <Row icon="chart-box-outline">
+              <Text>View Reports</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem>

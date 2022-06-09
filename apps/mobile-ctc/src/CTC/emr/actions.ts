@@ -8,16 +8,18 @@ import {reduceRight} from 'lodash';
 type FieldSelector<T> = <F extends string | number>(item: T) => F;
 type OrderQueryClause<T> = {type?: 'asc' | 'desc'; field: FieldSelector<T>};
 
-type Query<T> = {
+export type Query<T> = {
   where?: WhereQueryClause<T>;
   order?: OrderQueryClause<T>;
 };
 
 type UnitWhereQuery<T> = (item: T) => boolean;
-type WhereQueryClause<T> = {
-  $or?: UnitWhereQuery<T>[];
-  $and?: UnitWhereQuery<T>[];
-};
+type WhereQueryClause<T> =
+  | {
+      $or?: UnitWhereQuery<T>[];
+      $and?: UnitWhereQuery<T>[];
+    }
+  | UnitWhereQuery<T>;
 
 function queryFrom<T extends Document.Data>(data: List<T>, q: Query<T>) {
   // query information
@@ -52,16 +54,26 @@ function queryFromWhere<T extends Document.Data>(
   data: List<T>,
   whereClause: WhereQueryClause<T>,
 ): List<T> {
-  const {$or = [], $and = []} = whereClause;
+  if (typeof whereClause === 'object') {
+    const {$or = [], $and = []} = whereClause;
 
-  return (
-    $or.length !== 0 ? data.filter(row => $or.some(orFn => orFn(row))) : data
-  ).filter(row => $and.every(andFn => andFn(row)));
+    return (
+      $or.length !== 0 ? data.filter(row => $or.some(orFn => orFn(row))) : data
+    ).filter(row => $and.every(andFn => andFn(row)));
+  }
+
+  if (typeof whereClause === 'function') {
+    return data.filter(whereClause);
+  }
+
+  throw new Error(
+    'The WHERE_CLAUSE needs to with be a function or object with { $or?: Rule[], $and?: Rule[] }',
+  );
 }
 
 export async function queryCollection<T extends Document.Data>(
   collection: CollectionNode<T>,
-  query: Query<T>,
+  query: Query<T> = {},
 ) {
   const data = await getDocs(collection);
 

@@ -69,14 +69,14 @@ import {
 import {ConfirmVisitModal, useVisit} from './actions/hook';
 import MedicationVisit from './_screens/MedicationVisit';
 import MedicationStock from './_screens/MedicationStock';
-import {useCTCVisit, useMedicationStock} from './emr/react-hooks';
+import {useCTCVisit, useEMR, useMedicationStock} from './emr/react-hooks';
 
 import * as Sentry from '@sentry/react-native';
 import {runOnJS} from 'react-native-reanimated';
 import {queryCollection} from './emr/actions';
 import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 import {convertDMYToDate} from './emr/utils';
-import {useReport} from './emr/react-hooks/report';
+import {useEMRReport, useReport} from './emr/react-hooks/report';
 
 const Stack = createNativeStackNavigator();
 
@@ -204,8 +204,13 @@ function App({provider}: {provider: ElsaProvider}) {
   //   }
   // }, [socket]);
 
+  // const {
+  //   data: {visits, patients},
+  //   Q,
+  // } = useEMR(emr);
   const stock = useMedicationStock(emr);
-  const report = useReport(emr);
+  // const report = useReport(emr);
+  const report = useEMRReport(emr);
 
   return (
     <>
@@ -216,10 +221,6 @@ function App({provider}: {provider: ElsaProvider}) {
           animation: 'slide_from_right',
           animationTypeForReplace: 'pop',
         }}>
-        <Stack.Screen
-          name="ctc.report-summary"
-          component={withFlowContext(ReportSummaryScreen, {entry: report})}
-        />
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(DashboardScreen, {
@@ -243,7 +244,17 @@ function App({provider}: {provider: ElsaProvider}) {
               onViewMedications() {
                 navigation.navigate('ctc.medications-dashboard');
               },
+              onViewReports() {
+                navigation.navigate('ctc.report-summary');
+              },
             }),
+          })}
+        />
+        <Stack.Screen
+          name="ctc.report-summary"
+          component={withFlowContext(ReportSummaryScreen, {
+            entry: report,
+            // entry: {report, visits, patients},
           })}
         />
         <Stack.Screen
