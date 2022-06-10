@@ -25,7 +25,8 @@ import produce from 'immer';
 import QRLogin from './@workflows/screens/QRAuthentication';
 import * as Sentry from '@sentry/react-native';
 
-import {View, Text} from 'react-native';
+import {Text} from '@elsa-ui/react-native/components';
+import {View} from 'react-native';
 import {Analytics} from './CTC/analytics';
 
 import pj from '../package.json';
@@ -104,6 +105,68 @@ function _Application() {
   );
 }
 
+import codePush from 'react-native-code-push';
+import {useAsync} from 'react-use';
+import {ProgressBar} from 'react-native-paper';
+
+function CodePushWrapper({children}: {children: React.ReactNode}) {
+  const [text, set] = React.useState(`Version: ${pj.version}`);
+  const [progress, setProgress] = React.useState(0);
+
+  // Makes the update happen
+  useAsync(async () => {
+    await codePush.sync(
+      {
+        updateDialog: {
+          mandatoryUpdateMessage:
+            "There's a new update you must have. Please continue to install.",
+          optionalUpdateMessage:
+            'New update! You can choose install it now or later.',
+          mandatoryContinueButtonLabel: 'Continue',
+          optionalIgnoreButtonLabel: 'Install Later',
+          optionalInstallButtonLabel: 'Install Now',
+        },
+        installMode: codePush.InstallMode.IMMEDIATE,
+      },
+      status => {
+        setProgress(0);
+        switch (status) {
+          case codePush.SyncStatus.DOWNLOADING_PACKAGE:
+            // Show "downloading" modal
+            set('Downloading update');
+            break;
+          case codePush.SyncStatus.INSTALLING_UPDATE:
+            // Hide "downloading" modal
+            set('Installing update');
+            break;
+          case codePush.SyncStatus.UPDATE_INSTALLED:
+            set('Update Installed!');
+            break;
+          case codePush.SyncStatus.UP_TO_DATE:
+            set(`Version: ${pj.version} (Latest)`);
+            break;
+        }
+      },
+      ({receivedBytes, totalBytes}) => {
+        /* Update download modal progress */
+        setProgress(receivedBytes / totalBytes);
+      },
+    );
+  }, []);
+
+  return (
+    <>
+      {children}
+      <View style={{paddingVertical: 2, backgroundColor: '#4665af'}}>
+        <ProgressBar progress={progress} />
+        <Text style={{textAlign: 'center'}} color="#FFF" size={14}>
+          {text ?? 'N/A'}
+        </Text>
+      </View>
+    </>
+  );
+}
+
 function App() {
   React.useEffect(() => {
     SplashScreen.hide();
@@ -119,7 +182,9 @@ function App() {
       <ApplicationProvider>
         <LanguageProvider>
           <SafeAreaProvider>
-            <_Application />
+            <CodePushWrapper>
+              <_Application />
+            </CodePushWrapper>
           </SafeAreaProvider>
         </LanguageProvider>
       </ApplicationProvider>

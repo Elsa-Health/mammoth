@@ -65,23 +65,20 @@ PushNotification.configure({
   requestPermissions: true,
 });
 
+// Create Update channel
 PushNotification.createChannel(
   {
-    channelId: 'testing-channel', // (required)
-    channelName: 'My channel', // (required)
-    channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+    channelId: 'update-app-channel', // (required)
+    channelName: 'App Update', // (required)
+    channelDescription: 'Notification channel when receiving app updates', // (optional) default: undefined.
     playSound: false, // (optional) default: true
     soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-    importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
-    vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
+    importance: Importance.DEFAULT, // (optional) default: Importance.HIGH. Int value of the Android notification importance
+    vibrate: false, // (optional) default: true. Creates the default vibration pattern if true.
   },
   created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
 );
 
-const VersionedApp = codePush({
-  updateDialog: true,
-  checkFrequency: codePush.CheckFrequency.ON_APP_START,
-  installMode: codePush.InstallMode.IMMEDIATE,
-})(App);
+const VersionedApp = codePush(App);
 
 AppRegistry.registerComponent(appName, () => VersionedApp);
