@@ -261,7 +261,6 @@ function App({
           name="ctc.report-summary"
           component={withFlowContext(ReportSummaryScreen, {
             entry: report,
-            // entry: {report, visits, patients},
           })}
         />
         <Stack.Screen
@@ -299,7 +298,9 @@ function App({
                     ),
                   );
 
+                  // prepare prescriptions
                   const prescriptions = [...arvMedRqs, ...standardMedRqs];
+
                   // create a new visit
                   const visit: CTCVisit = {
                     id: `visit:${uuid.v4()}`,
@@ -349,6 +350,38 @@ function App({
                     patient.id + ' visit recorded!.',
                     ToastAndroid.SHORT,
                   );
+
+                  // recording the investigation requests
+                  await setDocs(
+                    emr.collections.investigationRequests,
+                    data.investigations.map(inv => {
+                      const id = `inv-req:${uuid.v4()}`;
+                      return [
+                        id,
+                        investigationRequest(
+                          {
+                            id,
+                            requester: reference(doctor),
+                            subject: {
+                              resourceReferenced: 'Patient',
+                              resourceType: 'Reference',
+                              id: patient.id,
+                            },
+                          },
+                          {
+                            investigationId: inv,
+                            obj: Investigation.fromKey(inv) ?? null,
+                          },
+                        ),
+                      ];
+                    }) || [],
+                  );
+
+                  ToastAndroid.show(
+                    'Completed recording investigation + prescriptions',
+                    ToastAndroid.SHORT,
+                  );
+
                   navigation.goBack();
                 } catch (err) {
                   ToastAndroid.show(
@@ -807,11 +840,6 @@ function App({
           })}
         />
       </Stack.Navigator>
-      <View style={{paddingVertical: 2, backgroundColor: '#4665af'}}>
-        <Text style={{textAlign: 'center'}} color="#FFF" size={14}>
-          Version: {appVersion}
-        </Text>
-      </View>
       {/* <ConnectionStatus status={status} retry={retry} /> */}
       <ConfirmVisitModal
         visible={show}

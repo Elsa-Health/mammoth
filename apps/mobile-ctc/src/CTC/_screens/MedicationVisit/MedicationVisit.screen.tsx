@@ -2,7 +2,7 @@ import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {format} from 'date-fns';
-import {ARV, CTC, Medication} from 'elsa-health-data-fns/lib';
+import {ARV, CTC, Investigation, Medication} from 'elsa-health-data-fns/lib';
 import React from 'react';
 import {useForm, Controller, ResolverResult} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
@@ -27,6 +27,7 @@ export type MedicationRequestVisitData = {
   regimenDuration: DurationOpt;
   medications: Medication.All[];
   appointmentDate: string;
+  investigations: Investigation[];
   dateOfVisit: DDMMYYYYDateString;
 };
 
@@ -61,6 +62,7 @@ export default function MedicationVisitScreen({
       regimenDuration: '1-month',
       medications: [],
       appointmentDate: '',
+      investigations: [],
       dateOfVisit: format(new Date(), 'dd / MM / yyyy'),
     },
   });
@@ -185,6 +187,42 @@ export default function MedicationVisitScreen({
               )}
             />
           </Column>
+        </Section>
+
+        <Section
+          title="Request Investigations"
+          desc="Make investigation requests for the patient">
+          <Controller
+            control={control}
+            name="investigations"
+            render={({field, fieldState: {error}}) => (
+              <>
+                <MultiSelect
+                  ref={field.ref}
+                  confirmText={'Confirm'}
+                  items={[
+                    {
+                      name: 'Investigations',
+                      id: 1,
+                      children: Investigation.name
+                        .pairs()
+                        .map(([id, name]) => ({id, name})),
+                    },
+                  ]}
+                  uniqueKey="id"
+                  searchPlaceholderText={'Search Investigations'}
+                  selectText={'Select if any'}
+                  onSelectedItemsChange={field.onChange}
+                  selectedItems={field.value}
+                />
+                {Boolean(error?.type === 'validate') && (
+                  <HelperText type="error">
+                    You need to select at least 1 investigation
+                  </HelperText>
+                )}
+              </>
+            )}
+          />
         </Section>
 
         {/* Date */}
