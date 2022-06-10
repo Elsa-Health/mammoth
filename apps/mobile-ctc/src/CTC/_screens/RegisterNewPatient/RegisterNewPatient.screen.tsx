@@ -5,6 +5,7 @@ import {useTheme} from '@elsa-ui/react-native/theme';
 import {ScrollView, View} from 'react-native';
 import {
   Button,
+  Checkbox,
   Chip,
   HelperText,
   IconButton,
@@ -31,6 +32,8 @@ import TextInputMask from 'react-native-text-input-mask';
 import _ from 'lodash';
 
 import {useForm, Controller} from 'react-hook-form';
+import Collapsible from 'react-native-collapsible';
+import {Investigation} from 'elsa-health-data-fns/lib';
 const DISTRICTS = [
   'Meru',
   'Arusha City',
@@ -99,38 +102,51 @@ export default function RegisterNewPatientScreen({
   actions: $,
 }: WorkflowScreenProps<
   {myCtcId?: string; patientId?: string | undefined},
-  {onRegisterPatient: (patient: PatientFormType) => void}
+  {
+    onRegisterPatient: (
+      patient: PatientFormType,
+      investigations: Investigation[] | null,
+    ) => void;
+  }
 >) {
   const {spacing} = useTheme();
   const [showSelectionModal, setShow] = React.useState(false);
 
-  const patientCTCIDRef = React.useRef();
-  const {handleSubmit, control, setValue, getValues} = useForm<PatientFormType>(
-    {
-      defaultValues: {
-        patientId,
-        firstName: '',
-        familyName: '',
-        phoneNumber: '',
-        resident: DISTRICTS[0],
-        dateOfBirth: '',
-        maritalStatus: 'Single', // modified late
-        hasPositiveTest: false,
-        dateOfTest: '',
-        hasPatientOnARVs: false,
-        dateStartedARVs: '',
-        whoStage: 'Stage 1',
-        hasTreatmentSupport: false,
-        typeOfSupport: 'Family',
-        sex: 'male',
-      },
-    },
-  );
+  const [isHaveInvestigation, setHaveInvestigation] = React.useState(false);
 
-  const onSubmit = React.useCallback(handleSubmit($.onRegisterPatient), [
-    handleSubmit,
-    $.onRegisterPatient,
-  ]);
+  const patientCTCIDRef = React.useRef();
+  const {handleSubmit, control, setValue, getValues} = useForm<
+    PatientFormType & {investigations: Investigation[]}
+  >({
+    defaultValues: {
+      patientId,
+      firstName: '',
+      familyName: '',
+      phoneNumber: '',
+      resident: DISTRICTS[0],
+      dateOfBirth: '',
+      maritalStatus: 'Single', // modified late
+      hasPositiveTest: false,
+      dateOfTest: '',
+      hasPatientOnARVs: false,
+      dateStartedARVs: '',
+      whoStage: 'Stage 1',
+      hasTreatmentSupport: false,
+      typeOfSupport: 'Family',
+      sex: 'male',
+      investigations: [],
+    },
+  });
+
+  const onSubmit = React.useCallback(
+    handleSubmit(({investigations, ...value}) => {
+      return $.onRegisterPatient(
+        value,
+        isHaveInvestigation ? investigations : null,
+      );
+    }),
+    [handleSubmit, $.onRegisterPatient, isHaveInvestigation],
+  );
 
   return (
     <>
@@ -155,7 +171,7 @@ export default function RegisterNewPatientScreen({
                   onPress={() => {
                     setShow(false);
                     setValue('patientId', ctc);
-                    patientCTCIDRef.current?.focus();
+                    patientCTCIDRef.current?.focus?.();
                   }}>
                   <View
                     style={{
@@ -194,19 +210,45 @@ export default function RegisterNewPatientScreen({
               <Controller
                 name="patientId"
                 control={control}
-                render={({field: {onChange, onBlur, value}}) => (
-                  <TextInput
-                    ref={patientCTCIDRef}
-                    placeholder="XXXXXXXXYYYYYY"
-                    mode="outlined"
-                    value={value}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    render={props => (
-                      <TextInputMask {...props} mask="[00000000][000000]" />
-                    )}
-                  />
-                )}
+                rules={{required: true, pattern: new RegExp(/(\d+){14}/g)}}
+                render={({
+                  field: {onChange, onBlur, value, ref},
+                  fieldState: {error},
+                }) => {
+                  // set
+                  patientCTCIDRef.current = ref;
+                  return (
+                    <>
+                      <TextInput
+                        ref={ref}
+                        error={Boolean(error)}
+                        placeholder="XXXXXXXXYYYYYY"
+                        mode="outlined"
+                        value={value}
+                        keyboardType="number-pad"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        render={props => (
+                          <TextInputMask {...props} mask="[00000000][000000]" />
+                        )}
+                      />
+                      {error !== undefined && (
+                        <>
+                          {error.type === 'required' && (
+                            <HelperText type="error">
+                              Required Patient ID
+                            </HelperText>
+                          )}
+                          {error.type === 'pattern' && (
+                            <HelperText type="error">
+                              Must consist of only 14 numbers
+                            </HelperText>
+                          )}
+                        </>
+                      )}
+                    </>
+                  );
+                }}
               />
               <Row
                 contentStyle={{justifyContent: 'flex-start'}}
@@ -217,7 +259,7 @@ export default function RegisterNewPatientScreen({
                     icon="home"
                     onPress={() => {
                       setValue('patientId', myCtcId);
-                      patientCTCIDRef.current?.focus();
+                      patientCTCIDRef.current?.focus?.();
                     }}
                     style={{marginRight: 4}}>
                     My facility
@@ -406,19 +448,9 @@ export default function RegisterNewPatientScreen({
                     {field.value && (
                       <Column spaceTop>
                         <Text>ARV Start Date</Text>
-                        <Controller
+                        <ControlDateInput
                           name="dateStartedARVs"
                           control={control}
-                          render={({field, formState}) => (
-                            <>
-                              <DateInput {...field} />
-                              {formState.isDirty && (
-                                <HelperText type="error">
-                                  {formState.errors.dateOfBirth}
-                                </HelperText>
-                              )}
-                            </>
-                          )}
                         />
                       </Column>
                     )}
@@ -482,6 +514,61 @@ export default function RegisterNewPatientScreen({
                 )}
               />
             </Column>
+          </Section>
+          <Section
+            spaceBottom
+            removeLine
+            title="Request Investigations?"
+            desc="Would you like to requests investigations for patient"
+            mode="raised"
+            right={
+              <Checkbox
+                status={isHaveInvestigation ? 'checked' : 'unchecked'}
+                onPress={() => setHaveInvestigation(s => !s)}
+              />
+            }>
+            <Collapsible collapsed={!isHaveInvestigation}>
+              <View>
+                <Text style={{marginBottom: 4}}>
+                  Choose the investigations to request:
+                </Text>
+                <Controller
+                  control={control}
+                  name="investigations"
+                  rules={{
+                    validate: item =>
+                      isHaveInvestigation ? item.length >= 1 : true,
+                  }}
+                  render={({field, fieldState: {error}}) => (
+                    <>
+                      <MultiSelect
+                        ref={field.ref}
+                        confirmText={'Confirm'}
+                        items={[
+                          {
+                            name: 'Investigations',
+                            id: 1,
+                            children: Investigation.name
+                              .pairs()
+                              .map(([id, name]) => ({id, name})),
+                          },
+                        ]}
+                        uniqueKey="id"
+                        searchPlaceholderText={'Search Investigations'}
+                        selectText={'Select if any'}
+                        onSelectedItemsChange={field.onChange}
+                        selectedItems={field.value}
+                      />
+                      {Boolean(error?.type === 'validate') && (
+                        <HelperText type="error">
+                          You need to select at least 1 investigation
+                        </HelperText>
+                      )}
+                    </>
+                  )}
+                />
+              </View>
+            </Collapsible>
           </Section>
           <Item spaceTop>
             <Button mode="contained" onPress={onSubmit} icon="check">

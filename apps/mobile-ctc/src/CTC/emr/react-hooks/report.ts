@@ -125,7 +125,7 @@ export function useEMRReport(emr: EMR) {
       appointments: appointments.value,
       recentVisits:
         visits.value
-          ?.sortBy(d => date(d.date ?? d.createdAt).getTime())
+          ?.sortBy(d => -date(d.date ?? d.createdAt).getTime())
           .map(visit => ({
             visitDate: visit.date ?? visit.createdAt,
             patient: visit.subject.id,

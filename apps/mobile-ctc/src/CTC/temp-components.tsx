@@ -214,8 +214,9 @@ function iconToggle(
  * Dropdown component
  * @returns
  */
-export function MultiSelect<T>(
+export const MultiSelect = React.forwardRef(function <T>(
   props: Omit<SectionedMultiSelectProps<T>, 'styles' | 'IconRenderer'>,
+  ref: any,
 ) {
   const {color, typography} = useTheme();
   return (
@@ -234,6 +235,7 @@ export function MultiSelect<T>(
       // onSelectedItemsChange={(items) => setSelectedItems(items)}
       // selectedItems={selectedItems}
       {...props}
+      ref={ref}
       styles={{
         selectToggle: {
           padding: 8,
@@ -285,7 +287,7 @@ export function MultiSelect<T>(
       }}
     />
   );
-}
+});
 
 export function TouchableItem({
   onPress,

@@ -56,7 +56,7 @@ export function investigationRequest<
     requester: Referred<CTCDoctor>;
     subject: Referred<CTCPatient>;
   },
-  data: {investigationId: Investigation; obj: Inv},
+  data: {investigationId: Investigation; obj: Inv | null},
   createdAt: Date = new Date(),
 ): CTCInvestigationRequest {
   return {

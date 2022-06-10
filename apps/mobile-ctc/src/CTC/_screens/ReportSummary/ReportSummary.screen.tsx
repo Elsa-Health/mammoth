@@ -15,11 +15,9 @@ import {
 } from '../../temp-components';
 
 export default function ReportSummaryScreen({
-  entry: report,
+  entry: {data, count, brief},
 }: WorkflowScreenProps<UseEMRReport, {}>) {
   const {spacing} = useTheme();
-
-  const {data, count, brief} = report;
   const groups = [
     ['Visits', data.visits?.count()],
     ['Patients', data.patients?.count()],

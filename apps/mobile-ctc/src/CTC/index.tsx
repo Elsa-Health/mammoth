@@ -55,6 +55,7 @@ import {translatePatient} from './actions/translate';
 import {
   arv,
   getOrganizationFromProvider,
+  investigationRequest,
   medRequest,
   reference,
   stanMed,
@@ -410,13 +411,42 @@ function App({
           component={withFlowContext(RegisterNewPatientScreen, {
             entry: {myCtcId: provider.facility.ctcCode},
             actions: ({navigation}) => ({
-              onRegisterPatient(patient) {
+              onRegisterPatient(patient, investigations) {
                 const d = translatePatient(patient, organization);
+
+                // create patient
                 setDoc(doc(emr.collections.patients, d.id), d)
                   .then(() => {
                     ToastAndroid.show(
                       'Patient ' + patient.patientId + ' registered !.',
                       ToastAndroid.SHORT,
+                    );
+                  })
+                  .then(() => {
+                    // update collection
+                    return setDocs(
+                      emr.collections.investigationRequests,
+                      investigations?.map(inv => {
+                        const id = `inv-req:${uuid.v4()}`;
+                        return [
+                          id,
+                          investigationRequest(
+                            {
+                              id,
+                              requester: reference(doctor),
+                              subject: {
+                                resourceReferenced: 'Patient',
+                                resourceType: 'Reference',
+                                id: d.id,
+                              },
+                            },
+                            {
+                              investigationId: inv,
+                              obj: Investigation.fromKey(inv) ?? null,
+                            },
+                          ),
+                        ];
+                      }) || [],
                     );
                   })
                   .then(() => navigation.goBack())

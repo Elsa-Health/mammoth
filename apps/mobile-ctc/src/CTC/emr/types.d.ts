@@ -137,7 +137,7 @@ export type CTCMedicationRequest = MedicationRequest<
  */
 export type CTCInvestigationRequest = InvestigationRequest<{
   investigationId: Investigation;
-  obj: InvestigationTypeRecord<string>;
+  obj: InvestigationTypeRecord<string> | null;
 }>;
 export type CTCInvestigationResult =
   InvestigationResult<CTCInvestigationRequest>;
