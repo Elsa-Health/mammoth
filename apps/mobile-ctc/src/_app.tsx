@@ -164,7 +164,7 @@ function CodePushWrapper({children}: {children: React.ReactNode}) {
       <View style={{paddingVertical: 2, backgroundColor: '#4665af'}}>
         <ProgressBar progress={progress} />
         <Text style={{textAlign: 'center'}} color="#FFF" size={14}>
-          {text ?? 'N/A'}
+          {__DEV__ ? '[dev]' : ''} {text ?? 'N/A'}
         </Text>
       </View>
     </>
