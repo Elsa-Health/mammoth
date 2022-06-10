@@ -113,9 +113,28 @@ function CodePushWrapper({children}: {children: React.ReactNode}) {
   const [text, set] = React.useState(`Version: ${pj.version}`);
   const [progress, setProgress] = React.useState(0);
 
+  const statusCb = (status: codePush.SyncStatus) => {
+    setProgress(0);
+    switch (status) {
+      case codePush.SyncStatus.DOWNLOADING_PACKAGE:
+        // Show "downloading" modal
+        set('Downloading update');
+        break;
+      case codePush.SyncStatus.INSTALLING_UPDATE:
+        // Hide "downloading" modal
+        set('Installing update');
+        break;
+      case codePush.SyncStatus.UPDATE_INSTALLED:
+        set('Update Installed!');
+        break;
+      case codePush.SyncStatus.UP_TO_DATE:
+        set(`Version: ${pj.version} (Latest)`);
+        break;
+    }
+  };
   // Makes the update happen
   useAsync(async () => {
-    await codePush.sync(
+    const out = await codePush.sync(
       {
         updateDialog: {
           mandatoryUpdateMessage:
@@ -128,30 +147,15 @@ function CodePushWrapper({children}: {children: React.ReactNode}) {
         },
         installMode: codePush.InstallMode.IMMEDIATE,
       },
-      status => {
-        setProgress(0);
-        switch (status) {
-          case codePush.SyncStatus.DOWNLOADING_PACKAGE:
-            // Show "downloading" modal
-            set('Downloading update');
-            break;
-          case codePush.SyncStatus.INSTALLING_UPDATE:
-            // Hide "downloading" modal
-            set('Installing update');
-            break;
-          case codePush.SyncStatus.UPDATE_INSTALLED:
-            set('Update Installed!');
-            break;
-          case codePush.SyncStatus.UP_TO_DATE:
-            set(`Version: ${pj.version} (Latest)`);
-            break;
-        }
-      },
+      statusCb,
       ({receivedBytes, totalBytes}) => {
         /* Update download modal progress */
         setProgress(receivedBytes / totalBytes);
       },
     );
+
+    // run cb again
+    statusCb(out);
   }, []);
 
   return (

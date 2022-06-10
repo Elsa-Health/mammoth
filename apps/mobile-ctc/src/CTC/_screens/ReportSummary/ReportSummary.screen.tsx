@@ -78,9 +78,9 @@ export default function ReportSummaryScreen({
             <View>
               {data.recentVisits.map((visit, idx) => {
                 return (
-                  <>
+                  <React.Fragment key={idx}>
                     <Divider />
-                    <View key={idx} style={{paddingVertical: 12}}>
+                    <View style={{paddingVertical: 12}}>
                       <TitledItem title="Patient ID">
                         {visit.patient}
                       </TitledItem>
@@ -88,7 +88,7 @@ export default function ReportSummaryScreen({
                         {formatDistanceToNow(new Date(visit.visitDate))} ago
                       </TitledItem>
                     </View>
-                  </>
+                  </React.Fragment>
                 );
               })}
             </View>
@@ -112,9 +112,9 @@ export default function ReportSummaryScreen({
                 <View>
                   {data['appt-requests'].map((appt, idx) => {
                     return (
-                      <>
+                      <React.Fragment key={idx}>
                         <Divider />
-                        <View key={idx} style={{paddingVertical: 12}}>
+                        <View style={{paddingVertical: 12}}>
                           <TitledItem title="Appointment Reason">
                             {appt.reason}
                           </TitledItem>
@@ -131,7 +131,7 @@ export default function ReportSummaryScreen({
                             {formatDistanceToNow(new Date(appt.createdAt))} ago
                           </TitledItem>
                         </View>
-                      </>
+                      </React.Fragment>
                     );
                   })}
                 </View>
