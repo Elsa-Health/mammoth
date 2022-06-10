@@ -28,6 +28,8 @@ import * as Sentry from '@sentry/react-native';
 import {View, Text} from 'react-native';
 import {Analytics} from './CTC/analytics';
 
+import pj from '../package.json';
+
 // FIXME: Remove API key and secret
 if (!__DEV__) {
   Sentry.init({
@@ -78,6 +80,7 @@ function _Application() {
     return (
       <NavigationContainer>
         <CTC
+          appVersion={pj.version}
           provider={state.provider}
           logout={async () => {
             logout();

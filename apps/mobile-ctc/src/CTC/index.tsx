@@ -120,7 +120,13 @@ function practitioner(ep: ElsaProvider): CTCDoctor {
 type State = [Document.Ref, Document.Data, HybridLogicalClock];
 type CRDTMessage = [State, {facility: any; user: any}];
 
-function App({provider}: {provider: ElsaProvider}) {
+function App({
+  provider,
+  appVersion,
+}: {
+  provider: ElsaProvider;
+  appVersion: string;
+}) {
   // Create provider
   const [emr, organization, doctor] = React.useMemo(
     () => [
@@ -771,6 +777,11 @@ function App({provider}: {provider: ElsaProvider}) {
           })}
         />
       </Stack.Navigator>
+      <View style={{paddingVertical: 2, backgroundColor: '#4665af'}}>
+        <Text style={{textAlign: 'center'}} color="#FFF" size={14}>
+          Version: {appVersion}
+        </Text>
+      </View>
       {/* <ConnectionStatus status={status} retry={retry} /> */}
       <ConfirmVisitModal
         visible={show}
