@@ -71,7 +71,7 @@ export default function DashboardScreen({
         </Section>
       </View>
       {/* Section for actions to do */}
-      <ScrollView contentContainerStyle={{padding: 16}}>
+      <ScrollView contentContainerStyle={{paddingHorizontal: 16}}>
         <Section
           removeLine
           title="Get Started"
