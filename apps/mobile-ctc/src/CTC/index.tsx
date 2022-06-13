@@ -13,6 +13,7 @@ import ViewVisitScreen from './_screens/ViewVisit';
 import ViewPatientScreen from './_screens/ViewPatient';
 import ViewInvestigationScreen from './_screens/ViewInvestigation';
 
+import MedicationMapScreen from './_screens/MedicationMap';
 import RegisterNewPatientScreen from './_screens/RegisterNewPatient';
 
 import MedicationDispenseScreen from './_screens/MedicationDispense';
@@ -179,24 +180,30 @@ function App({
     },
   });
 
-  // const {socket, status, retry} = useWebSocket({
-  //   url: 'https://bounce-edge.fly.dev/crdt/state',
-  //   // url: 'https://cfe3-197-250-60-110.eu.ngrok.io/crdt/state',
-  //   onOpen(socket) {
-  //     // Connected
-  //     console.log('Connection established!!!');
-  //   },
-  //   onData(data: CRDTMessage[]) {
-  //     // console.log('Sending to something...');
-  //     // Received data
-  //     emr.merge(data);
-  //     // console.log('Received data... merging');
-  //     emr
-  //       .sync()
-  //       .then(() => console.log('Sync complete'))
-  //       .catch(() => console.log('Sync failed'));
-  //   },
-  // });
+  type StockMessage = {
+    type: 'stock';
+    data: {stock: []; source: {facility: any; user: any}}[];
+  };
+
+  // Get web socket
+  useWebSocket({
+    // url: 'https://bounce-edge.fly.dev/crdt/state',
+    url: 'wss://c0ac-197-250-224-127.eu.ngrok.io/crdt/state',
+    onOpen(socket) {
+      // Connected
+      console.log('Connection established!!!');
+    },
+    onData(data: CRDTMessage[] | StockMessage) {
+      // console.log('Sending to something...');
+      // Received data
+      emr.merge(data);
+      // console.log('Received data... merging');
+      emr
+        .sync()
+        .then(() => console.log('Sync complete'))
+        .catch(() => console.log('Sync failed'));
+    },
+  });
 
   const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
   // React.useEffect(() => {
@@ -254,8 +261,15 @@ function App({
               onViewReports() {
                 navigation.navigate('ctc.report-summary');
               },
+              onSeeOtherMedications() {
+                navigation.navigate('ctc.medication-map');
+              },
             }),
           })}
+        />
+        <Stack.Screen
+          name="ctc.medication-map"
+          component={withFlowContext(MedicationMapScreen, {})}
         />
         <Stack.Screen
           name="ctc.report-summary"

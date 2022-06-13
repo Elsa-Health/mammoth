@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {ScrollView, View} from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -31,89 +31,102 @@ export default function DashboardScreen({
     onViewMedications: () => void;
     onViewMedicationStock: () => void;
     onViewReports: () => void;
+
+    // see other's medication
+    onSeeOtherMedications: () => void;
   }
 >) {
   const {color} = useTheme();
 
   return (
-    <Layout hideHeader style={{backgroundColor: '#FFF', flex: 1}}>
-      <View style={{padding: 12}}>
-        <ElsaColorableIcon
-          color={color.secondary.base}
-          width={28}
-          height={28}
-        />
-        <Column spaceTop>
-          <Text size={28} font="bold">
-            Habari,
-          </Text>
+    <Layout hideHeader style={{backgroundColor: '#FFF', flex: 1, padding: 0}}>
+      <View style={{marginHorizontal: 16, marginTop: 16}}>
+        <View style={{padding: 12}}>
+          <ElsaColorableIcon
+            color={color.secondary.base}
+            width={28}
+            height={28}
+          />
+          <Column spaceTop>
+            <Text size={28} font="bold">
+              Habari,
+            </Text>
 
-          <Text size={25} font="bold">
-            {fullName !== undefined ? fullName : 'Daktari'}
-          </Text>
-        </Column>
-        {/* Icons */}
+            <Text size={25} font="bold">
+              {fullName !== undefined ? fullName : 'Daktari'}
+            </Text>
+          </Column>
+          {/* Icons */}
+        </View>
+        <Section
+          removeLine
+          title="Search Patient"
+          desc="Look up patient in the CTC">
+          <Searchbar
+            value={''}
+            placeholder="Type to search"
+            onPressOut={$.onSearchPatient}
+            style={{borderColor: '#CCC', borderWidth: 0.6, elevation: 2}}
+          />
+        </Section>
       </View>
-      <Section
-        removeLine
-        title="Search Patient"
-        desc="Look up patient in the CTC">
-        <Searchbar
-          value={''}
-          placeholder="Type to search"
-          onPressOut={$.onSearchPatient}
-          style={{borderColor: '#CCC', borderWidth: 0.6, elevation: 2}}
-        />
-      </Section>
       {/* Section for actions to do */}
-      <Section
-        removeLine
-        title="Get Started"
-        desc="Few things you can do while in the platform">
-        <Column>
-          <TouchableItem onPress={$.onNewPatient}>
-            <Row icon="account-plus-outline">
-              <Text>Register New Patient</Text>
-              <Icon name="arrow-right" color={color.primary.base} size={24} />
-            </Row>
-          </TouchableItem>
-          {/* <TouchableItem spaceTop onPress={$.onViewPatients}>
+      <ScrollView contentContainerStyle={{padding: 16}}>
+        <Section
+          removeLine
+          title="Get Started"
+          desc="Few things you can do while in the platform">
+          <Column>
+            <TouchableItem onPress={$.onNewPatient}>
+              <Row icon="account-plus-outline">
+                <Text>Register New Patient</Text>
+                <Icon name="arrow-right" color={color.primary.base} size={24} />
+              </Row>
+            </TouchableItem>
+            {/* <TouchableItem spaceTop onPress={$.onViewPatients}>
             <Row icon="account-group-outline">
               <Text>View Patients</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem> */}
-          <TouchableItem spaceTop onPress={$.onViewMedicationStock}>
-            <Row icon="plus-outline">
-              <Text>Manage Medication Stock</Text>
-              <Icon name="arrow-right" color={color.primary.base} size={24} />
-            </Row>
-          </TouchableItem>
-        </Column>
-      </Section>
-      {/* Others */}
-      <Section removeLine title="More" desc="What else you can do">
-        <Column>
-          {/* <TouchableItem onPress={$.onViewAppointments}>
+            <TouchableItem spaceTop onPress={$.onViewMedicationStock}>
+              <Row icon="plus-outline">
+                <Text>Manage Medication Stock</Text>
+                <Icon name="arrow-right" color={color.primary.base} size={24} />
+              </Row>
+            </TouchableItem>
+          </Column>
+        </Section>
+        {/* Others */}
+        <Section removeLine title="More" desc="What else you can do">
+          <Column>
+            {/* <TouchableItem onPress={$.onViewAppointments}>
             <Row icon="format-list-bulleted-type">
               <Text>View Appointments</Text>
               <Icon name="arrow-right" color={color.primary.base} size={24} />
             </Row>
           </TouchableItem> */}
-          <TouchableItem spaceTop onPress={$.onViewMedications}>
-            <Row icon="pill">
-              <Text>View Medication Requests</Text>
-              <Icon name="arrow-right" color={color.primary.base} size={24} />
-            </Row>
-          </TouchableItem>
-          <TouchableItem spaceTop onPress={$.onViewReports}>
-            <Row icon="chart-box-outline">
-              <Text>View Reports</Text>
-              <Icon name="arrow-right" color={color.primary.base} size={24} />
-            </Row>
-          </TouchableItem>
-        </Column>
-      </Section>
+            <TouchableItem spaceTop onPress={$.onViewMedications}>
+              <Row icon="pill">
+                <Text>View Medication Requests</Text>
+                <Icon name="arrow-right" color={color.primary.base} size={24} />
+              </Row>
+            </TouchableItem>
+            <TouchableItem spaceTop onPress={$.onViewReports}>
+              <Row icon="chart-box-outline">
+                <Text>View Reports</Text>
+                <Icon name="arrow-right" color={color.primary.base} size={24} />
+              </Row>
+            </TouchableItem>
+            <TouchableItem spaceTop onPress={$.onSeeOtherMedications}>
+              <Row icon="map-search">
+                <Text>View Medication Map</Text>
+                <Icon name="arrow-right" color={color.primary.base} size={24} />
+              </Row>
+            </TouchableItem>
+          </Column>
+        </Section>
+      </ScrollView>
     </Layout>
   );
 }
