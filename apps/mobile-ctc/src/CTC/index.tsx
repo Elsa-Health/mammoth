@@ -230,7 +230,6 @@ function App({
   return (
     <>
       <Stack.Navigator
-        initialRouteName="ctc.medication-stock"
         screenOptions={{
           headerShown: false,
           presentation: 'formSheet',
