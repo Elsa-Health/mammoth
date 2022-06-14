@@ -116,7 +116,12 @@ export type ConcludingAssessment = Assessment<{
 
 export type ARVMedication = Medication<
   'arv',
-  {className: ARV.Class | null; regimen: ARV.Regimen}
+  {className: ARV.Class | null; regimen: ARV.Regimen},
+  string
+>;
+export type ARVSingleMedication = Medication<
+  'arv-single',
+  {singleId: string | null; text: string}
 >;
 export type StandardMedication = Medication<
   'standard',

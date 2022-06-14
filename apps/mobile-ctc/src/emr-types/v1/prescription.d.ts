@@ -110,6 +110,7 @@ export type Medication<
   Category extends string = string,
   D extends Data = Data,
   Ingrdients extends Data = Data,
+  Form extends string = string,
 > = Resource<
   'Medication',
   {
@@ -130,6 +131,12 @@ export type Medication<
     ingredients: Ingrdients[];
 
     /**
+     * State the medication is in:
+     * `powder` + `tablets` + `capsules`
+     */
+    form: Nullable<Form>;
+
+    /**
      * Data about
      */
     data: Nullable<D>;
@@ -144,5 +151,10 @@ type Stock<M extends Medication, Org extends Organization> = Resource<
     count: number;
     managingOrganization: Nullable<Org>;
     lastUpdatedAt: DateTimeString;
+
+    /**
+     * Date and time that the medicaiton expires
+     */
+    expiresAt: Nullable<UTCDateTimeString>;
   }
 >;

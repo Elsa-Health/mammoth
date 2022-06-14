@@ -3,7 +3,12 @@ import {useAsync, useAsyncFn, useAsyncRetry} from 'react-use';
 import {EMR} from '../store';
 
 import randomSample from '@stdlib/random-sample';
-import {ARVMedication, CTCMedicationRequest, CTCOrganization} from '../types';
+import {
+  ARVMedication,
+  ARVSingleMedication,
+  CTCMedicationRequest,
+  CTCOrganization,
+} from '../types';
 import {ARV, CTC} from 'elsa-health-data-fns/lib';
 import _ from 'lodash';
 import {List} from 'immutable';
@@ -28,35 +33,34 @@ import {
 } from 'react-native-reanimated';
 import {Query, queryCollection} from '../actions';
 import {CollectionNode} from 'papai/collection/core';
+import {ARVSingles} from '../../_screens/MedicationStock/stock';
+import {addDays} from 'date-fns';
 
 // create medications
-const arvMedFactory = randomSample.factory(
-  _.concat(
-    ...ARV.pairs().map(([class_, id]) => {
-      return id.map(d => [class_, d]);
-    }),
-  ).map(([className, regimen]) => {
+const arvSingleFactory = randomSample.factory(
+  ARVSingles.pairs().map(([singleId, text]) => {
     // Build the objects
     return {
-      alias: ARV.regimen.fromKey(regimen) ?? regimen,
-      code: 'arv',
-      id: 'ctc-arv:' + regimen,
-      name: regimen,
+      alias: ARVSingles.fromKey(singleId) ?? singleId,
+      code: 'arv-single',
+      id: 'ctc-arv-single:' + singleId,
+      name: singleId,
       createdAt: new Date().toISOString(),
+      form: null,
       data: {
-        className,
-        regimen,
+        singleId,
+        text,
       },
       ingredients: [],
       resourceType: 'Medication',
-    } as ARVMedication;
+    } as ARVSingleMedication;
   }),
-  {size: 50},
+  {size: 20},
 );
 
 // Create medication knowledge
-const arvMedStock = List<Stock<ARVMedication, CTCOrganization>>(
-  arvMedFactory(),
+const arvSingleMedStock = List<Stock<ARVSingleMedication, CTCOrganization>>(
+  arvSingleFactory(),
 ).map(med => ({
   resourceType: 'Stock',
   id: `stock:${med.id}`,
@@ -64,37 +68,65 @@ const arvMedStock = List<Stock<ARVMedication, CTCOrganization>>(
   createdAt: new Date().toUTCString(),
   lastUpdatedAt: new Date().toUTCString(),
   managingOrganization: null,
+  expiresAt: addDays(new Date(), 40).toUTCString(),
   medication: med,
   count: Math.max(3, Math.ceil(Math.random() * 30 + 1)),
 }));
 
 export function useMedicationStock(emr: EMR) {
   // get stock information
-  const [stock, set] = React.useState({});
+  const [arvComboStock, setComboStock] = React.useState({});
+  const [arvSingleStock, setSingleStock] = React.useState({});
 
   // set information in the medication in stock
   useAsync(async () => {
     const stockItems = (await getDocs(emr.collections.stock)) ?? [];
-    const svp = stockItems.map(([docId, state]) => {
-      const regimen = state.medication.data.regimen;
-      const className = state.medication.data.className;
+    const svp = stockItems
+      .filter(([_, state]) => state.medication.code === 'arv')
+      .map(([docId, state]) => {
+        const regimen = state.medication.data.regimen;
+        const className = state.medication.data.className;
 
-      return [
-        docId,
-        {
-          category: className,
-          medication: {
-            regimen,
-            className,
-            text: ARV.regimen.fromKey(regimen) ?? regimen,
+        return [
+          docId,
+          {
+            category: className,
+            medication: {
+              regimen,
+              className,
+              text: ARV.regimen.fromKey(regimen) ?? regimen,
+            },
+            count: state.count,
+            expiresAt: state.expiresAt ?? null,
+            lastUpdate: state.lastUpdatedAt,
           },
-          count: state.count,
-          lastUpdate: new Date(state.lastUpdatedAt),
-        },
-      ];
-    });
+        ];
+      });
 
-    set(Object.fromEntries(svp));
+    setComboStock(Object.fromEntries(svp));
+  }, [emr]);
+
+  useAsync(async () => {
+    const stockItems = (await getDocs(emr.collections.stock)) ?? [];
+    const svp = stockItems
+      .filter(([_, state]) => state.medication.code === 'arv-single')
+      .map(([docId, state]) => {
+        const singleId = state.medication.data?.singleId;
+        const text = state.medication.data?.text;
+
+        return [
+          docId,
+          {
+            item: singleId,
+            text: text,
+            count: state.count,
+            expiresAt: state.expiresAt ?? null,
+            lastUpdate: state.lastUpdatedAt,
+          },
+        ];
+      });
+
+    setSingleStock(Object.fromEntries(svp));
   }, [emr]);
 
   React.useEffect(() => {
@@ -102,42 +134,49 @@ export function useMedicationStock(emr: EMR) {
       const [ref, state, _] = token;
 
       if (ref.collectionId === emr.collections.stock.ref.collectionId) {
-        const regimen = state.medication.data.regimen;
-        const className = state.medication.data.className;
+        if (state.medication.code === 'arv') {
+          const regimen = state.medication.data.regimen;
+          const className = state.medication.data.className;
+          setComboStock(stock =>
+            produce(stock, df => {
+              df[ref.documentId] = {
+                category: className,
+                medication: {
+                  regimen,
+                  className,
+                  text: ARV.regimen.fromKey(regimen) ?? regimen,
+                },
+                count: state.count,
+                lastUpdate: state.lastUpdatedAt,
+                expiresAt: state.expiresAt ?? null,
+              };
+            }),
+          );
+        }
 
-        // console.log(state);
-        // console.log({
-        //   category: className,
-        //   medication: {
-        //     regimen,
-        //     className,
-        //     text: ARV.regimen.fromKey(regimen) ?? regimen,
-        //   },
-        //   count: state.count,
-        //   lastUpdate: new Date(state.lastUpdatedAt),
-        // });
+        if (state.medication.code === 'arv-single') {
+          const item = state.medication.name;
+          const text = state.medication.data.text;
 
-        set(stock =>
-          produce(stock, df => {
-            df[ref.documentId] = {
-              category: className,
-              medication: {
-                regimen,
-                className,
-                text: ARV.regimen.fromKey(regimen) ?? regimen,
-              },
-              count: state.count,
-              lastUpdate: new Date(state.lastUpdatedAt),
-            };
-          }),
-        );
+          setSingleStock(stock =>
+            produce(stock, df => {
+              df[ref.documentId] = {
+                item,
+                text,
+                count: state.count,
+                lastUpdate: state.lastUpdatedAt,
+                expiresAt: state.expiresAt ?? null,
+              };
+            }),
+          );
+        }
       }
     });
 
     return () => d.unsubscribe();
   }, []);
 
-  return stock;
+  return {'combo-arv': arvComboStock, 'single-arv': arvSingleStock};
 }
 
 /**

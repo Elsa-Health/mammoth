@@ -23,6 +23,7 @@ import {InvReq, InvResult, Medica, MedicaDisp, MedicaReq} from './hook';
 import {ElsaProvider} from '../../provider/backend';
 import {
   ARVMedication,
+  ARVSingleMedication,
   CTCAppointmentRequest,
   CTCAppointmentResponse,
   CTCOrganization,
@@ -188,10 +189,9 @@ export class EMR {
    */
   get collections() {
     return {
-      stock: collection<Stock<ARVMedication, CTCOrganization>>(
-        storage,
-        'medication-stock',
-      ),
+      stock: collection<
+        Stock<ARVMedication | ARVSingleMedication, CTCOrganization>
+      >(storage, 'medication-stock'),
       visits: collection<CTCVisit>(storage, 'visits'),
       appointmentRequests: collection<CTCAppointmentRequest>(
         storage,

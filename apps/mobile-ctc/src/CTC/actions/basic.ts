@@ -9,6 +9,7 @@ import {Practitioner} from '../../emr-types/v1/personnel';
 import {ElsaProvider} from '../../provider/backend';
 import {
   ARVMedication,
+  ARVSingleMedication,
   CTCDoctor,
   CTCInvestigationRequest,
   CTCInvestigationResult,
@@ -17,6 +18,7 @@ import {
   CTCPatient,
   StandardMedication,
 } from '../emr/types';
+import {ARVSingle, ARVSingles} from '../_screens/MedicationStock/stock';
 
 export function getOrganizationFromProvider(ep: ElsaProvider): CTCOrganization {
   const {name, phoneNumber, address, ctcCode, website} = ep.facility;
@@ -115,6 +117,7 @@ export const reference = <T extends string, R extends Resource<T, Data>>(
 export function arv(
   id: string,
   arvRegimen: ARV.Regimen,
+  ingredients: string[] = [],
   createdAt: Date = new Date(),
 ): ARVMedication {
   return {
@@ -128,6 +131,29 @@ export function arv(
     },
     resourceType: 'Medication',
     name: arvRegimen,
+    form: null,
+    ingredients: [],
+  };
+}
+export function arvSingle(
+  id: string,
+  singleItem: ARVSingle,
+  form: string,
+  ingredients: string[] = [],
+  createdAt: Date = new Date(),
+): ARVSingleMedication {
+  return {
+    id,
+    alias: null,
+    code: null,
+    createdAt: createdAt.toUTCString(),
+    data: {
+      singleId: singleItem,
+      text: ARVSingles.fromKey(singleItem) ?? singleItem,
+    },
+    resourceType: 'Medication',
+    form,
+    name: singleItem,
     ingredients: [],
   };
 }
@@ -145,6 +171,7 @@ export function stanMed(
     data: {medication, text: Medication.all.fromKey(medication)},
     resourceType: 'Medication',
     name: medication,
+    form: null,
     ingredients: [],
   };
 }

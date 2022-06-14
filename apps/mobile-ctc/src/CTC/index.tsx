@@ -55,6 +55,7 @@ import _ from 'lodash';
 import {translatePatient} from './actions/translate';
 import {
   arv,
+  arvSingle,
   getOrganizationFromProvider,
   investigationRequest,
   medRequest,
@@ -229,6 +230,7 @@ function App({
   return (
     <>
       <Stack.Navigator
+        initialRouteName="ctc.medication-stock"
         screenOptions={{
           headerShown: false,
           presentation: 'formSheet',
@@ -269,7 +271,13 @@ function App({
         />
         <Stack.Screen
           name="ctc.medication-map"
-          component={withFlowContext(MedicationMapScreen, {})}
+          component={withFlowContext(MedicationMapScreen, {
+            actions: ({navigation}) => ({
+              onUpdateStock() {
+                navigation.navigate('ctc.medication-stock');
+              },
+            }),
+          })}
         />
         <Stack.Screen
           name="ctc.report-summary"
@@ -414,18 +422,19 @@ function App({
         <Stack.Screen
           name="ctc.medication-stock"
           component={withFlowContext(MedicationStock, {
-            entry: {stock},
+            entry: stock,
             actions: ({navigation}) => ({
-              async setMedicationCount(data) {
+              async setARVSingleMedicationCount(data) {
                 const org =
                   doctor.organization.resourceType === 'Organization'
                     ? reference(doctor.organization)
                     : doctor.organization;
 
                 if (data.id === undefined) {
-                  const toStock = arv(
-                    `ctc-arv:${data.arvRegimen}`,
-                    data.arvRegimen,
+                  const toStock = arvSingle(
+                    `ctc-arv-single:${data.single}`,
+                    data.single,
+                    data.form,
                   );
 
                   // create new
@@ -436,6 +445,47 @@ function App({
                     createdAt: new Date().toUTCString(),
                     lastUpdatedAt: new Date().toUTCString(),
                     managingOrganization: org,
+                    expiresAt: convertDMYToDate(data.expiresAt).toUTCString(),
+                    medication: toStock,
+                    count: parseFloat(data.count.toString()),
+                  });
+                } else {
+                  if (data.id === undefined) {
+                    throw new Error('Missing Id for the medication to stock');
+                  }
+                  await updateDoc(doc(emr.collections.stock, data.id), {
+                    count: parseFloat(data.count.toString()),
+                    lastUpdatedAt: new Date().toUTCString(),
+                    expiresAt: convertDMYToDate(data.expiresAt).toUTCString(),
+                    managingOrganization: org,
+                  });
+                }
+              },
+              async setARVComboMedicationCount(data) {
+                const org =
+                  doctor.organization.resourceType === 'Organization'
+                    ? reference(doctor.organization)
+                    : doctor.organization;
+
+                const expiresAt = data.expiresAt
+                  ? convertDMYToDate(data.expiresAt).toUTCString()
+                  : null;
+                if (data.id === undefined) {
+                  const toStock = arv(
+                    `ctc-arv:${data.arvRegimen}`,
+                    data.arvRegimen,
+                    data.ingredients ?? [],
+                  );
+
+                  // create new
+                  await setDoc(doc(emr.collections.stock, toStock.id), {
+                    resourceType: 'Stock',
+                    id: `stock:${toStock.id}`,
+                    code: null,
+                    createdAt: new Date().toUTCString(),
+                    lastUpdatedAt: new Date().toUTCString(),
+                    managingOrganization: org,
+                    expiresAt,
                     medication: toStock,
                     count: parseFloat(data.count.toString()),
                   });
@@ -446,6 +496,7 @@ function App({
                   await updateDoc(doc(emr.collections.stock, data.id), {
                     count: parseFloat(data.count),
                     lastUpdatedAt: new Date().toUTCString(),
+                    expiresAt,
                     managingOrganization: org,
                   });
                 }

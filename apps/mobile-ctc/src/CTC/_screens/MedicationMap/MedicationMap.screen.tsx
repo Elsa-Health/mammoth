@@ -139,7 +139,7 @@ export default function MedicationMapScreen({
           />
         </Section>
         <Section removeLine spaceTop noPad>
-          <Button icon="file" mode="outlined">
+          <Button icon="file" mode="outlined" onPress={() => $.onUpdateStock()}>
             Update Stock
           </Button>
         </Section>
