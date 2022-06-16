@@ -21,7 +21,10 @@ import {
 import {Patient, Practitioner} from '../../emr-types/v1/personnel';
 import {Medication, MedicationRequest} from '../../emr-types/v1/prescription';
 import {Assessment, Visit} from '../../emr-types/v1/visit';
-import {DurationOpt} from '../_screens/MedicationVisit';
+import {
+  DurationOpt,
+  MedicationRequestVisitData,
+} from '../_screens/MedicationVisit';
 
 export type CTCPatient = Patient<
   {
@@ -175,5 +178,6 @@ export type CTCVisit = Visit<
   | Assessment, // temporary assessment data
   CTCMedicationRequest,
   CTCInvestigationRequest,
-  CTCAppointment
+  CTCAppointment,
+  MedicationRequestVisitData
 >;

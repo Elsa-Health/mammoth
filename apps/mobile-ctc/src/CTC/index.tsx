@@ -70,7 +70,9 @@ import {
   CTCVisit,
 } from './emr/types';
 import {ConfirmVisitModal, useVisit} from './actions/hook';
-import MedicationVisit from './_screens/MedicationVisit';
+import MedicationVisit, {
+  MedicationRequestVisitData,
+} from './_screens/MedicationVisit';
 import MedicationStock from './_screens/MedicationStock';
 import {useCTCVisit, useEMR, useMedicationStock} from './emr/react-hooks';
 
@@ -291,14 +293,16 @@ function App({
         <Stack.Screen
           name="ctc.medication-visit"
           component={withFlowContext(MedicationVisit, {
+            entry: {},
             actions: ({navigation}) => ({
               async complete(data, patient, organization) {
                 try {
+                  // console.log('##### -2');
                   // create a medication request
                   const {arvRegimens, medications, appointmentDate} = data;
 
                   // ARV medication requests
-                  const arvMedRqs = arvRegimens.map(arvMedId =>
+                  const arvMedRqs = (arvRegimens ?? []).map(arvMedId =>
                     medRequest(
                       `med-req:${uuid.v4()}` as string,
                       arv(`ctc-arv:${arvMedId}`, arvMedId),
@@ -309,9 +313,10 @@ function App({
                       },
                     ),
                   );
+                  // console.log('##### -1');
 
                   // other medication
-                  const standardMedRqs = medications.map(medId =>
+                  const standardMedRqs = (medications ?? []).map(medId =>
                     medRequest(
                       `med-req:${uuid.v4()}` as string,
                       stanMed(`ctc-standard:${medId}`, medId),
@@ -322,6 +327,8 @@ function App({
                       },
                     ),
                   );
+
+                  // console.log('##### 0');
 
                   // prepare prescriptions
                   const prescriptions = [...arvMedRqs, ...standardMedRqs];
@@ -341,6 +348,7 @@ function App({
                     investigationRequests: [],
                     prescriptions: prescriptions.map(reference),
                   };
+                  // console.log('##### 1');
 
                   // create appointment
                   const d = convertDMYToDate(appointmentDate);
@@ -356,14 +364,18 @@ function App({
                     visit: reference(visit),
                   };
 
+                  // console.log('##### 2');
+
                   // record the medication requests
                   await setDocs(
                     emr.collections.medicationRequests,
-                    prescriptions.map(d => [d.id, d]),
+                    (prescriptions ?? []).map(d => [d.id, d]),
                   );
+                  // console.log('##### 3');
 
                   // record the visit
                   await setDoc(doc(emr.collections.visits, visit.id), visit);
+                  // console.log('##### 4');
 
                   // record appointment request
                   await setDoc(
@@ -379,7 +391,7 @@ function App({
                   // recording the investigation requests
                   await setDocs(
                     emr.collections.investigationRequests,
-                    data.investigations.map(inv => {
+                    (data.investigations ?? []).map(inv => {
                       const id = `inv-req:${uuid.v4()}`;
                       return [
                         id,
@@ -409,6 +421,7 @@ function App({
 
                   navigation.goBack();
                 } catch (err) {
+                  console.log(err);
                   ToastAndroid.show(
                     'Failed to properly complete the visit. Try again later.',
                     ToastAndroid.LONG,
@@ -626,8 +639,6 @@ function App({
         <Stack.Screen
           name="ctc.view-patient"
           component={withFlowContext(ViewPatientScreen, {
-            // patient:
-
             actions: ({navigation}) => ({
               onToEditPatient(patient) {
                 // ... go to screen to edit patient
@@ -680,6 +691,35 @@ function App({
                     'medication-requests-count': d.prescriptions.length,
                     onViewVisit: () => {
                       navigation.navigate('ctc.view-visit', {visit: d});
+                    },
+                    onEditVisit: async () => {
+                      const patients = await queryCollection(
+                        emr.collections.patients,
+                        {where: item => item.id === patientId},
+                      );
+
+                      const patient = patients.get(0) ?? null;
+
+                      if (patient !== null) {
+                        navigation.navigate('ctc.medication-visit', {
+                          patient,
+                          organization,
+                          edit: true,
+                          initialState: {
+                            dateOfVisit: format(
+                              new Date(d.date ?? d.createdAt),
+                              'dd / MM / yyyy',
+                            ),
+                            ...d.extendedData,
+                          },
+                        });
+                      } else {
+                        // ...
+                        ToastAndroid.show(
+                          'Patient is missing, unable to edit visit',
+                          ToastAndroid.LONG,
+                        );
+                      }
                     },
                   }))
                   .toArray();

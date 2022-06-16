@@ -22,6 +22,7 @@ export type VisitItem = {
   visitDate: UTCDateTimeString;
   'medication-requests-count': number;
   onViewVisit: () => void;
+  onEditVisit: () => void;
 };
 
 export type NextAppointmentItem = {
@@ -170,11 +171,17 @@ function HistoryItem({visit}: {visit: VisitItem}) {
         </TitledItem>
       </View>
       <View>
-        <Button
+        {/* <Button
           icon="file-eye-outline"
           mode="outlined"
           onPress={visit.onViewVisit}>
           View
+        </Button> */}
+        <Button
+          icon="square-edit-outline"
+          mode="outlined"
+          onPress={visit.onEditVisit}>
+          {'View & Edit'}
         </Button>
       </View>
     </Row>

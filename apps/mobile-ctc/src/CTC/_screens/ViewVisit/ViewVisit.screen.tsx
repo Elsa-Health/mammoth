@@ -21,15 +21,15 @@ import Animated, {EasingNode} from 'react-native-reanimated';
 import {InvReq} from '../../emr/hook';
 import {Investigation} from 'elsa-health-data-fns/lib';
 import {useAsyncRetry} from 'react-use';
+import {CTCVisit} from '../../emr/types';
 
 export default function ViewVisitScreen({
   entry: {visit},
   actions: $,
 }: WorkflowScreenProps<
-  {visit: Visit},
+  {visit: CTCVisit},
   {
     onNext: () => void;
-    getInvestigationResult: (invRequest: any) => Promise<any>;
     onAddInvestigationResult: () => void;
     onUpdateInvestigationResult: () => void;
   }
@@ -62,15 +62,9 @@ export default function ViewVisitScreen({
         <Section title="Assessment" spaceTop>
           <Text>Something</Text>
         </Section>
-        <Section title="Investigations">
-          {visit.investigationRequests.map(invReq => (
-            <InvestigationItem
-              key={invReq.id}
-              request={invReq as InvReq}
-              getResults={async () => await $.getInvestigationResult(invReq)}
-              onAddResult={() => {}}
-              onUpdateResultItem={ix => {}}
-            />
+        <Section title="Medication Requests">
+          {visit.prescriptions.map(medReq => (
+            <></>
           ))}
         </Section>
       </ScrollView>

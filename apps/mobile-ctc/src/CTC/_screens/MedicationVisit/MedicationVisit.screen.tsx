@@ -6,7 +6,7 @@ import {ARV, CTC, Investigation, Medication} from 'elsa-health-data-fns/lib';
 import React from 'react';
 import {useForm, Controller, ResolverResult} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
-import {Button, RadioButton, TextInput} from 'react-native-paper';
+import {Button, HelperText, RadioButton, TextInput} from 'react-native-paper';
 import {CTCOrganization, CTCPatient} from '../../emr/types';
 import {
   Block,
@@ -42,7 +42,12 @@ export default function MedicationVisitScreen({
   entry: e,
   actions: $,
 }: WorkflowScreenProps<
-  {patient: CTCPatient; organization: CTCOrganization},
+  {
+    patient: CTCPatient;
+    organization: CTCOrganization;
+    initialState: MedicationRequestVisitData;
+    edit: boolean;
+  },
   {
     complete: (
       data: MedicationRequestVisitData,
@@ -54,7 +59,7 @@ export default function MedicationVisitScreen({
 >) {
   const {spacing} = useTheme();
   const {handleSubmit, control} = useForm<MedicationRequestVisitData>({
-    defaultValues: {
+    defaultValues: e.initialState ?? {
       // regimenDecision: undefined,
       // @ts-ignore
       // decisionReason: '',
@@ -71,8 +76,11 @@ export default function MedicationVisitScreen({
     $.complete(data, e.patient, e.organization),
   );
 
+  const edit = !Boolean(e.edit);
   return (
-    <Layout title="Patient Visit" style={{padding: 0}}>
+    <Layout
+      title={edit ? 'Patient Visit' : 'Edit Patient Visit'}
+      style={{padding: 0}}>
       <ScrollView contentContainerStyle={{padding: spacing.md}}>
         <Section mode="raised">
           <Row icon="account" spaceTop>
@@ -253,7 +261,7 @@ export default function MedicationVisitScreen({
             onPress={onSubmit}
             style={{flex: 1}}
             icon="check">
-            Finish
+            {edit ? 'Finish' : 'Finalize Edit'}
           </Button>
         </Row>
       </Block>
