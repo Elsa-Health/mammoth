@@ -126,9 +126,11 @@ type CRDTMessage = [State, {facility: any; user: any}];
 function App({
   provider,
   appVersion,
+  logout,
 }: {
   provider: ElsaProvider;
   appVersion: string;
+  logout: () => Promise<void>;
 }) {
   // Create provider
   const [emr, organization, doctor] = React.useMemo(
@@ -241,6 +243,7 @@ function App({
           component={withFlowContext(DashboardScreen, {
             entry: {fullName: provider.user.displayName},
             actions: ({navigation}) => ({
+              logout,
               onSearchPatient() {
                 navigation.navigate('ctc.patient-dashboard', {searchText: ''});
               },

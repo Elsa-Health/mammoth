@@ -12,7 +12,7 @@ import {
   TouchableItem,
 } from '../../temp-components';
 import {useTheme} from '@elsa-ui/react-native/theme';
-import {Searchbar} from 'react-native-paper';
+import {Divider, IconButton, Menu, Searchbar} from 'react-native-paper';
 import {ElsaColorableIcon} from '@elsa-ui/react-native/visuals/vectors';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 
@@ -24,6 +24,7 @@ export default function DashboardScreen({
     fullName: string;
   },
   {
+    logout: () => Promise<void>;
     onSearchPatient: () => void;
     onNewPatient: () => void;
     // onViewPatients: () => void;
@@ -37,25 +38,44 @@ export default function DashboardScreen({
   }
 >) {
   const {color} = useTheme();
+  const [visible, setVisible] = React.useState(false);
 
   return (
     <Layout hideHeader style={{backgroundColor: '#FFF', flex: 1, padding: 0}}>
       <View style={{marginHorizontal: 16, marginTop: 16}}>
         <View style={{padding: 12}}>
-          <ElsaColorableIcon
-            color={color.secondary.base}
-            width={28}
-            height={28}
-          />
-          <Column spaceTop>
-            <Text size={28} font="bold">
-              Habari,
-            </Text>
+          <Row>
+            <View>
+              <ElsaColorableIcon
+                color={color.secondary.base}
+                width={28}
+                height={28}
+              />
+              <Column spaceTop>
+                <Text size={28} font="bold">
+                  Habari,
+                </Text>
 
-            <Text size={25} font="bold">
-              {fullName !== undefined ? fullName : 'Daktari'}
-            </Text>
-          </Column>
+                <Text size={25} font="bold">
+                  {fullName !== undefined ? fullName : 'Daktari'}
+                </Text>
+              </Column>
+            </View>
+            <View>
+              <Menu
+                visible={visible}
+                onDismiss={() => setVisible(false)}
+                anchor={
+                  <IconButton
+                    style={{borderWidth: 1, borderColor: color.primary.base}}
+                    icon="dots-vertical"
+                    onPress={() => setVisible(s => !s)}
+                  />
+                }>
+                <Menu.Item onPress={() => $.logout()} title="Log out" />
+              </Menu>
+            </View>
+          </Row>
           {/* Icons */}
         </View>
         <Section
