@@ -33,6 +33,7 @@ export default function ViewPatientScreen({
 }: WorkflowScreenProps<
   {patient: CTCPatient; organization: CTCOrganization},
   {
+    onToEditPatient: (patient: CTCPatient) => void;
     nextAppointment: (patientId: string) => Promise<null | NextAppointmentItem>;
     fetchVisits: (patientId: string) => Promise<VisitItem[]>;
   }

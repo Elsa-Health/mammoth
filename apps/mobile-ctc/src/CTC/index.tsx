@@ -627,7 +627,11 @@ function App({
           name="ctc.view-patient"
           component={withFlowContext(ViewPatientScreen, {
             // patient:
+
             actions: ({navigation}) => ({
+              onToEditPatient(patient) {
+                // ... go to screen to edit patient
+              },
               async nextAppointment(patientId: string) {
                 const after = await queryCollection(
                   emr.collections.appointmentRequests,
