@@ -80,6 +80,7 @@ import {queryCollection} from './emr/actions';
 import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 import {convertDMYToDate} from './emr/utils';
 import {useEMRReport, useReport} from './emr/react-hooks/report';
+import {format, isAfter} from 'date-fns';
 
 const Stack = createNativeStackNavigator();
 
@@ -627,8 +628,57 @@ function App({
           component={withFlowContext(ViewPatientScreen, {
             // patient:
             actions: ({navigation}) => ({
-              async fetchVisits() {
-                return await queryCollection(emr.collections.visits, {});
+              async nextAppointment(patientId: string) {
+                const after = await queryCollection(
+                  emr.collections.appointmentRequests,
+                  {
+                    where: {
+                      $and: [
+                        item =>
+                          isAfter(new Date(item.appointmentDate), new Date()),
+                        item => {
+                          return (item.participants ?? [])
+                            .map(d => d.id)
+                            .includes(patientId);
+                        },
+                      ],
+                    },
+                    order: {
+                      type: 'asc',
+                      field: item => new Date(item.appointmentDate).getTime(),
+                    },
+                  },
+                );
+
+                const d = after.get(0) ?? null;
+
+                if (d !== null) {
+                  return {
+                    appointmentDate: format(
+                      new Date(d.appointmentDate),
+                      'yyyy, MMMM dd',
+                    ),
+                  };
+                }
+
+                return null;
+              },
+              async fetchVisits(patientId: string) {
+                return (
+                  await queryCollection(emr.collections.visits, {
+                    where: item => {
+                      return item.subject.id === patientId;
+                    },
+                  })
+                )
+                  .map(d => ({
+                    visitDate: d.date ?? d.createdAt,
+                    'medication-requests-count': d.prescriptions.length,
+                    onViewVisit: () => {
+                      navigation.navigate('ctc.view-visit', {visit: d});
+                    },
+                  }))
+                  .toArray();
               },
             }),
           })}

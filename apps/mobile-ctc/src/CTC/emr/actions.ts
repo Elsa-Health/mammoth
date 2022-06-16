@@ -5,7 +5,7 @@ import {CollectionNode} from 'papai/collection/core';
 import {List, OrderedMap} from 'immutable';
 import {reduceRight} from 'lodash';
 
-type FieldSelector<T> = <F extends string | number>(item: T) => F;
+type FieldSelector<T> = (item: T) => string | number;
 type OrderQueryClause<T> = {type?: 'asc' | 'desc'; field: FieldSelector<T>};
 
 export type Query<T> = {
