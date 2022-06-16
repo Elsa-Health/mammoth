@@ -3,7 +3,14 @@ import React from 'react';
 import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {ScrollView, View} from 'react-native';
-import {Column, Item, Row, Section, TitledItem} from '../../temp-components';
+import {
+  CollapsibleSection,
+  Column,
+  Item,
+  Row,
+  Section,
+  TitledItem,
+} from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 
 import CollapsibleView from 'react-native-collapsible';
@@ -11,18 +18,34 @@ import {Button, IconButton, TouchableRipple} from 'react-native-paper';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {format} from 'date-fns';
+import {useAsyncRetry} from 'react-use';
 
+export type AppointmentItem = {
+  appointmentDate: Date;
+  patientId: string;
+};
 export default function ViewAppointmentsScreen({
+  entry: e,
   actions: $,
-}: WorkflowScreenProps<{}, {onNext: () => void}>) {
+}: WorkflowScreenProps<
+  {},
+  {
+    onNext: () => void;
+    fetchUpcomingAppointments: () => Promise<AppointmentItem[]>;
+    fetchMissedAppointments: () => Promise<AppointmentItem[]>;
+  }
+>) {
   const {spacing} = useTheme();
-  const [state, set] = React.useState(() => ({
-    coMorbidities: [] as any[],
-  }));
 
-  const [visible, setVisible] = React.useState(false);
-  const [visibleUpcoming, setVisibleUpcoming] = React.useState(false);
-  const [visibleDone, setVisibleDone] = React.useState(false);
+  // CHANGE THIS STRAT
+  const {loading, value: missed = null} = useAsyncRetry(
+    $.fetchMissedAppointments,
+    [],
+  );
+  const {loading: _load, value: upcoming = null} = useAsyncRetry(
+    $.fetchUpcomingAppointments,
+    [],
+  );
 
   return (
     <Layout title="Appointments" style={{padding: 0}}>
@@ -40,106 +63,60 @@ export default function ViewAppointmentsScreen({
           </Row>
         </Section>
 
+        {/* Upcoming appointments */}
+        <CollapsibleSection
+          spaceTop
+          removeLine
+          title="Upcoming Appointments"
+          desc="List of upcoming appointments">
+          <Column>
+            {/* Investigation content */}
+            {(upcoming ?? []).map((d, ix) => (
+              <Section key={ix} spaceTop={ix !== 0}>
+                <UpcomingAppointmentItem {...d} />
+              </Section>
+            ))}
+          </Column>
+        </CollapsibleSection>
+
         {/* Missed Appointments */}
         <Column>
-          <Section
+          <CollapsibleSection
             spaceTop
             removeLine
             mode="raised"
             title="Missed Appointments"
-            right={
-              <IconButton
-                icon="chevron-down"
-                onPress={() => setVisible(s => !s)}
-              />
-            }
             desc="Here are the missed appointments">
             {/* Investigation content */}
-            <CollapsibleView collapsed={visible} style={{padding: spacing.md}}>
-              <ScrollView>
-                <Text>No Result</Text>
-              </ScrollView>
-            </CollapsibleView>
-          </Section>
+
+            <Column>
+              {/* Investigation content */}
+              {(missed ?? []).map((d, ix) => (
+                <Section key={ix} spaceTop={ix !== 0}>
+                  <UpcomingAppointmentItem {...d} />
+                </Section>
+              ))}
+            </Column>
+          </CollapsibleSection>
         </Column>
-
-        {/* Upcoming appointments */}
-        <Section
-          spaceTop
-          title="Upcoming Appointments"
-          desc="List of upcoming appointments"
-          right={
-            <IconButton
-              icon="chevron-down"
-              onPress={() => setVisibleUpcoming(s => !s)}
-            />
-          }>
-          <CollapsibleView
-            collapsed={visibleUpcoming}
-            style={{paddingVertical: spacing.md}}>
-            <Column>
-              {/* Investigation content */}
-              {[2, 3, 4].map((d, ix) => (
-                <Section mode="raised" key={ix} spaceTop={ix !== 0}>
-                  <UpcomingAppointmentItem />
-                </Section>
-              ))}
-            </Column>
-          </CollapsibleView>
-        </Section>
-
-        {/* Completed */}
-        <Section
-          spaceTop
-          title="Completed Appointments"
-          desc="Attended Appointments"
-          removeLine
-          right={
-            <IconButton
-              icon="chevron-down"
-              onPress={() => setVisibleDone(s => !s)}
-            />
-          }>
-          <CollapsibleView
-            collapsed={visibleDone}
-            style={{paddingBottom: spacing.md}}>
-            <Column>
-              <View
-                style={{
-                  borderColor: '#4665af',
-                  borderTopWidth: 1,
-                  // borderBottomWidth: 1,
-                  marginVertical: 8,
-                  padding: 8,
-                }}>
-                <Text font="bold">June</Text>
-              </View>
-              {/* Investigation content */}
-              {[2, 3, 4].map((d, ix) => (
-                <Section mode="raised" key={ix} spaceTop>
-                  <AppointmentItem />
-                </Section>
-              ))}
-            </Column>
-          </CollapsibleView>
-        </Section>
       </ScrollView>
     </Layout>
   );
 }
 
-function UpcomingAppointmentItem() {
+export type UpcomingAppointmentItem = AppointmentItem;
+function UpcomingAppointmentItem(props: UpcomingAppointmentItem) {
   return (
     <>
       <Column wrapperStyle={{marginBottom: 12}}>
         <TitledItem title="Appointment Date">
-          {format(new Date(), 'yyyy, MMMM dd')}
+          {format(props.appointmentDate, 'yyyy, MMMM dd')}
         </TitledItem>
         <TitledItem spaceTop title="Patient ID">
-          0202010000012231
+          {props.patientId}
         </TitledItem>
       </Column>
-      <Row>
+      {/* <Row>
         <Button
           icon="file-eye"
           style={{flex: 1, marginRight: 6}}
@@ -154,7 +131,7 @@ function UpcomingAppointmentItem() {
           onPress={() => {}}>
           Attend
         </Button>
-      </Row>
+      </Row> */}
     </>
   );
 }

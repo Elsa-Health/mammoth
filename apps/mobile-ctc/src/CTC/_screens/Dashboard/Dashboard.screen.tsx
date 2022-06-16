@@ -28,7 +28,7 @@ export default function DashboardScreen({
     onSearchPatient: () => void;
     onNewPatient: () => void;
     // onViewPatients: () => void;
-    // onViewAppointments: () => void;
+    onViewAppointments: () => void;
     onViewMedications: () => void;
     onViewMedicationStock: () => void;
     onViewReports: () => void;
@@ -42,7 +42,13 @@ export default function DashboardScreen({
 
   return (
     <Layout hideHeader style={{backgroundColor: '#FFF', flex: 1, padding: 0}}>
-      <View style={{marginHorizontal: 16, marginTop: 16}}>
+      <View
+        style={{
+          paddingHorizontal: 16,
+          marginTop: 16,
+          borderBottomWidth: 1,
+          borderColor: '#abc4ff',
+        }}>
         <View style={{padding: 12}}>
           <Row>
             <View>
@@ -78,6 +84,9 @@ export default function DashboardScreen({
           </Row>
           {/* Icons */}
         </View>
+      </View>
+      {/* Section for actions to do */}
+      <ScrollView contentContainerStyle={{paddingHorizontal: 16}}>
         <Section
           removeLine
           title="Search Patient"
@@ -89,9 +98,6 @@ export default function DashboardScreen({
             style={{borderColor: '#CCC', borderWidth: 0.6, elevation: 2}}
           />
         </Section>
-      </View>
-      {/* Section for actions to do */}
-      <ScrollView contentContainerStyle={{paddingHorizontal: 16}}>
         <Section
           removeLine
           title="Get Started"
@@ -115,17 +121,17 @@ export default function DashboardScreen({
                 <Icon name="arrow-right" color={color.primary.base} size={24} />
               </Row>
             </TouchableItem>
+            {/* <TouchableItem spaceTop onPress={$.onViewAppointments}>
+              <Row icon="format-list-bulleted-type">
+                <Text>View Appointments</Text>
+                <Icon name="arrow-right" color={color.primary.base} size={24} />
+              </Row>
+            </TouchableItem> */}
           </Column>
         </Section>
         {/* Others */}
         <Section removeLine title="More" desc="What else you can do">
           <Column>
-            {/* <TouchableItem onPress={$.onViewAppointments}>
-            <Row icon="format-list-bulleted-type">
-              <Text>View Appointments</Text>
-              <Icon name="arrow-right" color={color.primary.base} size={24} />
-            </Row>
-          </TouchableItem> */}
             <TouchableItem spaceTop onPress={$.onViewMedications}>
               <Row icon="pill">
                 <Text>View Medication Requests</Text>

@@ -74,7 +74,12 @@ import MedicationVisit, {
   MedicationRequestVisitData,
 } from './_screens/MedicationVisit';
 import MedicationStock from './_screens/MedicationStock';
-import {useCTCVisit, useEMR, useMedicationStock} from './emr/react-hooks';
+import {
+  useCTCVisit,
+  useEMR,
+  useEMRAppointments,
+  useMedicationStock,
+} from './emr/react-hooks';
 
 import * as Sentry from '@sentry/react-native';
 import {runOnJS} from 'react-native-reanimated';
@@ -231,10 +236,12 @@ function App({
   const stock = useMedicationStock(emr);
   // const report = useReport(emr);
   const report = useEMRReport(emr);
+  const apptReport = useEMRReport(emr);
 
   return (
     <>
       <Stack.Navigator
+        // initialRouteName="ctc.view-appointments"
         screenOptions={{
           headerShown: false,
           presentation: 'formSheet',
@@ -589,10 +596,12 @@ function App({
             }),
           })}
         />
-        <Stack.Screen
+        {/* <Stack.Screen
           name="ctc.view-appointments"
-          component={withFlowContext(ViewAppointmentsScreen)}
-        />
+          component={withFlowContext(ViewAppointmentsScreen, {
+            actions: ({navigation}) => ({}),
+          })}
+        /> */}
         <Stack.Screen
           name="ctc.patient-dashboard"
           component={withFlowContext(PatientDashboard, {
@@ -1033,41 +1042,41 @@ function App({
   );
 }
 
-function ConnectionStatus({
-  status,
-  retry,
-}: {
-  status: NetworkStatus;
-  retry: () => void;
-}) {
-  return (
-    <TouchableRipple
-      onPress={status === 'error' || status === 'offline' ? retry : undefined}>
-      <View
-        style={{
-          backgroundColor:
-            status === 'connecting'
-              ? '#CCC'
-              : status === 'offline'
-              ? '#EEE'
-              : status === 'online'
-              ? '#4665af'
-              : '#F00',
+// function ConnectionStatus({
+//   status,
+//   retry,
+// }: {
+//   status: NetworkStatus;
+//   retry: () => void;
+// }) {
+//   return (
+//     <TouchableRipple
+//       onPress={status === 'error' || status === 'offline' ? retry : undefined}>
+//       <View
+//         style={{
+//           backgroundColor:
+//             status === 'connecting'
+//               ? '#CCC'
+//               : status === 'offline'
+//               ? '#EEE'
+//               : status === 'online'
+//               ? '#4665af'
+//               : '#F00',
 
-          paddingVertical: 2,
-        }}>
-        <Text
-          size="sm"
-          font="medium"
-          style={{textAlign: 'center'}}
-          color={status === 'online' || status === 'error' ? '#FFF' : '#000'}>
-          {_.capitalize(status)}{' '}
-          {(status === 'error' || status === 'offline') && 'Reconnect?'}
-        </Text>
-      </View>
-    </TouchableRipple>
-  );
-}
+//           paddingVertical: 2,
+//         }}>
+//         <Text
+//           size="sm"
+//           font="medium"
+//           style={{textAlign: 'center'}}
+//           color={status === 'online' || status === 'error' ? '#FFF' : '#000'}>
+//           {_.capitalize(status)}{' '}
+//           {(status === 'error' || status === 'offline') && 'Reconnect?'}
+//         </Text>
+//       </View>
+//     </TouchableRipple>
+//   );
+// }
 
 export default function (props: {provider: ElsaProvider}) {
   return <App {...props} />;
