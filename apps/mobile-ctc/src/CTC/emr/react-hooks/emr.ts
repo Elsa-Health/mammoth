@@ -37,41 +37,41 @@ import {ARVSingles} from '../../_screens/MedicationStock/stock';
 import {addDays} from 'date-fns';
 
 // create medications
-const arvSingleFactory = randomSample.factory(
-  ARVSingles.pairs().map(([singleId, text]) => {
-    // Build the objects
-    return {
-      alias: ARVSingles.fromKey(singleId) ?? singleId,
-      code: 'arv-single',
-      id: 'ctc-arv-single:' + singleId,
-      name: singleId,
-      createdAt: new Date().toISOString(),
-      form: null,
-      data: {
-        singleId,
-        text,
-      },
-      ingredients: [],
-      resourceType: 'Medication',
-    } as ARVSingleMedication;
-  }),
-  {size: 20},
-);
+// const arvSingleFactory = randomSample.factory(
+//   ARVSingles.pairs().map(([singleId, text]) => {
+//     // Build the objects
+//     return {
+//       alias: ARVSingles.fromKey(singleId) ?? singleId,
+//       code: 'arv-single',
+//       id: 'ctc-arv-single:' + singleId,
+//       name: singleId,
+//       createdAt: new Date().toISOString(),
+//       form: null,
+//       data: {
+//         singleId,
+//         text,
+//       },
+//       ingredients: [],
+//       resourceType: 'Medication',
+//     } as ARVSingleMedication;
+//   }),
+//   {size: 20},
+// );
 
-// Create medication knowledge
-const arvSingleMedStock = List<Stock<ARVSingleMedication, CTCOrganization>>(
-  arvSingleFactory(),
-).map(med => ({
-  resourceType: 'Stock',
-  id: `stock:${med.id}`,
-  code: null,
-  createdAt: new Date().toUTCString(),
-  lastUpdatedAt: new Date().toUTCString(),
-  managingOrganization: null,
-  expiresAt: addDays(new Date(), 40).toUTCString(),
-  medication: med,
-  count: Math.max(3, Math.ceil(Math.random() * 30 + 1)),
-}));
+// // Create medication knowledge
+// const arvSingleMedStock = List<Stock<ARVSingleMedication, CTCOrganization>>(
+//   arvSingleFactory(),
+// ).map(med => ({
+//   resourceType: 'Stock',
+//   id: `stock:${med.id}`,
+//   code: null,
+//   createdAt: new Date().toUTCString(),
+//   lastUpdatedAt: new Date().toUTCString(),
+//   managingOrganization: null,
+//   expiresAt: addDays(new Date(), 40).toUTCString(),
+//   medication: med,
+//   count: Math.max(3, Math.ceil(Math.random() * 30 + 1)),
+// }));
 
 export function useMedicationStock(emr: EMR) {
   // get stock information

@@ -38,11 +38,10 @@ export const pick = <
   T extends {[x: string]: any},
   F extends keyof T,
   K extends F | F[],
-  PickOutput extends K extends F ? T[F] | null : Pick<T, F>,
 >(
   data: T,
   fields: F | F[],
-): PickOutput => {
+): K extends F ? T[F] | null : Pick<T, F> => {
   if (Array.isArray(fields)) {
     const d = fields.map(field => {
       return [field, data[field] ?? null];

@@ -436,6 +436,18 @@ function App({
                     data.form,
                   );
 
+                  console.log('==>', {
+                    resourceType: 'Stock',
+                    id: `stock:${toStock.id}`,
+                    code: null,
+                    createdAt: new Date().toUTCString(),
+                    lastUpdatedAt: new Date().toUTCString(),
+                    managingOrganization: org,
+                    expiresAt: convertDMYToDate(data.expiresAt).toUTCString(),
+                    medication: toStock,
+                    count: parseFloat(data.count.toString()),
+                  });
+
                   // create new
                   await setDoc(doc(emr.collections.stock, toStock.id), {
                     resourceType: 'Stock',
@@ -448,6 +460,8 @@ function App({
                     medication: toStock,
                     count: parseFloat(data.count.toString()),
                   });
+
+                  console.log('Done');
                 } else {
                   if (data.id === undefined) {
                     throw new Error('Missing Id for the medication to stock');

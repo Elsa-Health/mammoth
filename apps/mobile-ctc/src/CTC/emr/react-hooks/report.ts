@@ -1,6 +1,6 @@
 import {differenceInCalendarDays, format, isAfter, isBefore} from 'date-fns';
 import {ARV, Medication} from 'elsa-health-data-fns/lib';
-import {List} from 'immutable';
+import {List, Set} from 'immutable';
 import {Document, getDocs} from 'papai/collection';
 import {CollectionNode} from 'papai/collection/core';
 import React from 'react';
@@ -34,12 +34,8 @@ export function useEMRReport(emr: EMR) {
   // information for the "in-last-30-days"
   const out = useEMR(emr);
 
-  const [visits, _v] = useCollectionAsWorklet(emr.collections.visits, true, {
-    where: d => isWithLast30Days(date(d.date ?? d.createdAt)),
-  });
-  const [patients, _] = useCollectionAsWorklet(emr.collections.patients, true, {
-    where: d => isWithLast30Days(date(d.createdAt)),
-  });
+  const [visits, _v] = useCollectionAsWorklet(emr.collections.visits, true);
+  const [patients, _] = useCollectionAsWorklet(emr.collections.patients, true);
 
   const {
     data: {
@@ -47,26 +43,18 @@ export function useEMRReport(emr: EMR) {
       'appt-responses': apptResponses,
       'medication-requests': medRequests,
     },
-    Q: Q30,
+    Q,
   } = out;
-
-  // React.useEffect(() => {
-  //   // query information to filter get only thos within 30 days
-  //   Q30.visit({where: d => isWithLast30Days(date(d.date ?? d.createdAt))});
-  //   Q30['appt-request']({
-  //     where: d => isWithLast30Days(date(d.appointmentDate)),
-  //   });
-  //   Q30.patient({where: d => isWithLast30Days(date(d.createdAt))});
-  // }, []);
 
   // Contain the appointment information
   const appointments = useSharedValue<
-    Array<{
-      reponded: boolean;
-      setDate: UTCDateTimeString;
-      respondedDate: UTCDateTimeString;
+    Set<{
+      requestId: string;
+      createdAt: UTCDateTimeString;
+      requestedDate: UTCDateTimeString;
+      respondedDate: UTCDateTimeString | null;
     }>
-  >([]);
+  >(Set());
 
   const count = useSharedValue<{
     upcoming: number | null;
@@ -79,60 +67,67 @@ export function useEMRReport(emr: EMR) {
   });
 
   React.useEffect(() => {
+    const d = [];
     if (apptRequests) {
       const apptWithDate = apptRequests.filter(d => Boolean(d.appointmentDate));
+      //  Upcoming appointment set
+      const upcomingSet = apptWithDate
+        .map(d => ({
+          requestId: d.id,
+          createdAt: d.createdAt,
+          requestedDate: d.appointmentDate,
+          respondedDate: null,
+        }))
+        .toSet();
 
-      const upcoming = apptWithDate.filter(d =>
-        isFutureDate(date(d.appointmentDate)),
-      );
-      console.log(apptWithDate.count(), upcoming.count());
-
-      count.value = {
-        ...count.value,
-        upcoming: upcoming.count(),
-        done: 0,
-      };
+      appointments.value = upcomingSet;
 
       if (apptResponses !== null) {
-        const previous = apptWithDate.filterNot(d =>
-          isFutureDate(date(d.appointmentDate)),
+        const previous = apptWithDate.filter(d =>
+          isBefore(date(d.appointmentDate), new Date()),
         );
 
         const apptWithAppt = apptResponses
-          .map(d => pluck(d, 'authorizingAppointmentRequest'))
-          .map(d => d.id)
+          .map(d => pick(d, ['authorizingAppointmentRequest', 'createdAt']))
+          .map(d => ({
+            responseDate: d.createdAt,
+            requestId: d.authorizingAppointmentRequest.id,
+          }))
           .toSet();
 
-        // missed appointments
-        const missed = previous.filter(d => !apptWithAppt.has(d.id));
+        const previousSet = previous.map(d => {
+          return {
+            requestId: d.id,
+            createdAt: d.createdAt,
+            requestedDate: d.appointmentDate,
+            respondedDate:
+              apptWithAppt.find(k => k.requestId === d.id)?.responseDate ??
+              null,
+          };
+        });
 
-        count.value = {
-          ...count.value,
-          upcoming: upcoming.count(),
-          done: previous.count() - missed.count(),
-          missed: missed.count(),
-        };
+        // getting the appointments
+        appointments.value = upcomingSet.merge(previousSet);
       }
     }
   }, [apptRequests, apptResponses]);
 
   return {
-    count: count,
     data: {
       visits: visits.value,
       'appt-requests': apptRequests,
       patients: patients.value,
       appointments: appointments.value,
-      recentVisits:
-        visits.value
-          ?.sortBy(d => -date(d.date ?? d.createdAt).getTime())
-          .map(visit => ({
-            visitDate: visit.date ?? visit.createdAt,
-            patient: visit.subject.id,
-          }))
-          .toArray() || [],
+      medicationRequests: medRequests,
     },
     brief: {
+      recentVisits: (visits.value || List([]))
+        .sortBy(d => -date(d.date ?? d.createdAt).getTime())
+        .map(visit => ({
+          visitDate: visit.date ?? visit.createdAt,
+          patient: visit.subject.id,
+        }))
+        .toArray(),
       // medication
       top3RequestedMedication: groupByFn(
         medRequests?.toArray() ?? [],
@@ -250,6 +245,6 @@ function isWithLast30Days(date: Date, now: Date = new Date()) {
   return differenceInCalendarDays(floorDate(now), floorDate(date)) <= 30;
 }
 
-function isFutureDate(date: Date, now: Date = new Date()) {
+export function isFutureDate(date: Date, now: Date = new Date()) {
   return isAfter(date, now);
 }

@@ -122,7 +122,7 @@ export function arv(
 ): ARVMedication {
   return {
     id,
-    alias: null,
+    alias: arvRegimen,
     code: null,
     createdAt: createdAt.toUTCString(),
     data: {
@@ -132,7 +132,7 @@ export function arv(
     resourceType: 'Medication',
     name: arvRegimen,
     form: null,
-    ingredients: [],
+    ingredients,
   };
 }
 export function arvSingle(
@@ -144,7 +144,7 @@ export function arvSingle(
 ): ARVSingleMedication {
   return {
     id,
-    alias: null,
+    alias: singleItem,
     code: null,
     createdAt: createdAt.toUTCString(),
     data: {
@@ -154,7 +154,7 @@ export function arvSingle(
     resourceType: 'Medication',
     form,
     name: singleItem,
-    ingredients: [],
+    ingredients: ingredients,
   };
 }
 
