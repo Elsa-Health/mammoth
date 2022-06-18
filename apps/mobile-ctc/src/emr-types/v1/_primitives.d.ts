@@ -13,7 +13,7 @@ type Mapping<K extends string, T> = {
  *  - Practitioner
  *  - ...
  */
-type ResourceOptions = string;
+type ResourceOptions = Omit<string, 'ResourceItem'>;
 type Resource<N extends ResourceOptions, T, C extends string | null = null> = {
   /**
    * Code associated with grouping the object
@@ -34,6 +34,12 @@ type Resource<N extends ResourceOptions, T, C extends string | null = null> = {
    * Date and time the resource was issued
    */
   createdAt: DateTimeString;
+} & T;
+
+// This is to mean an item that is to be used in a reource
+type ResourceItem<N extends string, T extends Data> = {
+  resourceType: 'ResourceItem';
+  resourceItemType: N;
 } & T;
 
 /**

@@ -2,7 +2,7 @@ import {HealthcareService, Organization} from './administration';
 import {Practitioner, Patient} from './personnel';
 
 export type MedicationRequest<
-  M extends Medication<string, Data> = Medication<string, Data>,
+  M extends Medication<string> = Medication<string>,
 > = Resource<
   'MedicationRequest',
   {
@@ -19,7 +19,7 @@ export type MedicationRequest<
     /**
      * Medication requested
      */
-    medication: Referred<M>;
+    medication: M;
 
     /**
      * Date the medication request was issued
@@ -30,7 +30,8 @@ export type MedicationRequest<
     /**
      * Status of the request
      */
-    status: 'active' | 'cancelled' | 'completed' | 'on-hold' | 'stopped';
+    isActive: boolean;
+    // status: 'active' | 'cancelled' | 'completed' | 'on-hold' | 'stopped';
 
     /**
      * How the drug should enter the body
@@ -60,12 +61,12 @@ export type MedicationRequest<
 >;
 
 export type MedicationDispense<
-  M extends Medication<string, Data> = Medication<string, Data>,
+  M extends Medication<string> = Medication<string>,
 > = Resource<
   'MedicationDispense',
   {
     supplier: Referred<Practitioner>;
-    medication: Referred<M>;
+    medication: M;
     authorizingRequest: Referred<MedicationRequest<M>>;
 
     /**
@@ -107,54 +108,121 @@ export type MedicationPickupReport = Resource<
 >;
 
 export type Medication<
-  Category extends string = string,
-  D extends Data = Data,
-  Ingrdients extends Data = Data,
-  Form extends string = string,
-> = Resource<
+  Category extends string,
+  // types of medication form
+  Form extends Nullable<string> = null,
+  Ingredient extends ResourceItem<'Ingredient', Data> = ResourceItem<
+    'Ingredient',
+    Data
+  >,
+  Extended extends Data = {},
+> = ResourceItem<
   'Medication',
   {
-    /**
-     * Name of the medication
-     */
-    name: string;
+    // Name that helps identify the resource item
+    identifier: string;
 
-    /**
-     * Alternative name
-     */
-    alias: Nullable<string>;
+    // freindlier name
+    alias: string;
 
-    /**
-     * Ingredients used in creating
-     * the medication
-     */
-    ingredients: Ingrdients[];
+    // Medication category
+    category: Category;
 
-    /**
-     * State the medication is in:
-     * `powder` + `tablets` + `capsules`
-     */
-    form: Nullable<Form>;
+    // those that make up the medication
+    ingredients: Ingredient[];
 
-    /**
-     * Data about
-     */
-    data: Nullable<D>;
-  },
-  Category
+    // form that the medication is as (opts. 'tablets' | 'syrup' | 'user-defined-from')
+    form: Form;
+  } & Extended
 >;
 
-type Stock<M extends Medication, Org extends Organization> = Resource<
-  'Stock',
+export type Stock<
+  M extends Medication<string>,
+  // Organization managing the stock
+  Org extends Organization,
+  // describes the concentration of the item in stock
+  Concentration extends Nullable<Data> = {
+    unit: 'ml' | 'mg' | 'count';
+    amount: number;
+  },
+  // more information to describe the concetration
+  Extended extends Nullable<Data> = null,
+> = Resource<
+  'Medication.Stock',
   {
+    // medication stocking for
     medication: M;
-    count: number;
-    managingOrganization: Nullable<Org>;
-    lastUpdatedAt: DateTimeString;
 
-    /**
-     * Date and time that the medicaiton expires
-     */
-    expiresAt: Nullable<UTCDateTimeString>;
+    concentration: Concentration;
+
+    // number of the medication of the set concentration
+    count: number;
+
+    // when the stocked medication expires
+    expiresAt: UTCDateTimeString;
+
+    // facility managing the stock
+    managingOrganization: Org;
+
+    // when the stock information was updated
+    /// THINK: in a distributed setting, esp those embracing delta-syncing...
+    ///  this might be a problem
+    lastUpdatedAt: UTCDateTimeString;
+
+    // more information
+    extendedData: Extended;
   }
 >;
+
+// export type Medication<
+//   Category extends string = string,
+//   D extends Data = Data,
+//   Ingrdients extends Data = Data,
+//   Form extends string = string,
+// > = Resource<
+//   'Medication',
+//   {
+//     /**
+//      * Name of the medication
+//      */
+//     name: string;
+
+//     /**
+//      * Alternative name
+//      */
+//     alias: Nullable<string>;
+
+//     /**
+//      * Ingredients used in creating
+//      * the medication
+//      */
+//     ingredients: Ingrdients[];
+
+//     /**
+//      * State the medication is in:
+//      * `powder` + `tablets` + `capsules`
+//      */
+//     form: Nullable<Form>;
+
+//     /**
+//      * Data about
+//      */
+//     data: Nullable<D>;
+//   },
+//   Category
+// >;
+
+// type Stock<M extends Medication, Org extends Organization> = Resource<
+//   'Stock',
+//   {
+//     medication: M;
+//     count: number;
+//     managingOrganization: Nullable<Org>;
+//     lastUpdatedAt: DateTimeString;
+
+//     /**
+//      * Date and time that the medicaiton expires
+//      */
+//     expiresAt: Nullable<UTCDateTimeString>;
+//   }
+// >;
