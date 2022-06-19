@@ -18,6 +18,8 @@ import RegisterNewPatientScreen from './_screens/RegisterNewPatient';
 
 import MedicationDispenseScreen from './_screens/MedicationDispense';
 import MedicationRequestScreen from './_screens/MedicationRequest';
+import MedicationStockSimpleScreen from './_screens/MedicationStockSimple';
+import MedicationStockDashboardScreen from './_screens/MedicationStockDashboard';
 
 import NewVisitEntryScreen from './_screens/BasicPatientIntake';
 import HIVStageIntakeScreen from './_screens/HIVStageIntake';
@@ -29,8 +31,8 @@ import uuid from 'react-native-uuid';
 
 import {ElsaProvider} from '../provider/backend';
 import {MedicaDisp, MedicaReq} from './emr/hook';
-import {Investigation, Medication} from 'elsa-health-data-fns/lib';
-import {EMR} from './emr/store';
+import {ARV, Investigation, Medication as Med} from 'elsa-health-data-fns/lib';
+import {EMR} from './emr/store_';
 import {NetworkStatus, useWebSocket} from '../app/utils';
 
 import {Text} from '@elsa-ui/react-native/components';
@@ -63,31 +65,21 @@ import {
   stanMed,
 } from './actions/basic';
 import {queryPatientsFromSearch} from './actions/ui';
-import {
-  CTCAppointment,
-  CTCAppointmentRequest,
-  CTCDoctor,
-  CTCVisit,
-} from './emr/types';
+import {CTC} from './emr/types';
 import {ConfirmVisitModal, useVisit} from './actions/hook';
-import MedicationVisit, {
-  MedicationRequestVisitData,
-} from './_screens/MedicationVisit';
+import MedicationVisit from './_screens/MedicationVisit';
 import MedicationStock from './_screens/MedicationStock';
-import {
-  useCTCVisit,
-  useEMR,
-  useEMRAppointments,
-  useMedicationStock,
-} from './emr/react-hooks';
+import {useAppointments, useStock} from './emr/react-hooks';
 
 import * as Sentry from '@sentry/react-native';
-import {runOnJS} from 'react-native-reanimated';
 import {queryCollection} from './emr/actions';
 import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
-import {convertDMYToDate} from './emr/utils';
-import {useEMRReport, useReport} from './emr/react-hooks/report';
+import {convertDMYToDate, removeWhiteSpace} from './emr/utils';
+import {useEMRReport} from './emr/react-hooks/report';
 import {format, isAfter} from 'date-fns';
+import {getEMR} from './emr/store';
+import {Ingredient, Medication, Stock} from '@elsa-health/emr';
+import {date} from '@elsa-health/emr/lib/utils';
 
 const Stack = createNativeStackNavigator();
 
@@ -130,6 +122,11 @@ function practitioner(ep: ElsaProvider): CTCDoctor {
 
 type State = [Document.Ref, Document.Data, HybridLogicalClock];
 type CRDTMessage = [State, {facility: any; user: any}];
+
+/**
+ * Useful EMR components
+ */
+const Emr = getEMR();
 
 function App({
   provider,
@@ -233,10 +230,13 @@ function App({
   //   data: {visits, patients},
   //   Q,
   // } = useEMR(emr);
-  const stock = useMedicationStock(emr);
+  // const stock_ = useMedicationStock(emr);
+  const stock = useStock(Emr);
+  const appointments = useAppointments(Emr);
+
   // const report = useReport(emr);
   const report = useEMRReport(emr);
-  const apptReport = useEMRReport(emr);
+  // const apptReport = useEMRReport(emr);
 
   return (
     <>
@@ -281,6 +281,14 @@ function App({
             }),
           })}
         />
+
+        <Stack.Screen
+          name="ctc.view-appointments"
+          component={withFlowContext(ViewAppointmentsScreen, {
+            entry: appointments,
+            actions: ({navigation}) => ({}),
+          })}
+        />
         <Stack.Screen
           name="ctc.medication-map"
           component={withFlowContext(MedicationMapScreen, {
@@ -288,6 +296,30 @@ function App({
               onUpdateStock() {
                 navigation.navigate('ctc.medication-stock');
               },
+            }),
+          })}
+        />
+
+        {/* <Stack.Screen
+          name="ctc.medication-stock-simple"
+          component={withFlowContext(MedicationStockSimpleScreen, {
+            actions: ({navigation}) => ({}),
+          })}
+        /> */}
+
+        <Stack.Screen
+          name="ctc.medication-stock-dashboard"
+          component={withFlowContext(MedicationStockDashboardScreen, {
+            actions: ({navigation}) => ({
+              onGoToManageStock() {
+                navigation.navigate('ctc.medication-stock');
+              },
+              onSeeOtherMedications() {
+                navigation.navigate('ctc.medication-map');
+              },
+              // onGoToQuickIndications() {
+              //   navigation.navigate('ctc.medication-stock-simple');
+              // },
             }),
           })}
         />
@@ -300,7 +332,6 @@ function App({
         <Stack.Screen
           name="ctc.medication-visit"
           component={withFlowContext(MedicationVisit, {
-            entry: {},
             actions: ({navigation}) => ({
               async complete(data, patient, organization) {
                 try {
@@ -447,6 +478,83 @@ function App({
           component={withFlowContext(MedicationStock, {
             entry: stock,
             actions: ({navigation}) => ({
+              async setARVStockItem(_id, data) {
+                const org =
+                  doctor.organization.resourceType === 'Organization'
+                    ? reference(doctor.organization)
+                    : doctor.organization;
+
+                // medication id
+                const id = _id ?? (uuid.v4() as string);
+
+                const conc =
+                  data.concentrationValue !== null
+                    ? removeWhiteSpace(data.concentrationValue).length === 0
+                      ? null
+                      : parseInt(data.concentrationValue)
+                    : 0;
+
+                const stock = Stock<CTC.ARVStockRecord>({
+                  count: parseInt(data.count),
+                  expiresAt: format(
+                    convertDMYToDate(data.expiresAt),
+                    'yyyy-MM-dd',
+                  ),
+                  id,
+                  medication:
+                    data.type === 'single'
+                      ? Medication<CTC.SingleARVMedication>({
+                          type: 'single',
+                          form: data.form,
+                          identifier: data.identifier as ARV.UnitRegimen,
+                          text: data.text,
+                          category: 'arv-ctc',
+                        })
+                      : Medication<CTC.ARVMedication>({
+                          identifier: _.kebabCase(data.text),
+                          form: data.form,
+                          ingredients: data.ingredients.map(identifier =>
+                            Ingredient({
+                              identifier,
+                              text: ARV.units.fromKey(identifier) ?? identifier,
+                            }),
+                          ),
+                          text: data.text,
+                          category: 'arv-ctc',
+                          type: (data.type as 'composed') ?? 'composed',
+                        }),
+                  managingOrganization: org,
+                  extendedData: {
+                    estimatedFor: data.estimatedFor,
+                    group: data.group,
+                    isLow: false,
+                  },
+                  concentration: conc
+                    ? {
+                        amount: conc,
+                        units:
+                          data.form === 'granules'
+                            ? 'mg'
+                            : data.form === 'syrup'
+                            ? 'cc'
+                            : 'tablets',
+                      }
+                    : null,
+                  // set last update
+                  lastUpdatedAt: date().toUTCString(),
+                });
+
+                console.log(stock);
+                await setDoc(
+                  doc(Emr.collection('stock'), stock.id),
+                  stock,
+                ).catch(err => {
+                  console.log('Failed to add stock');
+                  console.log(err);
+                });
+
+                console.log('DonE!');
+              },
               async setARVSingleMedicationCount(data) {
                 const org =
                   doctor.organization.resourceType === 'Organization'
@@ -474,7 +582,7 @@ function App({
 
                   // create new
                   await setDoc(doc(emr.collections.stock, toStock.id), {
-                    resourceType: 'Stock',
+                    resourceType: 'Medication.Stock',
                     id: `stock:${toStock.id}`,
                     code: null,
                     createdAt: new Date().toUTCString(),
@@ -596,12 +704,6 @@ function App({
             }),
           })}
         />
-        {/* <Stack.Screen
-          name="ctc.view-appointments"
-          component={withFlowContext(ViewAppointmentsScreen, {
-            actions: ({navigation}) => ({}),
-          })}
-        /> */}
         <Stack.Screen
           name="ctc.patient-dashboard"
           component={withFlowContext(PatientDashboard, {
@@ -897,7 +999,7 @@ function App({
                     resourceType: 'Medication',
                     alias:
                       data.type === 'standard'
-                        ? Medication.all.fromKey(data.medication)
+                        ? Med.all.fromKey(data.medication)
                         : null,
                     code: data.type ?? 'standard',
                     data:
@@ -905,7 +1007,7 @@ function App({
                         ? {className: data.className, regimen: data.regimen}
                         : {
                             medication: data.medication,
-                            text: Medication.all.fromKey(data.medication),
+                            text: Med.all.fromKey(data.medication),
                           },
                     id:
                       data.type === 'arv'

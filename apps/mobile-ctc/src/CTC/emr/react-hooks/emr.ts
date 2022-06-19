@@ -1,15 +1,16 @@
-import {Document, getDocs, onSnapshot, setDocs} from 'papai/collection';
-import {useAsync, useAsyncFn, useAsyncRetry} from 'react-use';
-import {EMR} from '../store';
-
-import randomSample from '@stdlib/random-sample';
 import {
-  ARVMedication,
-  ARVSingleMedication,
-  CTCMedicationRequest,
-  CTCOrganization,
-} from '../types';
-import {ARV, CTC} from 'elsa-health-data-fns/lib';
+  clearCollection,
+  collection,
+  Document,
+  getDocs,
+  onSnapshot,
+  setDocs,
+} from 'papai/collection';
+import {useAsync, useAsyncFn, useAsyncRetry} from 'react-use';
+import {EMR} from '../store_';
+
+import {CTC} from '../types';
+import {ARV} from 'elsa-health-data-fns/lib';
 import _ from 'lodash';
 import {List} from 'immutable';
 import {Stock} from '../../../emr-types/v1/prescription';
@@ -17,24 +18,18 @@ import React from 'react';
 import produce from 'immer';
 
 import {
-  CTCAppointmentRequest,
-  CTCAppointmentResponse,
-  CTCPatient,
-  CTCVisit,
-  StandardMedication,
-} from '../types';
-import {pick, pluck, select} from '../utils';
-import {
   runOnJS,
-  runOnUI,
   SharedValue,
   useSharedValue,
   useWorkletCallback,
 } from 'react-native-reanimated';
 import {Query, queryCollection} from '../actions';
 import {CollectionNode} from 'papai/collection/core';
-import {ARVSingles} from '../../_screens/MedicationStock/stock';
-import {addDays} from 'date-fns';
+import {format} from 'date-fns';
+
+import {EMRModule} from '../store';
+import {date} from '@elsa-health/emr/lib/utils';
+import {SingleStockItem} from '../../_screens/MedicationStock';
 
 // create medications
 // const arvSingleFactory = randomSample.factory(
@@ -58,20 +53,112 @@ import {addDays} from 'date-fns';
 //   {size: 20},
 // );
 
-// // Create medication knowledge
-// const arvSingleMedStock = List<Stock<ARVSingleMedication, CTCOrganization>>(
-//   arvSingleFactory(),
-// ).map(med => ({
-//   resourceType: 'Stock',
-//   id: `stock:${med.id}`,
-//   code: null,
-//   createdAt: new Date().toUTCString(),
-//   lastUpdatedAt: new Date().toUTCString(),
-//   managingOrganization: null,
-//   expiresAt: addDays(new Date(), 40).toUTCString(),
-//   medication: med,
-//   count: Math.max(3, Math.ceil(Math.random() * 30 + 1)),
-// }));
+export type UseStockData = ReturnType<typeof useStock>;
+export function useStock(emr: EMRModule) {
+  // run seed
+  // setDocs(
+  //   emr.collection('stock'),
+  //   stock().map(d => [d.id, d]),
+  // );
+
+  // ... use medication stock inforamtion
+  // const [medications, queryMedication] = useCollectionAsWorklet(
+  //   emr.collection('medications'),
+  // );
+
+  const [stock_, queryStock] = useCollectionAsWorklet(emr.collection('stock'));
+
+  // queryStock();
+  // React.useEffect(() => {
+  //   console.log(stock_);
+  // }, [stock_]);
+
+  // stock information
+  return {
+    arvs: Object.fromEntries(
+      (stock_.value ?? []).map(d => [
+        d.id,
+        {
+          count: d.count.toString(),
+          form: d.medication.form,
+          expiresAt: format(date(d.expiresAt), 'dd / MM / yyyy'),
+          ingredients: d.medication.ingredients.map(d => d.identifier),
+          alias: d.medication.alias,
+          type: d.medication.type,
+          estimatedFor: '30-days',
+          identifier: d.medication.identifier,
+          text: d.medication.text,
+          group: 'adults',
+          concentrationValue: null,
+        } as SingleStockItem,
+      ]),
+    ),
+  };
+}
+
+export type Appointment = {
+  requestId: string;
+  requestDate: UTCDateTimeString;
+  originVisitId: string | null;
+} & (
+  | {type: 'not-responded'; responseDate: null}
+  | {type: 'responded'; responseDate: UTCDateTimeString}
+);
+
+export type UseAppointments = ReturnType<typeof useAppointments>;
+export function useAppointments(emr: EMRModule) {
+  // ...
+  const [{value: apptRqs}, q_] = useCollectionAsWorklet(
+    emr.collection('appointment-requests'),
+  );
+  const [{value: apptResps}, qrs_] = useCollectionAsWorklet(
+    emr.collection('appointment-responses'),
+  );
+
+  // q_();
+  // qrs_();
+
+  // appointment records
+  const appointments = useSharedValue<List<Appointment> | null>(null);
+
+  // appointment requests
+  // ...
+  React.useEffect(() => {
+    'worklet';
+    const baseReps = apptResps ?? List();
+
+    // update the values
+    appointments.value =
+      (apptRqs ?? List()).map(d => {
+        const dx = baseReps.find(
+          f => f.authorizingAppointmentRequest.id === d.id,
+        );
+
+        if (dx !== undefined) {
+          return {
+            requestId: d.appointmentDate,
+            originVisitId: d.visit?.id ?? null,
+            requestDate: d.appointmentDate,
+            responseDate: dx.createdAt,
+            type: 'responded',
+          } as Appointment;
+        }
+
+        // check va
+        return {
+          requestId: d.appointmentDate,
+          originVisitId: d.visit?.id ?? null,
+          requestDate: d.appointmentDate,
+          responseDate: null,
+          type: 'not-responded',
+        } as Appointment;
+      }) ?? null;
+  }, [apptResps, apptRqs]);
+
+  return {
+    appointments: appointments.value ?? List(),
+  };
+}
 
 export function useMedicationStock(emr: EMR) {
   // get stock information
@@ -205,47 +292,6 @@ export const bqw =
     })(query);
   };
 
-export function useEMRMedicationStock(emr: EMR, deps: any[] = []) {
-  const stock = useSharedValue<List<
-    Stock<ARVMedication, CTCOrganization>
-  > | null>(null);
-  const qstock = useWorkletCallback(bqw(emr.collections.stock, stock));
-
-  React.useEffect(() => {
-    qstock();
-  }, [deps]);
-
-  return {data: {stock: stock.value}, Q: {stock: qstock}};
-}
-
-export function useEMRMedications(emr: EMR) {
-  const medications = useSharedValue<List<Medica> | null>(null);
-  const mediReqs = useSharedValue<List<CTCMedicationRequest> | null>(null);
-
-  const qMeds = useWorkletCallback(
-    bqw(emr.collections.medications, medications),
-  );
-  const qMedReq = useWorkletCallback(
-    bqw(emr.collections.medicationRequests, mediReqs),
-  );
-
-  React.useEffect(() => {
-    qMeds();
-    qMedReq();
-  }, [qMedReq, qMeds]);
-
-  return {
-    data: {
-      medications: medications.value,
-      'medication-requests': mediReqs.value,
-    },
-    Q: {
-      medication: qMeds,
-      'medication-request': qMedReq,
-    },
-  };
-}
-
 export function useCollectionAsWorklet<T extends Document.Data>(
   collection: CollectionNode<T>,
   initialize: boolean = true,
@@ -254,79 +300,15 @@ export function useCollectionAsWorklet<T extends Document.Data>(
   const sharedValue = useSharedValue<List<T> | null>(null);
   const q = useWorkletCallback(bqw(collection, sharedValue));
 
-  type UseCollectionValue = SharedValue<List<T> | null>;
+  type UseCollectionValue = typeof sharedValue;
   type UseCollectionCallback = typeof q;
 
   React.useEffect(() => {
     // initialize collection
     if (initialize) {
-      q(initialQuery);
+      return q(initialQuery);
     }
   }, [collection, q, initialize]);
 
   return [sharedValue, q] as [UseCollectionValue, UseCollectionCallback];
-}
-
-export function useEMRAppointments(emr: EMR) {
-  const [apptRequests, qApptRqs] = useCollectionAsWorklet(
-    emr.collections.appointmentRequests,
-  );
-  const [apptResponse, qApptResps] = useCollectionAsWorklet(
-    emr.collections.appointmentResponse,
-  );
-  // const apptRequests = useSharedValue<List<CTCAppointmentRequest> | null>(null);
-  // const apptResponse = useSharedValue<List<CTCAppointmentResponse> | null>(
-  //   null,
-  // );
-  // const qApptRqs = useWorkletCallback(
-  //   bqw(emr.collections.appointmentRequests, apptRequests),
-  // );
-  // const qApptResps = useWorkletCallback(
-  //   bqw(emr.collections.appointmentResponse, apptResponse),
-  // );
-
-  return {
-    data: {
-      'appt-requests': apptRequests.value,
-      'appt-responses': apptResponse.value,
-    },
-    Q: {
-      'appt-request': qApptRqs,
-      'appt-response': qApptResps,
-    },
-  };
-}
-
-export function useEMRPatients(emr: EMR, initialQuery: Query<CTCPatient>) {
-  const [patients, qPatients] = useCollectionAsWorklet(
-    emr.collections.patients,
-  );
-  return {data: {patients: patients.value}, Q: {patient: qPatients}};
-}
-
-export function useEMRVisits(emr: EMR, deps: any[] = []) {
-  const [visits, qVisits] = useCollectionAsWorklet(emr.collections.visits);
-  return {data: {visits: visits.value}, Q: {visit: qVisits}};
-}
-
-export function useEMR(emr: EMR, deps: any[] = []) {
-  const visits = useEMRVisits(emr, deps);
-  const appts = useEMRAppointments(emr);
-  const meds = useEMRMedications(emr);
-  const stock = useEMRMedicationStock(emr);
-
-  return {
-    data: {
-      ...appts.data,
-      ...meds.data,
-      ...stock.data,
-      ...visits.data,
-    },
-    Q: {
-      ...appts.Q,
-      ...meds.Q,
-      ...stock.Q,
-      ...visits.Q,
-    },
-  };
 }

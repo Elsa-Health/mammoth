@@ -11,7 +11,7 @@ import {
   ToggleButton,
   TouchableRipple,
 } from 'react-native-paper';
-import {ReportSummaryData, UseEMRReport} from '../../emr/react-hooks/report';
+import {UseEMRReport} from '../../emr/react-hooks/report';
 import {
   CollapsibleSection,
   Column,
@@ -46,6 +46,13 @@ const Chip = ({
       </View>
     </TouchableRipple>
   );
+};
+
+const reportTitleMap = {
+  '1d': 'Within the day',
+  '1w': 'In this week',
+  '1m': 'In the month',
+  '1y': 'Within the year',
 };
 
 import {subDays, subWeeks, subMonths, subYears} from 'date-fns';
@@ -147,7 +154,9 @@ export default function ReportSummaryScreen({
             ))}
           </Row>
         </View>
-        <Section title="In the last 30 days" mode="raised">
+        <Section
+          title={value !== null ? reportTitleMap[value] : 'In everything'}
+          mode="raised">
           <Row contentStyle={{flexWrap: 'wrap'}}>
             {groups.map(([title, count], ix) => (
               <Column

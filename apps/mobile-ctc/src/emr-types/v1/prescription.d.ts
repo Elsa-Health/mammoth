@@ -108,14 +108,14 @@ export type MedicationPickupReport = Resource<
 >;
 
 export type Medication<
-  Category extends string,
+  Category extends Nullable<string> = null,
   // types of medication form
   Form extends Nullable<string> = null,
   Ingredient extends ResourceItem<'Ingredient', Data> = ResourceItem<
     'Ingredient',
     Data
   >,
-  Extended extends Data = {},
+  Extended extends Data = Data,
 > = ResourceItem<
   'Medication',
   {
@@ -126,7 +126,7 @@ export type Medication<
     alias: string;
 
     // Medication category
-    category: Category;
+    category: Nullable<Category>;
 
     // those that make up the medication
     ingredients: Ingredient[];

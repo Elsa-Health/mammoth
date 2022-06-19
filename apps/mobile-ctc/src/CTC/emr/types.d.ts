@@ -1,183 +1,198 @@
 import {
   ARV,
-  CTC,
+  CTC as tCTC,
   Investigation,
   Medication as Med,
 } from 'elsa-health-data-fns/lib';
 import {InvestigationTypeRecord} from 'elsa-health-data-fns/lib/investigations';
-import {
-  HealthcareService,
-  Organization,
-} from '../../emr-types/v1/administration';
-import {
-  Appointment,
-  AppointmentRequest,
-  AppointmentResponse,
-} from '../../emr-types/v1/appointment';
-import {
-  InvestigationRequest,
-  InvestigationResult,
-} from '../../emr-types/v1/investigation';
-import {Patient, Practitioner} from '../../emr-types/v1/personnel';
-import {Medication, MedicationRequest} from '../../emr-types/v1/prescription';
-import {Assessment, Visit} from '../../emr-types/v1/visit';
+import * as t from '@elsa-health/emr/health.types/v1';
+
 import {
   DurationOpt,
   MedicationRequestVisitData,
 } from '../_screens/MedicationVisit';
+import {Ingredient} from '@elsa-health/emr/health.types/v1';
 
-export type CTCPatient = Patient<
-  {
-    whoStage: string;
-    hasPositiveStatus: boolean;
-    dateOfHIVPositiveTest: Nullable<YYYYMMDDDateString>;
-    isCurrentlyOnARV: boolean;
-    dateOfStartARV: Nullable<YYYYMMDDDateString>;
-    hasTreatmentSupport: boolean;
-    typeOfSupport: Nullable<string>;
-  },
-  {
-    firstName: Nullable<string>;
-    familyName: Nullable<string>;
-    address: Nullable<string>;
-    phoneNumber: Nullable<string>;
-  }
->;
-
-export type CTCDoctor = Practitioner<CTCOrganization, DoctorService>;
-type DoctorService = HealthcareService<{
-  role: 'doctor';
-  tag: 'ctc';
-}>;
-
-/**
- * To identify a CTC organization
- */
-export type CTCOrganization = Organization<
-  {
-    ctcCode: string;
-  },
-  {
-    geo: Nullable<{latitude: number; longitude: number}>;
-    address: Nullable<string>;
-    website: Nullable<string>;
-  }
->;
-
-/**
- * Types of Assessments supported
- * ----
- */
-
-/**
- * @assessment
- * During Intial Patient Intake
- */
-export type IntialPatientIntakeAssessment = Assessment<{
-  associatedAppointment: ReferenceIdentifier<'Appointment'> | null;
-  isPregnant: boolean | null;
-  dateOfPregancy: YYYYMMDDDateString;
-  visitType: 'home' | 'community';
-  weight: null | number;
-  height: null | number;
-  systolic: null | number;
-  diastolic: null | number;
-}>;
-
-export type HIVPatientIntakeAssessment = Assessment<{
-  coMorbidities: CTC.CoMorbidity[];
-  ARVRegimens: ARV.Regimen[] | null;
-  regimenDuration?: string | null;
-  medications: Med.All[] | null;
-}>;
-
-export type PatientAdherenceAssessment = Assessment<{
-  educationLevel: string;
-  forgottenCount: string;
-  hasJob: boolean;
-  hasFrequentAlc: boolean;
-  isShareDrugs: boolean;
-  isExperienceSideEffects: boolean;
-  doesPatientUnderstandRegimen: boolean;
-}>;
-
-export type ConcludingAssessment = Assessment<{
-  riskOfNonAdhrence: null | number;
-  appointmentDate: YYYYMMDDDateString;
-  investigations: Investigation[];
-  medications: Med.All[];
-  regimenDecision: CTC.Status | null;
-  decisionReason: string | null;
-  arvRegimens: ARV.Regimen[];
-  regimenDuration: DurationOpt;
-}>;
-
-/**
- * Types of Medication medicationRequests
- * ----
- */
-
-export type ARVMedication = Medication<
-  'arv',
-  {className: ARV.Class | null; regimen: ARV.Regimen},
-  string
->;
-export type ARVSingleMedication = Medication<
-  'arv-single',
-  {singleId: string | null; text: string}
->;
-export type StandardMedication = Medication<
-  'standard',
-  {medication: Med.All; text: string}
->;
+// export type ARVMedication = Medication<
+//   'arv',
+//   {className: ARV.Class | null; regimen: ARV.Regimen},
+//   string
+// >;
+// export type ARVSingleMedication = Medication<
+//   'arv-single',
+//   {singleId: string | null; text: string}
+// >;
+// export type StandardMedication = Medication<
+//   'standard',
+//   {medication: Med.All; text: string}
+// >;
 
 /**
  * Medication requests
  * ------
  */
-export type CTCMedicationRequest = MedicationRequest<
-  ARVMedication | StandardMedication
->;
 
-/**
- * Investigation Requests
- * -----
- */
-export type CTCInvestigationRequest = InvestigationRequest<{
-  investigationId: Investigation;
-  obj: InvestigationTypeRecord<string> | null;
-}>;
-export type CTCInvestigationResult =
-  InvestigationResult<CTCInvestigationRequest>;
+export declare namespace CTC {
+  export type Patient = t.Patient<
+    {
+      whoStage: string;
+      hasPositiveStatus: boolean;
+      dateOfHIVPositiveTest: Nullable<YYYYMMDDDateString>;
+      isCurrentlyOnARV: boolean;
+      dateOfStartARV: Nullable<YYYYMMDDDateString>;
+      hasTreatmentSupport: boolean;
+      typeOfSupport: Nullable<string>;
+    },
+    {
+      firstName: Nullable<string>;
+      familyName: Nullable<string>;
+      address: Nullable<string>;
+      phoneNumber: Nullable<string>;
+    }
+  >;
 
-/**
- * Appointment
- * ------------
- */
-export type CTCAppointmentRequest = AppointmentRequest<CTCPatient | CTCDoctor>;
-export type CTCAppointmentResponse = AppointmentResponse<
-  CTCAppointmentRequest,
-  CTCPatient | CTCDoctor
->;
+  type DoctorService = t.HealthcareService<{
+    role: 'doctor';
+    tag: 'ctc';
+  }>;
+  export type Doctor = t.Practitioner<Organization, DoctorService>;
 
-export type CTCAppointment = Appointment<
-  CTCAppointmentRequest,
-  CTCAppointmentResponse
->;
+  /**
+   * To identify a CTC organization
+   */
+  export type Organization = t.Organization<
+    {
+      ctcCode: string;
+    },
+    {
+      geo: Nullable<{latitude: number; longitude: number}>;
+      address: Nullable<string>;
+      website: Nullable<string>;
+    }
+  >;
 
-/**
- * Visit
- * ----
- */
-export type CTCVisit = Visit<
-  {patient: CTCPatient; practitioner: CTCDoctor},
-  | IntialPatientIntakeAssessment
-  | HIVPatientIntakeAssessment
-  | PatientAdherenceAssessment
-  | ConcludingAssessment
-  | Assessment, // temporary assessment data
-  CTCMedicationRequest,
-  CTCInvestigationRequest,
-  CTCAppointment,
-  MedicationRequestVisitData
->;
+  /**
+   * Types of Medication medicationRequests
+   * ----
+   */
+
+  /**
+   * Medication forms
+   */
+  type MedicationForm = 'granules' | 'syrup' | 'tablets';
+
+  export type SingleARVMedication = t.Medication<
+    ARV.UnitRegimen,
+    MedicationForm,
+    'arv-ctc',
+    never,
+    {type: 'single'; text: string}
+  >;
+
+  export type ComposedARVMedication = t.Medication<
+    string,
+    MedicationForm,
+    'arv-ctc',
+    Ingredient<{identifier: ARV.UnitRegimen; text: string}>,
+    {type: 'composed'; short?: string; text: string}
+  >;
+
+  export type ARVStockRecord = t.StockRecord<
+    ARVMedication,
+    {units: 'mg' | 'cc' | 'tablets'; amount: number},
+    CTC.Organization,
+    {
+      estimatedFor: '30-days' | '60-days' | '90-days';
+      group: 'adults' | 'pediatrics';
+      isLow: boolean;
+    }
+  >;
+
+  // Composed medication
+  export type ARVMedication = SingleARVMedication | ComposedARVMedication;
+
+  /**
+   * Types of Assessments supported
+   * ----
+   */
+
+  /**
+   * @assessment
+   * During Intial Patient Intake
+   */
+  export type IntialPatientIntakeAssessment = t.Assessment<{
+    associatedAppointment: ReferenceIdentifier<'Appointment'> | null;
+    isPregnant: boolean | null;
+    dateOfPregancy: YYYYMMDDDateString;
+    visitType: 'home' | 'community';
+    weight: null | number;
+    height: null | number;
+    systolic: null | number;
+    diastolic: null | number;
+  }>;
+
+  export type HIVPatientIntakeAssessment = t.Assessment<{
+    coMorbidities: tCTC.CoMorbidity[];
+    ARVRegimens: ARV.Regimen[] | null;
+    regimenDuration?: string | null;
+    medications: Med.All[] | null;
+  }>;
+
+  export type PatientAdherenceAssessment = t.Assessment<{
+    educationLevel: string;
+    forgottenCount: string;
+    hasJob: boolean;
+    hasFrequentAlc: boolean;
+    isShareDrugs: boolean;
+    isExperienceSideEffects: boolean;
+    doesPatientUnderstandRegimen: boolean;
+  }>;
+
+  export type ConcludingAssessment = t.Assessment<{
+    riskOfNonAdhrence: null | number;
+    appointmentDate: YYYYMMDDDateString;
+    investigations: Investigation[];
+    medications: Med.All[];
+    regimenDecision: tCTC.Status | null;
+    decisionReason: string | null;
+    arvRegimens: ARV.Regimen[];
+    regimenDuration: DurationOpt;
+  }>;
+  /**
+   * Investigation Requests
+   * -----
+   */
+  export type InvestigationRequest = t.InvestigationRequest<{
+    investigationId: Investigation;
+    obj: InvestigationTypeRecord<string> | null;
+  }>;
+  export type InvestigationResult = t.InvestigationResult<InvestigationRequest>;
+
+  /**
+   * Appointment
+   * ------------
+   */
+  export type AppointmentRequest = t.AppointmentRequest<Patient | Doctor>;
+  export type AppointmentResponse = t.AppointmentResponse<
+    AppointmentRequest,
+    Patient | Doctor
+  >;
+
+  /**
+   * Visit
+   * ----
+   */
+  export type Visit = t.Visit<
+    {patient: Patient; practitioner: Doctor},
+    | IntialPatientIntakeAssessment
+    | HIVPatientIntakeAssessment
+    | PatientAdherenceAssessment
+    | ConcludingAssessment
+    | t.Assessment, // temporary assessment data
+    MedicationRequest,
+    InvestigationRequest,
+    AppointmentResponse,
+    MedicationRequestVisitData
+  >;
+  export type MedicationRequest = t.MedicationRequest<ARVMedication>;
+}

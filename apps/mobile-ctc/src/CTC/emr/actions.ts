@@ -1,9 +1,6 @@
-import {EMR} from './store';
-import {CTCPatient} from './types';
-import {deleteDoc, Document, getDocs} from 'papai/collection';
+import {Document, getDocs} from 'papai/collection';
 import {CollectionNode} from 'papai/collection/core';
-import {List, OrderedMap} from 'immutable';
-import {reduceRight} from 'lodash';
+import {List} from 'immutable';
 
 type FieldSelector<T> = (item: T) => string | number;
 type OrderQueryClause<T> = {type?: 'asc' | 'desc'; field: FieldSelector<T>};

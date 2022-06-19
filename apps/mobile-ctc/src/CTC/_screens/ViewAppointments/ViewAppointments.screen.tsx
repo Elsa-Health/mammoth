@@ -17,34 +17,38 @@ import CollapsibleView from 'react-native-collapsible';
 import {Button, IconButton, TouchableRipple} from 'react-native-paper';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {format} from 'date-fns';
+import {format, isAfter} from 'date-fns';
 import {useAsyncRetry} from 'react-use';
+import {Appointment, UseAppointments} from '../../emr/react-hooks';
+import {groupByFn} from '../MedicationStock/helpers';
+import {date} from '@elsa-health/emr/lib/utils';
 
-export type AppointmentItem = {
-  appointmentDate: Date;
-  patientId: string;
+const nameMap = {
+  upcoming: 'Upcoming Appointments',
+  missed: 'Missed Appointments',
+  completed: 'Completed Appointments',
 };
+
 export default function ViewAppointmentsScreen({
   entry: e,
   actions: $,
 }: WorkflowScreenProps<
-  {},
+  UseAppointments,
   {
     onNext: () => void;
-    fetchUpcomingAppointments: () => Promise<AppointmentItem[]>;
-    fetchMissedAppointments: () => Promise<AppointmentItem[]>;
   }
 >) {
   const {spacing} = useTheme();
-
-  // CHANGE THIS STRAT
-  const {loading, value: missed = null} = useAsyncRetry(
-    $.fetchMissedAppointments,
-    [],
-  );
-  const {loading: _load, value: upcoming = null} = useAsyncRetry(
-    $.fetchUpcomingAppointments,
-    [],
+  const groups = React.useMemo(
+    () =>
+      groupByFn(e.appointments.toArray(), item => {
+        return item.type === 'responded'
+          ? 'completed'
+          : isAfter(date(item.requestDate), new Date())
+          ? 'upcoming'
+          : 'missed';
+      }),
+    [e?.appointments],
   );
 
   return (
@@ -54,104 +58,78 @@ export default function ViewAppointmentsScreen({
         style={{flex: 1}}>
         <Section
           spaceTop
-          title="Information"
-          desc="Summary information about on the appointments">
+          title="Summary"
+          desc="Brief information about on the appointments">
           <Row>
-            <TitledItem title="Missed">23</TitledItem>
+            {groups.map(([title, vs], ix) => (
+              <Column
+                key={ix}
+                wrapperStyle={{width: '50%', marginBottom: 8}}
+                contentStyle={{
+                  alignContent: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text font="bold" size={32} style={{textAlign: 'center'}}>
+                  {vs.length ?? '--'}
+                </Text>
+                <Text size={14} style={{textAlign: 'center'}}>
+                  {title}
+                </Text>
+              </Column>
+            ))}
+            {/* <TitledItem title="Missed">23</TitledItem>
             <TitledItem title="Upcoming ">415</TitledItem>
-            <TitledItem title="Completed">45</TitledItem>
+            <TitledItem title="Completed">45</TitledItem> */}
           </Row>
         </Section>
 
-        {/* Upcoming appointments */}
-        <CollapsibleSection
-          spaceTop
-          removeLine
-          title="Upcoming Appointments"
-          desc="List of upcoming appointments">
-          <Column>
-            {/* Investigation content */}
-            {(upcoming ?? []).map((d, ix) => (
-              <Section key={ix} spaceTop={ix !== 0}>
-                <UpcomingAppointmentItem {...d} />
-              </Section>
-            ))}
-          </Column>
-        </CollapsibleSection>
-
-        {/* Missed Appointments */}
-        <Column>
-          <CollapsibleSection
-            spaceTop
-            removeLine
-            mode="raised"
-            title="Missed Appointments"
-            desc="Here are the missed appointments">
-            {/* Investigation content */}
-
-            <Column>
-              {/* Investigation content */}
-              {(missed ?? []).map((d, ix) => (
-                <Section key={ix} spaceTop={ix !== 0}>
-                  <UpcomingAppointmentItem {...d} />
-                </Section>
-              ))}
-            </Column>
-          </CollapsibleSection>
-        </Column>
+        {groups.map(([title, vals]) => (
+          <>
+            {/* Upcoming appointments */}
+            <CollapsibleSection
+              spaceTop
+              removeLine
+              title={nameMap[title]}
+              desc={`List of ${nameMap[title].toLowerCase()}`}>
+              <Column>
+                {/* Investigation content */}
+                {vals.map((d, ix) => (
+                  <Item key={ix} spaceTop={ix !== 0}>
+                    <AppointmentItem {...d} />
+                  </Item>
+                ))}
+              </Column>
+            </CollapsibleSection>
+          </>
+        ))}
       </ScrollView>
     </Layout>
   );
 }
 
-export type UpcomingAppointmentItem = AppointmentItem;
-function UpcomingAppointmentItem(props: UpcomingAppointmentItem) {
+function AppointmentItem(props: Appointment) {
+  const upcoming = isAfter(date(props.requestDate), new Date());
   return (
     <>
-      <Column wrapperStyle={{marginBottom: 12}}>
-        <TitledItem title="Appointment Date">
-          {format(props.appointmentDate, 'yyyy, MMMM dd')}
-        </TitledItem>
-        <TitledItem spaceTop title="Patient ID">
-          {props.patientId}
-        </TitledItem>
-      </Column>
-      {/* <Row>
-        <Button
-          icon="file-eye"
-          style={{flex: 1, marginRight: 6}}
-          mode="outlined"
-          onPress={() => {}}>
-          View
-        </Button>
-        <Button
-          icon="file-eye"
-          style={{flex: 1}}
-          mode="contained"
-          onPress={() => {}}>
-          Attend
-        </Button>
-      </Row> */}
-    </>
-  );
-}
-
-function AppointmentItem() {
-  return (
-    <>
-      <Column wrapperStyle={{marginBottom: 12}}>
-        <TitledItem title="Appointment Date">
-          {format(new Date(), 'yyyy, MMMM dd')}
-        </TitledItem>
-        <TitledItem spaceTop title="Patient ID">
-          0202010000012231
-        </TitledItem>
-      </Column>
-      <Item>
-        <Button icon="file-eye" mode="outlined" onPress={() => {}}>
-          View Appointment
-        </Button>
-      </Item>
+      <Row wrapperStyle={{marginBottom: 12}}>
+        <View>
+          <TitledItem title="Appointment Date">
+            {format(date(props.requestDate), 'yyyy, MMMM dd')}
+          </TitledItem>
+          {props.type === 'responded' && (
+            <TitledItem spaceTop title="Response Date">
+              {format(date(props.responseDate), 'yyyy, MMMM dd')}
+            </TitledItem>
+          )}
+        </View>
+        {props.type === 'not-responded' && upcoming && (
+          <Item spaceTop>
+            <Button mode="contained" icon="paperclip" onPress={() => {}}>
+              Attend
+            </Button>
+          </Item>
+        )}
+      </Row>
     </>
   );
 }

@@ -15,7 +15,11 @@
 			"**/mobile-ctc/",
 			"**/mobile-ctc/**",
 			"**/react-hook-form/",
-			"**/react-hook-form/**"
+			"**/react-hook-form/**",
+			"**/tiny-invariant/",
+			"**/tiny-invariant/**",
+			"**/@elsa-health/emr/",
+			"**/@elsa-health/emr/**"
 		]
 	},
 	"scripts": {

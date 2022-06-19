@@ -16,35 +16,28 @@ import {arv} from '../../actions/basic';
 import {groupByFn} from '../../_screens/MedicationStock/helpers';
 import {Query, queryCollection} from '../actions';
 import {Medica} from '../hook';
-import {EMR} from '../store';
-import {
-  ARVMedication,
-  CTCAppointmentRequest,
-  CTCAppointmentResponse,
-  CTCMedicationRequest,
-  CTCPatient,
-  CTCVisit,
-  StandardMedication,
-} from '../types';
-import {pick, pluck, select} from '../utils';
-import {useCollectionAsWorklet, useEMR} from './emr';
+import {EMR} from '../store_';
+import {pick} from '../utils';
+import {useCollectionAsWorklet} from './emr';
 
 export type UseEMRReport = ReturnType<typeof useEMRReport>;
 export function useEMRReport(emr: EMR) {
   // information for the "in-last-30-days"
-  const out = useEMR(emr);
 
+  const [{value: apptRequests}, _ar] = useCollectionAsWorklet(
+    emr.collections.appointmentRequests,
+    true,
+  );
+  const [{value: apptResponses}, _arq] = useCollectionAsWorklet(
+    emr.collections.appointmentResponse,
+    true,
+  );
+  const [{value: medRequests}, _mr] = useCollectionAsWorklet(
+    emr.collections.medicationRequests,
+    true,
+  );
   const [visits, _v] = useCollectionAsWorklet(emr.collections.visits, true);
   const [patients, _] = useCollectionAsWorklet(emr.collections.patients, true);
-
-  const {
-    data: {
-      'appt-requests': apptRequests,
-      'appt-responses': apptResponses,
-      'medication-requests': medRequests,
-    },
-    Q,
-  } = out;
 
   // Contain the appointment information
   const appointments = useSharedValue<
@@ -56,20 +49,11 @@ export function useEMRReport(emr: EMR) {
     }>
   >(Set());
 
-  const count = useSharedValue<{
-    upcoming: number | null;
-    missed: number | null;
-    done: number | null;
-  }>({
-    upcoming: null,
-    missed: null,
-    done: null,
-  });
-
   React.useEffect(() => {
-    const d = [];
     if (apptRequests) {
-      const apptWithDate = apptRequests.filter(d => Boolean(d.appointmentDate));
+      const apptWithDate = (apptRequests ?? List()).filter(d =>
+        Boolean(d.appointmentDate),
+      );
       //  Upcoming appointment set
       const upcomingSet = apptWithDate
         .map(d => ({
@@ -83,11 +67,11 @@ export function useEMRReport(emr: EMR) {
       appointments.value = upcomingSet;
 
       if (apptResponses !== null) {
-        const previous = apptWithDate.filter(d =>
+        const previous = (apptWithDate ?? []).filter(d =>
           isBefore(date(d.appointmentDate), new Date()),
         );
 
-        const apptWithAppt = apptResponses
+        const apptWithAppt = (apptResponses ?? List())
           .map(d => pick(d, ['authorizingAppointmentRequest', 'createdAt']))
           .map(d => ({
             responseDate: d.createdAt,
@@ -121,25 +105,27 @@ export function useEMRReport(emr: EMR) {
       medicationRequests: medRequests,
     },
     brief: {
-      recentVisits: (visits.value || List([]))
-        .sortBy(d => -date(d.date ?? d.createdAt).getTime())
-        .map(visit => ({
-          visitDate: visit.date ?? visit.createdAt,
-          patient: visit.subject.id,
-        }))
-        .toArray(),
+      recentVisits: [],
+      top3RequestedMedication: [],
+      // recentVisits: (visits.value || List([]))
+      //   .sortBy(d => -date(d.date ?? d.createdAt).getTime())
+      //   .map(visit => ({
+      //     visitDate: visit.date ?? visit.createdAt,
+      //     patient: visit.subject.id,
+      //   }))
+      //   .toArray(),
       // medication
-      top3RequestedMedication: groupByFn(
-        medRequests?.toArray() ?? [],
-        ({medication}) =>
-          medication.resourceType === 'Medication'
-            ? medication.name
-            : 'unknown',
-      )
-        .map(([id, req]) => [id, standardName(arvName(id)), req.length])
-        .sortBy(d => -d[2])
-        .filter(([id, ..._]) => ARV.regimen.fromKey(id) !== undefined)
-        .slice(0, 3),
+      // top3RequestedMedication: groupByFn(
+      //   (medRequests.value ?? List()).toArray(),
+      //   ({medication}) =>
+      //     medication.resourceType === 'Medication'
+      //       ? medication.name
+      //       : 'unknown',
+      // )
+      //   .map(([id, req]) => [id, standardName(arvName(id)), req.length])
+      //   .sortBy(d => -d[2])
+      //   .filter(([id, ..._]) => ARV.regimen.fromKey(id) !== undefined)
+      //   .slice(0, 3),
     },
   };
 }

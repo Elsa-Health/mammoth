@@ -7,7 +7,7 @@ import {createMachine, assign} from 'xstate';
 import {useMachine} from '@xstate/react';
 import produce from 'immer';
 import {Assessment} from '../../../emr-types/v1/visit';
-import {EMR} from '../store';
+import {EMR} from '../store_';
 
 type NotStartedVisitContext = {
   current: null;

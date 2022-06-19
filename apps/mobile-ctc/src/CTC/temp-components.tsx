@@ -567,7 +567,7 @@ export function ControlDateInput({
             value={field.value}
             onChangeText={field.onChange}
             placeholder="DD / MM / YYYY"
-            keyboardType="number-pad"
+            keyboardType="numbers-and-punctuation"
             render={props => (
               // @ts-ignore
               <TextInputMask {...props} mask="[00] / [00] / [0000]" />
