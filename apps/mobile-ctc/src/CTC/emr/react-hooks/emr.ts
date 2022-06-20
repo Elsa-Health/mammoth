@@ -66,7 +66,7 @@ export function useStock(emr: EMRModule) {
   //   emr.collection('medications'),
   // );
 
-  const [stock_, queryStock] = useCollectionAsWorklet(emr.collection('stock'));
+  const [{value: stock_}] = useCollectionAsWorklet(emr.collection('stock'));
 
   // queryStock();
   // React.useEffect(() => {
@@ -76,23 +76,27 @@ export function useStock(emr: EMRModule) {
   // stock information
   return {
     arvs: Object.fromEntries(
-      (stock_.value ?? []).map(d => [
-        d.id,
-        {
-          count: d.count.toString(),
-          form: d.medication.form,
-          expiresAt: format(date(d.expiresAt), 'dd / MM / yyyy'),
-          ingredients: d.medication.ingredients.map(d => d.identifier),
-          alias: d.medication.alias,
-          type: d.medication.type,
-          estimatedFor: '30-days',
-          identifier: d.medication.identifier,
-          text: d.medication.text,
-          group: 'adults',
-          concentrationValue: null,
-        } as SingleStockItem,
-      ]),
+      (stock_ ?? List())
+        .map(d => [
+          d.id,
+          {
+            count: d.count.toString(),
+            form: d.medication.form,
+            expiresAt: format(date(d.expiresAt), 'dd / MM / yyyy'),
+            ingredients: d.medication.ingredients.map(d => d.identifier),
+            alias: d.medication.alias,
+            type: d.medication.type,
+            estimatedFor: '30-days',
+            identifier: d.medication.identifier,
+            text: d.medication.text,
+            group: 'adults',
+            concentrationValue: null,
+          } as SingleStockItem,
+        ])
+        .toArray(),
     ),
+    // List of medications
+    medications: (stock_ ?? List()).map(d => d.medication).toSet(),
   };
 }
 
@@ -100,9 +104,14 @@ export type Appointment = {
   requestId: string;
   requestDate: UTCDateTimeString;
   originVisitId: string | null;
+  request: CTC.AppointmentRequest;
 } & (
-  | {type: 'not-responded'; responseDate: null}
-  | {type: 'responded'; responseDate: UTCDateTimeString}
+  | {type: 'not-responded'; responseDate: null; response: null}
+  | {
+      type: 'responded';
+      responseDate: UTCDateTimeString;
+      response: CTC.AppointmentResponse;
+    }
 );
 
 export type UseAppointments = ReturnType<typeof useAppointments>;
@@ -114,9 +123,6 @@ export function useAppointments(emr: EMRModule) {
   const [{value: apptResps}, qrs_] = useCollectionAsWorklet(
     emr.collection('appointment-responses'),
   );
-
-  // q_();
-  // qrs_();
 
   // appointment records
   const appointments = useSharedValue<List<Appointment> | null>(null);
@@ -141,6 +147,8 @@ export function useAppointments(emr: EMRModule) {
             requestDate: d.appointmentDate,
             responseDate: dx.createdAt,
             type: 'responded',
+            request: d,
+            response: dx,
           } as Appointment;
         }
 
@@ -151,11 +159,15 @@ export function useAppointments(emr: EMRModule) {
           requestDate: d.appointmentDate,
           responseDate: null,
           type: 'not-responded',
+          request: d,
+          response: null,
         } as Appointment;
       }) ?? null;
   }, [apptResps, apptRqs]);
 
   return {
+    'appointment-requests': apptRqs,
+    'appointment-responses': apptResps,
     appointments: appointments.value ?? List(),
   };
 }

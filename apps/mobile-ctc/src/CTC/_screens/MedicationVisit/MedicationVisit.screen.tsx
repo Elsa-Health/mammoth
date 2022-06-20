@@ -5,17 +5,29 @@ import {format} from 'date-fns';
 import {ARV, CTC, Investigation, Medication} from 'elsa-health-data-fns/lib';
 import React from 'react';
 import {useForm, Controller, ResolverResult} from 'react-hook-form';
-import {ScrollView, View} from 'react-native';
-import {Button, HelperText, RadioButton, TextInput} from 'react-native-paper';
+import {ScrollView, useWindowDimensions, View} from 'react-native';
+import Collapsible from 'react-native-collapsible';
+import {
+  Button,
+  Checkbox,
+  HelperText,
+  RadioButton,
+  TextInput,
+  TouchableRipple,
+} from 'react-native-paper';
+import {useAsyncRetry} from 'react-use';
+import {UseAppointments, UseStockData} from '../../emr/react-hooks';
 import {CTCOrganization, CTCPatient} from '../../emr/types';
 import {
   Block,
   Column,
   ControlDateInput,
+  Item,
   MultiSelect,
   Picker,
   Row,
   Section,
+  TitledItem,
 } from '../../temp-components';
 
 const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
@@ -23,19 +35,21 @@ const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 export type MedicationRequestVisitData = {
   // regimenDecision: string;
   // decisionReason: CTC.Status;
-  arvRegimens: ARV.Regimen[];
+  arvRegimenUnit: string[];
   regimenDuration: DurationOpt;
   medications: Medication.All[];
   appointmentDate: string;
   investigations: Investigation[];
   dateOfVisit: DDMMYYYYDateString;
+  appointmentId: null | string;
+  visitType: 'home' | 'community';
 };
 
-export type DurationOpt = '1-month' | '3-months' | '6-months';
+export type DurationOpt = '30-days' | '60-days' | '90-days';
 const durationOptions: Array<{value: DurationOpt; text: string}> = [
-  {value: '1-month', text: '1 month'},
-  {value: '3-months', text: '3 months'},
-  {value: '6-months', text: '6 months'},
+  {value: '30-days', text: '30 days'},
+  {value: '60-days', text: '60 days'},
+  {value: '90-days', text: '90 days'},
 ];
 
 export default function MedicationVisitScreen({
@@ -54,29 +68,40 @@ export default function MedicationVisitScreen({
       patient: CTCPatient,
       organization: CTCOrganization,
     ) => void;
+    fetchMedications: () => Promise<UseStockData['medications']>;
+    fetchAppointments: () => Promise<UseAppointments['appointments']>;
     onDiscard: () => void;
   }
 >) {
   const {spacing} = useTheme();
-  const {handleSubmit, control} = useForm<MedicationRequestVisitData>({
-    defaultValues: e.initialState ?? {
-      // regimenDecision: undefined,
-      // @ts-ignore
-      // decisionReason: '',
-      arvRegimens: [],
-      regimenDuration: '1-month',
-      medications: [],
-      appointmentDate: '',
-      investigations: [],
-      dateOfVisit: format(new Date(), 'dd / MM / yyyy'),
+  const {width} = useWindowDimensions();
+  const {handleSubmit, control, setValue} = useForm<MedicationRequestVisitData>(
+    {
+      defaultValues: e.initialState ?? {
+        // regimenDecision: undefined,
+        // @ts-ignore
+        // decisionReason: '',
+        arvRegimenUnit: [],
+        regimenDuration: '30-days',
+        medications: [],
+        appointmentDate: '',
+        investigations: [],
+        visitType: 'home',
+        appointmentId: null,
+        dateOfVisit: format(new Date(), 'dd / MM / yyyy'),
+      },
     },
-  });
+  );
 
   const onSubmit = handleSubmit(data =>
     $.complete(data, e.patient, e.organization),
   );
 
   const edit = !Boolean(e.edit);
+  const [isFromAppt, setIsFromAppt] = React.useState(false);
+  const {loading, retry, error, value} = useAsyncRetry($.fetchAppointments, []);
+  const {value: medications} = useAsyncRetry($.fetchMedications, []);
+
   return (
     <Layout
       title={edit ? 'Patient Visit' : 'Edit Patient Visit'}
@@ -111,63 +136,178 @@ export default function MedicationVisitScreen({
           />
         </Section>
 
-        {/* Make ARV medication request */}
-        <Section spaceTop title="ARV Medication">
-          <Column spaceTop>
-            <Text font="medium" style={{marginBottom: 8}}>
-              Select regimens
-            </Text>
-            <Controller
-              control={control}
-              name="arvRegimens"
-              render={({field}) => (
-                <MultiSelect
-                  confirmText={'Confirm'}
-                  items={[
-                    {
-                      name: 'ARV Regimens',
-                      id: 1,
-                      children: ion(ARV.regimen.pairs()),
-                    },
-                  ]}
-                  uniqueKey="id"
-                  searchPlaceholderText={'Search ARV Regimen'}
-                  selectText={'Select if any'}
-                  onSelectedItemsChange={field.onChange}
-                  selectedItems={field.value}
-                />
-              )}
-            />
-          </Column>
-
-          <Column spaceTop>
-            <Text font="medium">Duration of the selected ARVs</Text>
-            <Controller
-              control={control}
-              name="regimenDuration"
-              render={({field}) => (
+        <Section
+          title="Type of patient visit?"
+          desc="Is this a home visit or a community visit?"
+          spaceTop
+          removeLine>
+          <Controller
+            name="visitType"
+            control={control}
+            render={({field}) => (
+              <>
                 <RadioButton.Group
                   value={field.value}
                   onValueChange={field.onChange}>
-                  <Row
-                    spaceTop
-                    contentStyle={{
-                      flexWrap: 'wrap',
-                      justifyContent: 'flex-start',
-                    }}>
-                    {durationOptions.map(({value, text}) => (
-                      <RadioButton.Item
-                        label={text}
-                        key={value}
-                        value={value}
-                      />
-                    ))}
-                  </Row>
+                  <View style={{flexDirection: 'row'}}>
+                    <RadioButton.Item label="Home" value="home" />
+                    <RadioButton.Item label="Community" value="community" />
+                  </View>
                 </RadioButton.Group>
+              </>
+            )}
+          />
+        </Section>
+
+        {/* Appointment */}
+        {value !== undefined && (
+          <Section
+            title="From an appointment"
+            desc="Is visit this from an appointment?"
+            right={
+              <Checkbox
+                status={isFromAppt ? 'checked' : 'unchecked'}
+                onPress={() => setIsFromAppt(s => !s)}
+              />
+            }
+            spaceTop
+            mode="raised">
+            <Controller
+              name="appointmentId"
+              control={control}
+              rules={{required: isFromAppt}}
+              render={({field, fieldState}) => (
+                <>
+                  {Boolean(fieldState.error) && (
+                    <HelperText type="error">
+                      You must select an appointment to proceed
+                    </HelperText>
+                  )}
+                  <Collapsible collapsed={!isFromAppt}>
+                    <Text italic style={{marginVertical: 8}}>
+                      Choose
+                    </Text>
+                    <ScrollView horizontal>
+                      {/* <Row wrapperStyle={{justifyContent: 'flex-start'}}> */}
+                      {value.map((d, ix) => {
+                        const notSelected = field.value === d.requestId;
+                        return (
+                          <React.Fragment key={ix}>
+                            <TouchableRipple
+                              onPress={() => field.onChange(d.requestId)}
+                              style={{
+                                marginRight: 8,
+                                marginVertical: 4,
+                              }}>
+                              <Item
+                                style={[
+                                  notSelected
+                                    ? {
+                                        borderColor: '#4665af',
+                                        backgroundColor: '#4665af',
+                                      }
+                                    : {
+                                        borderColor: '#4665af',
+                                      },
+                                  {
+                                    padding: 2,
+                                    paddingVertical: 8,
+                                    paddingHorizontal: 8,
+                                    borderRadius: 8,
+                                    borderWidth: 1,
+                                  },
+                                ]}>
+                                <TitledItem
+                                  titleColor={
+                                    notSelected ? '#FFFFFF' : '#708dcc'
+                                  }
+                                  title="Appointment">
+                                  <Text
+                                    color={notSelected ? '#FFFFFF' : '#000'}>
+                                    {format(
+                                      new Date(d.requestDate),
+                                      'yyyy, MMMM dd',
+                                    )}
+                                  </Text>
+                                </TitledItem>
+                              </Item>
+                            </TouchableRipple>
+                          </React.Fragment>
+                        );
+                      })}
+                      {/* </Row> */}
+                    </ScrollView>
+                  </Collapsible>
+                </>
               )}
             />
-          </Column>
-        </Section>
+          </Section>
+        )}
+
+        {/* Make ARV medication request */}
+        {medications === undefined ? (
+          <Text>Loading medications...</Text>
+        ) : (
+          <Section
+            spaceTop
+            title="ARV Medication"
+            desc="Select regimens that apply">
+            <Column spaceTop>
+              <Controller
+                control={control}
+                name="arvRegimens"
+                render={({field}) => (
+                  <MultiSelect
+                    confirmText={'Confirm'}
+                    items={[
+                      {
+                        name: 'ARV Regimens',
+                        id: 1,
+                        children: medications?.map(d => ({
+                          id: `${d.form}:${d.identifier}`,
+                          name: d.text,
+                        })),
+                      },
+                    ]}
+                    uniqueKey="id"
+                    searchPlaceholderText={'Search ARV Regimen'}
+                    selectText={'Select if any'}
+                    onSelectedItemsChange={field.onChange}
+                    selectedItems={field.value}
+                  />
+                )}
+              />
+            </Column>
+
+            <Column spaceTop>
+              <Text font="medium">Duration of the selected ARVs</Text>
+              <Controller
+                control={control}
+                name="regimenDuration"
+                render={({field}) => (
+                  <RadioButton.Group
+                    value={field.value}
+                    onValueChange={field.onChange}>
+                    <Row
+                      spaceTop
+                      contentStyle={{
+                        flexWrap: 'wrap',
+                        justifyContent: 'flex-start',
+                      }}>
+                      {durationOptions.map(({value, text}) => (
+                        <RadioButton.Item
+                          label={text}
+                          key={value}
+                          value={value}
+                        />
+                      ))}
+                    </Row>
+                  </RadioButton.Group>
+                )}
+              />
+            </Column>
+          </Section>
+        )}
 
         {/* Other Medication */}
 

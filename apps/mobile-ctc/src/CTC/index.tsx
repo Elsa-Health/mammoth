@@ -194,24 +194,24 @@ function App({
   };
 
   // Get web socket
-  useWebSocket({
-    // url: 'https://bounce-edge.fly.dev/crdt/state',
-    url: 'wss://c0ac-197-250-224-127.eu.ngrok.io/crdt/state',
-    onOpen(socket) {
-      // Connected
-      console.log('Connection established!!!');
-    },
-    onData(data: CRDTMessage[] | StockMessage) {
-      // console.log('Sending to something...');
-      // Received data
-      emr.merge(data);
-      // console.log('Received data... merging');
-      emr
-        .sync()
-        .then(() => console.log('Sync complete'))
-        .catch(() => console.log('Sync failed'));
-    },
-  });
+  // useWebSocket({
+  //   url: 'https://bounce-edge.fly.dev/crdt/state',
+  //   // url: 'wss://c0ac-197-250-224-127.eu.ngrok.io/crdt/state',
+  //   onOpen(socket) {
+  //     // Connected
+  //     console.log('Connection established!!!');
+  //   },
+  //   onData(data: CRDTMessage[] | StockMessage) {
+  //     // console.log('Sending to something...');
+  //     // Received data
+  //     emr.merge(data);
+  //     // console.log('Received data... merging');
+  //     emr
+  //       .sync()
+  //       .then(() => console.log('Sync complete'))
+  //       .catch(() => console.log('Sync failed'));
+  //   },
+  // });
 
   const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
   // React.useEffect(() => {
@@ -333,6 +333,14 @@ function App({
           name="ctc.medication-visit"
           component={withFlowContext(MedicationVisit, {
             actions: ({navigation}) => ({
+              async fetchMedications() {
+                return stock.medications?.toArray() ?? [];
+              },
+              async fetchAppointments() {
+                return appointments.appointments.filter(
+                  d => d.type === 'not-responded',
+                );
+              },
               async complete(data, patient, organization) {
                 try {
                   // console.log('##### -2');
@@ -406,7 +414,7 @@ function App({
 
                   // record the medication requests
                   await setDocs(
-                    emr.collections.medicationRequests,
+                    Emr.collection('medication-requests'),
                     (prescriptions ?? []).map(d => [d.id, d]),
                   );
                   // console.log('##### 3');
@@ -417,7 +425,10 @@ function App({
 
                   // record appointment request
                   await setDoc(
-                    doc(emr.collections.appointmentRequests, appointmentReq.id),
+                    doc(
+                      Emr.collection('appointment-requests'),
+                      appointmentReq.id,
+                    ),
                     appointmentReq,
                   );
 

@@ -144,12 +144,12 @@ export default function DashboardScreen({
                 <Icon name="arrow-right" color={color.primary.base} size={24} />
               </Row>
             </TouchableItem> */}
-            <TouchableItem spaceTop onPress={$.onSeeOtherMedications}>
+            {/* <TouchableItem spaceTop onPress={$.onSeeOtherMedications}>
               <Row icon="map-search">
                 <Text>Show Medication Network</Text>
                 <Icon name="arrow-right" color={color.primary.base} size={24} />
               </Row>
-            </TouchableItem>
+            </TouchableItem> */}
             <TouchableItem spaceTop onPress={$.onViewReports}>
               <Row icon="chart-box-outline">
                 <Text>View Reports</Text>

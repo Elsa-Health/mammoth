@@ -365,14 +365,16 @@ export function AsyncComponent<T>({
 export function TitledItem({
   title,
   children,
+  titleColor,
   ...props
 }: {
   title: string;
+  titleColor?: string;
   children: string | React.ReactNode;
 } & ItemProps) {
   return (
     <Item {...props}>
-      <Text font="bold" size={'sm'} color="#708dcc">
+      <Text font="bold" size={'sm'} color={titleColor ?? '#708dcc'}>
         {title}
       </Text>
       <View style={{marginTop: 2}}>
