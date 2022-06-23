@@ -3,7 +3,7 @@ import * as z from "zod";
 import { saver } from "../utils";
 
 import invariant from "tiny-invariant";
-import { collection, getDocs } from "papai/collection";
+import { addDoc, collection, getDocs } from "papai/collection";
 import { Store } from "papai/collection/core";
 import {
 	StateTrackingBox,
@@ -34,10 +34,11 @@ const CRDTState = z.object({
 });
 type CRDTState = z.infer<typeof CRDTState>;
 
-const save = saver("./stock/facilities");
-const crdtSave = saver("./stock/facilities");
-
-type Ss = { mirror: () => Store; server: () => Store };
+type Ss = {
+	mirror: () => Store;
+	server: () => Store;
+	serverClock: HybridLogicalClock;
+};
 /**
  * Socket router receiving contents from connected clients
  * and merging with child members
@@ -84,10 +85,7 @@ function handleStockEvent(
 	{ type: _, facility, ...other }: StockState,
 	server: () => WebSocketServer
 ) {
-	// ...
-	// stock information that will be useful
-	// later on
-	save.asJSON(`${facility}.json`, other);
+	invariant(false, "There's no implementation for this handler");
 }
 
 function handleCRDTEvent(
@@ -99,13 +97,9 @@ function handleCRDTEvent(
 ) {
 	// ...
 	// crdtSave.asJSON(``)
-	console.log(JSON.stringify(state, null, 2));
-
+	// console.log("received state!", state);
 	// update the sate box with the inforamtion to match the contents
 	const { batch, source } = state;
-
-	// list of sources that have pushed data to the node.
-	// ..
 
 	// have steps to
 	// re-create the stores of the messages received
@@ -116,8 +110,15 @@ function handleCRDTEvent(
 		statebox.append(ref, data, HybridLogicalClock.parse(clock));
 	});
 
-	// set up
+	// 1. denote where the change was recorded
+	//  by showing who did what to which record
+	const activityLogCollection = collection(store.server(), "activity-log");
+	addDoc(activityLogCollection, {
+		source, // source of the message
+		clock: store.serverClock.next().toString(), // when the effect has happened
+		records: batch.map((d) => d[0]), // list of record affected by the chnage
+	});
 
 	// 2. sync up changes to the store
-	updateChangesToStore(store.server(), statebox);
+	updateChangesToStore(store.mirror(), statebox);
 }

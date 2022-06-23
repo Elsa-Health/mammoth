@@ -113,7 +113,11 @@ wss.on("connection", function (socket) {
 	router(
 		socket,
 		() => this,
-		{ mirror: () => mirrorStorage, server: () => serverStore },
+		{
+			mirror: () => mirrorStorage,
+			server: () => serverStore,
+			serverClock: initlock.next(),
+		},
 		sb
 	);
 });

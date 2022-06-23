@@ -1,4 +1,9 @@
-import { StoreConstructor } from "papai/collection";
+import {
+	addDoc,
+	collection,
+	getStore,
+	StoreConstructor,
+} from "papai/collection";
 import * as fs from "fs/promises";
 import { existsSync, mkdirSync, statSync } from "fs";
 import path from "path";
@@ -29,14 +34,13 @@ export const FileSystemCollection = (
 	const readJson = async <T>(filePath: string) => {
 		if (existsSync(filePath)) {
 			// @ts-ignore
-			return (await fs.readFile(filePath)).toJSON() as T;
+			return JSON.parse((await fs.readFile(filePath)).toString()) as T;
 		} else {
 			return null;
 		}
 	};
 
 	const saveAsJson = async <T>(saveToPath: string, data: T) => {
-		console.log("Saving ", data);
 		return fs.writeFile(saveToPath, JSON.stringify(data, undefined, 2));
 	};
 
@@ -141,6 +145,3 @@ export const FileSystemCollection = (
 		},
 	} as StoreConstructor;
 };
-
-// const ff = FileSystemCollection("./dummy-stuff", () => nanoid());
-// ff.coll.add({ collectionId: "patient" }, { name: "Kevin", age: "30" });

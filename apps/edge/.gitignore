@@ -10,4 +10,5 @@ node_modules
 .env
 .env*
 
+# volumes created by the server
 server-*-volume
