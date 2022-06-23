@@ -42,7 +42,7 @@ export function handleStockData(data: StockState, cb?: (err?: Error) => any) {
 
 export const CRDTState = z.object({
   type: z.literal('crdt'),
-  source: z.object({facility: z.string(), userId: z.string()}),
+  source: z.object({facility: z.string(), userId: z.string()}).optional(),
   batch: z.array(
     z.tuple([
       z.object({collectionId: z.string(), documentId: z.string()}),

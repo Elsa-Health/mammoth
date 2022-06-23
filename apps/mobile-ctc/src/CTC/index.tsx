@@ -18,7 +18,6 @@ import RegisterNewPatientScreen from './_screens/RegisterNewPatient';
 
 import MedicationDispenseScreen from './_screens/MedicationDispense';
 import MedicationRequestScreen from './_screens/MedicationRequest';
-import MedicationStockSimpleScreen from './_screens/MedicationStockSimple';
 import MedicationStockDashboardScreen from './_screens/MedicationStockDashboard';
 
 import NewVisitEntryScreen from './_screens/BasicPatientIntake';
@@ -32,29 +31,17 @@ import uuid from 'react-native-uuid';
 import {ElsaProvider} from '../provider/backend';
 import {MedicaDisp, MedicaReq} from './emr/hook';
 import {ARV, Investigation, Medication as Med} from 'elsa-health-data-fns/lib';
-import {EMR} from './emr/store_';
 import {useWebSocket} from '../app/utils';
 
 import {withFlowContext} from '../@workflows/index';
 
-import {
-  doc,
-  setDoc,
-  Document,
-  getDocs,
-  setDocs,
-  collection,
-  addDoc,
-  updateDoc,
-} from 'papai/collection';
-import {HybridLogicalClock} from 'papai/distributed/clock';
+import {doc, setDoc, Document, getDocs, setDocs} from 'papai/collection';
 import {List} from 'immutable';
-import {ToastAndroid, View} from 'react-native';
+import {ToastAndroid} from 'react-native';
 import _ from 'lodash';
 import {translatePatient} from './actions/translate';
 import {
   arv,
-  arvSingle,
   getOrganizationFromProvider,
   investigationRequest,
   medRequest,
@@ -82,6 +69,7 @@ import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
 // Migration code
 import './emr/temp.migrate';
 import {onSnapshotUpdate} from './emr/subscribe';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();
 
@@ -145,7 +133,14 @@ function App({
   //   console.log('-->', JSON.stringify(d)),
   // );
 
-  // connect with v0 edge
+  // Migrating the contents from the old edge server
+  //  to this storage.
+  // --------------------------------------
+  // This code should be removed in the future.
+  // --------------------------------------
+  // to remove by v3 or v2.5
+  //  (if there are those missing, then, might want
+  //   to add the update manual push)
   useWebSocket({
     url: 'wss://ctc-edge-server.fly.dev/channel/cmrdt',
     onOpen(socket) {
@@ -153,43 +148,67 @@ function App({
     },
     onMessage(e) {
       console.log('onMessage');
-      // assumed HUGE payload
-      // -----------------
-      const x: [Document.Ref, {[k: string]: Data}][] = e.data
-        ? JSON.parse(e.data)
-        : [];
 
-      if (x.length === 0) {
-        return;
-      }
+      // update
+      AsyncStorage.getItem('MIGRATE-OVER-PATIENT')
+        .then(isToPatientMigrate => {
+          // ...
+          if (isToPatientMigrate !== null) {
+            console.log('Not migrating patient...');
+            return;
+          }
 
-      // console.log(x[0]);
-      // console.log({collectionId, id, result});
+          const ou =
+            isToPatientMigrate !== null ? JSON.parse(isToPatientMigrate) : null;
+          // console.log({isToSeed, ou});
+          if (ou !== null) {
+            console.log('Not migrating patient...');
+            return;
+          }
 
-      // Might want to change this later
-      // this assumes all are coming from one collection
-      const docs = x
-        .filter(c => c.state.op.collectionId === 'patients')
-        .map(c => {
-          const {
-            state: {
-              op: {collectionId, id},
-              result,
-            },
-          } = c;
+          // assumed HUGE payload
+          // -----------------
+          const x: [Document.Ref, {[k: string]: Data}][] = e.data
+            ? JSON.parse(e.data)
+            : [];
 
-          return [id, convert_v0_patient_to_v1(id, result)];
-        });
+          if (x.length === 0) {
+            return;
+          }
 
-      setDocs(Emr.collection('patients'), docs);
+          // console.log(x[0]);
+          // console.log({collectionId, id, result});
+
+          // Might want to change this later
+          // this assumes all are coming from one collection
+          const docs = x
+            .filter(c => c.state.op.collectionId === 'patients')
+            .map(c => {
+              const {
+                state: {
+                  op: {collectionId, id},
+                  result,
+                },
+              } = c;
+
+              return [id, convert_v0_patient_to_v1(id, result)];
+            });
+
+          return setDocs(Emr.collection('patients'), docs).then(_ =>
+            AsyncStorage.setItem('MIGRATE-OVER-PATIENT', JSON.stringify(true)),
+          );
+        })
+        .then(() => console.log('Patient migration completed!'))
+        .catch(err => console.error(err));
       // console.log(docs[0]);
     },
   });
+  // -------------------------------------
 
   // Get web socket
   const {socket, status} = useWebSocket({
     // url: 'wss://bounce-edge.fly.dev/ws/crdt/state',
-    url: 'wss://3a49-197-250-61-138.eu.ngrok.io/ws/crdt/state',
+    url: 'wss://cf89-197-250-61-138.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
       // Connected
       fetchCRDTMessages(provider).then(message => {
@@ -234,9 +253,6 @@ function App({
   const stock = useStock(Emr);
   const appointments = useAppointments(Emr);
   const report = useEMRReport(Emr);
-
-  // const report = useReport(emr);
-  // const apptReport = useEMRReport(emr);
 
   return (
     <>
