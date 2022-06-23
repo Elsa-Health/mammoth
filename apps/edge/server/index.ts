@@ -6,9 +6,15 @@ import cors from "cors";
 
 import { createServer } from "http";
 
-import ews from "express-ws";
 import { router } from "./routes/socket";
 import { WebSocketServer } from "ws";
+import { getStore } from "papai/collection";
+import KeyValueMapCollection from "papai/stores/collection/KeyValueMap";
+import { StateTrackingBox } from "papai/distributed/store";
+
+import { nanoid } from "nanoid";
+import { HybridLogicalClock } from "papai/distributed/clock";
+import { FileSystemCollection } from "./store/fs-collection";
 
 const app = express();
 const server = createServer(app);
@@ -82,11 +88,34 @@ const wss = new WebSocketServer({
 	server,
 });
 
+const initlock = new HybridLogicalClock(`elsa-edge-node-${nanoid(5)}`);
+// get the store with the entire copy of the databases
+// const mirrorStorage = getStore(KeyValueMapCollection(() => nanoid(24)));
+const mirrorStorage = getStore(
+	FileSystemCollection("./server-mirror-volume", () => nanoid(24))
+);
+// statebox, that syncronizes changes
+const sb = new StateTrackingBox(
+	initlock,
+	(d) => `${d.collectionId}$${d.documentId}`
+);
+
+// store that hold information that's useful to the server
+// this includes information like crdt messages received + sources of the data received.
+const serverStore = getStore(
+	FileSystemCollection("./server-private-volume", () => nanoid(24))
+);
+
 wss.on("connection", function (socket) {
 	console.log("🟢 Connected!");
 
 	// attack handler for the socket
-	router(socket, () => this);
+	router(
+		socket,
+		() => this,
+		{ mirror: () => mirrorStorage, server: () => serverStore },
+		sb
+	);
 });
 
 wss.on("close", () => {

@@ -187,7 +187,7 @@ function App({
   });
 
   // Get web socket
-  const {socket} = useWebSocket({
+  const {socket, status} = useWebSocket({
     // url: 'wss://bounce-edge.fly.dev/ws/crdt/state',
     url: 'wss://3a49-197-250-61-138.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
@@ -214,10 +214,17 @@ function App({
   });
 
   const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
+
+  React.useEffect(() => {
+    console.log(status);
+  }, [status]);
+
   React.useEffect(() => {
     if (socket !== undefined) {
+      console.log('Socket present');
       // only send if ready
-      if (socket.readyState === WebSocket.OPEN) {
+      if (status === 'online') {
+        console.log('Socket readyState');
         const sub = onSnapshotUpdate(provider, msg => {
           console.log({msg});
           socket.send(JSON.stringify(msg));
@@ -226,7 +233,7 @@ function App({
         return () => sub.unsubscribe();
       }
     }
-  }, [socket]);
+  }, [socket, status]);
 
   const stock = useStock(Emr);
   const appointments = useAppointments(Emr);

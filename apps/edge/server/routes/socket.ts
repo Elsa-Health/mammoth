@@ -4,6 +4,13 @@ import { saver } from "../utils";
 
 import invariant from "tiny-invariant";
 import { collection, getDocs } from "papai/collection";
+import { Store } from "papai/collection/core";
+import {
+	StateTrackingBox,
+	updateChangesToStore,
+} from "papai/distributed/store";
+import { HybridLogicalClock } from "papai/distributed/clock";
+
 // make sure the endpoint handles
 //  stock related inquiries
 const StockState = z.object({
@@ -30,7 +37,20 @@ type CRDTState = z.infer<typeof CRDTState>;
 const save = saver("./stock/facilities");
 const crdtSave = saver("./stock/facilities");
 
-export function router(socket: WebSocket, server: () => WebSocketServer) {
+type Ss = { mirror: () => Store; server: () => Store };
+/**
+ * Socket router receiving contents from connected clients
+ * and merging with child members
+ * @param socket
+ * @param server
+ * @param mirrorStore
+ */
+export function router(
+	socket: WebSocket,
+	server: () => WebSocketServer,
+	store: Ss,
+	sb: StateTrackingBox
+) {
 	// ...
 	socket.on("message", function (message) {
 		const data = JSON.parse(message.toString()) as CRDTState | StockState;
@@ -48,7 +68,7 @@ export function router(socket: WebSocket, server: () => WebSocketServer) {
 		}
 
 		//
-		handleCRDTEvent(socket, CRDTState.parse(data), server);
+		handleCRDTEvent(socket, CRDTState.parse(data), server, store, sb);
 	});
 }
 
@@ -73,9 +93,31 @@ function handleStockEvent(
 function handleCRDTEvent(
 	socket: WebSocket,
 	state: CRDTState,
-	server: () => WebSocketServer
+	server: () => WebSocketServer,
+	store: Ss,
+	statebox: StateTrackingBox
 ) {
 	// ...
 	// crdtSave.asJSON(``)
-	console.log(state);
+	console.log(JSON.stringify(state, null, 2));
+
+	// update the sate box with the inforamtion to match the contents
+	const { batch, source } = state;
+
+	// list of sources that have pushed data to the node.
+	// ..
+
+	// have steps to
+	// re-create the stores of the messages received
+	// -----
+
+	// 1. create the state box for the data
+	batch.forEach(([ref, data, clock]) => {
+		statebox.append(ref, data, HybridLogicalClock.parse(clock));
+	});
+
+	// set up
+
+	// 2. sync up changes to the store
+	updateChangesToStore(store.server(), statebox);
 }
