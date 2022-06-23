@@ -1,8 +1,5 @@
 import {differenceInCalendarDays, format, isAfter, isBefore} from 'date-fns';
-import {ARV, Medication} from 'elsa-health-data-fns/lib';
 import {List, Set} from 'immutable';
-import {Document, getDocs} from 'papai/collection';
-import {CollectionNode} from 'papai/collection/core';
 import React from 'react';
 import {
   runOnJS,
@@ -11,13 +8,7 @@ import {
   useSharedValue,
   useWorkletCallback,
 } from 'react-native-reanimated';
-import {useAsync} from 'react-use';
-import {arv} from '../../actions/basic';
-import {groupByFn} from '../../_screens/MedicationStock/helpers';
-import {Query, queryCollection} from '../actions';
-import {Medica} from '../hook';
 import {EMRModule} from '../store';
-import {EMR} from '../store_';
 import {pick} from '../utils';
 import {useCollectionAsWorklet} from './emr';
 
@@ -26,19 +17,20 @@ export function useEMRReport(emr: EMRModule) {
   // information for the "in-last-30-days"
 
   const [{value: apptRequests}, _ar] = useCollectionAsWorklet(
-    EMR.collections.appointmentRequests,
-    true,
+    emr.collection('appointment-requests'),
   );
   const [{value: apptResponses}, _arq] = useCollectionAsWorklet(
-    EMR.collections.appointmentResponse,
-    true,
+    emr.collection('appointment-responses'),
   );
   const [{value: medRequests}, _mr] = useCollectionAsWorklet(
-    EMR.collections.medicationRequests,
-    true,
+    emr.collection('medication-requests'),
   );
-  const [visits, _v] = useCollectionAsWorklet(EMR.collections.visits, true);
-  const [patients, _] = useCollectionAsWorklet(EMR.collections.patients, true);
+  const [{value: visits}, _v] = useCollectionAsWorklet(
+    emr.collection('visits'),
+  );
+  const [{value: patients}, _] = useCollectionAsWorklet(
+    emr.collection('patients'),
+  );
 
   // Contain the appointment information
   const appointments = useSharedValue<
@@ -99,9 +91,9 @@ export function useEMRReport(emr: EMRModule) {
 
   return {
     data: {
-      visits: visits.value,
+      visits: visits,
       'appt-requests': apptRequests,
-      patients: patients.value,
+      patients: patients,
       appointments: appointments.value,
       medicationRequests: medRequests,
     },

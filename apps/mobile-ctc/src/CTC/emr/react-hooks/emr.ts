@@ -14,9 +14,7 @@ import {CTC} from '../types';
 import {ARV} from 'elsa-health-data-fns/lib';
 import _ from 'lodash';
 import {List} from 'immutable';
-import {Stock} from '../../../emr-types/v1/prescription';
 import React from 'react';
-import produce from 'immer';
 
 import {
   runOnJS,
