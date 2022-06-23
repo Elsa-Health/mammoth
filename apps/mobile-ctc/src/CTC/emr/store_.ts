@@ -21,10 +21,11 @@ import FastAsyncStorage from 'react-native-fast-storage';
 import uuid from 'react-native-uuid';
 import {InvReq, InvResult, Medica, MedicaDisp, MedicaReq} from './hook';
 import {ElsaProvider} from '../../provider/backend';
-import {CTC} from './types';
-import {Stock} from '../../emr-types/v1/prescription';
 
 const STORE_NAME = 'DEV_TEST_STORE@TEMP';
+// have the recovery information
+
+// const STORE_NAME = 'STORAGE@CTC';
 
 // Create store to be used
 const storage = getStore(
@@ -56,7 +57,7 @@ const ref = (d: Document.Ref) => `${d.collectionId}-${d.documentId}`;
 /**
  * initial clock to state versioning
  */
-const initialClock = new HybridLogicalClock(`elsa-client-dev:${uuid.v4()}`);
+const initialClock = new HybridLogicalClock(`elsa-client-dev-${uuid.v4()}`);
 
 type StateToken = [Document.Ref, Document.Data, HybridLogicalClock];
 type StateSource = {facility: any; user: {uid: string}; deviceId: string};
@@ -179,7 +180,7 @@ export class EMR {
   /**
    * Collections available in the EMR
    */
-  get collections() {
+  static get collections() {
     return {
       stock: collection(storage, 'medication-stock'),
       visits: collection<CTCVisit>(storage, 'visits'),

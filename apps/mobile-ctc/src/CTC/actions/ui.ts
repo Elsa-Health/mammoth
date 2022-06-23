@@ -1,15 +1,16 @@
+import {CollectionNode} from 'papai/collection/core';
 import {queryCollection} from '../emr/actions';
-import {EMR} from '../emr/store';
-import {CTCPatient} from '../emr/types';
+import {EMRModule} from '../emr/store';
+import {CTC} from '../emr/types';
 import {lower, removeWhiteSpace} from '../emr/utils';
 import {SearchQuery} from '../_screens/PatientDashboard/PatientDashboard.screen';
 
-export function queryPatientsFromSearch<T>(
-  emr: EMR,
+export async function queryPatientsFromSearch<T>(
+  patientCollection: CollectionNode<CTC.Patient>,
   query: SearchQuery,
-  item: (p: CTCPatient) => T,
+  item: (p: CTC.Patient) => T,
 ) {
-  const orQueries: Array<(p: CTCPatient) => boolean> = [];
+  const orQueries: Array<(p: CTC.Patient) => boolean> = [];
   const {input, searchIn} = query;
   if (input !== undefined) {
     // add function to search ID
@@ -49,7 +50,7 @@ export function queryPatientsFromSearch<T>(
   }
 
   // console.log(query);
-  return queryCollection(emr.collections.patients, {
+  return queryCollection(patientCollection, {
     where: {
       $or: orQueries,
     },

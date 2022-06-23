@@ -195,4 +195,5 @@ export declare namespace CTC {
     MedicationRequestVisitData
   >;
   export type MedicationRequest = t.MedicationRequest<ARVMedication>;
+  export type MedicationDispense = t.MedicationDispense<MedicationRequest>;
 }

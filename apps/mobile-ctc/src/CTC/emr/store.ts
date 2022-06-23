@@ -17,49 +17,72 @@ import {
   onTrackStoreAddUpdateChanges,
   StateTrackingBox,
 } from 'papai/distributed/store';
-import ItemStorageStore from 'papai/stores/collection/ItemStorage';
+import ItemStorageStore, {
+  AsyncItemStorage,
+} from 'papai/stores/collection/ItemStorage';
 
 import FastAsyncStorage from 'react-native-fast-storage';
 
 import uuid from 'react-native-uuid';
 import {CTC} from './types';
 
-// ... seed
-import './seed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// ... seed
 import {seedStock} from './seed';
+import {Message, StateToken} from '../actions/sync';
+import {EMR} from './store_';
 
-// delete the records on the old store
-// wipeStore(getStore(
+// reference mapping the state to the values
+const ref = (d: Document.Ref) => `${d.collectionId}-${d.documentId}`;
+
+// replace ':' to a different string
+export const stateClock = new HybridLogicalClock(
+  `elsa-client-dev-${uuid.v4()}`,
+);
+export const stateBox = new StateTrackingBox(stateClock, ref); // distributedStateBox
+
+function BuildItemStore(name: string, store: AsyncItemStorage) {
+  const STORE_NAME = name;
+  // Create store to be used
+  return getStore(
+    // KeyValueMapStore(() => uuid.v4() as string),
+    ItemStorageStore(
+      {
+        nameReference: STORE_NAME,
+        getCollRef: d => `${STORE_NAME}/${d.collectionId}`,
+        getDocRef: d => `${STORE_NAME}/${d.collectionId}/${d.documentId}`,
+        store: FastAsyncStorage,
+      },
+      () => uuid.v4() as string,
+    ),
+  );
+}
+
+// const STORE_NAME = 'DEV_TEST_STORE@TEMP';
+// const STORE_NAME = 'STORAGE@CTC';
+
+const storage = BuildItemStore('STORAGE@CTC', FastAsyncStorage);
+
+// Create store to be used
+// const storage = getStore(
 //   // KeyValueMapStore(() => uuid.v4() as string),
 //   ItemStorageStore(
 //     {
-//       nameReference: 'DEV_TEST_STORE@TEMP',
-//       getCollRef: d => `${'DEV_TEST_STORE@TEMP'}/${d.collectionId}`,
-//       getDocRef: d => `${'DEV_TEST_STORE@TEMP'}/${d.collectionId}/${d.documentId}`,
+//       nameReference: STORE_NAME,
+//       getCollRef: d => `${STORE_NAME}/${d.collectionId}`,
+//       getDocRef: d => `${STORE_NAME}/${d.collectionId}/${d.documentId}`,
 //       store: FastAsyncStorage,
 //     },
 //     () => uuid.v4() as string,
 //   ),
-// ));
+// );
 
-// const STORE_NAME = 'DEV_TEST_STORE@TEMP';
-const STORE_NAME = 'STORAGE@CTC';
-// Create store to be used
-const storage = getStore(
-  // KeyValueMapStore(() => uuid.v4() as string),
-  ItemStorageStore(
-    {
-      nameReference: STORE_NAME,
-      getCollRef: d => `${STORE_NAME}/${d.collectionId}`,
-      getDocRef: d => `${STORE_NAME}/${d.collectionId}/${d.documentId}`,
-      store: FastAsyncStorage,
-    },
-    () => uuid.v4() as string,
-  ),
-);
-
-export const EMR = (store: Store) => {
+/**
+ *
+ * @param store Store providing the data
+ * @returns module to control the values
+ */
+export const EMRModule = (store: Store) => {
   const module = new Module({
     visits: collection<CTC.Visit>(store, 'visits'),
     patients: collection<CTC.Patient>(store, 'patients'),
@@ -73,10 +96,10 @@ export const EMR = (store: Store) => {
     ),
 
     /**
-     * Medication options available:
-     * Should be seed with data to start it off
+     * Note: This medication item is intended
+     * for use with other things
      */
-    // medications: collection<CTC.ARVMedication>(store, 'medications'),
+    medications: collection<CTC.ARVMedication>(store, 'medications.items'),
 
     /**
      * Contains the mediction requests
@@ -84,6 +107,13 @@ export const EMR = (store: Store) => {
     'medication-requests': collection<CTC.MedicationRequest>(
       store,
       'medication.requests',
+    ),
+    /**
+     * Contains the mediction requests
+     */
+    'medication-dispenses': collection<CTC.MedicationDispense>(
+      store,
+      'medication.dispenses',
     ),
 
     /**
@@ -103,10 +133,19 @@ export const EMR = (store: Store) => {
       'appt.responses',
     ),
 
+    // Investigation related collections
     /**
-     *
+     * Investigation Requests
      */
-    // 'investigation-requests': collection<CTC.>(store, 'investigation.requests')
+    'investigation-requests': collection<CTC.InvestigationRequest>(
+      store,
+      'investigation.requests',
+    ),
+
+    'investigation-results': collection<CTC.InvestigationResult>(
+      store,
+      'investigation.results',
+    ),
   });
 
   return module;
@@ -119,9 +158,22 @@ export const EMR = (store: Store) => {
 export const getStorage = () => storage;
 
 /**
+ * This should store things that' you don't want shared over the network
+ */
+const privateStorage = BuildItemStore('PRIVATE-STORAGE@CTC', FastAsyncStorage);
+export const getPrivateStore = () => privateStorage;
+
+/**
+ * Pull the crdt collection endpoint
+ * @returns
+ */
+export const getCrdtCollection = () =>
+  collection<Message>(getPrivateStore(), 'crdt-messages');
+
+/**
  * Get EMR
  */
-export const getEMR = () => EMR(storage);
+export const getEMR = () => EMRModule(storage);
 export type EMRModule = ReturnType<typeof getEMR>;
 
 // PERFORM seeding
@@ -143,6 +195,9 @@ AsyncStorage.getItem(seedKey).then(isToSeed => {
     return;
   }
 
+  console.log('Seeding...');
   // run seed for stock + // then lock after first run
-  seedStock(emr).then(v => AsyncStorage.setItem(seedKey, JSON.stringify(true)));
+  return seedStock(emr).then(v =>
+    AsyncStorage.setItem(seedKey, JSON.stringify(true)),
+  );
 });

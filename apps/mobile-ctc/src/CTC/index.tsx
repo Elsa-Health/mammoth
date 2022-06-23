@@ -33,9 +33,7 @@ import {ElsaProvider} from '../provider/backend';
 import {MedicaDisp, MedicaReq} from './emr/hook';
 import {ARV, Investigation, Medication as Med} from 'elsa-health-data-fns/lib';
 import {EMR} from './emr/store_';
-import {NetworkStatus, useWebSocket} from '../app/utils';
-
-import {Text} from '@elsa-ui/react-native/components';
+import {useWebSocket} from '../app/utils';
 
 import {withFlowContext} from '../@workflows/index';
 
@@ -52,7 +50,6 @@ import {
 import {HybridLogicalClock} from 'papai/distributed/clock';
 import {List} from 'immutable';
 import {ToastAndroid, View} from 'react-native';
-import {TouchableRipple} from 'react-native-paper';
 import _ from 'lodash';
 import {translatePatient} from './actions/translate';
 import {
@@ -77,9 +74,14 @@ import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 import {convertDMYToDate, removeWhiteSpace} from './emr/utils';
 import {useEMRReport} from './emr/react-hooks/report';
 import {format, isAfter} from 'date-fns';
-import {getEMR} from './emr/store';
+import {EMRModule, getEMR} from './emr/store';
 import {Ingredient, Medication, Stock} from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
+import {handleDataFromSocket, fetchCRDTMessages} from './actions/socket';
+
+// Migration code
+import './emr/temp.migrate';
+import {onSnapshotUpdate} from './emr/subscribe';
 
 const Stack = createNativeStackNavigator();
 
@@ -120,9 +122,6 @@ function practitioner(ep: ElsaProvider): CTCDoctor {
   };
 }
 
-type State = [Document.Ref, Document.Data, HybridLogicalClock];
-type CRDTMessage = [State, {facility: any; user: any}];
-
 /**
  * Useful EMR components
  */
@@ -138,14 +137,13 @@ function App({
   logout: () => Promise<void>;
 }) {
   // Create provider
-  const [emr, organization, doctor] = React.useMemo(
-    () => [
-      new EMR(provider),
-      getOrganizationFromProvider(provider),
-      practitioner(provider),
-    ],
+  const [organization, doctor] = React.useMemo(
+    () => [getOrganizationFromProvider(provider), practitioner(provider)],
     [provider],
   );
+  // getDocs(Emr.collection('visits')).then(([_, d]) =>
+  //   console.log('-->', JSON.stringify(d)),
+  // );
 
   // connect with v0 edge
   useWebSocket({
@@ -183,59 +181,57 @@ function App({
           return [id, convert_v0_patient_to_v1(id, result)];
         });
 
-      setDocs(emr.collections.patients, docs);
+      setDocs(Emr.collection('patients'), docs);
       // console.log(docs[0]);
     },
   });
 
-  type StockMessage = {
-    type: 'stock';
-    data: {stock: []; source: {facility: any; user: any}}[];
-  };
-
   // Get web socket
-  // useWebSocket({
-  //   url: 'https://bounce-edge.fly.dev/crdt/state',
-  //   // url: 'wss://c0ac-197-250-224-127.eu.ngrok.io/crdt/state',
-  //   onOpen(socket) {
-  //     // Connected
-  //     console.log('Connection established!!!');
-  //   },
-  //   onData(data: CRDTMessage[] | StockMessage) {
-  //     // console.log('Sending to something...');
-  //     // Received data
-  //     emr.merge(data);
-  //     // console.log('Received data... merging');
-  //     emr
-  //       .sync()
-  //       .then(() => console.log('Sync complete'))
-  //       .catch(() => console.log('Sync failed'));
-  //   },
-  // });
+  const {socket} = useWebSocket({
+    // url: 'wss://bounce-edge.fly.dev/ws/crdt/state',
+    url: 'wss://b122-197-186-1-225.in.ngrok.io/ws/crdt/state',
+    onOpen(socket) {
+      // Connected
+      fetchCRDTMessages(provider).then(message => {
+        const s = JSON.stringify(message);
+        // console.log(s);
+      });
+    },
+    onData(data) {
+      // peform synchronization
+      handleDataFromSocket(data);
+
+      // // console.log('Sending to something...');
+      // // Received data
+      // emr.merge(data);
+      // // console.log('Received data... merging');
+      // emr
+      //   .sync()
+      //   .then(() => console.log('Sync complete'))
+      //   .catch(() => console.log('Sync failed'));
+    },
+  });
 
   const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
-  // React.useEffect(() => {
-  //   if (socket !== undefined) {
-  //     const sub = emr.onSnapshotUpdate((token, source) => {
-  //       // console.log('Sending', {token, source});
-  //       // send message
-  //       socket.send(JSON.stringify([[token, source]]));
-  //     });
+  React.useEffect(() => {
+    if (socket !== undefined) {
+      // only send if ready
+      if (socket.readyState === WebSocket.OPEN) {
+        const sub = onSnapshotUpdate(provider, msg => {
+          console.log({msg});
+          socket.send(JSON.stringify(msg));
+        });
 
-  //     return () => sub.unsubscribe();
-  //   }
-  // }, [socket]);
+        return () => sub.unsubscribe();
+      }
+    }
+  }, [socket]);
 
-  // const {
-  //   data: {visits, patients},
-  //   Q,
-  // } = useEMR(emr);
-  // const stock_ = useMedicationStock(emr);
   const stock = useStock(Emr);
   const appointments = useAppointments(Emr);
+  const report = useEMRReport(Emr);
 
   // const report = useReport(emr);
-  const report = useEMRReport(emr);
   // const apptReport = useEMRReport(emr);
 
   return (
@@ -420,7 +416,7 @@ function App({
                   // console.log('##### 3');
 
                   // record the visit
-                  await setDoc(doc(emr.collections.visits, visit.id), visit);
+                  await setDoc(doc(Emr.collection('visits'), visit.id), visit);
                   // console.log('##### 4');
 
                   // record appointment request
@@ -439,7 +435,7 @@ function App({
 
                   // recording the investigation requests
                   await setDocs(
-                    emr.collections.investigationRequests,
+                    Emr.collection('investigation-requests'),
                     (data.investigations ?? []).map(inv => {
                       const id = `inv-req:${uuid.v4()}`;
                       return [
@@ -555,7 +551,6 @@ function App({
                   lastUpdatedAt: date().toUTCString(),
                 });
 
-                console.log(stock);
                 await setDoc(
                   doc(Emr.collection('stock'), stock.id),
                   stock,
@@ -563,99 +558,6 @@ function App({
                   console.log('Failed to add stock');
                   console.log(err);
                 });
-
-                console.log('DonE!');
-              },
-              async setARVSingleMedicationCount(data) {
-                const org =
-                  doctor.organization.resourceType === 'Organization'
-                    ? reference(doctor.organization)
-                    : doctor.organization;
-
-                if (data.id === undefined) {
-                  const toStock = arvSingle(
-                    `ctc-arv-single:${data.single}`,
-                    data.single,
-                    data.form,
-                  );
-
-                  console.log('==>', {
-                    resourceType: 'Stock',
-                    id: `stock:${toStock.id}`,
-                    code: null,
-                    createdAt: new Date().toUTCString(),
-                    lastUpdatedAt: new Date().toUTCString(),
-                    managingOrganization: org,
-                    expiresAt: convertDMYToDate(data.expiresAt).toUTCString(),
-                    medication: toStock,
-                    count: parseFloat(data.count.toString()),
-                  });
-
-                  // create new
-                  await setDoc(doc(emr.collections.stock, toStock.id), {
-                    resourceType: 'Medication.Stock',
-                    id: `stock:${toStock.id}`,
-                    code: null,
-                    createdAt: new Date().toUTCString(),
-                    lastUpdatedAt: new Date().toUTCString(),
-                    managingOrganization: org,
-                    expiresAt: convertDMYToDate(data.expiresAt).toUTCString(),
-                    medication: toStock,
-                    count: parseFloat(data.count.toString()),
-                  });
-
-                  console.log('Done');
-                } else {
-                  if (data.id === undefined) {
-                    throw new Error('Missing Id for the medication to stock');
-                  }
-                  await updateDoc(doc(emr.collections.stock, data.id), {
-                    count: parseFloat(data.count.toString()),
-                    lastUpdatedAt: new Date().toUTCString(),
-                    expiresAt: convertDMYToDate(data.expiresAt).toUTCString(),
-                    managingOrganization: org,
-                  });
-                }
-              },
-              async setARVComboMedicationCount(data) {
-                const org =
-                  doctor.organization.resourceType === 'Organization'
-                    ? reference(doctor.organization)
-                    : doctor.organization;
-
-                const expiresAt = data.expiresAt
-                  ? convertDMYToDate(data.expiresAt).toUTCString()
-                  : null;
-                if (data.id === undefined) {
-                  const toStock = arv(
-                    `ctc-arv:${data.arvRegimen}`,
-                    data.arvRegimen,
-                    data.ingredients ?? [],
-                  );
-
-                  // create new
-                  await setDoc(doc(emr.collections.stock, toStock.id), {
-                    resourceType: 'Stock',
-                    id: `stock:${toStock.id}`,
-                    code: null,
-                    createdAt: new Date().toUTCString(),
-                    lastUpdatedAt: new Date().toUTCString(),
-                    managingOrganization: org,
-                    expiresAt,
-                    medication: toStock,
-                    count: parseFloat(data.count.toString()),
-                  });
-                } else {
-                  if (data.id === undefined) {
-                    throw new Error('Missing Id for the medication to stock');
-                  }
-                  await updateDoc(doc(emr.collections.stock, data.id), {
-                    count: parseFloat(data.count),
-                    lastUpdatedAt: new Date().toUTCString(),
-                    expiresAt,
-                    managingOrganization: org,
-                  });
-                }
               },
             }),
           })}
@@ -669,7 +571,7 @@ function App({
                 const d = translatePatient(patient, organization);
 
                 // create patient
-                setDoc(doc(emr.collections.patients, d.id), d)
+                setDoc(doc(Emr.collection('patients'), d.id), d)
                   .then(() => {
                     ToastAndroid.show(
                       'Patient ' + patient.patientId + ' registered !.',
@@ -679,7 +581,7 @@ function App({
                   .then(() => {
                     // update collection
                     return setDocs(
-                      emr.collections.investigationRequests,
+                      Emr.collection('investigation-requests'),
                       investigations?.map(inv => {
                         const id = `inv-req:${uuid.v4()}`;
                         return [
@@ -720,37 +622,32 @@ function App({
           component={withFlowContext(PatientDashboard, {
             actions: ({navigation}) => ({
               getPatientsFromQuery(query) {
-                return queryPatientsFromSearch(emr, query, patient => {
-                  const firstName = (patient.info?.firstName ?? '').trim();
-                  const familyName = (patient.info?.familyName ?? '').trim();
-                  const fullName = (firstName + ' ' + familyName).trim();
-                  return {
-                    id: patient.id,
-                    name: fullName.length === 0 ? null : fullName,
-                    registeredDate: new Date(patient.createdAt),
-                    onNewVisit: () => {
-                      // console.log('Setting up new visit', {
-                      //   patient,
-                      //   organization,
-                      // });
-
-                      navigation.navigate('ctc.medication-visit', {
-                        patient,
-                        organization,
-                      });
-                      // navigation.navigate('ctc.first-patient-intake', {
-                      //   patient,
-                      //   organization,
-                      // });
-                    },
-                    onViewProfile: () => {
-                      navigation.navigate('ctc.view-patient', {
-                        patient,
-                        organization,
-                      });
-                    },
-                  };
-                });
+                return queryPatientsFromSearch(
+                  Emr.collection('patients'),
+                  query,
+                  patient => {
+                    const firstName = (patient.info?.firstName ?? '').trim();
+                    const familyName = (patient.info?.familyName ?? '').trim();
+                    const fullName = (firstName + ' ' + familyName).trim();
+                    return {
+                      id: patient.id,
+                      name: fullName.length === 0 ? null : fullName,
+                      registeredDate: new Date(patient.createdAt),
+                      onNewVisit: () => {
+                        navigation.navigate('ctc.medication-visit', {
+                          patient,
+                          organization,
+                        });
+                      },
+                      onViewProfile: () => {
+                        navigation.navigate('ctc.view-patient', {
+                          patient,
+                          organization,
+                        });
+                      },
+                    };
+                  },
+                );
               },
               onNewPatient() {
                 navigation.navigate('ctc.register-new-patient');
@@ -767,7 +664,7 @@ function App({
               },
               async nextAppointment(patientId: string) {
                 const after = await queryCollection(
-                  emr.collections.appointmentRequests,
+                  Emr.collection('appointment-requests'),
                   {
                     where: {
                       $and: [
@@ -802,7 +699,7 @@ function App({
               },
               async fetchVisits(patientId: string) {
                 return (
-                  await queryCollection(emr.collections.visits, {
+                  await queryCollection(Emr.collection('visits'), {
                     where: item => {
                       return item.subject.id === patientId;
                     },
@@ -816,7 +713,7 @@ function App({
                     },
                     onEditVisit: async () => {
                       const patients = await queryCollection(
-                        emr.collections.patients,
+                        Emr.collection('patients'),
                         {where: item => item.id === patientId},
                       );
 
@@ -859,7 +756,9 @@ function App({
             actions: ({navigation}) => ({
               onNext() {},
               // Load result from investigation request
-              async getInvestigationResult(invRequest) {},
+              async getInvestigationResult(invRequest) {
+                // ...
+              },
             }),
             entry: {
               visit: {
@@ -912,9 +811,9 @@ function App({
           component={withFlowContext(MedicationDispenseScreen, {
             actions: ({navigation}) => ({
               async getMedicationDispenses() {
-                return (await getDocs(emr.collections.medicationDispenses)).map(
-                  d => d[1],
-                );
+                return (
+                  await getDocs(Emr.collection('medication-dispenses'))
+                ).map(d => d[1]);
               },
             }),
           })}
@@ -924,9 +823,9 @@ function App({
           component={withFlowContext(MedicationRequestScreen, {
             actions: ({navigation}) => ({
               async getMedicationDispenses() {
-                return (await getDocs(emr.collections.medicationDispenses)).map(
-                  d => d[1],
-                );
+                return (
+                  await getDocs(Emr.collection('medication-dispenses'))
+                ).map(d => d[1]);
               },
               onIgnoreRequest() {
                 navigation.goBack();
@@ -950,7 +849,7 @@ function App({
                   supplier: practitioner(provider),
                 };
                 setDoc(
-                  doc(emr.collections.medicationDispenses, dispense.id),
+                  doc(Emr.collection('medication-dispenses'), dispense.id),
                   dispense,
                 )
                   .then(() => {
@@ -970,14 +869,14 @@ function App({
           component={withFlowContext(MedicationsDashboardScreen, {
             actions: ({navigation}) => ({
               async getMedicationRequests() {
-                return (await getDocs(emr.collections.medicationRequests)).map(
-                  d => d[1],
-                );
+                return (
+                  await getDocs(Emr.collection('medication-requests'))
+                ).map(d => d[1]);
               },
 
               async getMedicationDispenseFrom(medicationRequest: MedicaReq) {
                 const d = List(
-                  await getDocs(emr.collections.medicationDispenses),
+                  await getDocs(Emr.collection('medication-dispenses')),
                 );
 
                 const match = d.find(
@@ -1045,7 +944,7 @@ function App({
                 // Send over request
                 // ...
                 setDoc(
-                  doc(emr.collections.medicationRequests, request.id),
+                  doc(Emr.collection('medication-requests'), request.id),
                   request,
                 )
                   .then(() => {

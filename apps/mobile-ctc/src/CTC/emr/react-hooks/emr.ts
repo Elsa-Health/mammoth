@@ -3,6 +3,7 @@ import {
   collection,
   Document,
   getDocs,
+  onCollectionSnapshot,
   onSnapshot,
   setDocs,
 } from 'papai/collection';
@@ -172,14 +173,14 @@ export function useAppointments(emr: EMRModule) {
   };
 }
 
-export function useMedicationStock(emr: EMR) {
+export function useMedicationStock(emr: EMRModule) {
   // get stock information
   const [arvComboStock, setComboStock] = React.useState({});
   const [arvSingleStock, setSingleStock] = React.useState({});
 
   // set information in the medication in stock
   useAsync(async () => {
-    const stockItems = (await getDocs(emr.collections.stock)) ?? [];
+    const stockItems = (await getDocs(emr.collection('stock'))) ?? [];
     const svp = stockItems
       .filter(([_, state]) => state.medication.code === 'arv')
       .map(([docId, state]) => {
@@ -206,7 +207,7 @@ export function useMedicationStock(emr: EMR) {
   }, [emr]);
 
   useAsync(async () => {
-    const stockItems = (await getDocs(emr.collections.stock)) ?? [];
+    const stockItems = (await getDocs(emr.collection('stock'))) ?? [];
     const svp = stockItems
       .filter(([_, state]) => state.medication.code === 'arv-single')
       .map(([docId, state]) => {
@@ -229,50 +230,55 @@ export function useMedicationStock(emr: EMR) {
   }, [emr]);
 
   React.useEffect(() => {
-    const d = emr.onSnapshotUpdate((token, source) => {
-      const [ref, state, _] = token;
-
-      if (ref.collectionId === emr.collections.stock.ref.collectionId) {
-        if (state.medication.code === 'arv') {
-          const regimen = state.medication.data.regimen;
-          const className = state.medication.data.className;
-          setComboStock(stock =>
-            produce(stock, df => {
-              df[ref.documentId] = {
-                category: className,
-                medication: {
-                  regimen,
-                  className,
-                  text: ARV.regimen.fromKey(regimen) ?? regimen,
-                },
-                count: state.count,
-                lastUpdate: state.lastUpdatedAt,
-                expiresAt: state.expiresAt ?? null,
-              };
-            }),
-          );
-        }
-
-        if (state.medication.code === 'arv-single') {
-          const item = state.medication.name;
-          const text = state.medication.data.text;
-
-          setSingleStock(stock =>
-            produce(stock, df => {
-              df[ref.documentId] = {
-                item,
-                text,
-                count: state.count,
-                lastUpdate: state.lastUpdatedAt,
-                expiresAt: state.expiresAt ?? null,
-              };
-            }),
-          );
-        }
+    onCollectionSnapshot(emr.collection('stock'), (action, docs) => {
+      // ...
+      if (action === 'changed') {
+        console.log(docs);
       }
     });
+  }, []);
 
-    return () => d.unsubscribe();
+  React.useEffect(() => {
+    // const d = emr.onSnapshotUpdate((token, source) => {
+    //   const [ref, state, _] = token;
+    //   if (ref.collectionId === emr.collection('stock').ref.collectionId) {
+    //     if (state.medication.code === 'arv') {
+    //       const regimen = state.medication.data.regimen;
+    //       const className = state.medication.data.className;
+    //       setComboStock(stock =>
+    //         produce(stock, df => {
+    //           df[ref.documentId] = {
+    //             category: className,
+    //             medication: {
+    //               regimen,
+    //               className,
+    //               text: ARV.regimen.fromKey(regimen) ?? regimen,
+    //             },
+    //             count: state.count,
+    //             lastUpdate: state.lastUpdatedAt,
+    //             expiresAt: state.expiresAt ?? null,
+    //           };
+    //         }),
+    //       );
+    //     }
+    //     if (state.medication.code === 'arv-single') {
+    //       const item = state.medication.name;
+    //       const text = state.medication.data.text;
+    //       setSingleStock(stock =>
+    //         produce(stock, df => {
+    //           df[ref.documentId] = {
+    //             item,
+    //             text,
+    //             count: state.count,
+    //             lastUpdate: state.lastUpdatedAt,
+    //             expiresAt: state.expiresAt ?? null,
+    //           };
+    //         }),
+    //       );
+    //     }
+    //   }
+    // });
+    // return () => d.unsubscribe();
   }, []);
 
   return {'combo-arv': arvComboStock, 'single-arv': arvSingleStock};

@@ -40,3 +40,6 @@ coverage
 # Supabase
 **/supabase/.branches
 **/supabase/.temp
+
+
+edge-old/

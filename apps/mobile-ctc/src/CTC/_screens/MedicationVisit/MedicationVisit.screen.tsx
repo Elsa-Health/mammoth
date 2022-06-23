@@ -35,7 +35,7 @@ const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 export type MedicationRequestVisitData = {
   // regimenDecision: string;
   // decisionReason: CTC.Status;
-  arvRegimenUnit: string[];
+  arvRegimens: string[];
   regimenDuration: DurationOpt;
   medications: Medication.All[];
   appointmentDate: string;
