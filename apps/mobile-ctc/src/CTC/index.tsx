@@ -77,7 +77,7 @@ import {format, isAfter} from 'date-fns';
 import {EMRModule, getEMR} from './emr/store';
 import {Ingredient, Medication, Stock} from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
-import {handleDataFromSocket, fetchCRDTMessages} from './actions/socket';
+import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
 
 // Migration code
 import './emr/temp.migrate';
@@ -199,7 +199,7 @@ function App({
     },
     onData(data) {
       // peform synchronization
-      handleDataFromSocket(data);
+      syncContentsFromSocket(data);
 
       // NOTE: you must add code to merge received contents to the database
       // // console.log('Sending to something...');
@@ -214,10 +214,6 @@ function App({
   });
 
   const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
-
-  React.useEffect(() => {
-    console.log(status);
-  }, [status]);
 
   React.useEffect(() => {
     if (socket !== undefined) {
