@@ -19,7 +19,8 @@
 			"**/tiny-invariant/",
 			"**/tiny-invariant/**",
 			"**/@elsa-health/emr/",
-			"**/@elsa-health/emr/**"
+			"**/@elsa-health/emr/**",
+			"**/dotenv/"
 		]
 	},
 	"scripts": {
