@@ -7,6 +7,7 @@ import {
 import * as fs from "fs/promises";
 import { existsSync, mkdirSync, statSync } from "fs";
 import path from "path";
+import * as t from "papai/collection/types";
 
 import produce from "immer";
 import { nanoid } from "nanoid";
@@ -54,7 +55,7 @@ export const FileSystemCollection = (
 	const jf = (collectionId: string) =>
 		path.join(dir(pt(collectionId)), "data.json");
 
-	const r = async (jsonfilePath: string) =>
+	const r = async <D>(jsonfilePath: string): Promise<{ [f: string]: D }> =>
 		(await readJson(jsonfilePath)) ?? {};
 
 	// @ts-ignore
@@ -121,6 +122,17 @@ export const FileSystemCollection = (
 				);
 
 				return;
+			},
+			async getDocs<D extends t.Document.Data>(
+				ref: t.Collection.Ref,
+				query: any,
+				options: any
+			) {
+				const collectionJsonFile = jf(ref.collectionId);
+				const d = await r<D>(collectionJsonFile);
+
+				// return Object.entries();
+				return Object.entries(d);
 			},
 		},
 		doc: {

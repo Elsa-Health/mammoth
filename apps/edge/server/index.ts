@@ -8,13 +8,14 @@ import { createServer } from "http";
 
 import { router } from "./routes/socket";
 import { WebSocketServer } from "ws";
-import { getStore } from "papai/collection";
+import { collection, getDocs, getStore, onSnapshot } from "papai/collection";
 import KeyValueMapCollection from "papai/stores/collection/KeyValueMap";
 import { StateTrackingBox } from "papai/distributed/store";
 
 import { nanoid } from "nanoid";
 import { HybridLogicalClock } from "papai/distributed/clock";
 import { FileSystemCollection } from "./store/fs-collection";
+import { Subscription } from "rxjs";
 
 const app = express();
 const server = createServer(app);
@@ -105,9 +106,70 @@ const sb = new StateTrackingBox(
 const serverStore = getStore(
 	FileSystemCollection("./server-private-volume", () => nanoid(24))
 );
+// note to collect the CRDT messages collected over time
+const crdtMsgCollection = collection<{ ref: any; state: any; clock: string }>(
+	serverStore,
+	"crdt-messages-log"
+);
+
+// 1. Prepopulate the state box with previously stored messages if any
+getDocs(crdtMsgCollection).then((d) =>
+	d.map(([_, r]) => {
+		sb.append(r.ref, r.state, HybridLogicalClock.parse(r.clock as string));
+	})
+);
 
 wss.on("connection", function (socket) {
 	console.log("🟢 Connected!");
+
+	let sub: Subscription | null = null;
+
+	// when device connected send data
+	socket.on("open", function () {
+		// when new device is connected...
+		// send out the values that are syncable
+		this.send(
+			JSON.stringify({
+				type: "crdt",
+				batch: Array.from(sb.latest()).map(([ref, state, clock]) => ({
+					ref,
+					state,
+					clock: clock.toString(),
+				})),
+			})
+		);
+
+		if (sub === null) {
+			// add subscription to listen to document changes
+			sub = mirrorStorage.documentObservable.subscribe((s) => {
+				if (s.action === "updated") {
+					// when a document is updated,
+					this.send(
+						JSON.stringify({
+							type: "crdt",
+							batch: [
+								[s.ref, s.state, initlock.next().toString()],
+							],
+						})
+					);
+				}
+			});
+		}
+	});
+
+	socket.on("close", function () {
+		if (sub !== null) {
+			sub.unsubscribe();
+			sub = null;
+		}
+	});
+
+	socket.on("error", function () {
+		if (sub !== null) {
+			sub.unsubscribe();
+			sub = null;
+		}
+	});
 
 	// attack handler for the socket
 	router(
@@ -117,6 +179,7 @@ wss.on("connection", function (socket) {
 			mirror: () => mirrorStorage,
 			server: () => serverStore,
 			serverClock: initlock.next(),
+			crdtMsgCollection,
 		},
 		sb
 	);

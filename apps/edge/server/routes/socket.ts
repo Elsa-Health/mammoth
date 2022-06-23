@@ -3,13 +3,14 @@ import * as z from "zod";
 import { saver } from "../utils";
 
 import invariant from "tiny-invariant";
-import { addDoc, collection, getDocs } from "papai/collection";
-import { Store } from "papai/collection/core";
+import { addDoc, addDocs, collection, getDocs } from "papai/collection";
+import { CollectionNode, Store } from "papai/collection/core";
 import {
 	StateTrackingBox,
 	updateChangesToStore,
 } from "papai/distributed/store";
 import { HybridLogicalClock } from "papai/distributed/clock";
+import { List } from "immutable";
 
 // make sure the endpoint handles
 //  stock related inquiries
@@ -21,7 +22,7 @@ const StockState = z.object({
 });
 type StockState = z.infer<typeof StockState>;
 
-const CRDTState = z.object({
+export const CRDTState = z.object({
 	type: z.literal("crdt"),
 	source: z.object({ facility: z.string(), userId: z.string() }),
 	batch: z.array(
@@ -32,12 +33,13 @@ const CRDTState = z.object({
 		])
 	),
 });
-type CRDTState = z.infer<typeof CRDTState>;
+export type CRDTState = z.infer<typeof CRDTState>;
 
 type Ss = {
 	mirror: () => Store;
 	server: () => Store;
 	serverClock: HybridLogicalClock;
+	crdtMsgCollection: CollectionNode<any>;
 };
 /**
  * Socket router receiving contents from connected clients
@@ -117,8 +119,23 @@ function handleCRDTEvent(
 		source, // source of the message
 		clock: store.serverClock.next().toString(), // when the effect has happened
 		records: batch.map((d) => d[0]), // list of record affected by the chnage
-	});
-
-	// 2. sync up changes to the store
-	updateChangesToStore(store.mirror(), statebox);
+	})
+		.then(() =>
+			// 2. update the server's state box
+			updateChangesToStore(store.mirror(), statebox).then((d) => {})
+		)
+		.then(() => {
+			// 3. store the messages needed later for sharing
+			// record the contents to the crdt messages
+			return addDocs(
+				store.crdtMsgCollection,
+				List(statebox.latest())
+					.map(([ref, state, clock]) => ({
+						ref,
+						state,
+						clock: clock.toString(),
+					}))
+					.toArray()
+			);
+		});
 }
