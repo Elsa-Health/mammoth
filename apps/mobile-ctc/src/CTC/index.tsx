@@ -189,7 +189,7 @@ function App({
   // Get web socket
   const {socket} = useWebSocket({
     // url: 'wss://bounce-edge.fly.dev/ws/crdt/state',
-    url: 'wss://b122-197-186-1-225.in.ngrok.io/ws/crdt/state',
+    url: 'wss://3a49-197-250-61-138.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
       // Connected
       fetchCRDTMessages(provider).then(message => {
@@ -201,6 +201,7 @@ function App({
       // peform synchronization
       handleDataFromSocket(data);
 
+      // NOTE: you must add code to merge received contents to the database
       // // console.log('Sending to something...');
       // // Received data
       // emr.merge(data);

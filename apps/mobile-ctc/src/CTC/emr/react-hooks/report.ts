@@ -131,10 +131,6 @@ export function useEMRReport(emr: EMRModule) {
   };
 }
 
-/* Getting the name of the medications */
-const arvName = (arv: string) => ARV.regimen.fromKey(arv) ?? arv;
-const standardName = (stan: string) => Medication.all.fromKey(stan) ?? stan;
-
 // -------------
 // UTILS
 // -------------
