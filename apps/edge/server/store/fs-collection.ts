@@ -33,11 +33,14 @@ export const FileSystemCollection = (
 
 	const readJson = async <T>(filePath: string) => {
 		if (existsSync(filePath)) {
-			// @ts-ignore
-			return JSON.parse((await fs.readFile(filePath)).toString()) as T;
+			const v = await fs.readFile(filePath);
+			// show the log values
+			if (v.length > 0) {
+				return JSON.parse(v.toString() ?? {}) as T;
+			}
 		} else {
-			return null;
 		}
+		return null;
 	};
 
 	const saveAsJson = async <T>(saveToPath: string, data: T) => {

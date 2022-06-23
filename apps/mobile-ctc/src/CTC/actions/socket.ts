@@ -78,7 +78,7 @@ const initValue = z.union([
  * Generally handles socket received data
  * ---
  */
-export function handleDataFromSocket(data: any) {
+export function syncContentsFromSocket(data: any) {
   // usable?
   const usable = initValue.parse(data);
 
