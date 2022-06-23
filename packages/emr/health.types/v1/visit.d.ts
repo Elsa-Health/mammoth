@@ -2,7 +2,7 @@ import { AppointmentResponse } from "./appointment";
 import { InvestigationRequest, Report } from "./investigation";
 import { Patient, Practitioner } from "./personnel";
 import { MedicationRequest } from "./prescription";
-import { Nullable, Referred, UTCDateTimeString } from "./_primitives";
+import { Data, Nullable, Referred, UTCDateTimeString } from "./_primitives";
 
 export type Visit<
 	P extends { patient: Patient; practitioner: Practitioner } = {
@@ -11,7 +11,7 @@ export type Visit<
 	},
 	A extends Assessment = Assessment,
 	M extends MedicationRequest = MedicationRequest,
-	IRq extends InvestigationRequest<Data> = InvestigationRequest<Data>,
+	IRq extends InvestigationRequest = InvestigationRequest,
 	Appt extends AppointmentResponse = AppointmentResponse,
 	Value extends Data = Data
 > = Resource<

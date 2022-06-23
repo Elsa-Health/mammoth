@@ -1,9 +1,9 @@
-import { Nullable, Resource } from "./_primitives";
+import { Nullable, Resource, ResourceItem } from "./_primitives";
 
 /**
  * Data collected about something
  */
-export type Observation<Value extends Data = Data> = Resource<
+export type Observation<Value extends Data = Data> = ResourceItem<
 	"Observation",
 	{
 		/**

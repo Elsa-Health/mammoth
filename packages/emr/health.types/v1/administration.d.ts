@@ -6,7 +6,7 @@ import { Nullable, Referred, Resource, ResourceItem } from "./_primitives";
  *
  * e.g. X-Ray.
  */
-export type HealthcareService<D extends Data> = ResourceItem<
+export type HealthcareService<D extends Data, N extends string> = ResourceItem<
 	"HealthcareService",
 	{
 		/**
@@ -22,7 +22,7 @@ export type HealthcareService<D extends Data> = ResourceItem<
 		/**
 		 * Name of the service
 		 */
-		name: string;
+		name: N;
 	}
 >;
 

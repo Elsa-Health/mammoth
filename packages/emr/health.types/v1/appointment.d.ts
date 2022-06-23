@@ -44,12 +44,12 @@ type AppointmentRequest<
 		/**
 		 * Reason for having the appointment
 		 */
-		reason: string;
+		reason: Nullable<string>;
 
 		/**
 		 * Information describe the appointment
 		 */
-		description: string;
+		description: Nullable<string>;
 
 		/**
 		 * Date of the appointment

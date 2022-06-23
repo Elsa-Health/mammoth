@@ -1,20 +1,14 @@
 import invariant from "invariant";
 
-import type { Organization, P, StockRecord } from "../health.types/v1";
+import type { Organization, P } from "../health.types/v1";
 import * as t from "../health.types/v1";
-import {
-	DDMMYYYYDateString,
-	Nullable,
-	UTCDateTimeString,
-	YYYYMMDDDateString,
-} from "../health.types/v1/_primitives";
+import { Nullable } from "../health.types/v1/_primitives";
 import {
 	date,
 	extend,
 	freeze,
 	MustHave,
 	normalizeToNull,
-	resource,
 	resourceItem,
 } from "./utils";
 
@@ -92,6 +86,27 @@ export function Practitioner<Pt extends t.Practitioner>(
 			serviceProvider: null,
 			// NOTE: find out why you had to do this
 		}) as unknown as Pt
+	);
+}
+
+export function Visit<V extends t.Visit>(
+	d: MustHave<V, "subject" | "date" | "id">
+) {
+	return freeze(
+		extend(d, {
+			id: d.id,
+			code: d.code ?? null,
+			createdAt: date(d.createdAt).toUTCString(),
+			date: date(d.date).toUTCString(),
+			subject: d.subject,
+			practitioner: d.practitioner ?? null,
+			assessments: d.assessments ?? [],
+			prescriptions: d.prescriptions ?? [],
+			investigationRequests: d.investigationRequests ?? [],
+			extendedData: d.extendedData ?? null,
+			associatedAppointmentResponse:
+				d.associatedAppointmentResponse ?? null,
+		} as unknown as V)
 	);
 }
 
@@ -190,7 +205,11 @@ export function MedicationRequest<
 
 export function MedicationDispense<
 	MD extends t.MedicationDispense<t.MedicationRequest<t.Medication<string>>>
->(d: MustHave<MD, "id" | "authorizingRequest" | "medication" | "supplier">) {
+>(d: MustHave<MD, "id" | "authorizingRequest" | "medication">) {
+	invariant(d.id, "Medication Dispense id missing");
+	invariant(d.authorizingRequest, "Medication authorizingRequest required");
+	invariant(d.medication, "medication required");
+
 	return freeze(
 		extend(d, {
 			id: d.id,
@@ -210,7 +229,207 @@ export function MedicationDispense<
 				],
 				d.dosageAndRate ?? {}
 			),
-			supplier: d.supplier,
+			supplier: d.supplier ?? null,
 		}) as MD
 	);
+}
+
+export function Organization<Org extends t.Organization<P.Data, P.Data>>(
+	d: MustHave<Org, "name" | "id" | "identifier">
+) {
+	invariant(d.id, "Organization ID missing");
+	invariant(d.identifier, "Organization identifier missing");
+	invariant(d.name, "Organization name missing");
+
+	freeze(
+		extend(d, {
+			id: d.id,
+			active: d.active ?? true,
+			associatedOrganization: d.associatedOrganization ?? null,
+			code: d.code ?? null,
+			createdAt: date(d.createdAt).toUTCString(),
+			email: d.email ?? null,
+			extendedData: d.extendedData ?? null,
+			identifier: d.identifier,
+			name: d.name,
+			phoneNumber: d.phoneNumber ?? null,
+			resourceType: "Organization",
+		} as Org)
+	);
+}
+
+export function HealthcareService<
+	HS extends t.HealthcareService<P.Data, string>
+>(d: MustHave<HS, "name">) {
+	invariant(d.name, "Healthcare name missing");
+
+	return freeze(
+		extend(d, {
+			active: d.active ?? true,
+			extendedData: d.extendedData ?? null,
+			name: d.name,
+			resourceItemType: "HealthcareService",
+			resourceType: "ResourceItem",
+		} as HS)
+	);
+}
+
+export function Observation<Obs extends t.Observation>(
+	d: MustHave<Obs, "data">
+) {
+	invariant(d.data, "Obaservation `data` field missing");
+
+	return freeze(
+		extend(d, {
+			data: d.data,
+			reason: d.reason ?? null,
+			referenceRange:
+				(d.referenceRange?.base ?? null) !== null
+					? partial(d.referenceRange)
+					: null,
+			resourceItemType: "Observation",
+			resourceType: "ResourceItem",
+		} as Obs)
+	);
+}
+
+export function AppointmentRequest<ARq extends t.AppointmentRequest>(
+	d: MustHave<ARq, "appointmentDate" | "id" | "participants">
+) {
+	invariant(d.id, "Appointment request `id` field missing");
+	invariant(
+		d.appointmentDate,
+		"Appointment request `appointmentDate` field missing"
+	);
+	return freeze(
+		extend(d, {
+			id: d.id,
+			visit: d.visit ?? null,
+			appointmentDate: d.appointmentDate,
+			code: d.code ?? null,
+			createdAt: date(d.createdAt).toUTCString(),
+			description: d.description ?? null,
+			reason: d.reason ?? null,
+			participants: d.participants ?? [],
+			resourceType: "AppointmentRequest",
+		} as unknown as ARq)
+	);
+}
+
+export function AppointmentResponse<ARs extends t.AppointmentResponse>(
+	d: MustHave<ARs, "authorizingAppointmentRequest" | "id" | "actors">
+) {
+	invariant(d.id, "Appointment response `id` field missing");
+
+	return freeze(
+		extend(d, {
+			id: d.id,
+			authorizingAppointmentRequest: d.authorizingAppointmentRequest,
+			code: d.code ?? null,
+			comment: d.comment ?? null,
+			startTime: d.startTime ?? 0,
+			endTime: d.endTime ?? 0,
+			createdAt: date(d.createdAt).toUTCString(),
+			resourceType: "AppointmentResponse",
+			actors: d.actors ?? [],
+		} as unknown as ARs)
+	);
+}
+
+export function InvestigationRequest<IRq extends t.InvestigationRequest>(
+	d: MustHave<IRq, "id" | "data" | "subject">
+) {
+	invariant(d.id, "Investigation request `id` field missing");
+	invariant(d.subject, "Investigation request `subject` field missing");
+	invariant(d.data, "Investigation request `data` field missing");
+
+	return freeze(
+		extend(d, {
+			id: d.id,
+			code: d.code ?? null,
+			createdAt: date(d.createdAt).toUTCString(),
+			data: d.data,
+			requester: d.requester ?? null,
+			resourceType: "InvestigationRequest",
+			subject: d.subject,
+		} as IRq)
+	);
+}
+
+export function InvestigationResult<
+	IRs extends t.InvestigationResult<P.Data, t.InvestigationRequest>
+>(d: MustHave<IRs, "id" | "authorizingRequest" | "observation">) {
+	invariant(d.id, "Investigation result `id` field missing");
+	invariant(
+		d.authorizingRequest,
+		"Investigation request `authorizingRequest` field missing"
+	);
+	invariant(
+		d.observation,
+		"Investigation request `observation` field missing"
+	);
+
+	return freeze(
+		extend(d, {
+			id: d.id,
+			authorizingRequest: d.authorizingRequest,
+			code: d.code ?? null,
+			createdAt: date(d.createdAt).toUTCString(),
+			observation: d.observation,
+			recorder: d.recorder ?? null,
+			resourceType: "InvestigationResult",
+		} as IRs)
+	);
+}
+
+export function Report<Rp extends t.Report<string>>(
+	d: MustHave<Rp, "code" | "reportCode" | "id" | "subject" | "result">
+) {
+	invariant(d.id, "Report `id` field missing");
+	invariant(d.code, "Report `code` field missing");
+	invariant(d.reportCode, "Report `reportCode` field missing");
+	invariant(d.subject, "Report `subject` field missing");
+	invariant(d.result, "Report `result` field missing");
+
+	return freeze(
+		extend(d, {
+			code: d.code,
+			id: d.id,
+			createdAt: date(d.createdAt).toUTCString(),
+			reportCode: d.reportCode,
+			subject: d.subject,
+			reporter: d.reporter ?? null,
+			resourceType: "Report",
+			result: d.result,
+		} as Rp)
+	);
+}
+
+export const Assessment = <Ast extends t.Assessment>(
+	d: MustHave<Ast, "code" | "id" | "subject" | "result">
+) => Report<Ast>({ ...d, reportCode: "assessment" });
+
+export function refer<RF extends string, R extends P.Resource<RF, P.Data>>(
+	r: R,
+	useId: boolean = true,
+	// @ts-ignore
+	fn?: (r: R) => P.Mapping<string, P.Data> = (r) => ({ id: r.id })
+): P.ReferenceIdentifier<RF> {
+	if (useId) {
+		return {
+			// @ts-ignore
+			resourceReferenced: r.resourceType,
+			resourceType: "Reference",
+			// @ts-ignore
+			id: r.id,
+		};
+	}
+
+	return {
+		// @ts-ignore
+		resourceReferenced: r.resourceType,
+		resourceType: "Reference",
+		// @ts-ignore
+		data: fn(r),
+	};
 }

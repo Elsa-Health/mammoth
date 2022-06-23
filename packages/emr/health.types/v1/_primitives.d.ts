@@ -1,3 +1,5 @@
+import { P } from ".";
+
 export type Nullable<T> = T | null;
 export type OneOrMany<T> = T | T[];
 export type Mapping<K extends string, T> = {
@@ -16,8 +18,8 @@ export type Mapping<K extends string, T> = {
 export type ResourceOptions = Omit<string, "ResourceItem">;
 export type Resource<
 	N extends ResourceOptions,
-	T,
-	C extends string | null = null
+	T extends Mapping<string, Data>,
+	C extends string = string
 > = {
 	/**
 	 * Code associated with grouping the object
