@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider = "prisma-client-js"
 }
@@ -10,183 +7,17 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-//
+model Client {
+    userId        String   @id @default(cuid())
+    lastUpdatedAt DateTime @updatedAt
+    ctc           String
+    phoneInfo     Json     @default("{}")
+    ip            String?
+}
+
 model Facility {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
-
-    // 1-N
-    Patient      Patient[]
-    code         String?
-    name         String
-    phoneNumber  String?
-    email        String?
-    Practitioner Practitioner[]
-}
-
-// -----------------------------------------------------------
-// Definitions below are following the `health-data-standards`
-// -----------------------------------------------------------
-model Patient {
-    // default for all resources
-    id           String       @id @default(cuid())
-    code         String?
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @default(now())
-    resourceType ResourceType @default(Patient)
-
-    // patient specific data
-    patientId          String         @unique // identifying information
-    birthDate          String
-    sex                String // "male" | "female" 
-    maritalStatus      String
-    communication      Json?
-    phoneNumber        String?
-    email              String?
-    extendedData       Json? // more data on the patient
-    facilityId         String
-    facilityRegistered Facility       @relation(fields: [facilityId], references: [id])
-    Visit              Visit[]
-    Report             Report[]
-    Prescription       Prescription[]
-}
-
-model Practitioner {
-    // default for all resources
-    id           String       @id @default(cuid())
-    code         String?
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @default(now())
-    resourceType ResourceType @default(Practitioner)
-
-    // practitioner specific
-    name          String?
-    birthDate     String
-    gender        String // "male" | "female" | "other" | "unknown";
-    communication Json?
-    phoneNumber   String?
-    email         String?
-    address       String?
-    active        Boolean
-    role          PractitionerRole
-
-    facilityAssociated Facility       @relation(fields: [facilityId], references: [id])
-    facilityId         String
-    Visit              Visit[]
-    Report             Report[]
-    Prescription       Prescription[]
-}
-
-model Visit {
-    // default for all resources
-    id           String       @id @default(cuid())
-    code         String?
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @default(now())
-    resourceType ResourceType @default(Visit)
-
-    // visit related fields
-    subject        Patient       @relation(fields: [patientId], references: [id])
-    patientId      String
-    practitioner   Practitioner? @relation(fields: [practitionerId], references: [id])
-    /// If not defined, implies that the patient self diagnosed
-    practitionerId String?
-
-    assessments    Json[]
-    investigations Report[]
-    prescriptions  Prescription[]
-    extendedData   Json?
-}
-
-model Appointment {
-    // default for all resources
-    id           String       @id @default(cuid())
-    code         String?
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @default(now())
-    resourceType ResourceType @default(Appointment)
-}
-
-model Observation {
-    // default for all resources
-    id           String       @id @default(cuid())
-    code         String?
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @default(now())
-    resourceType ResourceType @default(Observation)
-
-    data           Json
-    reason         String?
-    referenceRange Json?
-    Report         Report? @relation(fields: [reportId], references: [id])
-    reportId       String?
-}
-
-model Report {
-    // default for all resources
-    id           String       @id @default(cuid())
-    code         ReportType
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @default(now())
-    resourceType ResourceType @default(Report)
-
-    // Report related data
-    subject                Patient      @relation(fields: [subjectPatientId], references: [id])
-    subjectPatientId       String
-    reporter               Practitioner @relation(fields: [reportedPractitionerId], references: [id])
-    reportedPractitionerId String
-
-    results Observation[]
-
-    Visit   Visit?  @relation(fields: [visitId], references: [id])
-    visitId String? @map("investigationId")
-}
-
-model Prescription {
-    // default for all resources
-    id           String       @id @default(cuid())
-    code         ReportType
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @default(now())
-    resourceType ResourceType @default(Prescription)
-
-    subjectPatientId Patient      @relation(fields: [patientId], references: [id])
-    supplier         Practitioner @relation(fields: [practitionerId], references: [id])
-    patientId        String
-    practitionerId   String
-
-    taken         Boolean @default(false)
-    route         String
-    method        String
-    text          String
-    timing        String?
-    instructions  String?
-    dosageAndRate Json
-    Visit         Visit?  @relation(fields: [visitId], references: [id])
-    visitId       String?
-}
-
-enum PractitionerRole {
-    Doctor
-    CommunityWorker
-    ADDO
-    CTC
-    Other
-}
-
-enum ReportType {
-    Investigation
-    Assessment
-}
-
-// Different resource types to support
-enum ResourceType {
-    Appointment
-    Patient
-    Practitioner
-    Visit
-    Observation
-    Report
-    Prescription
+    id           String   @id @default(cuid())
+    /// ctc beloning the facility
+    ctc          String   @unique
+    lastUpdateAt DateTime @updatedAt
 }
