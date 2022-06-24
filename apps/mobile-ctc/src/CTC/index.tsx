@@ -510,22 +510,6 @@ function App({
           component={withFlowContext(MedicationStock, {
             entry: stock,
             actions: ({navigation}) => ({
-              // snapshot
-              onUpdateStockItemSubscription: (
-                docId: string,
-                cb: (d: CTC.ARVStockRecord) => void,
-              ) =>
-                onDocumentSnapshot(
-                  doc(Emr.collection('stock'), docId),
-                  (action, d) => {
-                    //..
-                    if (action === 'updated') {
-                      if (d !== undefined) {
-                        cb(d);
-                      }
-                    }
-                  },
-                ),
               async setARVStockItem(_id, data) {
                 const org =
                   doctor.organization.resourceType === 'Organization'

@@ -40,6 +40,8 @@ import _ from 'lodash';
 import {Controller, useForm} from 'react-hook-form';
 
 import z from 'zod';
+import {CTC} from '../../emr/types';
+import produce from 'immer';
 
 const SingleStockItem = z.object({
   count: z.string(),
@@ -63,6 +65,10 @@ const SingleStockItem = z.object({
 });
 
 export type SingleStockItem = z.infer<typeof SingleStockItem>;
+// type onUpdateStockItemSubscription = (
+//   docId: string,
+//   cb: (d: CTC.ARVStockRecord) => void,
+// ) => {unsubscribe: () => void};
 
 export default function MedicationStockScreen({
   entry: e,
@@ -91,7 +97,6 @@ export default function MedicationStockScreen({
     [e.arvs],
   );
 
-  console.log(groups);
   // form value
   const [singleForm, setSingleForm] = React.useState<
     [string, SingleStockItem] | null
@@ -170,34 +175,10 @@ export default function MedicationStockScreen({
               ) : (
                 Object.entries(e.arvs ?? {}).map(([singleId, item]) => (
                   <React.Fragment key={singleId}>
-                    <TouchableItem
-                      key={singleId}
-                      style={{marginVertical: 5}}
-                      onPress={() => showToUpdateSingleItem(singleId, item)}>
-                      <Row>
-                        <View
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                          }}>
-                          <Text>{item.text}</Text>
-                          {(item.form ?? '').length > 0 && (
-                            <View
-                              style={{
-                                marginLeft: 6,
-                                padding: 2,
-                                borderWidth: 1,
-                                paddingHorizontal: 8,
-                                borderRadius: 50,
-                              }}>
-                              <Text>{item.form}</Text>
-                            </View>
-                          )}
-                        </View>
-                        <Text>{item.count}</Text>
-                      </Row>
-                    </TouchableItem>
+                    <MedicationItem
+                      item={item}
+                      onPress={() => showToUpdateSingleItem(singleId, item)}
+                    />
                   </React.Fragment>
                 ))
               )}
@@ -222,6 +203,45 @@ export default function MedicationStockScreen({
         </BottomSheetModal>
       </>
     </BottomSheetModalProvider>
+  );
+}
+
+function MedicationItem({
+  id,
+  item,
+  onPress,
+  onUpdateSubscription,
+}: {
+  id: string;
+  item: {text: string; form: string | null; count: string};
+  onPress: () => void;
+}) {
+  return (
+    <TouchableItem style={{marginVertical: 5}} onPress={onPress}>
+      <Row>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+          <Text>{item.text}</Text>
+          {(item.form ?? '').length > 0 && (
+            <View
+              style={{
+                marginLeft: 6,
+                padding: 2,
+                borderWidth: 1,
+                paddingHorizontal: 8,
+                borderRadius: 50,
+              }}>
+              <Text>{item.form}</Text>
+            </View>
+          )}
+        </View>
+        <Text>{item.count}</Text>
+      </Row>
+    </TouchableItem>
   );
 }
 
