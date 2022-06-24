@@ -25,67 +25,8 @@ import {format} from 'date-fns';
 import {PublicStock} from '../../emr/store';
 import {groupByFn} from '../MedicationStock/helpers';
 
-type StockMedication = {
-  facility: {name: string; ctcCode: string};
-  lastUpdated?: UTCDateTimeString;
-  stockItems: List<{regimen: ARV.Regimen; name: string; count: number}>;
-};
-
-const stockMedication = List<StockMedication>([
-  {
-    facility: {name: 'Mbuguni CTC', ctcCode: '1131321312'},
-    lastUpdated: new Date().toUTCString(),
-    stockItems: List([
-      {
-        regimen: '1-c-a-azt-3-tc-efv',
-        name: ARV.regimen.fromKey('1-c-a-azt-3-tc-efv') ?? '1-c-a-azt-3-tc-efv',
-        count: 8,
-      },
-      {
-        regimen: '3-w-p-ral-drv-r-azt-3-tc',
-        name:
-          ARV.regimen.fromKey('3-w-p-ral-drv-r-azt-3-tc') ??
-          '3-w-p-ral-drv-r-azt-3-tc',
-        count: 2,
-      },
-    ]),
-  },
-  {
-    facility: {name: 'Patandi CTC', ctcCode: '1131321312'},
-    lastUpdated: new Date().toUTCString(),
-    stockItems: List([
-      {
-        regimen: '1-c-a-azt-3-tc-efv',
-        name: ARV.regimen.fromKey('1-c-a-azt-3-tc-efv') ?? '1-c-a-azt-3-tc-efv',
-        count: 8,
-      },
-      {
-        regimen: '1-g-p-tdf-3-tc-efv',
-        name: ARV.regimen.fromKey('1-g-p-tdf-3-tc-efv') ?? '1-g-p-tdf-3-tc-efv',
-        count: 12,
-      },
-    ]),
-  },
-  {
-    facility: {name: 'Usa Dream CTC', ctcCode: '1131321312'},
-    lastUpdated: new Date().toUTCString(),
-    stockItems: List([
-      {
-        regimen: '1-c-a-azt-3-tc-efv',
-        name: ARV.regimen.fromKey('1-c-a-azt-3-tc-efv') ?? '1-c-a-azt-3-tc-efv',
-        count: 8,
-      },
-      {
-        regimen: '1-g-p-tdf-3-tc-efv',
-        name: ARV.regimen.fromKey('1-g-p-tdf-3-tc-efv') ?? '1-g-p-tdf-3-tc-efv',
-        count: 12,
-      },
-    ]),
-  },
-]);
-
 export default function MedicationMapScreen({
-  entry,
+  entry: e,
   actions: $,
 }: WorkflowScreenProps<
   {
@@ -182,7 +123,11 @@ export default function MedicationMapScreen({
                     item => item.source.facility,
                   ).map(([ctc, arr], ix) => (
                     <React.Fragment key={ix}>
-                      <Something ctcCode={ctc} items={arr} />
+                      <Something
+                        ctcCode={ctc}
+                        items={arr}
+                        organization={e.organization}
+                      />
                     </React.Fragment>
                   ))}
                 </View>
@@ -195,9 +140,15 @@ export default function MedicationMapScreen({
   );
 }
 
-function Something({ctcCode, items: _items}) {
-  const facility = getFacilityFromCode(ctcCode);
+function Something({ctcCode, items: _items, organization: org}) {
+  const facility =
+    getFacilityFromCode(ctcCode) ??
+    (org.identifier?.ctcCode === ctcCode
+      ? {name: `${org.name}`, ctcCode}
+      : null);
   const title = facility?.name ?? `${ctcCode} (Unknown CTC)`;
+
+  console.log({org});
 
   const items = React.useMemo(() => List(_items), [_items]);
   const latest = React.useMemo(() => {

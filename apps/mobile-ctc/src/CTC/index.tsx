@@ -322,6 +322,9 @@ function App({
         <Stack.Screen
           name="ctc.medication-map"
           component={withFlowContext(MedicationMapScreen, {
+            entry: {
+              organization,
+            },
             actions: ({navigation}) => ({
               async fetchPublicStock() {
                 const d = await queryCollection(Emr.collection('publicStock'));
