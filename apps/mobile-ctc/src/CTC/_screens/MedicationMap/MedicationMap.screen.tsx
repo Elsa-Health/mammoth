@@ -148,8 +148,6 @@ function Something({ctcCode, items: _items, organization: org}) {
       : null);
   const title = facility?.name ?? `${ctcCode} (Unknown CTC)`;
 
-  console.log({org});
-
   const items = React.useMemo(() => List(_items), [_items]);
   const latest = React.useMemo(() => {
     const d = items
@@ -176,35 +174,6 @@ function Something({ctcCode, items: _items, organization: org}) {
             <Row contentStyle={{paddingVertical: 4}}>
               <Text>{item.record.text}</Text>
               <Text>{item.record.count}</Text>
-            </Row>
-          </React.Fragment>
-        ))
-      ) : (
-        <Row contentStyle={{justifyContent: 'center'}}>
-          <Text italic style={{textAlign: 'center'}}>
-            This facility doesn't have the searched medication
-          </Text>
-        </Row>
-      )}
-    </CollapsibleSection>
-  );
-  return (
-    <CollapsibleSection
-      reveal={true}
-      removeLine
-      title={ctc}
-      // title={item.facility.name}
-      desc={`Last updated: ${
-        item.lastUpdated !== undefined
-          ? `${formatDistanceToNow(new Date(item.lastUpdated))}`
-          : 'Never'
-      }`}>
-      {item.stockItems.count() > 0 ? (
-        item.stockItems.map((arv, ix) => (
-          <React.Fragment key={ix}>
-            <Row contentStyle={{paddingVertical: 4}}>
-              <Text>{arv.name}</Text>
-              <Text>{arv.count}</Text>
             </Row>
           </React.Fragment>
         ))
