@@ -86,7 +86,7 @@ import {groupByFn} from './_screens/MedicationStock/helpers';
 
 const Stack = createNativeStackNavigator();
 
-function practitioner(ep: ElsaProvider): CTCDoctor {
+function practitioner(ep: ElsaProvider): CTC.Doctor {
   return {
     active: true,
     address: ep.facility.address ?? null,
@@ -137,19 +137,21 @@ function App({
    */
   const Emr = React.useMemo(() => getEMR(provider), [provider]);
 
-  React.useEffect(() => {
-    // Perform seeding for those new accounts
-    Seeding(Emr).then(() =>
-      // include code to migrate over the records
-      Migration(Emr),
-    );
-  }, []);
-
   // Create provider
   const [organization, doctor] = React.useMemo(
     () => [getOrganizationFromProvider(provider), practitioner(provider)],
     [provider],
   );
+
+  React.useEffect(() => {
+    if (organization) {
+      // Perform seeding for those new accounts
+      Seeding(Emr, organization).then(() =>
+        // include code to migrate over the records
+        Migration(Emr),
+      );
+    }
+  }, [organization]);
 
   // Migrating the contents from the old edge server
   //  to this storage.
@@ -263,10 +265,6 @@ function App({
   const stock = useStock(Emr);
   const appointments = useAppointments(Emr);
   const report = useEMRReport(Emr);
-
-  const [{value: publicStock}] = useCollectionAsWorklet(
-    Emr.collection('publicStock'),
-  );
 
   return (
     <>

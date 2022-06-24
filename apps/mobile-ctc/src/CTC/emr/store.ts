@@ -240,7 +240,7 @@ export type EMRModule = ReturnType<typeof getEMR>;
 
 // PERFORM seeding
 
-export async function Seeding(emr: EMRModule) {
+export async function Seeding(emr: EMRModule, org: CTC.Organization) {
   const seedKey = 'STORAGE@SEED-ONCE-NOW';
 
   // make sure the seeding happens
@@ -259,7 +259,7 @@ export async function Seeding(emr: EMRModule) {
 
     console.log('Seeding...');
     // run seed for stock + // then lock after first run
-    return seedStock(emr).then(v =>
+    return seedStock(emr, org).then(v =>
       AsyncStorage.setItem(seedKey, JSON.stringify(true)),
     );
   });

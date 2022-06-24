@@ -23,53 +23,61 @@ const singles = ARV.units.pairs().map(([arv, text]) =>
   }),
 );
 
-const comboArvMedications = ['TDF+3TC+DTG', 'ABC+3TC', 'AZT+3TC' + 'TDF+FTC']
-  .map(d => ({
-    text: d,
-    id: _.kebabCase(d),
-    singles: d.split('+').map(d => ({
-      identifier: _.kebabCase(d),
+const comboArvMedications = (org: CTC.Organization) =>
+  ['TDF+3TC+DTG', 'ABC+3TC', 'AZT+3TC', 'TDF+FTC', 'TDF+FTC', 'AZT+3TC+NVP']
+    .map(d => ({
       text: d,
-    })),
-  }))
-  .map(arv =>
-    Stock<CTC.ARVStockRecord>({
-      count: 1,
-      expiresAt: new Date().toUTCString(),
-      id: uuid.v4() as string,
-      medication: Medication<CTC.ComposedARVMedication>({
-        identifier: arv.id,
-        ingredients: arv.singles,
-        alias: arv.text,
-        category: 'arv-ctc',
-        form: null,
-        type: 'composed',
-        text: arv.text,
+      id: _.kebabCase(d),
+      singles: d.split('+').map(d => ({
+        identifier: _.kebabCase(d),
+        text: d,
+      })),
+    }))
+    .map(arv =>
+      Stock<CTC.ARVStockRecord>({
+        count: 0,
+        expiresAt: new Date().toUTCString(),
+        id: uuid.v4() as string,
+        medication: Medication<CTC.ComposedARVMedication>({
+          identifier: arv.id,
+          ingredients: arv.singles,
+          alias: arv.text,
+          category: 'arv-ctc',
+          form: null,
+          type: 'composed',
+          text: arv.text,
+        }),
+        managingOrganization: org,
+        extendedData: {
+          estimatedFor: '60-days',
+          isLow: true,
+          group: 'adults',
+        },
       }),
-    }),
-  );
+    );
 
 //
-export const stock = () => [
+export const stock = (org: CTC.Organization) => [
   ...[...singles].map(medication => {
     return Stock<CTC.ARVStockRecord>({
       id: uuid.v4() as string,
-      count: Math.floor(Math.random() * 10 + 1),
+      count: 0,
       expiresAt: new Date().toUTCString(),
       medication,
       extendedData: {
-        estimatedFor: '30-days',
-        isLow: false,
+        estimatedFor: '60-days',
+        isLow: true,
         group: 'adults',
       },
+      managingOrganization: org,
     });
   }),
-  ...comboArvMedications,
+  ...comboArvMedications(org),
 ];
 
-export const seedStock = async (emr: EMRModule) => {
+export const seedStock = async (emr: EMRModule, org: CTC.Organization) => {
   await setDocs(
     emr.collection('stock'),
-    stock().map(d => [d.id, d]),
+    stock(org).map(d => [d.id, d]),
   );
 };
