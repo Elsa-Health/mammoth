@@ -143,14 +143,16 @@ export default function ReportSummaryScreen({
         <View>
           <Row contentStyle={{justifyContent: 'center', paddingVertical: 16}}>
             {['1d', '1w', '1m', '1y'].map((val, ix, arr) => (
-              <Chip
-                value={val}
-                selected={value === val}
-                roundedLeft={ix === 0}
-                roundedRight={ix === arr.length - 1}
-                onPress={() => setValue(o => (o === val ? null : val))}>
-                {_.upperCase(val)}
-              </Chip>
+              <React.Fragment key={val}>
+                <Chip
+                  value={val}
+                  selected={value === val}
+                  roundedLeft={ix === 0}
+                  roundedRight={ix === arr.length - 1}
+                  onPress={() => setValue(o => (o === val ? null : val))}>
+                  {_.upperCase(val)}
+                </Chip>
+              </React.Fragment>
             ))}
           </Row>
         </View>

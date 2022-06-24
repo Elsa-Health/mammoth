@@ -35,7 +35,14 @@ import {useWebSocket} from '../app/utils';
 
 import {withFlowContext} from '../@workflows/index';
 
-import {doc, setDoc, Document, getDocs, setDocs} from 'papai/collection';
+import {
+  doc,
+  setDoc,
+  Document,
+  getDocs,
+  setDocs,
+  onDocumentSnapshot,
+} from 'papai/collection';
 import {List} from 'immutable';
 import {ToastAndroid} from 'react-native';
 import _ from 'lodash';
@@ -61,7 +68,7 @@ import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 import {convertDMYToDate, removeWhiteSpace} from './emr/utils';
 import {useEMRReport} from './emr/react-hooks/report';
 import {format, isAfter} from 'date-fns';
-import {EMRModule, getEMR} from './emr/store';
+import {EMRModule, getEMR, Seeding} from './emr/store';
 import {Ingredient, Medication, Stock} from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
 import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
@@ -70,6 +77,7 @@ import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
 import './emr/temp.migrate';
 import {onSnapshotUpdate} from './emr/subscribe';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Migration} from './emr/temp.migrate';
 
 const Stack = createNativeStackNavigator();
 
@@ -110,11 +118,6 @@ function practitioner(ep: ElsaProvider): CTCDoctor {
   };
 }
 
-/**
- * Useful EMR components
- */
-const Emr = getEMR();
-
 function App({
   provider,
   appVersion,
@@ -124,14 +127,24 @@ function App({
   appVersion: string;
   logout: () => Promise<void>;
 }) {
+  /**
+   * Useful EMR components
+   */
+  const Emr = React.useMemo(() => getEMR(provider), [provider]);
+
+  React.useEffect(() => {
+    // Perform seeding for those new accounts
+    Seeding(Emr).then(() =>
+      // include code to migrate over the records
+      Migration(Emr),
+    );
+  }, []);
+
   // Create provider
   const [organization, doctor] = React.useMemo(
     () => [getOrganizationFromProvider(provider), practitioner(provider)],
     [provider],
   );
-  // getDocs(Emr.collection('visits')).then(([_, d]) =>
-  //   console.log('-->', JSON.stringify(d)),
-  // );
 
   // Migrating the contents from the old edge server
   //  to this storage.
@@ -208,27 +221,20 @@ function App({
   // Get web socket
   const {socket, status} = useWebSocket({
     // url: 'wss://bounce-edge.fly.dev/ws/crdt/state',
-    url: 'wss://cf89-197-250-61-138.eu.ngrok.io/ws/crdt/state',
+    url: 'wss://a486-196-45-130-50.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
       // Connected
-      fetchCRDTMessages(provider).then(message => {
-        const s = JSON.stringify(message);
-        // console.log(s);
-      });
+      if (socket.readyState === WebSocket.OPEN) {
+        fetchCRDTMessages(provider).then(message => {
+          // console.log(s);
+          const s = JSON.stringify(message);
+          socket.send(s);
+        });
+      }
     },
     onData(data) {
       // peform synchronization
       syncContentsFromSocket(data);
-
-      // NOTE: you must add code to merge received contents to the database
-      // // console.log('Sending to something...');
-      // // Received data
-      // emr.merge(data);
-      // // console.log('Received data... merging');
-      // emr
-      //   .sync()
-      //   .then(() => console.log('Sync complete'))
-      //   .catch(() => console.log('Sync failed'));
     },
   });
 
@@ -241,7 +247,6 @@ function App({
       if (status === 'online') {
         console.log('Socket readyState');
         const sub = onSnapshotUpdate(provider, msg => {
-          console.log({msg});
           socket.send(JSON.stringify(msg));
         });
 
@@ -505,6 +510,22 @@ function App({
           component={withFlowContext(MedicationStock, {
             entry: stock,
             actions: ({navigation}) => ({
+              // snapshot
+              onUpdateStockItemSubscription: (
+                docId: string,
+                cb: (d: CTC.ARVStockRecord) => void,
+              ) =>
+                onDocumentSnapshot(
+                  doc(Emr.collection('stock'), docId),
+                  (action, d) => {
+                    //..
+                    if (action === 'updated') {
+                      if (d !== undefined) {
+                        cb(d);
+                      }
+                    }
+                  },
+                ),
               async setARVStockItem(_id, data) {
                 const org =
                   doctor.organization.resourceType === 'Organization'

@@ -1,9 +1,10 @@
 import {Document, getDocs, setDocs} from 'papai/collection';
 import {CollectionNode} from 'papai/collection/core';
-import {getEMR} from './store';
+import {EMRModule, getEMR} from './store';
 import {EMR} from './store_';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ElsaProvider} from '../../provider/backend';
 
 async function migrateOver<T extends Document.Data>(
   old: CollectionNode<any>,
@@ -13,9 +14,8 @@ async function migrateOver<T extends Document.Data>(
   await setDocs(new_, move);
 }
 
-async function migrate() {
+async function migrate(emr: EMRModule) {
   // new EMR collection references
-  const emr = getEMR();
 
   // old collection references
   const old = EMR.collections;
@@ -37,29 +37,31 @@ async function migrate() {
   );
 }
 
-// migrate functions
-const syncronizeKey = 'STORAGE@MIGRATE-FROM-DEV-ONCE';
+export async function Migration(emr: EMRModule) {
+  // migrate functions
+  const syncronizeKey = 'STORAGE@MIGRATE-FROM-DEV-ONCE';
 
-// make sure the seeding happens
-AsyncStorage.getItem(syncronizeKey)
-  .then(isToMigrate => {
-    if (isToMigrate !== null) {
-      console.log('Not migrating...');
-      return;
-    }
+  // make sure the seeding happens
+  return AsyncStorage.getItem(syncronizeKey)
+    .then(isToMigrate => {
+      if (isToMigrate !== null) {
+        console.log('Not migrating...');
+        return;
+      }
 
-    const ou = isToMigrate !== null ? JSON.parse(isToMigrate) : null;
-    // console.log({isToSeed, ou});
-    if (ou !== null) {
-      console.log('Not migrating...');
-      return;
-    }
+      const ou = isToMigrate !== null ? JSON.parse(isToMigrate) : null;
+      // console.log({isToSeed, ou});
+      if (ou !== null) {
+        console.log('Not migrating...');
+        return;
+      }
 
-    console.log('Migrating...');
-    // migrate the contents
-    return migrate().then(_ =>
-      AsyncStorage.setItem(syncronizeKey, JSON.stringify(true)),
-    );
-  })
-  .then(() => console.log('Done!'))
-  .catch(err => console.error(err));
+      console.log('Migrating...');
+      // migrate the contents
+      return migrate(emr).then(_ =>
+        AsyncStorage.setItem(syncronizeKey, JSON.stringify(true)),
+      );
+    })
+    .then(() => console.log('Done!'))
+    .catch(err => console.error(err));
+}

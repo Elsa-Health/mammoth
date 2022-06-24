@@ -6,9 +6,13 @@ import {StockRecord} from '@elsa-health/emr/health.types/v1';
 import {
   addDocs,
   collection,
+  doc,
   Document,
   getDocs,
   getStore,
+  onCollectionSnapshot,
+  onDocumentSnapshot,
+  setDoc,
   setDocs,
   wipeStore,
 } from 'papai/collection';
@@ -31,6 +35,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {seedStock} from './seed';
 import {Message, StateToken} from '../actions/sync';
 import {EMR} from './store_';
+import {store} from '../storage/personal';
+import {ElsaProvider} from '../../provider/backend';
 
 // reference mapping the state to the values
 const ref = (d: Document.Ref) => `${d.collectionId}-${d.documentId}`;
@@ -51,7 +57,7 @@ function BuildItemStore(name: string, store: AsyncItemStorage) {
         nameReference: STORE_NAME,
         getCollRef: d => `${STORE_NAME}/${d.collectionId}`,
         getDocRef: d => `${STORE_NAME}/${d.collectionId}/${d.documentId}`,
-        store: FastAsyncStorage,
+        store,
       },
       () => uuid.v4() as string,
     ),
@@ -62,6 +68,16 @@ function BuildItemStore(name: string, store: AsyncItemStorage) {
 // const STORE_NAME = 'STORAGE@CTC';
 
 const storage = BuildItemStore('STORAGE@CTC', FastAsyncStorage);
+/**
+ * Storage component
+ * @returns
+ */
+export const getStorage = () => storage;
+/**
+ * This should store things that' you don't want shared over the network
+ */
+const privateStorage = BuildItemStore('PRIVATE-STORAGE@CTC', FastAsyncStorage);
+export const getPrivateStore = () => privateStorage;
 
 // Create store to be used
 // const storage = getStore(
@@ -77,42 +93,94 @@ const storage = BuildItemStore('STORAGE@CTC', FastAsyncStorage);
 //   ),
 // );
 
+function onUpdateCollectionDocument<D extends Document.Data>(
+  collection: CollectionNode<D>,
+  cb: (doc: D) => void,
+) {
+  return collection.documentObservable.subscribe(d => {
+    if (d.action === 'updated') {
+      if (d.ref.collectionId === collection.ref.collectionId) cb(d.state);
+    }
+    // ...
+  });
+}
+
 /**
- *
- * @param store Store providing the data
+ * @param publicStore Store providing the data
  * @returns module to control the values
  */
-export const EMRModule = (store: Store) => {
+export const EMRModule = (
+  publicStore: Store,
+  privateStore: Store,
+  provider: ElsaProvider,
+) => {
+  // This is the private storage to adress stock information
+  const stock = collection<StockRecord<CTC.ARVMedication, CTC.Organization>>(
+    privateStore,
+    'medication.stock',
+  );
+
+  const publicStock = collection<{
+    source: {facility: string; userId: string};
+    timestamp: string;
+    record: {medicationIdentifier: string; count: number; text: string};
+  }>(publicStore, 'public.network.stock');
+
+  const {
+    facility: {ctcCode = 'UNKNOWN'},
+    user: {uid: userId},
+  } = provider.toJSON();
+
+  // Create subscription
+  onUpdateCollectionDocument(stock, function (d) {
+    setDoc(doc(publicStock, `${ctcCode}$${d.id}`), {
+      timestamp: new Date().toUTCString(),
+      record: {
+        count: d.count,
+        medicationIdentifier: d.medication.identifier,
+        text: d.medication.text,
+      },
+      source: {facility: ctcCode, userId},
+    });
+  });
+
   const module = new Module({
-    visits: collection<CTC.Visit>(store, 'visits'),
-    patients: collection<CTC.Patient>(store, 'patients'),
+    visits: collection<CTC.Visit>(publicStore, 'visits'),
+    patients: collection<CTC.Patient>(publicStore, 'patients'),
 
     /**
      * Stock of the medications
+     * -------
+     * <Using Private Store>
      */
-    stock: collection<StockRecord<CTC.ARVMedication, CTC.Organization>>(
-      store,
-      'medication.stock',
-    ),
+    stock,
+
+    /**
+     * Publicly available information about the stock available for the other clients on the network
+     */
+    publicStock,
 
     /**
      * Note: This medication item is intended
      * for use with other things
      */
-    medications: collection<CTC.ARVMedication>(store, 'medications.items'),
+    medications: collection<CTC.ARVMedication>(
+      publicStore,
+      'medications.items',
+    ),
 
     /**
      * Contains the mediction requests
      */
     'medication-requests': collection<CTC.MedicationRequest>(
-      store,
+      publicStore,
       'medication.requests',
     ),
     /**
      * Contains the mediction requests
      */
     'medication-dispenses': collection<CTC.MedicationDispense>(
-      store,
+      publicStore,
       'medication.dispenses',
     ),
 
@@ -120,7 +188,7 @@ export const EMRModule = (store: Store) => {
      * Appointment requests
      */
     'appointment-requests': collection<CTC.AppointmentRequest>(
-      store,
+      publicStore,
       'appointment-requests',
       // 'appt.requests',
     ),
@@ -129,7 +197,7 @@ export const EMRModule = (store: Store) => {
      * Appointment responses
      */
     'appointment-responses': collection<CTC.AppointmentResponse>(
-      store,
+      publicStore,
       'appt.responses',
     ),
 
@@ -138,30 +206,18 @@ export const EMRModule = (store: Store) => {
      * Investigation Requests
      */
     'investigation-requests': collection<CTC.InvestigationRequest>(
-      store,
+      publicStore,
       'investigation.requests',
     ),
 
     'investigation-results': collection<CTC.InvestigationResult>(
-      store,
+      publicStore,
       'investigation.results',
     ),
   });
 
   return module;
 };
-
-/**
- * Storage component
- * @returns
- */
-export const getStorage = () => storage;
-
-/**
- * This should store things that' you don't want shared over the network
- */
-const privateStorage = BuildItemStore('PRIVATE-STORAGE@CTC', FastAsyncStorage);
-export const getPrivateStore = () => privateStorage;
 
 /**
  * Pull the crdt collection endpoint
@@ -173,31 +229,33 @@ export const getCrdtCollection = () =>
 /**
  * Get EMR
  */
-export const getEMR = () => EMRModule(storage);
+export const getEMR = (provider: ElsaProvider) =>
+  EMRModule(storage, privateStorage, provider);
 export type EMRModule = ReturnType<typeof getEMR>;
 
 // PERFORM seeding
 
-const emr = getEMR();
-const seedKey = 'STORAGE@SEED-ONCE-NOW';
+export async function Seeding(emr: EMRModule) {
+  const seedKey = 'STORAGE@SEED-ONCE-NOW';
 
-// make sure the seeding happens
-AsyncStorage.getItem(seedKey).then(isToSeed => {
-  if (isToSeed !== null) {
-    console.log('Not seeding...');
-    return;
-  }
+  // make sure the seeding happens
+  return AsyncStorage.getItem(seedKey).then(isToSeed => {
+    if (isToSeed !== null) {
+      console.log('Not seeding...');
+      return;
+    }
 
-  const ou = isToSeed !== null ? JSON.parse(isToSeed) : null;
-  // console.log({isToSeed, ou});
-  if (ou !== null) {
-    console.log('Not seeding...');
-    return;
-  }
+    const ou = isToSeed !== null ? JSON.parse(isToSeed) : null;
+    // console.log({isToSeed, ou});
+    if (ou !== null) {
+      console.log('Not seeding...');
+      return;
+    }
 
-  console.log('Seeding...');
-  // run seed for stock + // then lock after first run
-  return seedStock(emr).then(v =>
-    AsyncStorage.setItem(seedKey, JSON.stringify(true)),
-  );
-});
+    console.log('Seeding...');
+    // run seed for stock + // then lock after first run
+    return seedStock(emr).then(v =>
+      AsyncStorage.setItem(seedKey, JSON.stringify(true)),
+    );
+  });
+}

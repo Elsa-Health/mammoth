@@ -320,6 +320,19 @@ export function useCollectionAsWorklet<T extends Document.Data>(
   type UseCollectionCallback = typeof q;
 
   React.useEffect(() => {
+    const d = collection.observable.subscribe(d => {
+      if (d.action === 'changed') {
+        // re-query when content change
+        queryCollection(collection).then(d => {
+          sharedValue.value = d;
+        });
+      }
+    });
+
+    return () => d.unsubscribe();
+  }, [collection]);
+
+  React.useEffect(() => {
     // initialize collection
     if (initialize) {
       return q(initialQuery);
