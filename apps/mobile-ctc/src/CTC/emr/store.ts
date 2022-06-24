@@ -105,6 +105,12 @@ function onUpdateCollectionDocument<D extends Document.Data>(
   });
 }
 
+export type PublicStock = {
+  source: {facility: string; userId: string};
+  timestamp: string;
+  record: {medicationIdentifier: string; count: number; text: string};
+};
+
 /**
  * @param publicStore Store providing the data
  * @returns module to control the values
@@ -120,11 +126,10 @@ export const EMRModule = (
     'medication.stock',
   );
 
-  const publicStock = collection<{
-    source: {facility: string; userId: string};
-    timestamp: string;
-    record: {medicationIdentifier: string; count: number; text: string};
-  }>(publicStore, 'public.network.stock');
+  const publicStock = collection<PublicStock>(
+    publicStore,
+    'public.network.stock',
+  );
 
   const {
     facility: {ctcCode = 'UNKNOWN'},

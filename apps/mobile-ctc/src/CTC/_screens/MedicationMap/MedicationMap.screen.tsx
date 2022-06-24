@@ -7,6 +7,7 @@ import {
   Block,
   CollapsibleSection,
   Column,
+  Item,
   Row,
   Section,
   TitledItem,
@@ -18,6 +19,11 @@ import {ARV} from 'elsa-health-data-fns/lib';
 import {List} from 'immutable';
 import {formatDistanceToNow} from 'date-fns/esm';
 import produce from 'immer';
+import {useAsyncRetry} from 'react-use';
+import {getFacilityFromCode} from '../../facilities';
+import {format} from 'date-fns';
+import {PublicStock} from '../../emr/store';
+import {groupByFn} from '../MedicationStock/helpers';
 
 type StockMedication = {
   facility: {name: string; ctcCode: string};
@@ -86,39 +92,39 @@ export default function MedicationMapScreen({
     organization: CTCOrganization;
   },
   {
-    onUpdateStock: () => void;
+    fetchPublicStock: () => Promise<List<PublicStock>>;
+    onGoToUpdateStock: () => void;
   }
 >) {
   const {spacing} = useTheme();
   const [searchText, setSearchText] = React.useState('');
 
+  const {
+    retry,
+    value: stockMedication,
+    loading,
+  } = useAsyncRetry($.fetchPublicStock, []);
   const [filtered, setFiltered] = React.useState(() => stockMedication);
 
+  React.useEffect(() => {
+    setFiltered(stockMedication ?? List([]));
+  }, [stockMedication]);
+
   const searchMedication = (text: string) => {
-    // manual searching
-    setFiltered(
-      stockMedication
-        // .filter(
-        //   // search the medication in collection
-        //   item =>
-        //     item.stockItems
-        //       .map(d => d.name)
-        //       .find(f => f.toLowerCase().search(text.toLowerCase()) > -1) !==
-        //     undefined,
-        // )
-        .map(item => ({
-          ...item,
-          stockItems: item.stockItems.filter(f => {
-            const sRegex = new RegExp(
-              text.toLowerCase().replaceAll('+', '-'),
-              'i',
-            );
-            return (
-              f.name.toLowerCase().replaceAll('+', '-').search(sRegex) > -1
-            );
-          }),
-        })),
-    );
+    if (stockMedication !== undefined) {
+      // manual searching
+      setFiltered(
+        stockMedication.filter(f => {
+          const sRegex = new RegExp(
+            text.toLowerCase().replaceAll('+', '-'),
+            'i',
+          );
+          return (
+            f.record.text.toLowerCase().replaceAll('+', '-').search(sRegex) > -1
+          );
+        }),
+      );
+    }
   };
 
   return (
@@ -139,43 +145,125 @@ export default function MedicationMapScreen({
           />
         </Section>
         <Section removeLine spaceTop noPad>
-          <Button icon="file" mode="outlined" onPress={() => $.onUpdateStock()}>
-            Update Stock
+          <Button
+            icon="file"
+            mode="contained"
+            onPress={() => $.onGoToUpdateStock()}>
+            Update My Stock
           </Button>
+          <Item spaceTop>
+            <Button icon="refresh" mode="outlined" onPress={retry}>
+              Re-fetch public Stock
+            </Button>
+          </Item>
         </Section>
 
-        {/* Show the list of items to work with */}
-        <View>
-          {filtered.map((item, ix) => (
-            <React.Fragment key={ix}>
-              <CollapsibleSection
-                reveal={true}
-                removeLine
-                title={item.facility.name}
-                desc={`Last updated: ${
-                  item.lastUpdated !== undefined
-                    ? `${formatDistanceToNow(new Date(item.lastUpdated))}`
-                    : 'Never'
-                }`}>
-                {item.stockItems.count() > 0 ? (
-                  item.stockItems.map((arv, ix) => (
-                    <Row contentStyle={{paddingVertical: 4}}>
-                      <Text>{arv.name}</Text>
-                      <Text>{arv.count}</Text>
-                    </Row>
-                  ))
-                ) : (
-                  <Row contentStyle={{justifyContent: 'center'}}>
-                    <Text italic style={{textAlign: 'center'}}>
-                      This facility doesn't have the searched medication
-                    </Text>
-                  </Row>
-                )}
-              </CollapsibleSection>
-            </React.Fragment>
-          ))}
-        </View>
+        {loading ? (
+          <View>
+            <Text>Loading...</Text>
+          </View>
+        ) : (
+          <>
+            {stockMedication === undefined ? (
+              <>
+                <View>
+                  <Text>
+                    Unable to show the public medication stock information at
+                    the moment
+                  </Text>
+                </View>
+              </>
+            ) : (
+              <>
+                {/* Show the list of items to work with */}
+                <View>
+                  {groupByFn(
+                    filtered?.toArray() ?? [],
+                    item => item.source.facility,
+                  ).map(([ctc, arr], ix) => (
+                    <React.Fragment key={ix}>
+                      <Something ctcCode={ctc} items={arr} />
+                    </React.Fragment>
+                  ))}
+                </View>
+              </>
+            )}
+          </>
+        )}
       </ScrollView>
     </Layout>
+  );
+}
+
+function Something({ctcCode, items: _items}) {
+  const facility = getFacilityFromCode(ctcCode);
+  const title = facility?.name ?? `${ctcCode} (Unknown CTC)`;
+
+  const items = React.useMemo(() => List(_items), [_items]);
+  const latest = React.useMemo(() => {
+    const d = items
+      .map(item => new Date(item?.timestamp))
+      .sortBy(d => d.getTime())
+      .get(0);
+
+    if (d !== undefined) {
+      return `${formatDistanceToNow(new Date(d))} ago`;
+    }
+
+    return `Never`;
+  }, [items]);
+
+  return (
+    <CollapsibleSection
+      reveal={true}
+      removeLine
+      title={title}
+      desc={`Last Update: ${latest}`}>
+      {items.count() > 0 ? (
+        items.map((item, ix) => (
+          <React.Fragment key={ix}>
+            <Row contentStyle={{paddingVertical: 4}}>
+              <Text>{item.record.text}</Text>
+              <Text>{item.record.count}</Text>
+            </Row>
+          </React.Fragment>
+        ))
+      ) : (
+        <Row contentStyle={{justifyContent: 'center'}}>
+          <Text italic style={{textAlign: 'center'}}>
+            This facility doesn't have the searched medication
+          </Text>
+        </Row>
+      )}
+    </CollapsibleSection>
+  );
+  return (
+    <CollapsibleSection
+      reveal={true}
+      removeLine
+      title={ctc}
+      // title={item.facility.name}
+      desc={`Last updated: ${
+        item.lastUpdated !== undefined
+          ? `${formatDistanceToNow(new Date(item.lastUpdated))}`
+          : 'Never'
+      }`}>
+      {item.stockItems.count() > 0 ? (
+        item.stockItems.map((arv, ix) => (
+          <React.Fragment key={ix}>
+            <Row contentStyle={{paddingVertical: 4}}>
+              <Text>{arv.name}</Text>
+              <Text>{arv.count}</Text>
+            </Row>
+          </React.Fragment>
+        ))
+      ) : (
+        <Row contentStyle={{justifyContent: 'center'}}>
+          <Text italic style={{textAlign: 'center'}}>
+            This facility doesn't have the searched medication
+          </Text>
+        </Row>
+      )}
+    </CollapsibleSection>
   );
 }

@@ -45,7 +45,7 @@ import {
 } from 'papai/collection';
 import {List} from 'immutable';
 import {ToastAndroid} from 'react-native';
-import _ from 'lodash';
+import _, {groupBy} from 'lodash';
 import {translatePatient} from './actions/translate';
 import {
   arv,
@@ -60,7 +60,11 @@ import {CTC} from './emr/types';
 import {ConfirmVisitModal, useVisit} from './actions/hook';
 import MedicationVisit from './_screens/MedicationVisit';
 import MedicationStock from './_screens/MedicationStock';
-import {useAppointments, useStock} from './emr/react-hooks';
+import {
+  useAppointments,
+  useCollectionAsWorklet,
+  useStock,
+} from './emr/react-hooks';
 
 import * as Sentry from '@sentry/react-native';
 import {queryCollection} from './emr/actions';
@@ -78,6 +82,7 @@ import './emr/temp.migrate';
 import {onSnapshotUpdate} from './emr/subscribe';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Migration} from './emr/temp.migrate';
+import {groupByFn} from './_screens/MedicationStock/helpers';
 
 const Stack = createNativeStackNavigator();
 
@@ -259,6 +264,10 @@ function App({
   const appointments = useAppointments(Emr);
   const report = useEMRReport(Emr);
 
+  const [{value: publicStock}] = useCollectionAsWorklet(
+    Emr.collection('publicStock'),
+  );
+
   return (
     <>
       <Stack.Navigator
@@ -314,19 +323,16 @@ function App({
           name="ctc.medication-map"
           component={withFlowContext(MedicationMapScreen, {
             actions: ({navigation}) => ({
-              onUpdateStock() {
+              async fetchPublicStock() {
+                const d = await queryCollection(Emr.collection('publicStock'));
+                return d;
+              },
+              onGoToUpdateStock() {
                 navigation.navigate('ctc.medication-stock');
               },
             }),
           })}
         />
-
-        {/* <Stack.Screen
-          name="ctc.medication-stock-simple"
-          component={withFlowContext(MedicationStockSimpleScreen, {
-            actions: ({navigation}) => ({}),
-          })}
-        /> */}
 
         <Stack.Screen
           name="ctc.medication-stock-dashboard"
