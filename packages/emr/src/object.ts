@@ -152,7 +152,7 @@ export function Stock<
 	invariant(d.id, "id for medication stock required");
 	invariant(d.medication, "Medication requireds");
 	invariant(
-		typeof d.count === "number" ? d.count > 0 : d.count,
+		typeof d.count === "number" ? d.count >= 0 : d.count,
 		"Medication stock count must be indicated"
 	);
 	invariant(d.expiresAt, "Medication expiring date must be indicated");
