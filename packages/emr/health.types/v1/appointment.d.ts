@@ -56,8 +56,12 @@ type AppointmentRequest<
 		 */
 		appointmentDate: UTCDateTimeString;
 
+		// subject: Referred<Patient> (v2)
+		// requester: Referred<Practitioner> (v2)
+
 		/**
 		 * Participants
+		 * // v2: this should be optional
 		 */
 		participants: Array<ReferenceIdentifier<Actor["resourceType"]>>;
 	}
