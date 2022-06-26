@@ -163,7 +163,9 @@ export function authV1(data: string): Promise<ElsaProvider> {
         if (f === undefined) {
           // NOTE: THIS IS A TEMPORARY SOLUTION
           // NOTE: THIS LOGIC IS SPECIFIC TO CTC STUFF
-          throw new Error("Your card doesn't have CTC code");
+          const err = new Error("Your card doesn't have CTC code");
+          reject(err);
+          throw err;
         }
 
         resolve(
