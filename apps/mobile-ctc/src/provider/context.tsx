@@ -135,6 +135,7 @@ export type AuthOutput =
         identity: Identity;
       };
     };
+
 // Authenticate the content
 export async function authenticate(str: V1Code | V2Code): Promise<AuthOutput> {
   // Checks if it's v2 authenticatable

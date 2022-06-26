@@ -7,13 +7,7 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {useTheme} from '../../../@libs/elsa-ui/theme';
 import {Text} from '../../../@libs/elsa-ui/components';
 import {ElsaColorableIcon} from '../../../@libs/elsa-ui/visuals/vectors';
-import {
-  Modal,
-  Portal,
-  Button,
-  ActivityIndicator,
-  IconButton,
-} from 'react-native-paper';
+import {Modal, Portal, Button, ActivityIndicator} from 'react-native-paper';
 
 import firestore from '@react-native-firebase/firestore';
 import {FirebaseAuthTypes} from '@react-native-firebase/auth';
