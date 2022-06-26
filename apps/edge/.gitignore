@@ -12,3 +12,5 @@ node_modules
 
 # volumes created by the server
 server-*-volume
+
+playground.ts

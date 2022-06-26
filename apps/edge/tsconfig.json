@@ -3,7 +3,9 @@
 		/* Visit https://aka.ms/tsconfig.json to read more about this file */
 		/* Language and Environment */
 		"target": "es2016" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-		// "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+		"lib": [
+			"ESNext.BigInt"
+		] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
 		/* Modules */
 		"module": "commonjs" /* Specify what module code is generated. */,
 		"allowJs": false /* Allow javascript files to be compiled. */,
@@ -22,5 +24,11 @@
 		"allowUmdGlobalAccess": true /* Allow accessing UMD globals from modules. */
 	},
 	"include": ["server/**/*", "types/**/*"],
-	"exclude": ["**/node_modules/*", "./dist/*", "**/*.spec.ts", "**/*.test.ts"]
+	"exclude": [
+		"**/node_modules/*",
+		"./dist/*",
+		"**/*.spec.ts",
+		"**/*.test.ts",
+		"**/playground.ts"
+	]
 }
