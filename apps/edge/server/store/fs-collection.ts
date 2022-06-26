@@ -151,9 +151,8 @@ export const FileSystemCollection = (
 			},
 		},
 		async getCollections() {
-			// return fs.fol
 			const subs = await fs.readdir(folderPath);
-			return subs;
+			return new Set((subs ?? []).map((ref) => ({ collectionId: ref })));
 		},
 		async clearStore() {
 			await fs.rm(folderPath, { recursive: true, force: true });
