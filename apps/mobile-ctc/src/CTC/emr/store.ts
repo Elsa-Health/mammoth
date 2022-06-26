@@ -4,18 +4,13 @@ import {CollectionNode, Store} from 'papai/collection/core';
 import {StockRecord} from '@elsa-health/emr/health.types/v1';
 
 import {
-  addDocs,
   collection,
   doc,
-  Document,
-  getDocs,
   getStore,
-  onCollectionSnapshot,
-  onDocumentSnapshot,
+  onUpdateCollectionDocument,
   setDoc,
-  setDocs,
-  wipeStore,
 } from 'papai/collection';
+import {Document} from 'papai/collection/types';
 import {HybridLogicalClock} from 'papai/distributed/clock';
 import {
   onTrackStoreAddUpdateChanges,
@@ -37,13 +32,12 @@ import {Message, StateToken} from '../actions/sync';
 import {ElsaProvider} from '../../provider/backend';
 
 // reference mapping the state to the values
-const ref = (d: Document.Ref) => `${d.collectionId}-${d.documentId}`;
 
 // replace ':' to a different string
 export const stateClock = new HybridLogicalClock(
   `elsa-client-dev-${uuid.v4()}`,
 );
-export const stateBox = new StateTrackingBox(stateClock, ref); // distributedStateBox
+export const stateBox = new StateTrackingBox(stateClock); // distributedStateBox
 
 function BuildItemStore(name: string, store: AsyncItemStorage) {
   const STORE_NAME = name;
@@ -76,32 +70,6 @@ export const getStorage = () => storage;
  */
 const privateStorage = BuildItemStore('PRIVATE-STORAGE@CTC', FastAsyncStorage);
 export const getPrivateStore = () => privateStorage;
-
-// Create store to be used
-// const storage = getStore(
-//   // KeyValueMapStore(() => uuid.v4() as string),
-//   ItemStorageStore(
-//     {
-//       nameReference: STORE_NAME,
-//       getCollRef: d => `${STORE_NAME}/${d.collectionId}`,
-//       getDocRef: d => `${STORE_NAME}/${d.collectionId}/${d.documentId}`,
-//       store: FastAsyncStorage,
-//     },
-//     () => uuid.v4() as string,
-//   ),
-// );
-
-function onUpdateCollectionDocument<D extends Document.Data>(
-  collection: CollectionNode<D>,
-  cb: (doc: D) => void,
-) {
-  return collection.documentObservable.subscribe(d => {
-    if (d.action === 'updated') {
-      if (d.ref.collectionId === collection.ref.collectionId) cb(d.state);
-    }
-    // ...
-  });
-}
 
 export type PublicStock = {
   source: {facility: string; userId: string};

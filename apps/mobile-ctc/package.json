@@ -52,7 +52,7 @@
     "immer": "^9.0.6",
     "immutable": "^4.1.0",
     "lodash": "^4.17.21",
-    "papai": "^0.1.14",
+    "papai": "^0.2.1",
     "react": "17.0.2",
     "react-dom": "^17",
     "react-hook-form": "^7.31.3",

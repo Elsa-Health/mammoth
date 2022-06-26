@@ -16572,18 +16572,10 @@ papai@^0.1.11:
     lodash.isequal "^4.5.0"
     rxjs "^7.5.4"
 
-papai@^0.1.14:
-  version "0.1.14"
-  resolved "https://registry.yarnpkg.com/papai/-/papai-0.1.14.tgz#24f2ba4ec7a05ac0a09a07df124c160c86335a59"
-  integrity sha512-ktMZTuGVmw0CoJF/rjvlOcTyyLztajJbFqCQevoPCTGV9tdfrH/gZzRFEl7iWQEkw8BZIH02CLWgPIpvPDguwQ==
-  dependencies:
-    lodash.isequal "^4.5.0"
-    rxjs "^7.5.4"
-
-papai@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/papai/-/papai-0.2.0.tgz#1d408f2ad376f3a2184ce8a2abe043bf22da9b82"
-  integrity sha512-BRWGCwDsX2GI40Jq7FTMqkcsC6IkSuEkdtGHR4dAlXqsIz0VhzTqvZA0T/4sEiI1RQb11TdQTfVo1keHN0foJA==
+papai@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/papai/-/papai-0.2.1.tgz#9275ac2c5c8bcfcec4d21973f1c5c52e51d3163c"
+  integrity sha512-sNb5GXMsNLppEyci/R9h5m8OKC5aPotRpdIIcc+2Qw8R4KdiQZLxygYfczHZnvN1I6O1CkbW/PeWeSKcQPEtdw==
   dependencies:
     lodash.isequal "^4.5.0"
     rxjs "^7.5.4"
