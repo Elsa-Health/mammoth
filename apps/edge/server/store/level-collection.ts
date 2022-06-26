@@ -11,6 +11,11 @@ export function LevelDBCollection(
 	db: Level,
 	generateId: () => string
 ): StoreConstructor {
+	/**
+	 * Get the sub node
+	 * @param collId
+	 * @returns
+	 */
 	const subdb = (collId: string) => {
 		// invariant(
 		// 	collId !== METADATA_SUBLEVEL_KEY,
@@ -19,15 +24,13 @@ export function LevelDBCollection(
 
 		const d = db.sublevel(collId, {
 			valueEncoding: "json",
-			separator: "/",
+			keyEncoding: "utf8",
 		});
 
 		return d;
 	};
 
 	const getColls = async () => {
-		// const db_ = db.sublevel(METADATA_SUBLEVEL_KEY);
-
 		try {
 			const cols = await db.get<string, string[] | undefined>(
 				"collections",

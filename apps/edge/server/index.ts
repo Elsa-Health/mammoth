@@ -16,6 +16,8 @@ import { nanoid } from "nanoid";
 import { HybridLogicalClock } from "papai/distributed/clock";
 import { FileSystemCollection } from "./store/fs-collection";
 import { Subscription } from "rxjs";
+import { Level } from "level";
+import { LevelDBCollection } from "./store/level-collection";
 
 const app = express();
 const server = createServer(app);
@@ -92,106 +94,145 @@ const wss = new WebSocketServer({
 const initlock = new HybridLogicalClock(`elsa-edge-node-${nanoid(5)}`);
 // get the store with the entire copy of the databases
 // const mirrorStorage = getStore(KeyValueMapCollection(() => nanoid(24)));
-const mirrorStorage = getStore(
-	FileSystemCollection("./server-mirror-volume", () => nanoid(24))
-);
-// statebox, that syncronizes changes
-const sb = new StateTrackingBox(
-	initlock,
-	(d) => `${d.collectionId}$${d.documentId}`
-);
 
-// store that hold information that's useful to the server
-// this includes information like crdt messages received + sources of the data received.
-const serverStore = getStore(
-	FileSystemCollection("./server-private-volume", () => nanoid(24))
-);
-// note to collect the CRDT messages collected over time
-const crdtMsgCollection = collection<{ ref: any; state: any; clock: string }>(
-	serverStore,
-	"crdt-messages-log"
-);
+// configuration for initing the dbs
+const opts = {
+	createIfMissing: true,
+	errorIfExists: false,
+	valueEncoding: "json",
+	keyEncoding: "utf8",
+	compression: true,
+};
 
-// 1. Prepopulate the state box with previously stored messages if any
-getDocs(crdtMsgCollection).then((d) =>
-	d.map(([_, r]) => {
-		sb.append(r.ref, r.state, HybridLogicalClock.parse(r.clock as string));
-	})
-);
+const publicLDB = new Level("./server-publicdb-volume", { ...opts });
+const privateLDB = new Level("./server-privatedb-volume", {
+	...opts,
+	prefix: "$",
+});
 
-wss.on("connection", function (socket) {
-	console.log("🟢 Connected!");
+async function runServer(publicInstance: Level, privateInstance: Level) {
+	const mirrorStorage = getStore(LevelDBCollection(publicInstance, nanoid));
 
-	let sub: Subscription | null = null;
+	// store that hold information that's useful to the server
+	// this includes information like crdt messages received + sources of the data received.
+	const serverStore = getStore(LevelDBCollection(privateInstance, nanoid));
 
-	// when device connected send data
-	socket.on("open", function () {
-		// when new device is connected...
-		// send out the values that are syncable
-		this.send(
-			JSON.stringify({
-				type: "crdt",
-				batch: Array.from(sb.latest()).map(([ref, state, clock]) => ({
-					ref,
-					state,
-					clock: clock.toString(),
-				})),
-			})
-		);
-
-		if (sub === null) {
-			// add subscription to listen to document changes
-			sub = mirrorStorage.documentObservable.subscribe((s) => {
-				if (s.action === "updated") {
-					// when a document is updated,
-					this.send(
-						JSON.stringify({
-							type: "crdt",
-							batch: [
-								[s.ref, s.state, initlock.next().toString()],
-							],
-						})
-					);
-				}
-			});
-		}
-	});
-
-	socket.on("close", function () {
-		if (sub !== null) {
-			sub.unsubscribe();
-			sub = null;
-		}
-	});
-
-	socket.on("error", function () {
-		if (sub !== null) {
-			sub.unsubscribe();
-			sub = null;
-		}
-	});
-
-	// attack handler for the socket
-	router(
-		socket,
-		() => this,
-		{
-			mirror: () => mirrorStorage,
-			server: () => serverStore,
-			serverClock: initlock.next(),
-			crdtMsgCollection,
-		},
-		sb
+	// statebox, that syncronizes changes
+	const sb = new StateTrackingBox(
+		initlock,
+		(d) => `${d.collectionId}$${d.documentId}`
 	);
-});
+	// note to collect the CRDT messages collected over time
+	const crdtMsgCollection = collection<{
+		ref: any;
+		state: any;
+		clock: string;
+	}>(serverStore, "crdt-messages-log");
 
-wss.on("close", () => {
-	console.log("🔴 Disconnected!");
-});
+	// 1. Prepopulate the state box with previously stored messages if any
+	getDocs(crdtMsgCollection).then((d) =>
+		d.map(([_, r]) => {
+			sb.append(
+				r.ref,
+				r.state,
+				HybridLogicalClock.parse(r.clock as string)
+			);
+		})
+	);
 
-// Listening...
-const port = process.env.PORT || 5005;
-server.listen(port, () => {
-	console.log(`✅ Server Ready: http://localhost:${port}`);
-	console.log(`✨ Listening websocket: ${WS_CRDT_STATE_PATH}`);
-});
+	wss.on("connection", function (socket) {
+		console.log("🟢 Connected!");
+
+		let sub: Subscription | null = null;
+
+		// when device connected send data
+		socket.on("open", function () {
+			// when new device is connected...
+			// send out the values that are syncable
+			this.send(
+				JSON.stringify({
+					type: "crdt",
+					batch: Array.from(sb.latest()).map(
+						([ref, state, clock]) => ({
+							ref,
+							state,
+							clock: clock.toString(),
+						})
+					),
+				})
+			);
+
+			if (sub === null) {
+				// add subscription to listen to document changes
+				sub = mirrorStorage.documentObservable.subscribe((s) => {
+					if (s.action === "updated") {
+						// when a document is updated,
+						this.send(
+							JSON.stringify({
+								type: "crdt",
+								batch: [
+									[
+										s.ref,
+										s.state,
+										initlock.next().toString(),
+									],
+								],
+							})
+						);
+					}
+				});
+			}
+		});
+
+		socket.on("close", function () {
+			if (sub !== null) {
+				sub.unsubscribe();
+				sub = null;
+			}
+		});
+
+		socket.on("error", function () {
+			if (sub !== null) {
+				sub.unsubscribe();
+				sub = null;
+			}
+		});
+
+		// attack handler for the socket
+		router(
+			socket,
+			() => this,
+			{
+				mirror: () => mirrorStorage,
+				server: () => serverStore,
+				serverClock: initlock.next(),
+				crdtMsgCollection,
+			},
+			sb
+		);
+	});
+
+	wss.on("close", () => {
+		console.log("🔴 Disconnected!");
+	});
+
+	// Listening...
+	const port = process.env.PORT || 5005;
+	server.listen(port, () => {
+		console.log(`✅ Server Ready: http://localhost:${port}`);
+		console.log(`✨ Listening websocket: ${WS_CRDT_STATE_PATH}`);
+	});
+}
+
+Promise.all([publicLDB.open(), privateLDB.open()])
+	.then(() => runServer(publicLDB, privateLDB))
+	.catch((err) => {
+		console.log(
+			"Unable to open connect to either `PUBLIC` or `PRIVATE` store. Please fix this."
+		);
+		console.error(err);
+
+		// close stores
+		publicLDB.close();
+		privateLDB.close();
+	});
