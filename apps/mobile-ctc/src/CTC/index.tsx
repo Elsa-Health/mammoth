@@ -29,23 +29,15 @@ import ConcludeAssessmentScreen from './_screens/ConcludeAssessment';
 import uuid from 'react-native-uuid';
 
 import {ElsaProvider} from '../provider/backend';
-import {MedicaDisp, MedicaReq} from './emr/hook';
 import {ARV, Investigation, Medication as Med} from 'elsa-health-data-fns/lib';
 import {useWebSocket} from '../app/utils';
 
 import {withFlowContext} from '../@workflows/index';
 
-import {
-  doc,
-  setDoc,
-  Document,
-  getDocs,
-  setDocs,
-  onDocumentSnapshot,
-} from 'papai/collection';
+import {doc, setDoc, Document, getDocs, setDocs} from 'papai/collection';
 import {List} from 'immutable';
 import {ToastAndroid} from 'react-native';
-import _, {groupBy} from 'lodash';
+import _ from 'lodash';
 import {translatePatient} from './actions/translate';
 import {
   arv,
@@ -60,29 +52,21 @@ import {CTC} from './emr/types';
 import {ConfirmVisitModal, useVisit} from './actions/hook';
 import MedicationVisit from './_screens/MedicationVisit';
 import MedicationStock from './_screens/MedicationStock';
-import {
-  useAppointments,
-  useCollectionAsWorklet,
-  useStock,
-} from './emr/react-hooks';
+import {useAppointments, useStock, useEMRReport} from './emr/react-hooks';
 
 import * as Sentry from '@sentry/react-native';
 import {queryCollection} from './emr/actions';
 import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 import {convertDMYToDate, removeWhiteSpace} from './emr/utils';
-import {useEMRReport} from './emr/react-hooks/report';
 import {format, isAfter} from 'date-fns';
-import {EMRModule, getEMR, Seeding} from './emr/store';
+import {getEMR, onSnapshotUpdate, Seeding} from './emr/store';
 import {Ingredient, Medication, Stock} from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
 import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
 
 // Migration code
-import './emr/temp.migrate';
-import {onSnapshotUpdate} from './emr/subscribe';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Migration} from './emr/temp.migrate';
-import {groupByFn} from './_screens/MedicationStock/helpers';
 
 const Stack = createNativeStackNavigator();
 

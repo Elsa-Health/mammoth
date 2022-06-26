@@ -34,8 +34,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // ... seed
 import {seedStock} from './seed';
 import {Message, StateToken} from '../actions/sync';
-import {EMR} from './store_';
-import {store} from '../storage/personal';
 import {ElsaProvider} from '../../provider/backend';
 
 // reference mapping the state to the values
@@ -263,4 +261,49 @@ export async function Seeding(emr: EMRModule, org: CTC.Organization) {
       AsyncStorage.setItem(seedKey, JSON.stringify(true)),
     );
   });
+}
+
+/**
+ * Subscribe to the changes that are going on
+ * in the application
+ */
+
+import {addDoc} from 'papai/collection';
+import {CRDTState} from '../actions/socket';
+
+// set observable on document change
+const store = getStorage();
+store.documentObservable.subscribe(function (val) {
+  // ...
+  if (val.action === 'updated') {
+    addDoc(getCrdtCollection(), {
+      refOrigin: val.ref,
+      state: val.state,
+      clock: HybridLogicalClock.stringify(stateClock.next()),
+    });
+  }
+});
+
+// sync up the stores
+export function onSnapshotUpdate(
+  provider: ElsaProvider,
+  cb: (message: CRDTState) => void,
+) {
+  const {
+    facility: {ctcCode = 'UNKNOWN'},
+    user: {uid: userId},
+  } = provider.toJSON();
+  return onTrackStoreAddUpdateChanges(
+    getStorage(),
+    stateBox,
+    function (doc, state, clock) {
+      // ...
+      // console.log('Shout on change!');
+      cb({
+        type: 'crdt',
+        batch: [[doc, state, clock.toString()]],
+        source: {facility: ctcCode, userId},
+      });
+    },
+  );
 }
