@@ -1395,6 +1395,15 @@
     react-native-safe-area-context "^4.2.4"
     react-native-sectioned-multi-select "^0.9.1"
 
+"@elsa-ui/react-native@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@elsa-ui/react-native/-/react-native-0.1.2.tgz#912e79065f8a234172dfbcaff3a190ecf7b35b60"
+  integrity sha512-aGHCpbR8bLzBC3YTDj4VjBXB/+zJL7gKG5heNvBv8YDV8XZfIny4YuDNbBnvtiFMoSH+wbARanJQ51FEU1AR/w==
+  dependencies:
+    "@react-native-picker/picker" "^2.4.0"
+    immer "^9.0.12"
+    react-native-sectioned-multi-select "^0.9.1"
+
 "@emotion/is-prop-valid@^1.1.0":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@emotion/is-prop-valid/-/is-prop-valid-1.1.2.tgz#34ad6e98e871aa6f7a20469b602911b8b11b3a95"

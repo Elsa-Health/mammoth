@@ -24,6 +24,7 @@
 		]
 	},
 	"scripts": {
+		"w": "yarn workspace",
 		"build": "turbo run build",
 		"dev": "turbo run dev --parallel",
 		"lint": "turbo run lint",

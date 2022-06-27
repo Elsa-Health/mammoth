@@ -82,15 +82,6 @@ app.all("*", function getReplayResponse(req, res, next) {
 // http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
 app.disable("x-powered-by");
 
-/**
- * Paths to be used across the entire application
- */
-const WS_CRDT_STATE_PATH = "/ws/crdt/state";
-const wss = new WebSocketServer({
-	path: WS_CRDT_STATE_PATH,
-	server,
-});
-
 const initlock = new HybridLogicalClock(`elsa-edge-node-${nanoid(5)}`);
 // get the store with the entire copy of the databases
 // const mirrorStorage = getStore(KeyValueMapCollection(() => nanoid(24)));
@@ -139,6 +130,15 @@ async function runServer(publicInstance: Level, privateInstance: Level) {
 			);
 		})
 	);
+
+	/**
+	 * Paths to be used across the entire application
+	 */
+	const WS_CRDT_STATE_PATH = "/ws/crdt/state";
+	const wss = new WebSocketServer({
+		path: WS_CRDT_STATE_PATH,
+		server,
+	});
 
 	wss.on("connection", function (socket) {
 		console.log("🟢 Connected!");
@@ -234,8 +234,7 @@ Promise.all([publicLDB.open(), privateLDB.open()])
 			"Unable to open connect to either `PUBLIC` or `PRIVATE` store. Please fix this."
 		);
 		console.error(err);
-
-		// close stores
-		publicLDB.close();
-		privateLDB.close();
-	});
+	})
+	// close stores
+	.finally(() => publicLDB.close())
+	.finally(() => privateLDB.close());
