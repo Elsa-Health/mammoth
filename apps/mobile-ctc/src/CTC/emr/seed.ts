@@ -24,7 +24,7 @@ const singles = ARV.units.pairs().map(([arv, text]) =>
 );
 
 const comboArvMedications = (org: CTC.Organization) =>
-  ['TDF+3TC+DTG', 'ABC+3TC', 'AZT+3TC', 'TDF+FTC', 'TDF+FTC', 'AZT+3TC+NVP']
+  ['TDF+3TC+DTG', 'ABC+3TC', 'AZT+3TC', 'TDF+FTC', 'AZT+3TC+NVP']
     .map(d => ({
       text: d,
       id: _.kebabCase(d),

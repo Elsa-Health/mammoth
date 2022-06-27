@@ -141,7 +141,7 @@ export function useAppointments(emr: EMRModule) {
 
         if (dx !== undefined) {
           return {
-            requestId: d.appointmentDate,
+            requestId: d.id,
             originVisitId: d.visit?.id ?? null,
             requestDate: d.appointmentDate,
             responseDate: dx.createdAt,
@@ -153,7 +153,7 @@ export function useAppointments(emr: EMRModule) {
 
         // check va
         return {
-          requestId: d.appointmentDate,
+          requestId: d.id,
           originVisitId: d.visit?.id ?? null,
           requestDate: d.appointmentDate,
           responseDate: null,

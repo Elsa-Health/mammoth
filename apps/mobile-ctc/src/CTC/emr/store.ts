@@ -105,6 +105,10 @@ export const EMRModule = (
 
   // Create subscription
   onUpdateCollectionDocument(stock, function (d) {
+    // this becomes problematic as it's fire and forget
+    //  (no queueing of transactions or anything)
+
+    // You might need to rethink your storage options
     setDoc(doc(publicStock, `${ctcCode}$${d.id}`), {
       timestamp: new Date().toUTCString(),
       record: {
@@ -239,6 +243,7 @@ export async function Seeding(emr: EMRModule, org: CTC.Organization) {
 
 import {addDoc} from 'papai/collection';
 import {CRDTState} from '../actions/socket';
+import cons from 'gun';
 
 // set observable on document change
 const store = getStorage();

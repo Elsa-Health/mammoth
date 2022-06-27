@@ -60,7 +60,13 @@ import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 import {convertDMYToDate, removeWhiteSpace} from './emr/utils';
 import {format, isAfter} from 'date-fns';
 import {getEMR, onSnapshotUpdate, Seeding} from './emr/store';
-import {Ingredient, Medication, Stock} from '@elsa-health/emr';
+import {
+  AppointmentResponse,
+  Ingredient,
+  InvestigationRequest,
+  Medication,
+  Stock,
+} from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
 import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
 import type {Document} from 'papai/collection/types';
@@ -128,12 +134,18 @@ function App({
   );
 
   React.useEffect(() => {
+    queryCollection(Emr.collection('visits'))
+      .then(d => d.map(x => x.associatedAppointmentResponse))
+      .then(console.log);
+
     if (organization) {
       // Perform seeding for those new accounts
       Seeding(Emr, organization).then(() =>
         // include code to migrate over the records
         Migration(Emr),
       );
+    } else {
+      console.error("You don't have an organization");
     }
   }, [organization]);
 
@@ -211,8 +223,10 @@ function App({
 
   // Get web socket
   const {socket, status} = useWebSocket({
-    // url: 'wss://bounce-edge.fly.dev/ws/crdt/state',
-    url: 'wss://e784-197-250-61-138.eu.ngrok.io/ws/crdt/state',
+    url: `wss://${
+      __DEV__ ? 'e784-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
+    }/ws/crdt/state`,
+    // url: 'wss://e784-197-250-61-138.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
       // Connected
       if (socket.readyState === WebSocket.OPEN) {
@@ -352,15 +366,22 @@ function App({
                 return stock.medications?.toArray() ?? [];
               },
               async fetchAppointments() {
-                return appointments.appointments.filter(
+                const appts = appointments.appointments.filter(
                   d => d.type === 'not-responded',
                 );
+
+                return appts;
               },
               async complete(data, patient, organization) {
                 try {
                   // console.log('##### -2');
                   // create a medication request
-                  const {arvRegimens, medications, appointmentDate} = data;
+                  const {
+                    arvRegimens,
+                    medications,
+                    appointmentDate,
+                    appointmentId,
+                  } = data;
 
                   // ARV medication requests
                   const arvMedRqs = (arvRegimens ?? []).map(arvMedId =>
@@ -394,6 +415,22 @@ function App({
                   // prepare prescriptions
                   const prescriptions = [...arvMedRqs, ...standardMedRqs];
 
+                  const apptResp = AppointmentResponse({
+                    authorizingAppointmentRequest: {
+                      resourceType: 'Reference',
+                      resourceReferenced: 'AppointmentRequest',
+                      id: appointmentId,
+                    },
+                    id: `appt-resp:${uuid.v4()}`,
+                    actors: [reference(patient), reference(doctor)],
+                  });
+
+                  //
+                  await setDoc(
+                    doc(Emr.collection('appointment-responses'), apptResp.id),
+                    apptResp,
+                  );
+
                   // create a new visit
                   const visit: CTCVisit = {
                     id: `visit:${uuid.v4()}`,
@@ -402,7 +439,10 @@ function App({
                     subject: reference(patient),
                     practitioner: reference(doctor),
                     assessments: [],
-                    associatedAppointmentResponse: null,
+                    // saving as refernce.... but might need rethinking of how
+                    // we compute of the other values
+                    associatedAppointmentResponse:
+                      appointmentId !== null ? apptResp : null,
                     date: convertDMYToDate(data.dateOfVisit).toUTCString(),
                     createdAt: new Date().toUTCString(),
                     extendedData: data,
