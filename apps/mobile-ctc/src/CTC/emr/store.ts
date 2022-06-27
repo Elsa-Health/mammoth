@@ -13,6 +13,7 @@ import {
 import {Document} from 'papai/collection/types';
 import {HybridLogicalClock} from 'papai/distributed/clock';
 import {
+  onTrackNewStoreChanges,
   onTrackStoreAddUpdateChanges,
   StateTrackingBox,
 } from 'papai/distributed/store';
@@ -261,7 +262,7 @@ export function onSnapshotUpdate(
     facility: {ctcCode = 'UNKNOWN'},
     user: {uid: userId},
   } = provider.toJSON();
-  return onTrackStoreAddUpdateChanges(
+  return onTrackNewStoreChanges(
     getStorage(),
     stateBox,
     function (doc, state, clock) {

@@ -34,7 +34,7 @@ import {useWebSocket} from '../app/utils';
 
 import {withFlowContext} from '../@workflows/index';
 
-import {doc, setDoc, Document, getDocs, setDocs} from 'papai/collection';
+import {doc, setDoc, getDocs, setDocs} from 'papai/collection';
 import {List} from 'immutable';
 import {ToastAndroid} from 'react-native';
 import _ from 'lodash';
@@ -63,7 +63,7 @@ import {getEMR, onSnapshotUpdate, Seeding} from './emr/store';
 import {Ingredient, Medication, Stock} from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
 import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
-
+import type {Document} from 'papai/collection/types';
 // Migration code
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Migration} from './emr/temp.migrate';
@@ -212,18 +212,21 @@ function App({
   // Get web socket
   const {socket, status} = useWebSocket({
     // url: 'wss://bounce-edge.fly.dev/ws/crdt/state',
-    url: 'wss://a486-196-45-130-50.eu.ngrok.io/ws/crdt/state',
+    url: 'wss://e784-197-250-61-138.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
       // Connected
       if (socket.readyState === WebSocket.OPEN) {
         fetchCRDTMessages(provider).then(message => {
-          // console.log(s);
-          const s = JSON.stringify(message);
-          socket.send(s);
+          if (message !== null) {
+            // console.log(s);
+            const s = JSON.stringify(message);
+            socket.send(s);
+          }
         });
       }
     },
     onData(data) {
+      // console.log(`[${provider.facility.ctcCode ?? 'UNKNOWN'}]:`, data);
       // peform synchronization
       syncContentsFromSocket(data);
     },
@@ -318,7 +321,7 @@ function App({
             }),
           })}
         />
-
+        {/* 
         <Stack.Screen
           name="ctc.medication-stock-dashboard"
           component={withFlowContext(MedicationStockDashboardScreen, {
@@ -334,7 +337,7 @@ function App({
               // },
             }),
           })}
-        />
+        /> */}
         <Stack.Screen
           name="ctc.report-summary"
           component={withFlowContext(ReportSummaryScreen, {

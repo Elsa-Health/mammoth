@@ -38,11 +38,12 @@ export type StateSource = z.infer<typeof StateSource>;
 /**
  * Structure of the message
  */
-const StateMessage = z.object({
+export const StateMessage = z.object({
+  type: z.literal('crdt'),
   tokens: z.array(StateToken),
-  source: StateSource,
+  source: StateSource.optional(),
 });
-type StateMessage = z.infer<typeof StateMessage>;
+export type StateMessage = z.infer<typeof StateMessage>;
 // type StateCRDTMessage = [StateToken, StateSource];
 
 /**
@@ -54,12 +55,8 @@ export function mergeUp(stateBox: StateTrackingBox, msgs: any) {
   // merge the states:
 
   msgs
-    // validate the state messages
-    .map(o => StateMessage.parse(o))
     // write the state messages to the state box
-    .forEach(msg => {
-      // console.log(msg);
-      const [token, source] = msg;
+    .forEach(token => {
       const [ref_, data, clock] = token;
 
       // merge the contents of the

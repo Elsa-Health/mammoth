@@ -1,31 +1,12 @@
 /**
  * Actions associated with communicating information to the external store via socket
  */
-import invariant from 'invariant';
-import {HybridLogicalClock} from 'papai/distributed/clock';
-import {
-  onTrackStoreAddUpdateChanges,
-  StateTrackingBox,
-} from 'papai/distributed/store';
 import z from 'zod';
 
-import uuid from 'react-native-uuid';
-import {
-  addDoc,
-  Document,
-  getDocs,
-  onCollectionSnapshot,
-  onSnapshot,
-  setDocs,
-} from 'papai/collection';
-import {
-  EMRModule,
-  getCrdtCollection,
-  getPrivateStore,
-  getStorage,
-  stateBox,
-} from '../emr/store';
+import {getDocs} from 'papai/collection';
+import {getCrdtCollection, getStorage, stateBox} from '../emr/store';
 import {ElsaProvider} from '../../provider/backend';
+import {mergeUp, StateMessage, syncronize} from './sync';
 
 export const StockState = z.object({
   type: z.literal('stock'),
@@ -56,17 +37,22 @@ export type CRDTState = z.infer<typeof CRDTState>;
 /**
  * When receiving data associated with crdts
  */
-export function handleCRDTData(data: CRDTState, cb?: (err?: Error) => any) {
-  console.log('Received:', data);
-  // ...
-  // console.log('Sending to something...');
-  // Received data
-  // emr.merge(data);
-  // // console.log('Received data... merging');
-  // emr
-  //   .sync()
-  //   .then(() => console.log('Sync complete'))
-  //   .catch(() => console.log('Sync failed'));
+export function handleCRDTData(data: StateMessage, cb?: (err?: Error) => any) {
+  // console.log('Received:', data);
+
+  // merging the contents
+  mergeUp(stateBox, data.tokens);
+
+  // synchronize the contents
+  syncronize(stateBox, getStorage())
+    // .then(() => {
+    //   console.log('Done!');
+    //   // ...
+    // })
+    .catch(err => {
+      console.log('Sync failed!');
+      console.error(err);
+    });
 }
 
 const initValue = z.union([
@@ -88,7 +74,7 @@ export function syncContentsFromSocket(data: any) {
   }
 
   if (usable.type === 'crdt') {
-    handleCRDTData(CRDTState.parse(data));
+    handleCRDTData(StateMessage.parse(data));
     return;
   }
 
@@ -99,6 +85,11 @@ export function syncContentsFromSocket(data: any) {
 const crdtCollection = getCrdtCollection();
 export async function fetchCRDTMessages(provider: ElsaProvider) {
   const d = await getDocs(crdtCollection);
+
+  if (d.length === 0) {
+    return null;
+  }
+
   const {
     facility: {ctcCode = 'UNKNOWN'},
     user: {uid: userId},

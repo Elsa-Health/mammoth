@@ -103,16 +103,38 @@ function handleCRDTEvent(
 	// update the sate box with the inforamtion to match the contents
 	const { batch, source } = state;
 
-	// have steps to
-	// re-create the stores of the messages received
-	// -----
-
 	// 1. create the state box for the data
 	batch.forEach(([ref, data, clock]) => {
 		statebox.append(ref, data, HybridLogicalClock.parse(clock));
 	});
 
-	// 1. denote where the change was recorded
+	// 0 . prepare statebox for output
+
+	const bt = Array.from(statebox.latest()).map(([ref, data, clock]) => [
+		ref,
+		data,
+		clock.toString(),
+	]);
+
+	// have steps to
+	// re-create the stores of the messages received
+	// -----
+	server().clients.forEach((client) => {
+		if (client.readyState === WebSocket.OPEN) {
+			if (client !== socket) {
+				client.send(
+					// send message to other clients
+					JSON.stringify({
+						type: "crdt",
+						// source: { /* information here... */ }
+						tokens: bt,
+					})
+				);
+			}
+		}
+	});
+
+	// 2. denote where the change was recorded
 	//  by showing who did what to which record
 	const activityLogCollection = collection(store.server(), "activity-log");
 	addDoc(activityLogCollection, {
@@ -121,8 +143,8 @@ function handleCRDTEvent(
 		records: batch.map((d) => d[0]), // list of record affected by the chnage
 	})
 		.then(() =>
-			// 2. update the server's state box
-			updateChangesToStore(store.mirror(), statebox).then((d) => {})
+			// 3. update the server's state box
+			updateChangesToStore(store.mirror(), statebox)
 		)
 		.then(() => {
 			// 3. store the messages needed later for sharing
@@ -137,5 +159,6 @@ function handleCRDTEvent(
 					}))
 					.toArray()
 			);
-		});
+		})
+		.then((our) => {});
 }

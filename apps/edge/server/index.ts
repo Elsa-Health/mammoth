@@ -163,6 +163,7 @@ async function runServer(publicInstance: Level, privateInstance: Level) {
 			);
 
 			if (sub === null) {
+				console.log("Subbed on open");
 				// add subscription to listen to document changes
 				sub = mirrorStorage.documentObservable.subscribe((s) => {
 					if (s.action === "updated") {
@@ -186,6 +187,7 @@ async function runServer(publicInstance: Level, privateInstance: Level) {
 
 		socket.on("close", function () {
 			if (sub !== null) {
+				console.log("Unsubbed via close");
 				sub.unsubscribe();
 				sub = null;
 			}
@@ -193,6 +195,7 @@ async function runServer(publicInstance: Level, privateInstance: Level) {
 
 		socket.on("error", function () {
 			if (sub !== null) {
+				console.log("Unsubbed via error");
 				sub.unsubscribe();
 				sub = null;
 			}
