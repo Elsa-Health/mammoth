@@ -7,7 +7,7 @@ import {StockRecord} from '@elsa-health/emr/health.types/v1';
 
 import uuid from 'react-native-uuid';
 import _ from 'lodash';
-import {clearCollection, setDocs} from 'papai/collection';
+import {clearCollection, getDocs, setDocs} from 'papai/collection';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {EMRModule} from './store';
 /**
@@ -75,9 +75,16 @@ export const stock = (org: CTC.Organization) => [
   ...comboArvMedications(org),
 ];
 
+/// seeds only those medications that haven't been created for
 export const seedStock = async (emr: EMRModule, org: CTC.Organization) => {
+  const stockColl = emr.collection('stock');
+
+  const s = (await getDocs(stockColl)).map(d => d[1].medication);
+  console.log(s);
   await setDocs(
-    emr.collection('stock'),
-    stock(org).map(d => [d.id, d]),
+    stockColl,
+    stock(org)
+      .filter(d => s.findIndex(x => _.isEqual(x, d)) === -1)
+      .map(d => [d.id, d]),
   );
 };
