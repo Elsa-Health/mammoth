@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@elsa-health/emr": "*",
-    "@elsa-ui/react-native": "../elsa-health-ui/packages/react-native-ui",
-    "@elsa-ui/react-native-workflows": "../elsa-health-ui/packages/react-native-workflows",
+    "@elsa-ui/react-native": "^0.1.0",
+    "@elsa-ui/react-native-workflows": "^0.1.2",
     "@gorhom/bottom-sheet": "^4",
     "@react-native-async-storage/async-storage": "^1.15.11",
     "@react-native-community/checkbox": "^0.5.9",

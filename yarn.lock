@@ -1370,8 +1370,10 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
-"@elsa-ui/react-native-workflows@../elsa-health-ui/packages/react-native-workflows":
-  version "0.1.0"
+"@elsa-ui/react-native-workflows@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@elsa-ui/react-native-workflows/-/react-native-workflows-0.1.2.tgz#292f7283f724be4d935c5e097778399d0af4ac11"
+  integrity sha512-/O2jCLrvptfAirA14MvCIZl64Qp0vwxcqW5Ol7+JbGfTKoGjCZ6siMGoWHoi3C5nkfnViZvmi9EKu4/a5tfHDA==
   dependencies:
     "@elsa-ui/react-native" latest
     "@react-navigation/native" "^6.0.10"
@@ -1382,13 +1384,6 @@
     immer "^9.0.12"
     react-i18next "^11.16.9"
     zustand "^3.6.0"
-
-"@elsa-ui/react-native@../elsa-health-ui/packages/react-native-ui":
-  version "0.1.0"
-  dependencies:
-    "@react-native-picker/picker" "^2.4.0"
-    immer "^9.0.12"
-    react-native-sectioned-multi-select "^0.9.1"
 
 "@elsa-ui/react-native@^0.1.0", "@elsa-ui/react-native@latest":
   version "0.1.0"
@@ -12140,9 +12135,9 @@ follow-redirects@^1.0.0, follow-redirects@^1.14.4:
   integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==
 
 follow-redirects@^1.14.9:
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.0.tgz#06441868281c86d0dda4ad8bdaead2d02dca89d4"
-  integrity sha512-aExlJShTV4qOUOL7yF1U5tvLCB0xQuudbf6toyYA0E/acBNw71mvjFTnLaRp50aQaYocMR0a/RMMBIHeZnGyjQ==
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.1.tgz#0ca6a452306c9b276e4d3127483e29575e207ad5"
+  integrity sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==
 
 for-each@^0.3.3:
   version "0.3.3"
@@ -12979,9 +12974,9 @@ i18next@^21.4.0:
     "@babel/runtime" "^7.17.2"
 
 i18next@^21.8.3:
-  version "21.8.4"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.8.4.tgz#646e23065752036b38d9fda8898c18139b9e8ebe"
-  integrity sha512-b3LQ5n9V1juu8UItb5x1QTI4OTvNqsNs/wetwQlBvfijEqks+N5HKMKSoevf8w0/RGUrDQ7g4cvVzF8WBp9pUw==
+  version "21.8.11"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.8.11.tgz#197aac04be51b7083999a2cb63deb831cf1ba4c8"
+  integrity sha512-+s8N6kQShwNK+Ua/+VsS/Sji24NUJJLBk9QIucygj1f97f4hPNDWmLP9fQCI4d5+XLfXJ3JctX4g+zJla967Vw==
   dependencies:
     "@babel/runtime" "^7.17.2"
 
@@ -17828,9 +17823,9 @@ react-i18next@^11.13.0:
     html-parse-stringify "^3.0.1"
 
 react-i18next@^11.16.9:
-  version "11.16.9"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.16.9.tgz#890cdac0c49120e075d6c520b43dbad3f91bd2df"
-  integrity sha512-euXxWvcEAvsY7ZVkwx9ztCq4butqtsGHEkpkuo0RMj8Ru09IF9o2KxCyN+zyv51Nr0aBh/elaTIiR6fMb8YfVg==
+  version "11.17.3"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.17.3.tgz#eff742f162f1a413056fb510e8b830d42c8c020d"
+  integrity sha512-rIrLl5cLDoHdXFWdjKurRpatA3MPC9j3yTZidv0GmJEea5+XGXl42p7NupA1dmghoLGOXllShNUobgPYtgEcRA==
   dependencies:
     "@babel/runtime" "^7.14.5"
     html-escaper "^2.0.2"
