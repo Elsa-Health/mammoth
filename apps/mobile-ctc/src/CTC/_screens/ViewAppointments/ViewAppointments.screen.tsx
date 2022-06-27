@@ -122,13 +122,13 @@ function AppointmentItem(props: Appointment) {
             </TitledItem>
           )}
         </View>
-        {props.type === 'not-responded' && upcoming && (
+        {/* {props.type === 'not-responded' && upcoming && (
           <Item spaceTop>
             <Button mode="contained" icon="paperclip" onPress={() => {}}>
               Attend
             </Button>
           </Item>
-        )}
+        )} */}
       </Row>
     </>
   );
