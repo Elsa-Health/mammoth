@@ -8,16 +8,19 @@ import { createServer } from "http";
 
 import { router } from "./routes/socket";
 import { WebSocketServer } from "ws";
-import { collection, getDocs, getStore, onSnapshot } from "papai/collection";
-import KeyValueMapCollection from "papai/stores/collection/KeyValueMap";
-import { StateTrackingBox } from "papai/distributed/store";
-
-import { nanoid } from "nanoid";
+import { getDocs } from "papai/collection";
 import { HybridLogicalClock } from "papai/distributed/clock";
-import { FileSystemCollection } from "./store/fs-collection";
-import { Subscription } from "rxjs";
-import { Level } from "level";
-import { LevelDBCollection } from "./store/level-collection";
+
+import * as trpcE from "@trpc/server/adapters/express";
+
+import {
+	dbRouter,
+	createContext,
+	collectionRouter,
+	createCollectionContext,
+} from "./routes/collections-api";
+import { applyInitialSocketSubscription } from "./subscription";
+import { ServerDB, crdtMsgCollection } from "./store";
 
 const app = express();
 const server = createServer(app);
@@ -25,14 +28,26 @@ const server = createServer(app);
 // attach as missdle
 app.use(express.json());
 
-app.use((req, res, next) => {
-	// somethin here
-	next();
-});
-
 // Might want to change this to
 // filter incoming requests from devices later on
 app.use(cors({ origin: "*" }));
+
+// endpoint concerned with managing collecion endpoints
+app.use(
+	"/db",
+	trpcE.createExpressMiddleware({
+		router: dbRouter,
+		createContext,
+	})
+);
+
+app.use(
+	"/collection/:collectionName",
+	trpcE.createExpressMiddleware({
+		router: collectionRouter,
+		createContext: createCollectionContext,
+	})
+);
 
 // ported from remix blue-stack
 app.use((req, res, next) => {
@@ -84,155 +99,56 @@ app.disable("x-powered-by");
  * Paths to be used across the entire application
  */
 const WS_CRDT_STATE_PATH = "/ws/crdt/state";
-const wss = new WebSocketServer({
+const webSocketServer = new WebSocketServer({
 	path: WS_CRDT_STATE_PATH,
 	server,
 });
 
-const initlock = new HybridLogicalClock(`elsa-edge-node-${nanoid(5)}`);
-// get the store with the entire copy of the databases
-// const mirrorStorage = getStore(KeyValueMapCollection(() => nanoid(24)));
+ServerDB.open()
+	.then(() =>
+		// Initialize the wbsocket server
+		applyInitialSocketSubscription(
+			ServerDB.clock,
+			webSocketServer,
+			ServerDB.public(),
+			ServerDB.statebox
+		)
+	)
+	.then(() => {
+		// do server stuff
+		// ----------
 
-// configuration for initing the dbs
-const opts = {
-	createIfMissing: true,
-	errorIfExists: false,
-	valueEncoding: "json",
-	keyEncoding: "utf8",
-	compression: true,
-};
-
-const publicLDB = new Level("./server-publicdb-volume", { ...opts });
-const privateLDB = new Level("./server-privatedb-volume", {
-	...opts,
-	prefix: "$",
-});
-
-async function runServer(publicInstance: Level, privateInstance: Level) {
-	const mirrorStorage = getStore(LevelDBCollection(publicInstance, nanoid));
-
-	// store that hold information that's useful to the server
-	// this includes information like crdt messages received + sources of the data received.
-	const serverStore = getStore(LevelDBCollection(privateInstance, nanoid));
-
-	// statebox, that syncronizes changes
-	const sb = new StateTrackingBox(
-		initlock,
-		(d) => `${d.collectionId}$${d.documentId}`
-	);
-	// note to collect the CRDT messages collected over time
-	const crdtMsgCollection = collection<{
-		ref: any;
-		state: any;
-		clock: string;
-	}>(serverStore, "crdt-messages-log");
-
-	// 1. Prepopulate the state box with previously stored messages if any
-	getDocs(crdtMsgCollection).then((d) =>
-		d.map(([_, r]) => {
-			sb.append(
-				r.ref,
-				r.state,
-				HybridLogicalClock.parse(r.clock as string)
-			);
-		})
-	);
-
-	wss.on("connection", function (socket) {
-		console.log("🟢 Connected!");
-
-		let sub: Subscription | null = null;
-
-		// when device connected send data
-		socket.on("open", function () {
-			// when new device is connected...
-			// send out the values that are syncable
-			this.send(
-				JSON.stringify({
-					type: "crdt",
-					batch: Array.from(sb.latest()).map(
-						([ref, state, clock]) => ({
-							ref,
-							state,
-							clock: clock.toString(),
-						})
-					),
-				})
-			);
-
-			if (sub === null) {
-				console.log("Subbed on open");
-				// add subscription to listen to document changes
-				sub = mirrorStorage.documentObservable.subscribe((s) => {
-					if (s.action === "updated") {
-						// when a document is updated,
-						this.send(
-							JSON.stringify({
-								type: "crdt",
-								batch: [
-									[
-										s.ref,
-										s.state,
-										initlock.next().toString(),
-									],
-								],
-							})
-						);
-					}
-				});
-			}
-		});
-
-		socket.on("close", function () {
-			if (sub !== null) {
-				console.log("Unsubbed via close");
-				sub.unsubscribe();
-				sub = null;
-			}
-		});
-
-		socket.on("error", function () {
-			if (sub !== null) {
-				console.log("Unsubbed via error");
-				sub.unsubscribe();
-				sub = null;
-			}
-		});
-
-		// attack handler for the socket
-		router(
-			socket,
-			() => this,
-			{
-				mirror: () => mirrorStorage,
-				server: () => serverStore,
-				serverClock: initlock.next(),
-				crdtMsgCollection,
-			},
-			sb
+		// 1. Prepopulate the state box with previously stored messages if any
+		getDocs(crdtMsgCollection).then((d) =>
+			d.map(([_, r]) => {
+				ServerDB.statebox.append(
+					r.ref,
+					r.state,
+					HybridLogicalClock.parse(r.clock as string)
+				);
+			})
 		);
-	});
 
-	wss.on("close", () => {
-		console.log("🔴 Disconnected!");
-	});
-
-	// Listening...
-	const port = process.env.PORT || 5005;
-	server.listen(port, () => {
-		console.log(`✅ Server Ready: http://localhost:${port}`);
-		console.log(`✨ Listening websocket: ${WS_CRDT_STATE_PATH}`);
-	});
-}
-
-Promise.all([publicLDB.open(), privateLDB.open()])
-	.then(() => runServer(publicLDB, privateLDB))
-	.catch((err) => {
-		console.log(
-			"Unable to open connect to either `PUBLIC` or `PRIVATE` store. Please fix this."
-		);
-		console.error(err);
+		webSocketServer.on("connection", function (socket) {
+			// attack handler for the socket
+			router(
+				socket,
+				() => this,
+				{
+					mirror: ServerDB.public,
+					server: ServerDB.private,
+					serverClock: ServerDB.clock.next(),
+					crdtMsgCollection,
+				},
+				ServerDB.statebox
+			);
+		});
+		// ready listen
+		const port = process.env.PORT || 5005;
+		server.listen(port, () => {
+			console.log(`✅ Server Ready: http://localhost:${port}`);
+			console.log(`✨ Listening websocket: ${WS_CRDT_STATE_PATH}`);
+		});
 	})
-	// close stores
-	.finally(() => publicLDB.close())
-	.finally(() => privateLDB.close());
+	.catch(console.error)
+	.catch(() => ServerDB.close());

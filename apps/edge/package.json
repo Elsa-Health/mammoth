@@ -1,5 +1,5 @@
 {
-	"name": "elsa-edge",
+	"name": "edge",
 	"version": "0.1.0",
 	"license": "ISC",
 	"description": "",
@@ -30,7 +30,9 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^3.14.0",
+		"@trpc/server": "^9.25.3",
 		"cors": "^2.8.5",
+		"date-fns": "^2.28.0",
 		"dotenv": "^16.0.1",
 		"express": "^4.17.3",
 		"express-ws": "^5.0.2",
@@ -44,6 +46,7 @@
 		"object-hash": "^3.0.0",
 		"papai": "^0.2.1",
 		"rxjs": "^7.5.4",
+		"superjson": "^1.9.1",
 		"tiny-invariant": "^1.2.0",
 		"ws": "^8.5.0",
 		"zod": "^3.17.3"
