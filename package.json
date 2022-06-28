@@ -20,6 +20,10 @@
 			"**/tiny-invariant/**",
 			"**/@elsa-health/emr/",
 			"**/@elsa-health/emr/**",
+			"**/@elsa-ui/react-native/",
+			"**/@elsa-ui/react-native/**",
+			"**/@elsa-ui/react-native-workflows/",
+			"**/@elsa-ui/react-native-workflows/**",
 			"**/dotenv/",
 			"**/zod/"
 		]

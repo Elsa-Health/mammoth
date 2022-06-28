@@ -1276,10 +1276,10 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
-"@elsa-ui/react-native-workflows@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@elsa-ui/react-native-workflows/-/react-native-workflows-0.1.2.tgz#292f7283f724be4d935c5e097778399d0af4ac11"
-  integrity sha512-/O2jCLrvptfAirA14MvCIZl64Qp0vwxcqW5Ol7+JbGfTKoGjCZ6siMGoWHoi3C5nkfnViZvmi9EKu4/a5tfHDA==
+"@elsa-ui/react-native-workflows@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@elsa-ui/react-native-workflows/-/react-native-workflows-0.2.0.tgz#2b23e2b4abf1f48b09c2e24b5f2deef354aa3e96"
+  integrity sha512-jxofE2XX83B2f8cC7RpTITgYzfZg08xYi38pp6E74x2vtex1ggmy+RiGkilIzUauYeKlnrrBrqQgDu2YTU3kiA==
   dependencies:
     "@elsa-ui/react-native" latest
     "@react-navigation/native" "^6.0.10"
@@ -1291,10 +1291,19 @@
     react-i18next "^11.16.9"
     zustand "^3.6.0"
 
-"@elsa-ui/react-native@^0.1.0", "@elsa-ui/react-native@^0.1.2", "@elsa-ui/react-native@latest":
+"@elsa-ui/react-native@^0.1.0", "@elsa-ui/react-native@latest":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@elsa-ui/react-native/-/react-native-0.1.2.tgz#912e79065f8a234172dfbcaff3a190ecf7b35b60"
   integrity sha512-aGHCpbR8bLzBC3YTDj4VjBXB/+zJL7gKG5heNvBv8YDV8XZfIny4YuDNbBnvtiFMoSH+wbARanJQ51FEU1AR/w==
+  dependencies:
+    "@react-native-picker/picker" "^2.4.0"
+    immer "^9.0.12"
+    react-native-sectioned-multi-select "^0.9.1"
+
+"@elsa-ui/react-native@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@elsa-ui/react-native/-/react-native-0.2.0.tgz#ed7081556c28574d4186ce70df0a2af28f9be560"
+  integrity sha512-8cgNe1rCOX8KAKKYIwCZFroejWSRPR0PFdyirDFED9hN/3jhl/c8vsCvHzpoCtlLkqBRWROEobF1Sq0g4qqzIg==
   dependencies:
     "@react-native-picker/picker" "^2.4.0"
     immer "^9.0.12"
