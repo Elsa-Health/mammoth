@@ -30,13 +30,13 @@ import uuid from 'react-native-uuid';
 
 import {ElsaProvider} from '../provider/backend';
 import {ARV, Investigation, Medication as Med} from 'elsa-health-data-fns/lib';
-import {useWebSocket} from '../app/utils';
+import {NetworkStatus, useWebSocket} from '../app/utils';
 
 import {withFlowContext} from '../@workflows/index';
 
 import {doc, setDoc, getDocs, setDocs} from 'papai/collection';
 import {List} from 'immutable';
-import {ToastAndroid} from 'react-native';
+import {ToastAndroid, View} from 'react-native';
 import _ from 'lodash';
 import {translatePatient} from './actions/translate';
 import {
@@ -73,6 +73,8 @@ import type {Document} from 'papai/collection/types';
 // Migration code
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Migration} from './emr/temp.migrate';
+import {TouchableRipple} from 'react-native-paper';
+import {Text} from '@elsa-ui/react-native/components';
 
 const Stack = createNativeStackNavigator();
 
@@ -222,9 +224,9 @@ function App({
   // -------------------------------------
 
   // Get web socket
-  const {socket, status} = useWebSocket({
+  const {socket, status, retry} = useWebSocket({
     url: `wss://${
-      __DEV__ ? 'e784-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
+      __DEV__ ? 'f7ca-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
     }/ws/crdt/state`,
     // url: 'wss://e784-197-250-61-138.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
@@ -269,6 +271,8 @@ function App({
 
   return (
     <>
+      <ConnectionStatus status={status} retry={retry} />
+
       <Stack.Navigator
         // initialRouteName="ctc.view-appointments"
         screenOptions={{
@@ -1095,7 +1099,6 @@ function App({
           })}
         />
       </Stack.Navigator>
-      {/* <ConnectionStatus status={status} retry={retry} /> */}
       <ConfirmVisitModal
         visible={show}
         context={context}
@@ -1113,41 +1116,41 @@ function App({
   );
 }
 
-// function ConnectionStatus({
-//   status,
-//   retry,
-// }: {
-//   status: NetworkStatus;
-//   retry: () => void;
-// }) {
-//   return (
-//     <TouchableRipple
-//       onPress={status === 'error' || status === 'offline' ? retry : undefined}>
-//       <View
-//         style={{
-//           backgroundColor:
-//             status === 'connecting'
-//               ? '#CCC'
-//               : status === 'offline'
-//               ? '#EEE'
-//               : status === 'online'
-//               ? '#4665af'
-//               : '#F00',
+function ConnectionStatus({
+  status,
+  retry,
+}: {
+  status: NetworkStatus;
+  retry: () => void;
+}) {
+  return (
+    <TouchableRipple
+      onPress={status === 'error' || status === 'offline' ? retry : undefined}>
+      <View
+        style={{
+          backgroundColor:
+            status === 'connecting'
+              ? '#CCC'
+              : status === 'offline'
+              ? '#EEE'
+              : status === 'online'
+              ? '#4665af'
+              : '#F00',
 
-//           paddingVertical: 2,
-//         }}>
-//         <Text
-//           size="sm"
-//           font="medium"
-//           style={{textAlign: 'center'}}
-//           color={status === 'online' || status === 'error' ? '#FFF' : '#000'}>
-//           {_.capitalize(status)}{' '}
-//           {(status === 'error' || status === 'offline') && 'Reconnect?'}
-//         </Text>
-//       </View>
-//     </TouchableRipple>
-//   );
-// }
+          paddingVertical: 2,
+        }}>
+        <Text
+          size="sm"
+          font="medium"
+          style={{textAlign: 'center'}}
+          color={status === 'online' || status === 'error' ? '#FFF' : '#000'}>
+          {_.capitalize(status)}{' '}
+          {(status === 'error' || status === 'offline') && 'Reconnect?'}
+        </Text>
+      </View>
+    </TouchableRipple>
+  );
+}
 
 export default function (props: {provider: ElsaProvider}) {
   return <App {...props} />;
