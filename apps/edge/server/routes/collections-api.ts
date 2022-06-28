@@ -50,7 +50,9 @@ export const dbRouter = trpc
 				version: "v0",
 				"edge-name": name,
 				startedAt: startTime.toUTCString(),
-				startAtInEnglish: formatDistanceToNow(startTime),
+				startAtInEnglish: `Started ${formatDistanceToNow(
+					startTime
+				)} ago`,
 			};
 		},
 	})
@@ -60,7 +62,7 @@ export const dbRouter = trpc
 			const set = await db.collections();
 
 			return {
-				message: "List of collections",
+				message: "List of collections to read from",
 				data: Array.from(set).map((d) => d.collectionId),
 			};
 		},
@@ -70,17 +72,33 @@ export const dbRouter = trpc
  * Endpoint
  * URL: /db/collection/:collection
  */
-export const collectionRouter = trpc.router<CollectionContext>().query("data", {
-	async resolve(req) {
-		// ...
-		const db = ServerDB.public();
-		const { startTime } = ServerDB.server;
-		return {
-			message: `Collected from ${formatDistanceToNow(startTime)}`,
-			data: Array.from(await query(collection(db, req.ctx.collection))),
-		};
-	},
-});
+export const collectionRouter = trpc
+	.router<CollectionContext>()
+	.query("", {
+		async resolve(req) {
+			// get data summary
+			const db = ServerDB.public();
+			const out = await query(collection(db, req.ctx.collection));
+
+			return {
+				recordSize: out.count(),
+				message: `Summary of collection/${req.ctx.collection}`,
+			};
+		},
+	})
+	.query("data", {
+		async resolve(req) {
+			// ...
+			const db = ServerDB.public();
+			const { startTime } = ServerDB.server;
+			return {
+				message: `Server started ${formatDistanceToNow(startTime)} ago`,
+				data: Array.from(
+					await query(collection(db, req.ctx.collection))
+				),
+			};
+		},
+	});
 
 export type DBRouter = trpc.inferRouterContext<typeof dbRouter>;
 export type CollectionRouter = trpc.inferRouterContext<typeof collectionRouter>;
