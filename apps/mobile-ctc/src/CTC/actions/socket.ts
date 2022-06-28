@@ -45,6 +45,7 @@ export function handleCRDTData(data: StateMessage, cb?: (err?: Error) => any) {
 
   // synchronize the contents
   syncronize(stateBox, getStorage())
+    .then(() => console.log('Change sync completed!'))
     // .then(() => {
     //   console.log('Done!');
     //   // ...
