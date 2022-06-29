@@ -34,6 +34,7 @@
 		"dev": "turbo run dev --parallel",
 		"lint": "turbo run lint",
 		"test": "turbo run test",
+		"build-android": "turbo run android --parallel",
 		"coverage": "turbo run coverage",
 		"coverage:ci": "turbo run coverage:ci",
 		"clean": "yarn clean:turbo && yarn clean:watchman",

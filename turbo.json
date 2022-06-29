@@ -2,7 +2,7 @@
 	"pipeline": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": ["dist/**", ".next/**", "local/**", "remote/**"]
+			"outputs": ["dist/**", ".next/**"]
 		},
 		"test": {
 			"dependsOn": ["^test"]
@@ -23,6 +23,9 @@
 		},
 		"dev": {
 			"cache": false
+		},
+		"android": {
+			"outputs": ["android/build/**", "android/app/build/**"]
 		}
 	},
 	"globalDependencies": ["$GITHUB_TOKEN"]
