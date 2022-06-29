@@ -1,8 +1,7 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: build-project
-
+name: build
 on:
     push:
         branches: [main, dev]
@@ -10,15 +9,17 @@ on:
         branches: [main, dev]
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-
+    build:
+        name: Build on Node ${{ matrix.node }} and ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                node-version: [16.x]
+                node: ["14.x"]
+                os: [ubuntu-latest, windows-latest]
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v2
               with:
@@ -27,13 +28,9 @@ jobs:
             - name: Install deps and build (with cache)
               run: yarn
 
-            - name: Build apps
+            - name: Build for ${{ matrix.project }} android app
               run:
-                  - yarn build-mobile
-    finish:
-        needs: test
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                node: [16.x]
-                os: [ubuntu-latest]
+                  - cd apps/${{ matrix.project }}/android && ./gradlew assembleRelease
+              strategy:
+                  matrix:
+                      project: ["mobile-ctc", "mobile-addo", "mobile-providers"]
