@@ -19,7 +19,7 @@ import SectionedMultiSelect, {
 import {useAsyncRetry} from 'react-use';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {format} from 'date-fns';
+import {format, isBefore} from 'date-fns';
 import TextInputMask from 'react-native-text-input-mask';
 import {useController, Validate, ValidateResult} from 'react-hook-form';
 
@@ -535,23 +535,49 @@ export function isDateFormatValid(date: string): boolean {
   return isValidDate;
 }
 
+export function dateFromDDMMYYYY(date: string): Date {
+  return dayjs(date, 'DD / MM / YYYY', true).toDate();
+}
+
 export function ControlDateInput({
   control,
   name,
   mode = 'outlined',
   required = false,
+  dateTimeProps,
 }: {
   control: any;
   name: string;
   mode?: 'outlined' | 'flat';
   required?: boolean;
+  dateTimeProps?: Partial<{
+    minDate: Date;
+    maxDate: Date;
+  }>;
 }) {
   const {field, fieldState} = useController({
     control,
     name,
     rules: {
-      required,
-      validate: isDateFormatValid,
+      required: {value: required, message: 'Date is required'},
+      validate: (date: string) => {
+        const dateFormat = isDateFormatValid(date);
+
+        if (!dateFormat) {
+          return 'Date must be in a proper DD / MM / YYYY';
+        }
+
+        const dateObj = dateFromDDMMYYYY(date);
+        const {minDate, maxDate} = dateTimeProps || {};
+
+        if (minDate !== undefined && isBefore(dateObj, minDate))
+          return `Should start from ${format(minDate, 'dd / MM / yyyy')}`;
+
+        if (maxDate !== undefined && isBefore(maxDate, dateObj))
+          return `Should not exceed from ${format(maxDate, 'dd / MM / yyyy')}`;
+
+        return true;
+      },
     },
   });
 
@@ -569,19 +595,14 @@ export function ControlDateInput({
             value={field.value}
             onChangeText={field.onChange}
             placeholder="DD / MM / YYYY"
-            keyboardType="numbers-and-punctuation"
+            keyboardType="numeric"
             render={props => (
               // @ts-ignore
               <TextInputMask {...props} mask="[00] / [00] / [0000]" />
             )}
           />
-          {Boolean(fieldState.error?.type === 'required') && (
-            <HelperText type="error">Date is required</HelperText>
-          )}
-          {Boolean(fieldState.error?.type === 'validate') && (
-            <HelperText type="error">
-              Date must be in a proper DD / MM / YYYY
-            </HelperText>
+          {fieldState.error && (
+            <HelperText type="error">{fieldState.error.message}</HelperText>
           )}
         </Column>
         <IconButton icon="calendar" onPress={() => setShow(true)} />
@@ -591,6 +612,8 @@ export function ControlDateInput({
         <DateTimePicker
           style={{flex: 1}}
           value={lastChosenDate}
+          maximumDate={dateTimeProps?.maxDate}
+          minimumDate={dateTimeProps?.minDate}
           display="calendar"
           onChange={(e, date) => {
             set(date);

@@ -166,7 +166,10 @@ export declare namespace CTC {
     investigationId: Investigation;
     obj: InvestigationTypeRecord<string> | null;
   }>;
-  export type InvestigationResult = t.InvestigationResult<InvestigationRequest>;
+  export type InvestigationResult = t.InvestigationResult<
+    t.P.Data,
+    InvestigationRequest
+  >;
 
   /**
    * Appointment
@@ -177,6 +180,20 @@ export declare namespace CTC {
     AppointmentRequest,
     Patient | Doctor
   >;
+
+  /**
+   * Reports
+   */
+  namespace Report {
+    type MissedAppointment = t.Report<
+      'missed',
+      {
+        missedDate: t.P.YYYYMMDDDateString;
+        reason: Nullable<string>;
+      },
+      'appointment-report'
+    >;
+  }
 
   /**
    * Visit

@@ -15,6 +15,7 @@ import ViewInvestigationScreen from './_screens/ViewInvestigation';
 
 import MedicationMapScreen from './_screens/MedicationMap';
 import RegisterNewPatientScreen from './_screens/RegisterNewPatient';
+import ReportMissedAppointmentScreen from './_screens/ReportMissedAppointment';
 
 import MedicationDispenseScreen from './_screens/MedicationDispense';
 import MedicationRequestScreen from './_screens/MedicationRequest';
@@ -32,9 +33,17 @@ import {ElsaProvider} from '../provider/backend';
 import {ARV, Investigation, Medication as Med} from 'elsa-health-data-fns/lib';
 import {NetworkStatus, useWebSocket} from '../app/utils';
 
-import {withFlowContext} from '../@workflows/index';
+import {withFlowContext} from '@elsa-ui/react-native-workflows';
 
-import {doc, setDoc, getDocs, setDocs} from 'papai/collection';
+import {
+  doc,
+  setDoc,
+  getDocs,
+  setDocs,
+  query,
+  addDocs,
+  addDoc,
+} from 'papai/collection';
 import {List} from 'immutable';
 import {ToastAndroid, View} from 'react-native';
 import _ from 'lodash';
@@ -61,10 +70,13 @@ import {convertDMYToDate, removeWhiteSpace} from './emr/utils';
 import {format, isAfter} from 'date-fns';
 import {getEMR, onSnapshotUpdate, Seeding} from './emr/store';
 import {
+  AppointmentRequest,
   AppointmentResponse,
   Ingredient,
   InvestigationRequest,
   Medication,
+  Patient,
+  Report,
   Stock,
 } from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
@@ -136,9 +148,9 @@ function App({
   );
 
   React.useEffect(() => {
-    queryCollection(Emr.collection('visits'))
-      .then(d => d.map(x => x.associatedAppointmentResponse))
-      .then(console.log);
+    // queryCollection(Emr.collection('visits'))
+    //   .then(d => d.map(x => x.associatedAppointmentResponse))
+    //   .then(console.log);
 
     if (organization) {
       // Perform seeding for those new accounts
@@ -149,7 +161,7 @@ function App({
     } else {
       console.error("You don't have an organization");
     }
-  }, [organization]);
+  }, [organization, Emr]);
 
   // Migrating the contents from the old edge server
   //  to this storage.
@@ -274,7 +286,7 @@ function App({
       <ConnectionStatus status={status} retry={retry} />
 
       <Stack.Navigator
-        // initialRouteName="ctc.view-appointments"
+        // initialRouteName="ctc.report-missed-appointments"
         screenOptions={{
           headerShown: false,
           presentation: 'formSheet',
@@ -284,7 +296,9 @@ function App({
         <Stack.Screen
           name="ctc.dashboard"
           component={withFlowContext(DashboardScreen, {
-            entry: {fullName: provider.user.displayName},
+            entry: {
+              fullName: provider.user.displayName ?? 'Daktari',
+            },
             actions: ({navigation}) => ({
               logout,
               onSearchPatient() {
@@ -305,6 +319,9 @@ function App({
               onViewMedications() {
                 navigation.navigate('ctc.medications-dashboard');
               },
+              onReportMissedAppointment() {
+                navigation.navigate('ctc.report-missed-appointments');
+              },
               onViewReports() {
                 navigation.navigate('ctc.report-summary');
               },
@@ -314,7 +331,113 @@ function App({
             }),
           })}
         />
+        <Stack.Screen
+          name="ctc.report-missed-appointments"
+          component={withFlowContext(ReportMissedAppointmentScreen, {
+            actions: ({navigation}) => ({
+              async checkIfPatientExists(patientId) {
+                const s = await query(Emr.collection('patients'), {
+                  where: item => item.id === patientId,
+                });
 
+                return s.count() > 0;
+              },
+              async onSubmitReport({
+                patientId,
+                appointmentDate,
+                missedDate,
+                sex,
+                dateOfBirth,
+              }) {
+                // get patient
+                const patients = await query(Emr.collection('patients'), {
+                  where: item => item.id === patientId,
+                });
+
+                console.log('-> something!!');
+                let patient;
+
+                if (patients.count() > 0) {
+                  // patient exists
+                  patient = patients.get(0);
+                } else {
+                  // patient doesnt exist,
+                  if (sex === undefined || dateOfBirth === undefined) {
+                    ToastAndroid.show(
+                      'Missing necessary info for patient registration',
+                      ToastAndroid.LONG,
+                    );
+                    return;
+                  }
+
+                  // quickly create new patient
+
+                  const newPatient = Patient<CTC.Patient>({
+                    id: patientId,
+                    sex: sex,
+                    birthDate: dateOfBirth,
+                  });
+                  await setDoc(
+                    doc(Emr.collection('patients'), patientId),
+                    newPatient,
+                  );
+                  patient = newPatient;
+                }
+
+                console.log({patient});
+
+                if (patient === undefined) {
+                  ToastAndroid.show(
+                    'Patient information missing, Try again later',
+                    ToastAndroid.LONG,
+                  );
+                  return;
+                }
+
+                console.log('Creating report...');
+
+                const reportId = uuid.v4() as string;
+                // ...
+                // create report
+                await setDoc(
+                  doc(Emr.collection('reports'), reportId),
+                  Report<CTC.Report.MissedAppointment>({
+                    id: reportId,
+                    reportCode: 'missed',
+                    code: 'appointment-report',
+                    subject: reference(patient),
+                    reporter: reference(doctor),
+                    result: {
+                      missedDate: convertDMYToDate(missedDate).toUTCString(),
+                      reason: null,
+                    },
+                  }),
+                );
+                console.log('Creating appointment request...');
+
+                // create appointment
+                const appointmentId = uuid.v4() as string;
+                await setDoc(
+                  doc(Emr.collection('appointment-requests'), appointmentId),
+                  AppointmentRequest<CTC.AppointmentRequest>({
+                    appointmentDate:
+                      convertDMYToDate(appointmentDate).toUTCString(),
+                    id: appointmentId,
+                    participants: [reference(patient), reference(doctor)],
+                    reason: 'Previously missed appointment',
+                  }),
+                );
+
+                console.log('Creating Done...');
+                ToastAndroid.show(
+                  'Completed creating missed appointment request',
+                  ToastAndroid.LONG,
+                );
+                navigation.goBack();
+              },
+            }),
+          })}
+        />
         <Stack.Screen
           name="ctc.view-appointments"
           component={withFlowContext(ViewAppointmentsScreen, {
@@ -565,7 +688,7 @@ function App({
                     : 0;
 
                 const stock = Stock<CTC.ARVStockRecord>({
-                  count: parseInt(data.count),
+                  count: parseInt(data.count ?? '0'),
                   expiresAt: format(
                     convertDMYToDate(data.expiresAt),
                     'yyyy-MM-dd',

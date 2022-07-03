@@ -33,7 +33,8 @@ export default function DashboardScreen({
     onViewMedicationStock: () => void;
     onViewReports: () => void;
 
-    // see other's medication
+    // do misc things
+    onReportMissedAppointment: () => void;
     onSeeOtherMedications: () => void;
   }
 >) {
@@ -138,12 +139,12 @@ export default function DashboardScreen({
         {/* Others */}
         <Section removeLine title="More" desc="What else you can do">
           <Column>
-            {/* <TouchableItem spaceTop onPress={$.onViewMedications}>
-              <Row icon="pill">
-                <Text>View Medication Requests</Text>
+            <TouchableItem spaceTop onPress={$.onReportMissedAppointment}>
+              <Row icon="call-missed">
+                <Text>Report Missed Appointment</Text>
                 <Icon name="arrow-right" color={color.primary.base} size={24} />
               </Row>
-            </TouchableItem> */}
+            </TouchableItem>
             <TouchableItem spaceTop onPress={$.onSeeOtherMedications}>
               <Row icon="map-search">
                 <Text>Show Medication Network</Text>

@@ -1,7 +1,7 @@
 import {Module} from '@elsa-health/emr/lib/module';
 import {CollectionNode, Store} from 'papai/collection/core';
 
-import {StockRecord} from '@elsa-health/emr/health.types/v1';
+import {Report, StockRecord} from '@elsa-health/emr/health.types/v1';
 
 import {
   collection,
@@ -190,6 +190,11 @@ export const EMRModule = (
       publicStore,
       'investigation.results',
     ),
+
+    /**
+     * Reports related information
+     */
+    reports: collection<CTC.Report.MissedAppointment>(publicStore, 'reports'),
   });
 
   return module;
