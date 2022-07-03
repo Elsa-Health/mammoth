@@ -5,6 +5,7 @@
 	"workspaces": {
 		"packages": [
 			"apps/*",
+			"web-apps/*",
 			"packages/*"
 		],
 		"nohoist": [
