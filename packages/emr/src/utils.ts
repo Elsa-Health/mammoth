@@ -1,5 +1,8 @@
 import { P } from "../health.types/v1";
-import { UTCDateTimeString } from "../health.types/v1/_primitives";
+import {
+	DDMMYYYYDateString,
+	UTCDateTimeString,
+} from "../health.types/v1/_primitives";
 
 export type MustHave<T, K extends keyof T> = Partial<T> &
 	Required<{ [k in K]: T[k] }>;
@@ -16,6 +19,36 @@ export const date = (
 		| Date
 		| undefined = undefined
 ) => (dateStr !== undefined ? new Date(dateStr) : new Date());
+
+/**
+ * Convert date string to utc date string
+ * @param dateStr
+ * @returns
+ */
+export const utcDateString = (
+	dateStr: Parameters<typeof date>[0] = undefined
+) => date(dateStr).toUTCString();
+
+export function getDateFromDMYFormat(date: DDMMYYYYDateString): Date {
+	const vals = removeWhiteSpace(date).split("/");
+
+	if (vals.length !== 3) {
+		throw new Error(
+			"Invalid data format. The date needs to be in the formate DD / MM / YYYY"
+		);
+	}
+
+	try {
+		const [d, m, y] = vals;
+		return new Date(`${y}-${m}-${d}`);
+	} catch (err) {
+		throw new Error("Unable to parse the number into a proper Date object");
+	}
+}
+
+export function removeWhiteSpace(text: string) {
+	return text.replace(/\s+/g, "").trim();
+}
 
 export const freeze = <D extends P.Mapping<string, P.Data>>(d: D) =>
 	Object.freeze(d);
@@ -68,4 +101,8 @@ export function resourceItem<
 		},
 		data
 	) as P.ResourceItem<R, D>;
+}
+
+export function concat<T>(...args: Array<T>[]) {
+	return args.reduce((acc, curr) => acc.concat(curr), []);
 }

@@ -60,13 +60,16 @@ export default function MedicationVisitScreen({
     patient: CTCPatient;
     organization: CTCOrganization;
     initialState: MedicationRequestVisitData;
-    edit: boolean;
+    visit?: {
+      id: string;
+    };
   },
   {
     complete: (
       data: MedicationRequestVisitData,
       patient: CTCPatient,
       organization: CTCOrganization,
+      visit: {id: string} | null,
     ) => void;
     fetchMedications: () => Promise<UseStockData['medications']>;
     fetchAppointments: () => Promise<UseAppointments['appointments']>;
@@ -74,30 +77,27 @@ export default function MedicationVisitScreen({
   }
 >) {
   const {spacing} = useTheme();
-  const {width} = useWindowDimensions();
-  const {handleSubmit, control, setValue} = useForm<MedicationRequestVisitData>(
-    {
-      defaultValues: e.initialState ?? {
-        // regimenDecision: undefined,
-        // @ts-ignore
-        // decisionReason: '',
-        arvRegimenUnit: [],
-        regimenDuration: '30-days',
-        medications: [],
-        appointmentDate: '',
-        investigations: [],
-        visitType: 'home',
-        appointmentId: null,
-        dateOfVisit: format(new Date(), 'dd / MM / yyyy'),
-      },
+  const {handleSubmit, control} = useForm<MedicationRequestVisitData>({
+    defaultValues: e.initialState ?? {
+      // regimenDecision: undefined,
+      // @ts-ignore
+      // decisionReason: '',
+      arvRegimens: [],
+      regimenDuration: '30-days',
+      medications: [],
+      appointmentDate: '',
+      investigations: [],
+      visitType: 'home',
+      appointmentId: null,
+      dateOfVisit: format(new Date(), 'dd / MM / yyyy'),
     },
-  );
+  });
 
   const onSubmit = handleSubmit(data =>
-    $.complete(data, e.patient, e.organization),
+    $.complete(data, e.patient, e.organization, e.visit ?? null),
   );
 
-  const edit = !Boolean(e.edit);
+  const edit = Boolean((e.visit ?? null) !== null);
   const [isFromAppt, setIsFromAppt] = React.useState(false);
   const {loading, retry, error, value} = useAsyncRetry($.fetchAppointments, []);
   const {value: medications} = useAsyncRetry($.fetchMedications, []);
@@ -264,7 +264,7 @@ export default function MedicationVisitScreen({
                         name: 'ARV Regimens',
                         id: 1,
                         children: medications?.map(d => ({
-                          id: `${d.form}:${d.identifier}`,
+                          id: `${d.identifier}`,
                           name: d.text,
                         })),
                       },

@@ -1,4 +1,4 @@
-import invariant from "invariant";
+import invariant from "tiny-invariant";
 
 import type { Organization, P } from "../health.types/v1";
 import * as t from "../health.types/v1";
@@ -10,6 +10,7 @@ import {
 	MustHave,
 	normalizeToNull,
 	resourceItem,
+	utcDateString,
 } from "./utils";
 
 const partial = <M extends P.Mapping<string, P.Data>, F>(
@@ -121,7 +122,8 @@ export function Ingredient(d: { identifier: string; text?: string }) {
 }
 
 export function Medication<M extends t.Medication<string>>(
-	d: MustHave<M, "identifier" | "form">
+	d: MustHave<M, "identifier" | "form">,
+	ingredient: typeof Ingredient = Ingredient
 ) {
 	invariant(
 		d.identifier,
@@ -135,7 +137,7 @@ export function Medication<M extends t.Medication<string>>(
 				category: d.category ?? null,
 				form: d.form ?? null,
 				alias: d.alias ?? d.identifier,
-				ingredients: (d.ingredients ?? []).map(Ingredient),
+				ingredients: (d.ingredients ?? []).map(ingredient),
 			})
 		) as M
 	);
@@ -176,9 +178,18 @@ export function Stock<
 
 export function MedicationRequest<
 	MR extends t.MedicationRequest<t.Medication<string>>
->(d: MustHave<MR, "id" | "subject" | "authoredOn" | "medication">) {
+>(
+	d: MustHave<
+		MR,
+		"id" | "subject" | "authoredOn" | "medication" | "supplyInquiry"
+	>
+) {
 	invariant(d.id, "Medication Request id missing");
 	invariant(d.subject, `Subject associated with ${d.id} is not defined`);
+	invariant(
+		d.supplyInquiry !== null ? d.supplyInquiry : true,
+		`Supply information missing for [${d.id}]. Set 'null' or 'undefined' if ther is not information`
+	);
 	invariant(
 		d.authoredOn,
 		`'authoredOn' missing. Author date for medication request [${d.id}] was made is missing.`
@@ -189,11 +200,12 @@ export function MedicationRequest<
 			id: d.id,
 			resourceType: "MedicationRequest",
 			code: d.code ?? null,
-			authoredOn: date(d.authoredOn).toUTCString(),
-			createdAt: date(d.createdAt).toUTCString(),
+			authoredOn: utcDateString(d.authoredOn),
+			createdAt: utcDateString(d.createdAt),
 			isActive: d.isActive ?? true,
 			route: d.route ?? null,
 			method: d.method ?? null,
+			supplyInquiry: d.supplyInquiry ?? null,
 			instructions: d.instructions ?? null,
 			medication: d.medication,
 			reason: d.reason ?? null,
@@ -259,7 +271,7 @@ export function Organization<Org extends t.Organization<P.Data, P.Data>>(
 }
 
 export function HealthcareService<
-	HS extends t.HealthcareService<P.Data, string>
+	HS extends t.HealthcareService<string, P.Data>
 >(d: MustHave<HS, "name">) {
 	invariant(d.name, "Healthcare name missing");
 
@@ -431,5 +443,16 @@ export function refer<RF extends string, R extends P.Resource<RF, P.Data>>(
 		resourceType: "Reference",
 		// @ts-ignore
 		data: fn(r),
+	};
+}
+
+export function reference<RF extends string>(
+	referenceType: RF,
+	id: string
+): P.ReferenceIdentifier<RF> {
+	return {
+		resourceType: "Reference",
+		resourceReferenced: referenceType,
+		id,
 	};
 }

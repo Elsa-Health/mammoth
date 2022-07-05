@@ -73,11 +73,11 @@ import {
   AppointmentRequest,
   AppointmentResponse,
   Ingredient,
-  InvestigationRequest,
   Medication,
   Patient,
   Report,
   Stock,
+  ctc,
 } from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
 import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
@@ -499,156 +499,173 @@ function App({
 
                 return appts;
               },
-              async complete(data, patient, organization) {
+              async complete(data, patient, organization, visit) {
                 try {
-                  // console.log('##### -2');
-                  // create a medication request
-                  const {
-                    arvRegimens,
-                    medications,
-                    appointmentDate,
-                    appointmentId,
-                  } = data;
+                  // create the data needed for the simple visit
+                  const {} = ctc.createDataForSimpleVisit(
+                    () => uuid.v4() as string,
+                    patient.id,
+                    doctor.id,
+                    data,
+                  );
+                  if (visit === undefined) {
+                    // assumed new visit
 
-                  // ARV medication requests
-                  const arvMedRqs = (arvRegimens ?? []).map(arvMedId =>
-                    medRequest(
-                      `med-req:${uuid.v4()}` as string,
-                      arv(`ctc-arv:${arvMedId}`, arvMedId),
-                      {},
-                      {
-                        requester: doctor,
-                        subject: patient,
+                    // console.log('##### -2');
+                    // create a medication request
+                    const {
+                      arvRegimens,
+                      medications,
+                      appointmentDate,
+                      appointmentId,
+                    } = data;
+
+                    // ARV medication requests
+                    const arvMedRqs = (arvRegimens ?? []).map(arvMedId =>
+                      medRequest(
+                        `med-req:${uuid.v4()}` as string,
+                        arv(`ctc-arv:${arvMedId}`, arvMedId),
+                        {},
+                        {
+                          requester: doctor,
+                          subject: patient,
+                        },
+                      ),
+                    );
+                    // console.log('##### -1');
+
+                    // other medication
+                    const standardMedRqs = (medications ?? []).map(medId =>
+                      medRequest(
+                        `med-req:${uuid.v4()}` as string,
+                        stanMed(`ctc-standard:${medId}`, medId),
+                        {},
+                        {
+                          requester: doctor,
+                          subject: patient,
+                        },
+                      ),
+                    );
+
+                    // console.log('##### 0');
+
+                    // prepare prescriptions
+                    const prescriptions = [...arvMedRqs, ...standardMedRqs];
+
+                    const apptResp = AppointmentResponse({
+                      authorizingAppointmentRequest: {
+                        resourceType: 'Reference',
+                        resourceReferenced: 'AppointmentRequest',
+                        id: appointmentId,
                       },
-                    ),
-                  );
-                  // console.log('##### -1');
+                      id: `appt-resp:${uuid.v4()}`,
+                      actors: [reference(patient), reference(doctor)],
+                    });
 
-                  // other medication
-                  const standardMedRqs = (medications ?? []).map(medId =>
-                    medRequest(
-                      `med-req:${uuid.v4()}` as string,
-                      stanMed(`ctc-standard:${medId}`, medId),
-                      {},
-                      {
-                        requester: doctor,
-                        subject: patient,
-                      },
-                    ),
-                  );
+                    //
+                    await setDoc(
+                      doc(Emr.collection('appointment-responses'), apptResp.id),
+                      apptResp,
+                    );
 
-                  // console.log('##### 0');
+                    // create a new visit
+                    const visit: CTCVisit = {
+                      id: `visit:${uuid.v4()}`,
+                      resourceType: 'Visit',
+                      code: null,
+                      subject: reference(patient),
+                      practitioner: reference(doctor),
+                      assessments: [],
+                      // saving as refernce.... but might need rethinking of how
+                      // we compute of the other values
+                      associatedAppointmentResponse:
+                        appointmentId !== null ? apptResp : null,
+                      date: convertDMYToDate(data.dateOfVisit).toUTCString(),
+                      createdAt: new Date().toUTCString(),
+                      extendedData: data,
+                      investigationRequests: [],
+                      prescriptions: prescriptions.map(reference),
+                    };
+                    // console.log('##### 1');
 
-                  // prepare prescriptions
-                  const prescriptions = [...arvMedRqs, ...standardMedRqs];
+                    // create appointment
+                    const d = convertDMYToDate(appointmentDate);
+                    const appointmentReq: CTCAppointmentRequest = {
+                      id: `appt-req:${uuid.v4()}`,
+                      resourceType: 'AppointmentRequest',
+                      code: null,
+                      createdAt: new Date().toUTCString(),
+                      appointmentDate: d.toUTCString(),
+                      description: 'Auto-created appointment from a Visit',
+                      participants: [reference(patient), reference(doctor)],
+                      reason: 'Created as next appointment from visit',
+                      visit: reference(visit),
+                    };
 
-                  const apptResp = AppointmentResponse({
-                    authorizingAppointmentRequest: {
-                      resourceType: 'Reference',
-                      resourceReferenced: 'AppointmentRequest',
-                      id: appointmentId,
-                    },
-                    id: `appt-resp:${uuid.v4()}`,
-                    actors: [reference(patient), reference(doctor)],
-                  });
+                    // console.log('##### 2');
 
-                  //
-                  await setDoc(
-                    doc(Emr.collection('appointment-responses'), apptResp.id),
-                    apptResp,
-                  );
+                    // record the medication requests
+                    await setDocs(
+                      Emr.collection('medication-requests'),
+                      (prescriptions ?? []).map(d => [d.id, d]),
+                    );
+                    // console.log('##### 3');
 
-                  // create a new visit
-                  const visit: CTCVisit = {
-                    id: `visit:${uuid.v4()}`,
-                    resourceType: 'Visit',
-                    code: null,
-                    subject: reference(patient),
-                    practitioner: reference(doctor),
-                    assessments: [],
-                    // saving as refernce.... but might need rethinking of how
-                    // we compute of the other values
-                    associatedAppointmentResponse:
-                      appointmentId !== null ? apptResp : null,
-                    date: convertDMYToDate(data.dateOfVisit).toUTCString(),
-                    createdAt: new Date().toUTCString(),
-                    extendedData: data,
-                    investigationRequests: [],
-                    prescriptions: prescriptions.map(reference),
-                  };
-                  // console.log('##### 1');
+                    // record the visit
+                    await setDoc(
+                      doc(Emr.collection('visits'), visit.id),
+                      visit,
+                    );
+                    // console.log('##### 4');
 
-                  // create appointment
-                  const d = convertDMYToDate(appointmentDate);
-                  const appointmentReq: CTCAppointmentRequest = {
-                    id: `appt-req:${uuid.v4()}`,
-                    resourceType: 'AppointmentRequest',
-                    code: null,
-                    createdAt: new Date().toUTCString(),
-                    appointmentDate: d.toUTCString(),
-                    description: 'Auto-created appointment from a Visit',
-                    participants: [reference(patient), reference(doctor)],
-                    reason: 'Created as next appointment from visit',
-                    visit: reference(visit),
-                  };
+                    // record appointment request
+                    await setDoc(
+                      doc(
+                        Emr.collection('appointment-requests'),
+                        appointmentReq.id,
+                      ),
+                      appointmentReq,
+                    );
 
-                  // console.log('##### 2');
+                    ToastAndroid.show(
+                      patient.id + ' visit recorded!.',
+                      ToastAndroid.SHORT,
+                    );
 
-                  // record the medication requests
-                  await setDocs(
-                    Emr.collection('medication-requests'),
-                    (prescriptions ?? []).map(d => [d.id, d]),
-                  );
-                  // console.log('##### 3');
-
-                  // record the visit
-                  await setDoc(doc(Emr.collection('visits'), visit.id), visit);
-                  // console.log('##### 4');
-
-                  // record appointment request
-                  await setDoc(
-                    doc(
-                      Emr.collection('appointment-requests'),
-                      appointmentReq.id,
-                    ),
-                    appointmentReq,
-                  );
-
-                  ToastAndroid.show(
-                    patient.id + ' visit recorded!.',
-                    ToastAndroid.SHORT,
-                  );
-
-                  // recording the investigation requests
-                  await setDocs(
-                    Emr.collection('investigation-requests'),
-                    (data.investigations ?? []).map(inv => {
-                      const id = `inv-req:${uuid.v4()}`;
-                      return [
-                        id,
-                        investigationRequest(
-                          {
-                            id,
-                            requester: reference(doctor),
-                            subject: {
-                              resourceReferenced: 'Patient',
-                              resourceType: 'Reference',
-                              id: patient.id,
+                    // recording the investigation requests
+                    await setDocs(
+                      Emr.collection('investigation-requests'),
+                      (data.investigations ?? []).map(inv => {
+                        const id = `inv-req:${uuid.v4()}`;
+                        return [
+                          id,
+                          investigationRequest(
+                            {
+                              id,
+                              requester: reference(doctor),
+                              subject: {
+                                resourceReferenced: 'Patient',
+                                resourceType: 'Reference',
+                                id: patient.id,
+                              },
                             },
-                          },
-                          {
-                            investigationId: inv,
-                            obj: Investigation.fromKey(inv) ?? null,
-                          },
-                        ),
-                      ];
-                    }) || [],
-                  );
+                            {
+                              investigationId: inv,
+                              obj: Investigation.fromKey(inv) ?? null,
+                            },
+                          ),
+                        ];
+                      }) || [],
+                    );
 
-                  ToastAndroid.show(
-                    'Completed recording investigation + prescriptions',
-                    ToastAndroid.SHORT,
-                  );
+                    ToastAndroid.show(
+                      'Completed recording investigation + prescriptions',
+                      ToastAndroid.SHORT,
+                    );
+                  } else {
+                    // assumed editing existing visit
+                    // NOTE: editing an update should information consequences of making certain changes
+                  }
 
                   navigation.goBack();
                 } catch (err) {
@@ -845,9 +862,6 @@ function App({
           name="ctc.view-patient"
           component={withFlowContext(ViewPatientScreen, {
             actions: ({navigation}) => ({
-              onToEditPatient(patient) {
-                // ... go to screen to edit patient
-              },
               async nextAppointment(patientId: string) {
                 const after = await queryCollection(
                   Emr.collection('appointment-requests'),
@@ -909,7 +923,7 @@ function App({
                         navigation.navigate('ctc.medication-visit', {
                           patient,
                           organization,
-                          edit: true,
+                          visit: d,
                           initialState: {
                             dateOfVisit: format(
                               new Date(d.date ?? d.createdAt),

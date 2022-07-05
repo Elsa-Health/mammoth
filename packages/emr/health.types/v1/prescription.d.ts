@@ -10,7 +10,8 @@ import {
 } from "./_primitives";
 
 export type MedicationRequest<
-	M extends Medication<string> = Medication<string>
+	M extends Medication<string> = Medication<string>,
+	SupplyInquiryData extends Data = Data
 > = Resource<
 	"MedicationRequest",
 	{
@@ -36,10 +37,22 @@ export type MedicationRequest<
 		authoredOn: UTCDateTimeString;
 
 		/**
+		 * Information describing information useful
+		 * for knowing the supply information
+		 */
+		supplyInquiry: Nullable<SupplyInquiryData>;
+
+		/**
 		 * Status of the request
 		 */
 		isActive: boolean;
-		// status: 'active' | 'cancelled' | 'completed' | 'on-hold' | 'stopped';
+
+		/**
+		 * Status of the mediation
+		 */
+		status: Nullable<
+			"active" | "cancelled" | "completed" | "on-hold" | "stopped"
+		>;
 
 		/**
 		 * How the drug should enter the body

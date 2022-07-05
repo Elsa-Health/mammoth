@@ -1,12 +1,11 @@
 import { Nullable, Referred, Resource, ResourceItem } from "./_primitives";
 
 /**
- * Entity that idntifies the health care service provided
- * -----------------
+ * Entity that identifies the health care service provided
  *
  * e.g. X-Ray.
  */
-export type HealthcareService<D extends Data, N extends string> = ResourceItem<
+export type HealthcareService<N extends string, D extends Data> = ResourceItem<
 	"HealthcareService",
 	{
 		/**
