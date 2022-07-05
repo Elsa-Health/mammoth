@@ -62,20 +62,21 @@ export default function ViewAppointmentsScreen({
           desc="Brief information about on the appointments">
           <Row>
             {groups.map(([title, vs], ix) => (
-              <Column
-                key={ix}
-                wrapperStyle={{width: '50%', marginBottom: 8}}
-                contentStyle={{
-                  alignContent: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text font="bold" size={32} style={{textAlign: 'center'}}>
-                  {vs.length ?? '--'}
-                </Text>
-                <Text size={14} style={{textAlign: 'center'}}>
-                  {title}
-                </Text>
-              </Column>
+              <React.Fragment key={ix}>
+                <Column
+                  wrapperStyle={{width: '50%', marginBottom: 8}}
+                  contentStyle={{
+                    alignContent: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text font="bold" size={32} style={{textAlign: 'center'}}>
+                    {vs.length ?? '--'}
+                  </Text>
+                  <Text size={14} style={{textAlign: 'center'}}>
+                    {title}
+                  </Text>
+                </Column>
+              </React.Fragment>
             ))}
             {/* <TitledItem title="Missed">23</TitledItem>
             <TitledItem title="Upcoming ">415</TitledItem>
@@ -83,8 +84,8 @@ export default function ViewAppointmentsScreen({
           </Row>
         </Section>
 
-        {groups.map(([title, vals]) => (
-          <>
+        {groups.map(([title, vals], ix) => (
+          <React.Fragment key={ix}>
             {/* Upcoming appointments */}
             <CollapsibleSection
               spaceTop
@@ -100,7 +101,7 @@ export default function ViewAppointmentsScreen({
                 ))}
               </Column>
             </CollapsibleSection>
-          </>
+          </React.Fragment>
         ))}
       </ScrollView>
     </Layout>

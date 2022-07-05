@@ -302,7 +302,7 @@ function App({
       <ConnectionStatus status={status} retry={retry} />
 
       <Stack.Navigator
-        initialRouteName="ctc.medication-visit"
+        // initialRouteName="ctc.medication-visit"
         screenOptions={{
           headerShown: false,
           presentation: 'formSheet',
@@ -506,13 +506,6 @@ function App({
           component={withFlowContext(
             MedicationVisit<CTC.Patient, CTC.Visit, CTC.Organization>,
             {
-              entry: {
-                patient: {id: '11111111111111'},
-                organization: {
-                  name: 'FAKE ORGANIZATION',
-                },
-                initialState: null,
-              },
               actions: ({navigation}) => ({
                 async fetchMedications() {
                   return stock.medications?.toArray() ?? [];
