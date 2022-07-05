@@ -35,26 +35,15 @@ import {NetworkStatus, useWebSocket} from '../app/utils';
 
 import {withFlowContext} from '@elsa-ui/react-native-workflows';
 
-import {
-  doc,
-  setDoc,
-  getDocs,
-  setDocs,
-  query,
-  addDocs,
-  addDoc,
-} from 'papai/collection';
+import {doc, setDoc, getDocs, setDocs, query} from 'papai/collection';
 import {List} from 'immutable';
 import {ToastAndroid, View} from 'react-native';
 import _ from 'lodash';
 import {translatePatient} from './actions/translate';
 import {
-  arv,
   getOrganizationFromProvider,
   investigationRequest,
-  medRequest,
   reference,
-  stanMed,
 } from './actions/basic';
 import {queryPatientsFromSearch} from './actions/ui';
 import {CTC} from './emr/types';
@@ -71,15 +60,17 @@ import {format, isAfter} from 'date-fns';
 import {getEMR, onSnapshotUpdate, Seeding} from './emr/store';
 import {
   AppointmentRequest,
-  AppointmentResponse,
   Ingredient,
   Medication,
   Patient,
   Report,
   Stock,
   ctc,
+  prepareLazyExecutors,
+  executeChain,
 } from '@elsa-health/emr';
 import {date} from '@elsa-health/emr/lib/utils';
+
 import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
 import type {Document} from 'papai/collection/types';
 // Migration code
@@ -145,6 +136,31 @@ function App({
   const [organization, doctor] = React.useMemo(
     () => [getOrganizationFromProvider(provider), practitioner(provider)],
     [provider],
+  );
+
+  /**
+   * Preparing storage executors
+   */
+  const executor = React.useMemo(
+    () => ({
+      visit: prepareLazyExecutors(
+        data => (data?.id ?? uuid.v4()) as string,
+        Emr.collection('visits'),
+      ),
+      apptRequest: prepareLazyExecutors(
+        data => (data?.id ?? uuid.v4()) as string,
+        Emr.collection('appointment-requests'),
+      ),
+      apptResponse: prepareLazyExecutors(
+        data => (data?.id ?? uuid.v4()) as string,
+        Emr.collection('appointment-responses'),
+      ),
+      medicationRequest: prepareLazyExecutors(
+        data => (data?.id ?? uuid.v4()) as string,
+        Emr.collection('medication-requests'),
+      ),
+    }),
+    [Emr],
   );
 
   React.useEffect(() => {
@@ -286,7 +302,7 @@ function App({
       <ConnectionStatus status={status} retry={retry} />
 
       <Stack.Navigator
-        // initialRouteName="ctc.report-missed-appointments"
+        initialRouteName="ctc.medication-visit"
         screenOptions={{
           headerShown: false,
           presentation: 'formSheet',
@@ -487,201 +503,132 @@ function App({
         />
         <Stack.Screen
           name="ctc.medication-visit"
-          component={withFlowContext(MedicationVisit, {
-            actions: ({navigation}) => ({
-              async fetchMedications() {
-                return stock.medications?.toArray() ?? [];
+          component={withFlowContext(
+            MedicationVisit<CTC.Patient, CTC.Visit, CTC.Organization>,
+            {
+              entry: {
+                patient: {id: '11111111111111'},
+                organization: {
+                  name: 'FAKE ORGANIZATION',
+                },
+                initialState: null,
               },
-              async fetchAppointments() {
-                const appts = appointments.appointments.filter(
-                  d => d.type === 'not-responded',
-                );
-
-                return appts;
-              },
-              async complete(data, patient, organization, visit) {
-                try {
-                  // create the data needed for the simple visit
-                  const {} = ctc.createDataForSimpleVisit(
-                    () => uuid.v4() as string,
-                    patient.id,
-                    doctor.id,
-                    data,
+              actions: ({navigation}) => ({
+                async fetchMedications() {
+                  return stock.medications?.toArray() ?? [];
+                },
+                async fetchAppointments() {
+                  const appts = appointments.appointments.filter(
+                    d => d.type === 'not-responded',
                   );
-                  if (visit === undefined) {
-                    // assumed new visit
 
-                    // console.log('##### -2');
-                    // create a medication request
+                  return appts;
+                },
+                async complete(data, patient, organization, refVisit) {
+                  if (refVisit === null) {
+                    // creating new visit
                     const {
-                      arvRegimens,
-                      medications,
-                      appointmentDate,
-                      appointmentId,
-                    } = data;
-
-                    // ARV medication requests
-                    const arvMedRqs = (arvRegimens ?? []).map(arvMedId =>
-                      medRequest(
-                        `med-req:${uuid.v4()}` as string,
-                        arv(`ctc-arv:${arvMedId}`, arvMedId),
-                        {},
-                        {
-                          requester: doctor,
-                          subject: patient,
-                        },
-                      ),
-                    );
-                    // console.log('##### -1');
-
-                    // other medication
-                    const standardMedRqs = (medications ?? []).map(medId =>
-                      medRequest(
-                        `med-req:${uuid.v4()}` as string,
-                        stanMed(`ctc-standard:${medId}`, medId),
-                        {},
-                        {
-                          requester: doctor,
-                          subject: patient,
-                        },
-                      ),
-                    );
-
-                    // console.log('##### 0');
-
-                    // prepare prescriptions
-                    const prescriptions = [...arvMedRqs, ...standardMedRqs];
-
-                    const apptResp = AppointmentResponse({
-                      authorizingAppointmentRequest: {
-                        resourceType: 'Reference',
-                        resourceReferenced: 'AppointmentRequest',
-                        id: appointmentId,
-                      },
-                      id: `appt-resp:${uuid.v4()}`,
-                      actors: [reference(patient), reference(doctor)],
-                    });
-
-                    //
-                    await setDoc(
-                      doc(Emr.collection('appointment-responses'), apptResp.id),
-                      apptResp,
-                    );
-
-                    // create a new visit
-                    const visit: CTCVisit = {
-                      id: `visit:${uuid.v4()}`,
-                      resourceType: 'Visit',
-                      code: null,
-                      subject: reference(patient),
-                      practitioner: reference(doctor),
-                      assessments: [],
-                      // saving as refernce.... but might need rethinking of how
-                      // we compute of the other values
-                      associatedAppointmentResponse:
-                        appointmentId !== null ? apptResp : null,
-                      date: convertDMYToDate(data.dateOfVisit).toUTCString(),
-                      createdAt: new Date().toUTCString(),
-                      extendedData: data,
-                      investigationRequests: [],
-                      prescriptions: prescriptions.map(reference),
-                    };
-                    // console.log('##### 1');
-
-                    // create appointment
-                    const d = convertDMYToDate(appointmentDate);
-                    const appointmentReq: CTCAppointmentRequest = {
-                      id: `appt-req:${uuid.v4()}`,
-                      resourceType: 'AppointmentRequest',
-                      code: null,
-                      createdAt: new Date().toUTCString(),
-                      appointmentDate: d.toUTCString(),
-                      description: 'Auto-created appointment from a Visit',
-                      participants: [reference(patient), reference(doctor)],
-                      reason: 'Created as next appointment from visit',
-                      visit: reference(visit),
-                    };
-
-                    // console.log('##### 2');
-
-                    // record the medication requests
-                    await setDocs(
-                      Emr.collection('medication-requests'),
-                      (prescriptions ?? []).map(d => [d.id, d]),
-                    );
-                    // console.log('##### 3');
-
-                    // record the visit
-                    await setDoc(
-                      doc(Emr.collection('visits'), visit.id),
                       visit,
+                      appointmentResponse,
+                      appointmentRequest,
+                      medicationRequests,
+                    } = ctc.createDataForSimpleVisit(
+                      () => uuid.v4() as string,
+                      patient.id,
+                      doctor.id,
+                      data,
                     );
-                    // console.log('##### 4');
 
-                    // record appointment request
-                    await setDoc(
-                      doc(
-                        Emr.collection('appointment-requests'),
-                        appointmentReq.id,
+                    // TODO: move this to webworker (via webview)
+                    // perform storage operations to perform
+                    const ops = [
+                      // to store visit
+                      executor.visit(({add}) => add(visit)),
+
+                      // to store appointment request
+                      executor.apptRequest(({add}) => add(appointmentRequest)),
+
+                      // to store the medication requests
+                      executor.medicationRequest(({multiAdd}) =>
+                        multiAdd(medicationRequests),
                       ),
-                      appointmentReq,
-                    );
+                    ];
 
-                    ToastAndroid.show(
-                      patient.id + ' visit recorded!.',
-                      ToastAndroid.SHORT,
-                    );
+                    if (appointmentResponse !== null) {
+                      // add 'save appointment response' op to the list of ops
+                      ops.push(
+                        // to store appointment response
+                        executor.apptResponse(({add}) =>
+                          add(appointmentResponse),
+                        ),
+                      );
+                    }
 
-                    // recording the investigation requests
-                    await setDocs(
-                      Emr.collection('investigation-requests'),
-                      (data.investigations ?? []).map(inv => {
-                        const id = `inv-req:${uuid.v4()}`;
-                        return [
-                          id,
-                          investigationRequest(
-                            {
-                              id,
-                              requester: reference(doctor),
-                              subject: {
-                                resourceReferenced: 'Patient',
-                                resourceType: 'Reference',
-                                id: patient.id,
-                              },
-                            },
-                            {
-                              investigationId: inv,
-                              obj: Investigation.fromKey(inv) ?? null,
-                            },
-                          ),
-                        ];
-                      }) || [],
-                    );
+                    // execute operations in order
+                    return executeChain(ops)
+                      .then(() => {
+                        // indicate success
+                        ToastAndroid.show(
+                          'Completed recording investigation + prescriptions',
+                          ToastAndroid.SHORT,
+                        );
 
-                    ToastAndroid.show(
-                      'Completed recording investigation + prescriptions',
-                      ToastAndroid.SHORT,
-                    );
-                  } else {
-                    // assumed editing existing visit
-                    // NOTE: editing an update should information consequences of making certain changes
+                        navigation.goBack();
+                      })
+                      .catch(err => {
+                        console.log(err);
+                        ToastAndroid.show(
+                          'Failed to properly complete the visit. Try again later.',
+                          ToastAndroid.LONG,
+                        );
+                        Sentry.captureException(err);
+                      });
                   }
 
+                  // updating existing visit
+                  //  and output information
+                  const {updatedVisit, medicationRequests} =
+                    ctc.editDataFromSimpleVisit(
+                      () => uuid.v4() as string,
+                      patient.id,
+                      doctor.id,
+                      data,
+                      refVisit,
+                    );
+
+                  return executeChain([
+                    // update visit
+                    executor.visit(({set}) =>
+                      set([updatedVisit.id, updatedVisit]),
+                    ),
+                    // set medication requests
+                    executor.medicationRequest(({multiSet}) =>
+                      multiSet(medicationRequests.map(m => [m.id, m])),
+                    ),
+                  ])
+                    .then(() => {
+                      // indicate success
+                      ToastAndroid.show(
+                        'Updated ctc visit',
+                        ToastAndroid.SHORT,
+                      );
+                      navigation.goBack();
+                    })
+                    .catch(err => {
+                      console.log(err);
+                      ToastAndroid.show(
+                        'Failed to properly complete the visit. Try again later.',
+                        ToastAndroid.LONG,
+                      );
+                      Sentry.captureException(err);
+                    });
+                },
+                onDiscard() {
                   navigation.goBack();
-                } catch (err) {
-                  console.log(err);
-                  ToastAndroid.show(
-                    'Failed to properly complete the visit. Try again later.',
-                    ToastAndroid.LONG,
-                  );
-                  Sentry.captureException(err);
-                }
-              },
-              onDiscard() {
-                navigation.goBack();
-              },
-            }),
-          })}
+                },
+              }),
+            },
+          )}
         />
         <Stack.Screen
           name="ctc.medication-stock"

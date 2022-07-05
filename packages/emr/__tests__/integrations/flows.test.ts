@@ -6,7 +6,10 @@
 import { collection, doc, getStore, setDoc } from "papai/collection";
 import ItemStorage from "papai/stores/collection/ItemStorage";
 
-import { createDataForSimpleVisit } from "../../src/ctc/ctc";
+import {
+	createDataForSimpleVisit,
+	editDataFromSimpleVisit,
+} from "../../src/ctc/ctc";
 import {
 	executeChain,
 	prepareLazyExecutors,
@@ -98,7 +101,7 @@ describe("Visit Creation", () => {
 						resourceType: "MedicationRequest",
 					}),
 				]),
-				appintmentResponse: null,
+				appointmentResponse: null,
 			});
 		});
 
@@ -143,7 +146,7 @@ describe("Visit Creation", () => {
 			fakeDoctorId,
 			{
 				appointmentDate: format(addDays(new Date(), 3), "dd/MM/yyyy"),
-				appointmentId: `appt-response-${generateId()}`,
+				appointmentId: `appt-request-${generateId()}`,
 				arvRegimens: [],
 				dateOfVisit: format(new Date(), "dd/MM/yyyy"),
 				investigations: [],
@@ -161,9 +164,44 @@ describe("Visit Creation", () => {
 					resourceType: "MedicationRequest",
 				}),
 			]),
-			appintmentResponse: expect.objectContaining({
+			appointmentResponse: expect.objectContaining({
 				resourceType: "AppointmentResponse",
 			}),
 		});
+	});
+});
+
+describe("Edit Visit", () => {
+	const fakePatientId = `patient-${generateId()}`;
+	const fakeDoctorId = `doctor-${generateId()}`;
+
+	const { visit } = createDataForSimpleVisit(
+		generateId,
+		fakePatientId,
+		fakeDoctorId,
+		{
+			appointmentDate: format(addDays(new Date(), 3), "dd/MM/yyyy"),
+			appointmentId: null,
+			arvRegimens: [],
+			dateOfVisit: format(new Date(), "dd/MM/yyyy"),
+			investigations: ["blood-culture"],
+			medications: ["acetaminophen", "acyclovir"],
+			regimenDuration: "60-days",
+			visitType: "community",
+		}
+	);
+	test("update visit", () => {
+		const { updatedVisit, medicationRequests } = editDataFromSimpleVisit(
+			generateId,
+			fakePatientId,
+			fakeDoctorId,
+			{
+				medications: ["acetaminophen", "amoxicillin-oral-suspension"],
+			},
+			visit
+		);
+
+		// There can only be one medication request created from this
+		expect(medicationRequests.length).toEqual(1);
 	});
 });

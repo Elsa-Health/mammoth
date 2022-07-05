@@ -1,7 +1,7 @@
 import { CollectionNode, Store } from "papai/collection/core";
 import { Document } from "papai/collection/types";
 
-import { doc, setDoc, setDocs } from "papai/collection";
+import { doc, setDoc, setDocs, updateDoc } from "papai/collection";
 
 export const withStore = (
 	useStore: (store: Store, generateId: () => string) => void
@@ -46,6 +46,7 @@ type RunTransactionParams<T extends Document.Data> = (params: {
 	multiAdd: (data: T[]) => Promise<void>;
 	set: (data: [string, T]) => Promise<void>;
 	multiSet: (data: [string, T][]) => Promise<void>;
+	update: (data: [string, Partial<T>]) => Promise<void>;
 }) => Promise<void> | void;
 
 export async function runTransaction<T extends Document.Data>(
@@ -72,6 +73,9 @@ export async function runTransaction<T extends Document.Data>(
 				collection,
 				data.map((obj) => [generateId(obj), obj])
 			);
+		},
+		update: async (data) => {
+			await updateDoc(doc(collection, data[0]), data[1]);
 		},
 	});
 }

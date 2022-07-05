@@ -53,13 +53,15 @@ export function removeWhiteSpace(text: string) {
 export const freeze = <D extends P.Mapping<string, P.Data>>(d: D) =>
 	Object.freeze(d);
 
+export const clone = <D extends P.Mapping<string, P.Data>>(d: D) => ({ ...d });
+
 export const extend = <
 	A extends P.Mapping<string, P.Data>,
 	D extends P.Mapping<string, P.Data>
 >(
 	a: A,
 	d: D
-) => Object.assign(a, d);
+) => Object.assign(clone(a), clone(d));
 
 export const normalizeToNull = <O extends P.Mapping<string, P.Data | null>>(
 	fields: Array<keyof O>,

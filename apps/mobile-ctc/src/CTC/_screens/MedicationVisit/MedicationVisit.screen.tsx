@@ -1,7 +1,9 @@
+import {ARVMedication} from '@elsa-health/emr/lib/ctc/ctc.types';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {Layout, Text} from '@elsa-ui/react-native/components';
 import {useTheme} from '@elsa-ui/react-native/theme';
 import {format} from 'date-fns';
+import id from 'date-fns/esm/locale/id/index.js';
 import {ARV, CTC, Investigation, Medication} from 'elsa-health-data-fns/lib';
 import React from 'react';
 import {useForm, Controller, ResolverResult} from 'react-hook-form';
@@ -15,9 +17,10 @@ import {
   TextInput,
   TouchableRipple,
 } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAsyncRetry} from 'react-use';
 import {UseAppointments, UseStockData} from '../../emr/react-hooks';
-import {CTCOrganization, CTCPatient} from '../../emr/types';
+import {CTC as eCTC} from '../../emr/types';
 import {
   Block,
   Column,
@@ -35,7 +38,7 @@ const ion = (p: [string, string][]) => p.map(([k, v]) => ({id: k, name: v}));
 export type MedicationRequestVisitData = {
   // regimenDecision: string;
   // decisionReason: CTC.Status;
-  arvRegimens: string[];
+  arvRegimens: ARVMedication[];
   regimenDuration: DurationOpt;
   medications: Medication.All[];
   appointmentDate: string;
@@ -52,24 +55,22 @@ const durationOptions: Array<{value: DurationOpt; text: string}> = [
   {value: '90-days', text: '90 days'},
 ];
 
-export default function MedicationVisitScreen({
+export default function MedicationVisitScreen<Patient, Visit, Org>({
   entry: e,
   actions: $,
 }: WorkflowScreenProps<
   {
-    patient: CTCPatient;
-    organization: CTCOrganization;
+    patient: Patient;
+    organization: Org;
     initialState: MedicationRequestVisitData;
-    visit?: {
-      id: string;
-    };
+    visit?: Visit;
   },
   {
     complete: (
       data: MedicationRequestVisitData,
-      patient: CTCPatient,
-      organization: CTCOrganization,
-      visit: {id: string} | null,
+      patient: Patient,
+      organization: Org,
+      visit: Visit | null,
     ) => void;
     fetchMedications: () => Promise<UseStockData['medications']>;
     fetchAppointments: () => Promise<UseAppointments['appointments']>;
@@ -97,16 +98,41 @@ export default function MedicationVisitScreen({
     $.complete(data, e.patient, e.organization, e.visit ?? null),
   );
 
-  const edit = Boolean((e.visit ?? null) !== null);
+  const notEdit = Boolean((e.visit ?? null) === null);
+
   const [isFromAppt, setIsFromAppt] = React.useState(false);
-  const {loading, retry, error, value} = useAsyncRetry($.fetchAppointments, []);
-  const {value: medications} = useAsyncRetry($.fetchMedications, []);
+  const {value: appointments} = useAsyncRetry($.fetchAppointments, []);
+  const {value: medications} = useAsyncRetry(async () => {
+    const s = await $.fetchMedications();
+    const out = Object.fromEntries(
+      s.map(d => [d.identifier, d] as [string, typeof d]),
+    );
+    return out;
+  }, []);
 
   return (
     <Layout
-      title={edit ? 'Patient Visit' : 'Edit Patient Visit'}
+      title={notEdit ? 'Patient Visit' : 'Edit Patient Visit'}
       style={{padding: 0}}>
       <ScrollView contentContainerStyle={{padding: spacing.md}}>
+        {!notEdit && (
+          <View
+            style={{
+              marginBottom: spacing.md,
+              padding: spacing.sm,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderColor: '#4665af',
+              borderLeftWidth: 3,
+              backgroundColor: '#4665af33',
+            }}>
+            <Icon name="information-outline" size={28} />
+            <Text style={{paddingHorizontal: 16, lineHeight: 20}}>
+              Warning; Editing a visit might have unintented consequences.
+            </Text>
+          </View>
+        )}
         <Section mode="raised">
           <Row icon="account" spaceTop>
             <Text font="bold" style={{marginLeft: 8}}>
@@ -160,7 +186,7 @@ export default function MedicationVisitScreen({
         </Section>
 
         {/* Appointment */}
-        {value !== undefined && (
+        {appointments !== undefined && (
           <Section
             title="From an appointment"
             desc="Is visit this from an appointment?"
@@ -189,7 +215,7 @@ export default function MedicationVisitScreen({
                     </Text>
                     <ScrollView horizontal>
                       {/* <Row wrapperStyle={{justifyContent: 'flex-start'}}> */}
-                      {value.map((d, ix) => {
+                      {appointments.map((d, ix) => {
                         const notSelected = field.value === d.requestId;
                         return (
                           <React.Fragment key={ix}>
@@ -263,17 +289,21 @@ export default function MedicationVisitScreen({
                       {
                         name: 'ARV Regimens',
                         id: 1,
-                        children: medications?.map(d => ({
-                          id: `${d.identifier}`,
-                          name: d.text,
-                        })),
+                        children: Object.entries(medications ?? {}).map(
+                          ([id, obj]) => ({
+                            id,
+                            name: obj.text,
+                          }),
+                        ),
                       },
                     ]}
                     uniqueKey="id"
                     searchPlaceholderText={'Search ARV Regimen'}
                     selectText={'Select if any'}
-                    onSelectedItemsChange={field.onChange}
-                    selectedItems={field.value}
+                    onSelectedItemsChange={ids =>
+                      field.onChange(ids.map(idx => (medications || {})[idx]))
+                    }
+                    selectedItems={field.value.map(d => d.identifier)}
                   />
                 )}
               />
@@ -401,7 +431,7 @@ export default function MedicationVisitScreen({
             onPress={onSubmit}
             style={{flex: 1}}
             icon="check">
-            {edit ? 'Finish' : 'Finalize Edit'}
+            {notEdit ? 'Finish' : 'Finalize Edit'}
           </Button>
         </Row>
       </Block>

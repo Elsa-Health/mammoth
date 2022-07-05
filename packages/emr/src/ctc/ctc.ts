@@ -19,6 +19,10 @@ import * as t from "../../health.types/v1";
 import { Data, DDMMYYYYDateString } from "../../health.types/v1/_primitives";
 
 import * as ctc from "./ctc.types";
+import produce from "immer";
+import { WritableDraft } from "immer/dist/internal";
+
+import isEqual from "lodash.isequal";
 
 export type SimpleVisitData = {
 	// regimenDecision: string;
@@ -48,9 +52,10 @@ export function createDataForSimpleVisit(
 	// 1. Medication Creation
 	// create arv medication requests
 	const arvsRqs = data.arvRegimens.map((med) =>
-		MedicationRequest({
+		MedicationRequest<ctc.MedicationRequest>({
 			id: generateId(),
 			authoredOn: utcDateString(),
+			// @ts-ignore
 			medication: med,
 			subject: patientReference(patientId),
 			supplyInquiry: null,
@@ -98,6 +103,7 @@ export function createDataForSimpleVisit(
 		practitioner: reference("Practitioner", doctorId),
 		extendedData: data,
 		prescriptions: medicationRequests.map((v) => refer(v)),
+		associatedAppointmentResponse: apptResp,
 	});
 
 	// 3. create appointment request
@@ -119,11 +125,107 @@ export function createDataForSimpleVisit(
 	return {
 		visit,
 		appointmentRequest,
-		appintmentResponse: apptResp,
+		appointmentResponse: apptResp,
 		medicationRequests,
 	};
 }
 
-export function editDataFromSimpleVisit(data: Partial<SimpleVisitData>) {
-	// ...
+export function editDataFromSimpleVisit(
+	generateId: () => string,
+	patientId: string,
+	doctorId: string,
+	data: Partial<SimpleVisitData>,
+	visit: ctc.Visit
+) {
+	const prevData: SimpleVisitData = visit.extendedData;
+
+	// 3. create appointment request
+	let appointmentRequest = null;
+
+	// if date is different, create a new appointmentDate
+	if (data.appointmentDate !== undefined) {
+		if (!isEqual(data.appointmentDate, prevData.appointmentDate)) {
+			appointmentRequest = AppointmentRequest<ctc.AppointmentRequest>({
+				id: generateId(),
+				appointmentDate: utcDateString(
+					getDateFromDMYFormat(data.appointmentDate)
+				),
+				participants: [
+					patientReference(patientId),
+					reference("Practitioner", doctorId),
+				],
+				reason: "Created as next appointment from visit",
+				description: "Auto-created appointment from a Visit",
+				visit: reference("Visit", visit.id),
+			});
+		}
+	}
+
+	// 2. add medication requests
+	const medicationRequests: t.MedicationRequest<any>[] = [];
+	if (data.arvRegimens !== undefined) {
+		//
+		data.arvRegimens
+			.filter(
+				(med) =>
+					// medication not in the thing
+					!prevData.arvRegimens
+						.map((d) => d.identifier)
+						.includes(med.identifier)
+			)
+			.forEach((med) => {
+				medicationRequests.push(
+					MedicationRequest<ctc.MedicationRequest>({
+						id: generateId(),
+						authoredOn: utcDateString(),
+						// @ts-ignore
+						medication: med,
+						subject: patientReference(patientId),
+						supplyInquiry: null,
+					})
+				);
+			});
+	}
+
+	if (data.medications !== undefined) {
+		data.medications
+			.filter(
+				(med) =>
+					// medication not in the thing
+					!prevData.medications.includes(med)
+			)
+			.forEach((medtxt) =>
+				medicationRequests.push(
+					MedicationRequest({
+						id: generateId(),
+						authoredOn: utcDateString(),
+						medication: Medication({
+							form: null,
+							identifier: medtxt.toString(),
+						}),
+						supplyInquiry: null,
+						subject: patientReference(patientId),
+					})
+				)
+			);
+	}
+
+	// updated visit
+	const updatedVisit = produce(
+		Visit<ctc.Visit>(visit),
+		(v: WritableDraft<ctc.Visit>) => {
+			// partial update
+			v.extendedData = produce(
+				v.extendedData,
+				(f: WritableDraft<SimpleVisitData>) => {
+					Object.entries(data).forEach(([k, v]) => {
+						// @ts-ignore
+						f[k] = v;
+					});
+				}
+			);
+		}
+	);
+
+	return { updatedVisit, medicationRequests };
 }

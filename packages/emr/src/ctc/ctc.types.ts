@@ -174,8 +174,8 @@ export type AppointmentResponse = t.AppointmentResponse<
 /**
  * Reports
  */
-namespace Report {
-	type MissedAppointment = t.Report<
+export namespace Report {
+	export type MissedAppointment = t.Report<
 		"missed",
 		{
 			missedDate: t.P.YYYYMMDDDateString;
@@ -191,11 +191,11 @@ namespace Report {
  */
 export type Visit = t.Visit<
 	{ patient: Patient; practitioner: Doctor },
-	| IntialPatientIntakeAssessment
-	| HIVPatientIntakeAssessment
-	| PatientAdherenceAssessment
-	| ConcludingAssessment
-	| t.Assessment, // temporary assessment data
+	// | IntialPatientIntakeAssessment
+	// | HIVPatientIntakeAssessment
+	// | PatientAdherenceAssessment
+	// | ConcludingAssessment
+	t.Assessment, // temporary assessment data
 	MedicationRequest,
 	InvestigationRequest,
 	AppointmentResponse,
