@@ -148,10 +148,13 @@ export type Medication<
 > = ResourceItem<
 	"Medication",
 	{
+		// medication name
+		id: string;
+
 		// Name that helps identify the resource item
 		identifier: Identifier;
 
-		// freindlier name (id)
+		// friendlier name (id)
 		alias: string;
 
 		// Medication category

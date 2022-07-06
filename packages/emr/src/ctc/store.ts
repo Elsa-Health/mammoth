@@ -46,7 +46,7 @@ type RunTransactionParams<T extends Document.Data> = (params: {
 	multiAdd: (data: T[]) => Promise<void>;
 	set: (data: [string, T]) => Promise<void>;
 	multiSet: (data: [string, T][]) => Promise<void>;
-	update: (data: [string, Partial<T>]) => Promise<void>;
+	update: (id: string, data: Partial<T>) => Promise<void>;
 }) => Promise<void> | void;
 
 export async function runTransaction<T extends Document.Data>(
@@ -74,8 +74,8 @@ export async function runTransaction<T extends Document.Data>(
 				data.map((obj) => [generateId(obj), obj])
 			);
 		},
-		update: async (data) => {
-			await updateDoc(doc(collection, data[0]), data[1]);
+		update: async (id, data) => {
+			await updateDoc(doc(collection, id), data);
 		},
 	});
 }

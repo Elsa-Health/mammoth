@@ -4,6 +4,7 @@ import {CollectionNode, Store} from 'papai/collection/core';
 import {Report, StockRecord} from '@elsa-health/emr/health.types/v1';
 
 import {
+  clearCollection,
   collection,
   doc,
   getStore,
@@ -217,10 +218,10 @@ export type EMRModule = ReturnType<typeof getEMR>;
 // PERFORM seeding
 
 export async function Seeding(emr: EMRModule, org: CTC.Organization) {
-  const seedKey = 'STORAGE@SEED-ONCE-NOW';
+  const seedKey = 'STORAGE@SEED-ONCE-NOW-PROPER';
 
   // make sure the seeding happens
-  return AsyncStorage.getItem(seedKey).then(isToSeed => {
+  return AsyncStorage.getItem(seedKey).then(async isToSeed => {
     if (isToSeed !== null) {
       console.log('Not seeding...');
       return;
@@ -232,6 +233,9 @@ export async function Seeding(emr: EMRModule, org: CTC.Organization) {
       console.log('Not seeding...');
       return;
     }
+
+    // await clearCollection(emr.collection('stock'));
+    // await clearCollection(emr.collection('publicStock'));
 
     console.log('Seeding...');
     // run seed for stock + // then lock after first run
@@ -248,7 +252,6 @@ export async function Seeding(emr: EMRModule, org: CTC.Organization) {
 
 import {addDoc} from 'papai/collection';
 import {CRDTState} from '../actions/socket';
-import cons from 'gun';
 
 // set observable on document change
 const store = getStorage();

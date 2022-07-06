@@ -40,8 +40,6 @@ import _ from 'lodash';
 import {Controller, useForm} from 'react-hook-form';
 
 import z from 'zod';
-import {CTC} from '../../emr/types';
-import produce from 'immer';
 
 const SingleStockItem = z.object({
   count: z.string(),
@@ -70,37 +68,38 @@ export type SingleStockItem = z.infer<typeof SingleStockItem>;
 //   cb: (d: CTC.ARVStockRecord) => void,
 // ) => {unsubscribe: () => void};
 
+type ARVMap = {
+  [arvStockId: string]: [string, SingleStockItem];
+};
+// form value
+type F = keyof ARVMap;
+type V = ARVMap[F];
+
 export default function MedicationStockScreen({
   entry: e,
   actions: $,
 }: WorkflowScreenProps<
   {
-    arvs: {
-      [arvStockId: string]: SingleStockItem;
-    };
+    arvs: ARVMap;
   },
   {
     setARVStockItem: (
       id: string | null,
-      data: SingleStockItem,
+      data: [string, SingleStockItem],
     ) => Promise<void>;
   }
 >) {
   const {spacing} = useTheme();
-
   // Summary of stock
   const groups = React.useMemo(
     () =>
-      groupByFn(Object.entries(e.arvs ?? {}), ([id, item]) => item.group).map(
+      groupByFn(Object.entries(e.arvs ?? {}), ([_, s]) => s[1].group).map(
         ([d, x]) => [d, x.length],
       ),
     [e.arvs],
   );
 
-  // form value
-  const [singleForm, setSingleForm] = React.useState<
-    [string, SingleStockItem] | null
-  >(null);
+  const [singleForm, setSingleForm] = React.useState<[F, V] | null>(null);
 
   // ref
   const singleBottomSheetRef = React.useRef<BottomSheetModal>(null);
@@ -117,7 +116,7 @@ export default function MedicationStockScreen({
     singleBottomSheetRef.current?.present();
   };
 
-  const showToUpdateSingleItem = (id: string, item: SingleStockItem) => {
+  const showToUpdateSingleItem = (id: F, item: V) => {
     setSingleForm([id, item]);
     singleBottomSheetRef.current?.present();
   };
@@ -173,14 +172,24 @@ export default function MedicationStockScreen({
                   </Text>
                 </View>
               ) : (
-                Object.entries(e.arvs ?? {}).map(([singleId, item]) => (
-                  <React.Fragment key={singleId}>
-                    <MedicationItem
-                      item={item}
-                      onPress={() => showToUpdateSingleItem(singleId, item)}
-                    />
-                  </React.Fragment>
-                ))
+                Object.entries(e.arvs ?? {}).map(([singleId, vals]) => {
+                  if (singleId === null) {
+                    return (
+                      <View>
+                        <Text>SOMETHING</Text>
+                      </View>
+                    );
+                  } else {
+                    return (
+                      <React.Fragment key={singleId}>
+                        <MedicationItem
+                          item={vals[1]}
+                          onPress={() => showToUpdateSingleItem(singleId, vals)}
+                        />
+                      </React.Fragment>
+                    );
+                  }
+                })
               )}
             </Section>
           </ScrollView>
@@ -210,7 +219,6 @@ function MedicationItem({
   id,
   item,
   onPress,
-  onUpdateSubscription,
 }: {
   id: string;
   item: {text: string; form: string | null; count: string};
@@ -225,8 +233,11 @@ function MedicationItem({
             flexDirection: 'row',
             alignItems: 'center',
           }}>
+          <Text font="bold" size={14}>
+            {item.group} /{' '}
+          </Text>
           <Text>{item.text}</Text>
-          {(item.form ?? '').length > 0 && (
+          {/* {(item.form ?? '').length > 0 && (
             <View
               style={{
                 marginLeft: 6,
@@ -237,7 +248,7 @@ function MedicationItem({
               }}>
               <Text>{item.form}</Text>
             </View>
-          )}
+          )} */}
         </View>
         <Text>{item.count}</Text>
       </Row>
@@ -249,38 +260,71 @@ function MediForm({
   initialValue,
   submit,
 }: {
-  initialValue: null | [string, SingleStockItem];
-  submit: (id: string | null, data: SingleStockItem) => Promise<void>;
+  initialValue: null | [F, V];
+  submit: (id: string | null, data: V) => Promise<void>;
 }) {
   const {handleSubmit, control, setValue} = useForm<SingleStockItem>({
-    defaultValues: initialValue?.[1] ?? {
+    defaultValues: initialValue?.[1][1] ?? {
       type: 'single',
       ingredients: [],
       form: 'granules',
       estimatedFor: '30-days',
+      group: 'adults',
     },
   });
-  const [{loading}, run] = useAsyncFn(submit, [submit]);
-  const onSubmit = handleSubmit(values =>
-    run(initialValue?.[0] ?? null, values),
+
+  const [stockId, medicationId] = React.useMemo(
+    () => [initialValue?.[0] ?? null, initialValue?.[1][0] ?? null],
+    [initialValue],
   );
+
+  const [{loading}, run] = useAsyncFn(submit, [submit]);
+  const onSubmit = handleSubmit(values => run(stockId, [medicationId, values]));
 
   return (
     <>
+      <View style={{marginBottom: 16}}>
+        <Text size={'sm'} font="medium">
+          Stock ID
+        </Text>
+        <View
+          style={{
+            padding: 8,
+            marginTop: 4,
+            borderRadius: 8,
+            backgroundColor: '#EEE',
+          }}>
+          <Text>{stockId ?? '<TO-GENERATE>'}</Text>
+        </View>
+      </View>
       <CollapsibleSection
         title="Medication Details"
         desc="Description of medication"
         removeLine
         mode="raised">
+        <View style={{marginBottom: 16}}>
+          <Text size={'sm'} font="medium">
+            Medication ID
+          </Text>
+          <View
+            style={{
+              padding: 8,
+              marginTop: 4,
+              borderRadius: 8,
+              backgroundColor: '#EEE',
+            }}>
+            <Text>{medicationId ?? '<TO-GENERATE>'}</Text>
+          </View>
+        </View>
         <Controller
           name="type"
           control={control}
           render={({field}) => (
             <>
-              {/* Medication */}
+              {/* Classification */}
               <Section
                 title="Classification"
-                desc="Where is the medication classified in?"
+                desc="How is the medication packaged?"
                 removeLine>
                 <RadioButton.Group
                   value={field.value}
@@ -291,20 +335,19 @@ function MediForm({
                       flexWrap: 'wrap',
                       justifyContent: 'flex-start',
                     }}>
-                    {['single', 'composed']
-                      .map(d => ({value: d, text: _.capitalize(d)}))
-                      .map(({value, text}) => (
-                        <RadioButton.Item
-                          label={text}
-                          key={value}
-                          value={value}
-                        />
-                      ))}
+                    {[
+                      {value: 'single', text: 'Single'},
+                      {value: 'composed', text: 'Combined'},
+                    ].map(({value, text}) => (
+                      <React.Fragment key={value}>
+                        <RadioButton.Item label={text} value={value} />
+                      </React.Fragment>
+                    ))}
                   </Row>
                 </RadioButton.Group>
               </Section>
-              {/* Regimens */}
 
+              {/* Regimens */}
               {field.value === 'single' ? (
                 <Section
                   title="Select Regimen"
@@ -409,7 +452,7 @@ function MediForm({
             <>
               <Section
                 title="Form of Medication"
-                desc="Nature of the medication added to stockBot">
+                desc="Nature of the medication added to stock">
                 <RadioButton.Group
                   value={field.value}
                   onValueChange={field.onChange}>
@@ -433,7 +476,7 @@ function MediForm({
               </Section>
 
               <Section
-                title="Concentration"
+                title="Quantity"
                 desc="Amount in one container (e.g. bottle)"
                 removeLine>
                 <Controller
@@ -478,6 +521,37 @@ function MediForm({
           )}
         />
       </CollapsibleSection>
+
+      <Controller
+        name="group"
+        control={control}
+        render={({field, fieldState}) => (
+          <Section
+            title="Age Group"
+            desc="As applied for the medication above"
+            removeLine>
+            <RadioButton.Group
+              value={field.value}
+              onValueChange={field.onChange}>
+              <Row
+                spaceTop
+                contentStyle={{
+                  flexWrap: 'wrap',
+                  justifyContent: 'flex-start',
+                }}>
+                {['adults', 'pediatrics']
+                  .map(d => ({
+                    value: d,
+                    text: _.capitalize(d.replace('-', ' ')),
+                  }))
+                  .map(({value, text}) => (
+                    <RadioButton.Item label={text} key={value} value={value} />
+                  ))}
+              </Row>
+            </RadioButton.Group>
+          </Section>
+        )}
+      />
 
       <Controller
         name="estimatedFor"

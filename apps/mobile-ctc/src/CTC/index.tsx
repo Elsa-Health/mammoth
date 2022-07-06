@@ -35,7 +35,14 @@ import {NetworkStatus, useWebSocket} from '../app/utils';
 
 import {withFlowContext} from '@elsa-ui/react-native-workflows';
 
-import {doc, setDoc, getDocs, setDocs, query} from 'papai/collection';
+import {
+  doc,
+  setDoc,
+  getDocs,
+  setDocs,
+  query,
+  updateDoc,
+} from 'papai/collection';
 import {List} from 'immutable';
 import {ToastAndroid, View} from 'react-native';
 import _ from 'lodash';
@@ -69,7 +76,7 @@ import {
   prepareLazyExecutors,
   executeChain,
 } from '@elsa-health/emr';
-import {date} from '@elsa-health/emr/lib/utils';
+import {date, utcDateString} from '@elsa-health/emr/lib/utils';
 
 import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
 import type {Document} from 'papai/collection/types';
@@ -78,6 +85,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Migration} from './emr/temp.migrate';
 import {TouchableRipple} from 'react-native-paper';
 import {Text} from '@elsa-ui/react-native/components';
+import produce from 'immer';
 
 const Stack = createNativeStackNavigator();
 
@@ -158,6 +166,10 @@ function App({
       medicationRequest: prepareLazyExecutors(
         data => (data?.id ?? uuid.v4()) as string,
         Emr.collection('medication-requests'),
+      ),
+      stock: prepareLazyExecutors(
+        data => (data?.id ?? uuid.v4()) as string,
+        Emr.collection('stock'),
       ),
     }),
     [Emr],
@@ -628,79 +640,141 @@ function App({
           component={withFlowContext(MedicationStock, {
             entry: stock,
             actions: ({navigation}) => ({
-              async setARVStockItem(_id, data) {
+              async setARVStockItem(_id, [medicationId, data]) {
+                console.log(_id, medicationId, data);
                 const org =
                   doctor.organization.resourceType === 'Organization'
                     ? reference(doctor.organization)
                     : doctor.organization;
 
-                // medication id
-                const id = _id ?? (uuid.v4() as string);
+                // assumed new medication
+                if (_id === null) {
+                  // information for new medication
+                  const id = _id ?? (uuid.v4() as string);
+                  const conc =
+                    data.concentrationValue !== null
+                      ? removeWhiteSpace(data.concentrationValue).length === 0
+                        ? null
+                        : parseInt(data.concentrationValue)
+                      : 0;
+                  const stock = Stock<CTC.ARVStockRecord>({
+                    count: parseInt(data.count ?? '0'),
+                    expiresAt: format(
+                      convertDMYToDate(data.expiresAt),
+                      'yyyy-MM-dd',
+                    ),
+                    id,
+                    medication:
+                      data.type === 'single'
+                        ? Medication<CTC.SingleARVMedication>({
+                            type: 'single',
+                            form: data.form,
+                            identifier: data.identifier as ARV.UnitRegimen,
+                            text: data.text,
+                            category: 'arv-ctc',
+                          })
+                        : Medication<CTC.ARVMedication>({
+                            identifier: _.kebabCase(data.text),
+                            form: data.form,
+                            ingredients: data.ingredients.map(identifier =>
+                              Ingredient({
+                                identifier,
+                                text:
+                                  ARV.units.fromKey(identifier) ?? identifier,
+                              }),
+                            ),
+                            text: data.text,
+                            category: 'arv-ctc',
+                            type: (data.type as 'composed') ?? 'composed',
+                          }),
+                    managingOrganization: org,
+                    extendedData: {
+                      estimatedFor: data.estimatedFor,
+                      group: data.group,
+                      isLow: false,
+                    },
+                    concentration: conc
+                      ? {
+                          amount: conc,
+                          units:
+                            data.form === 'granules'
+                              ? 'mg'
+                              : data.form === 'syrup'
+                              ? 'cc'
+                              : 'tablets',
+                        }
+                      : null,
+                    // set last update
+                    lastUpdatedAt: utcDateString(),
+                  });
 
-                const conc =
-                  data.concentrationValue !== null
-                    ? removeWhiteSpace(data.concentrationValue).length === 0
-                      ? null
-                      : parseInt(data.concentrationValue)
-                    : 0;
+                  await executeChain([executor.stock(({add}) => add(stock))]);
+                } else {
+                  const s =
+                    (
+                      await query(Emr.collection('stock'), {
+                        where: item => item.id === _id,
+                      })
+                    ).get(0) ?? null;
 
-                const stock = Stock<CTC.ARVStockRecord>({
-                  count: parseInt(data.count ?? '0'),
-                  expiresAt: format(
-                    convertDMYToDate(data.expiresAt),
-                    'yyyy-MM-dd',
-                  ),
-                  id,
-                  medication:
-                    data.type === 'single'
-                      ? Medication<CTC.SingleARVMedication>({
-                          type: 'single',
-                          form: data.form,
-                          identifier: data.identifier as ARV.UnitRegimen,
-                          text: data.text,
-                          category: 'arv-ctc',
-                        })
-                      : Medication<CTC.ARVMedication>({
-                          identifier: _.kebabCase(data.text),
-                          form: data.form,
-                          ingredients: data.ingredients.map(identifier =>
-                            Ingredient({
-                              identifier,
-                              text: ARV.units.fromKey(identifier) ?? identifier,
-                            }),
-                          ),
-                          text: data.text,
-                          category: 'arv-ctc',
-                          type: (data.type as 'composed') ?? 'composed',
-                        }),
-                  managingOrganization: org,
-                  extendedData: {
-                    estimatedFor: data.estimatedFor,
-                    group: data.group,
-                    isLow: false,
-                  },
-                  concentration: conc
-                    ? {
-                        amount: conc,
-                        units:
-                          data.form === 'granules'
-                            ? 'mg'
-                            : data.form === 'syrup'
-                            ? 'cc'
-                            : 'tablets',
-                      }
-                    : null,
-                  // set last update
-                  lastUpdatedAt: date().toUTCString(),
-                });
+                  if (s === null) {
+                    // indicate success
+                    ToastAndroid.show('Unable to update!', ToastAndroid.SHORT);
+                    return;
+                  }
+                  // get proper medication
+                  console.log(data);
 
-                await setDoc(
-                  doc(Emr.collection('stock'), stock.id),
-                  stock,
-                ).catch(err => {
-                  console.log('Failed to add stock');
-                  console.log(err);
-                });
+                  await updateDoc(doc(Emr.collection('stock'), _id), {
+                    lastUpdatedAt: utcDateString(),
+                    medication:
+                      data.type === 'single'
+                        ? Medication<CTC.SingleARVMedication>({
+                            id: medicationId,
+                            type: 'single',
+                            form: data.form,
+                            identifier: data.identifier as ARV.UnitRegimen,
+                            text: data.text,
+
+                            category: 'arv-ctc',
+                          })
+                        : Medication<CTC.ARVMedication>({
+                            id: medicationId,
+                            identifier: _.kebabCase(data.text),
+                            form: data.form,
+                            ingredients: data.ingredients.map(identifier =>
+                              Ingredient({
+                                identifier,
+                                text:
+                                  ARV.units.fromKey(identifier) ?? identifier,
+                              }),
+                            ),
+                            alias: data.text,
+                            text: data.text,
+                            category: 'arv-ctc',
+                            type: (data.type as 'composed') ?? 'composed',
+                          }),
+                    extendedData: {
+                      estimatedFor: data.estimatedFor,
+                      group: data.group,
+                      isLow: false,
+                    },
+                    count: parseInt(data.count ?? '0'),
+
+                    expiresAt: format(
+                      convertDMYToDate(data.expiresAt),
+                      'yyyy-MM-dd',
+                    ),
+                  });
+
+                  // ...
+                }
+
+                // indicate success
+                ToastAndroid.show(
+                  'Updated stock medication',
+                  ToastAndroid.SHORT,
+                );
               },
             }),
           })}

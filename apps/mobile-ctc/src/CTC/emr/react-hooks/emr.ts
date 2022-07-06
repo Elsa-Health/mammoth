@@ -78,19 +78,22 @@ export function useStock(emr: EMRModule) {
       (stock_ ?? List())
         .map(d => [
           d.id,
-          {
-            count: d.count.toString(),
-            form: d.medication.form,
-            expiresAt: format(date(d.expiresAt), 'dd / MM / yyyy'),
-            ingredients: d.medication.ingredients.map(d => d.identifier),
-            alias: d.medication.alias,
-            type: d.medication.type,
-            estimatedFor: '30-days',
-            identifier: d.medication.identifier,
-            text: d.medication.text,
-            group: 'adults',
-            concentrationValue: null,
-          } as SingleStockItem,
+          [
+            d.medication.identifier,
+            {
+              count: d.count.toString(),
+              form: d.medication.form,
+              expiresAt: format(date(d.expiresAt), 'dd / MM / yyyy'),
+              ingredients: d.medication.ingredients.map(d => d.identifier),
+              alias: d.medication.alias,
+              type: d.medication.type,
+              estimatedFor: '30-days',
+              identifier: d.medication.identifier,
+              text: d.medication.text,
+              group: d.extendedData?.group ?? 'adults',
+              concentrationValue: null,
+            } as SingleStockItem,
+          ],
         ])
         .toArray(),
     ),
