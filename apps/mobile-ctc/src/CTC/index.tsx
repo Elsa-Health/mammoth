@@ -657,6 +657,7 @@ function App({
                         ? null
                         : parseInt(data.concentrationValue)
                       : 0;
+                  const dosage = data.dosage ?? null;
                   const stock = Stock<CTC.ARVStockRecord>({
                     count: parseInt(data.count ?? '0'),
                     expiresAt: format(
@@ -669,12 +670,14 @@ function App({
                         ? Medication<CTC.SingleARVMedication>({
                             type: 'single',
                             form: data.form,
+                            id: `${data.identifier}-${uuid.v4()}`,
                             identifier: data.identifier as ARV.UnitRegimen,
                             text: data.text,
                             category: 'arv-ctc',
                           })
                         : Medication<CTC.ARVMedication>({
                             identifier: _.kebabCase(data.text),
+                            id: `${data.identifier}-${uuid.v4()}`,
                             form: data.form,
                             ingredients: data.ingredients.map(identifier =>
                               Ingredient({
@@ -688,6 +691,7 @@ function App({
                             type: (data.type as 'composed') ?? 'composed',
                           }),
                     managingOrganization: org,
+                    dosage: dosage,
                     extendedData: {
                       estimatedFor: data.estimatedFor,
                       group: data.group,

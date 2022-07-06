@@ -105,6 +105,7 @@ export declare namespace CTC {
       estimatedFor: '30-days' | '60-days' | '90-days';
       group: 'adults' | 'pediatrics';
       isLow: boolean;
+      dosage: Nullable<{value: number; units: string}>;
     }
   >;
 

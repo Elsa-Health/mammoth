@@ -105,7 +105,7 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
   const {value: medications} = useAsyncRetry(async () => {
     const s = await $.fetchMedications();
     const out = Object.fromEntries(
-      s.map(d => [d.identifier, d] as [string, typeof d]),
+      s.map(d => [d.id ?? d.identifier, d] as [string, typeof d]),
     );
     return out;
   }, []);
@@ -303,7 +303,7 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
                     onSelectedItemsChange={ids =>
                       field.onChange(ids.map(idx => (medications || {})[idx]))
                     }
-                    selectedItems={field.value.map(d => d.identifier)}
+                    selectedItems={field.value.map(d => d.id ?? d.identifier)}
                   />
                 )}
               />

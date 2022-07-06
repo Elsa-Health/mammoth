@@ -58,6 +58,7 @@ const SingleStockItem = z.object({
   text: z.string(),
   type: z.union([z.literal('single'), z.literal('composed')]),
   concentrationValue: z.union([z.string(), z.null()]),
+  dosage: z.object({value: z.number(), units: z.string()}).nullable(),
   identifier: z.string(),
   group: z.union([z.literal('adults'), z.literal('pediatrics')]),
 });
@@ -473,6 +474,48 @@ function MediForm({
                       ))}
                   </Row>
                 </RadioButton.Group>
+              </Section>
+
+              <Section
+                title="Dosage"
+                desc="Concentration in a pill?"
+                removeLine>
+                <Controller
+                  name="dosage"
+                  rules={{pattern: /\d+/g}}
+                  control={control}
+                  render={({field: cf, fieldState: fs}) => (
+                    <>
+                      <Row>
+                        <View style={{flex: 0.7}}>
+                          <TextInput
+                            mode="outlined"
+                            placeholder="0"
+                            ref={cf.ref}
+                            value={cf.value?.value}
+                            onChangeText={value =>
+                              cf.onChange({
+                                value,
+                                units: field.value === 'syrup' ? 'ml' : 'mg',
+                              })
+                            }
+                            right={
+                              <TextInput.Affix
+                                text={field.value === 'syrup' ? 'ml' : 'mg'}
+                              />
+                            }
+                          />
+
+                          {fs.error !== undefined && (
+                            <HelperText type="error">
+                              Required number, If nothing on stock, set '0'
+                            </HelperText>
+                          )}
+                        </View>
+                      </Row>
+                    </>
+                  )}
+                />
               </Section>
 
               <Section
