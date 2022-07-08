@@ -13,4 +13,7 @@ node_modules
 # volumes created by the server
 server-*-volume
 
+# data create from server storage
+server-data
+
 playground.ts

@@ -16,8 +16,8 @@ const opts = {
 	compression: true,
 };
 
-const publicLDB = new Level("./server-publicdb-volume", { ...opts });
-const privateLDB = new Level("./server-privatedb-volume", {
+const publicLDB = new Level("./server-data/publicdb", { ...opts });
+const privateLDB = new Level("./server-data/privatedb", {
 	...opts,
 	prefix: "$",
 });
