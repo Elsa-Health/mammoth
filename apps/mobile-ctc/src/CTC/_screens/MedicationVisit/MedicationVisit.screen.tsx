@@ -367,7 +367,7 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
           </Column>
         </Section>
 
-        <Section
+        {/* <Section
           title="Request Investigations"
           desc="Make investigation requests for the patient">
           <Controller
@@ -401,7 +401,7 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
               </>
             )}
           />
-        </Section>
+        </Section> */}
 
         {/* Date */}
         <Section
