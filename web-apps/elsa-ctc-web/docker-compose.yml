@@ -1,0 +1,12 @@
+version: "3.1"
+
+services:
+    db:
+        image: mysql:8.0.29
+        restart: always
+        environment:
+            MYSQL_DATABASE: elsa-ctc
+            MYSQL_ROOT_PASSWORD: elsa-secret-password
+
+        ports:
+            - 3307:3306

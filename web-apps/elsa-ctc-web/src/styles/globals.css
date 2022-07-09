@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+	@apply transition-colors ease-in-out duration-75 focus:outline-none;
+}
