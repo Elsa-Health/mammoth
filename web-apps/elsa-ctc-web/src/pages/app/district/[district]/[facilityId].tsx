@@ -1,17 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-import {
-	ChartPieIcon,
-	CurrencyEuroIcon,
-	PlusIcon,
-} from "@heroicons/react/solid";
+import { ChartPieIcon } from "@heroicons/react/solid";
 import { Layout } from "@ui/layout";
 import { $extend } from "@ui/utils";
 import React from "react";
-import { Dialog } from "@headlessui/react";
 import { Button } from "@ui/forms/buttons";
-import { useForm } from "react-hook-form";
-import { Input } from "@ui/forms/rhf";
-
 import QueryBox from "@bagpack/querybox";
 import * as district from "@bagpack/runners/district";
 

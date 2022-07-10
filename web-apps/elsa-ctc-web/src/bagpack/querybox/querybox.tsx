@@ -28,28 +28,6 @@ import { ChartTypeRegistry } from "chart.js";
 
 import { useAsync, useAsyncFn } from "react-use";
 
-const Editor = () => {
-	const [code, setCode] = React.useState(
-		`function add(a, b) {\n  return a + b;\n}`
-	);
-
-	return (
-		<SimpleEditor
-			value={code}
-			onValueChange={(code) => setCode(code)}
-			// @ts-ignore
-			highlight={(value) => highlight(value, Prism.languages.js)}
-			padding={10}
-			style={{
-				fontFamily: '"Fira code", "Fira Mono", monospace',
-				fontSize: 12,
-				lineHeight: 1.5,
-				height: "100%",
-			}}
-		/>
-	);
-};
-
 export function LogBox() {
 	const codeString = "(num) => num + 1";
 	return (
@@ -128,10 +106,18 @@ type QueryRunnerProps = {
 	};
 	log: (a: any) => void;
 };
-export type QueryRunner = (tools: QueryRunnerProps) => Promise<{
-	drawTable?: ReturnType<typeof table>;
-	drawChart?: ReturnType<typeof chart>;
-} | void>;
+export type QueryRunner = (tools: QueryRunnerProps) => Promise<
+	| {
+			title?: string;
+			drawTable?: ReturnType<typeof table>;
+			drawChart?: ReturnType<typeof chart>;
+	  }
+	| {
+			title?: string;
+			message: string;
+	  }
+	| void
+>;
 
 import { Disclosure } from "@headlessui/react";
 import { Loading } from "@ui/icons";
@@ -142,11 +128,13 @@ import { Chart } from "@ui/charts";
 export default function QueryBox({
 	title,
 	run,
+	DEV_graph = false,
 	id = nanoid(),
 }: {
 	title?: string;
 	run: QueryRunner;
 	id?: string;
+	DEV_graph?: boolean;
 }) {
 	const [table_, setTable] = React.useState<null | any>(() => ({
 		data: List(),
@@ -155,10 +143,45 @@ export default function QueryBox({
 
 	// data to render chart information
 	const [chart_, setChart] = React.useState<ChartProps | null>(() => null);
+	const [children, setChildren] = React.useState(null);
 
 	const [code, setCode] = React.useState(
 		// `function add(a, b) {\n  return a + b;\n}`
-		`// will fix this \n${run.toString()}`
+		`// Will fix this very later \n// This is placeholder code \n// ----------------- \n${`
+// fetch patient and visits data from the cloud
+let patients = await queryData("/collection/patients/data");
+let visits = await queryData("/collection/visits/data");
+
+// assign functions
+let count = r.length;
+let countInWeeks = (d) => r.length(r.filter(is.withinWeek, d));
+
+// fetch appointments information from storage
+let appts = await fetchAppointments();
+
+return {
+	// use the data and paint over a table
+	drawTable: table({
+		columns: ["type", "overall", "this-week"],
+		data: [
+			[
+				"Patient Registered",
+				count(patients),
+				countInWeeks(r.pluck("createdAt", patients)),
+			],
+			[
+				"Patient Visits Completed",
+				count(patients),
+				countInWeeks(r.pluck("createdAt", visits)),
+			],
+			[
+				"Missed Appointments",
+				count(appts.missed),
+				countInWeeks(r.pluck("appointmentDate", appts.missed)),
+			],
+		],
+	}),
+};`}`
 	);
 	const [logs, setLogs] = React.useState(List());
 	const [error, setError] = React.useState<null | Error>(null);
@@ -176,16 +199,23 @@ export default function QueryBox({
 			h: { date, dx },
 			is: { withinWeek: isWithInWeek },
 		})
-			.then((out) => {
-				const { drawTable, drawChart } = out || {};
-				log(out);
-				setTable(drawTable ?? null);
-				setChart(drawChart ?? null);
+			.then((out = {}) => {
+				// @ts-ignore
+				if (out.message === undefined) {
+					// @ts-ignore
+					const { drawTable, drawChart } = out || {};
+					// log(out);
+					setTable(drawTable ?? null);
+					setChart(drawChart ?? null);
+				} else {
+					throw new Error("`message` not supported");
+					// ...
+				}
 			})
 			.catch((err) => {
 				setError(err);
 			});
-	}, []);
+	}, [run, DEV_graph]);
 
 	React.useEffect(() => {
 		let s = false;
@@ -208,7 +238,7 @@ export default function QueryBox({
 	return (
 		<div className="relative h-full w-full bg-white drop-shadow-lg print:drop-shadow-none">
 			{/* yarn start */}
-			<div className="mb-8 h-full overflow-auto rounded-t-md border py-4 px-4 print:mb-0 print:border-none print:p-0 print:p-2">
+			<div className="mb-8 h-full overflow-y-auto rounded-t-md border py-4 px-4 print:mb-0 print:border-none print:p-0 print:p-2">
 				<div className="flex flex-row-reverse items-center justify-between print:flex-row">
 					<div className="flex print:hidden">
 						<button
@@ -218,14 +248,14 @@ export default function QueryBox({
 							<PlayIcon className="h-5 w-auto text-purple-500" />
 						</button>
 					</div>
-					<div className="inline-flex flex-row items-center gap-2">
-						<div className="print:hidden">
-							{loading && (
+					<div className="inline-flex flex-row items-center">
+						{loading && (
+							<div className="mr-4 print:hidden">
 								<Loading
 									className={"h-5 w-auto text-purple-400"}
 								/>
-							)}
-						</div>
+							</div>
+						)}
 						{/* NEXT: Make this editable */}
 						{title && (
 							<h2 className="text-xl print:px-2 print:py-1.5 print:text-base print:font-medium">
@@ -234,37 +264,24 @@ export default function QueryBox({
 						)}
 					</div>
 				</div>
-				<div className="grid grid-flow-col">
-					{chart_ && (
-						<div>
-							<Chart
-								{...chart_}
-								// height={100}
-								// type="bar"
-								// data={{
-								// 	labels: [
-								// 		"Patients Registered",
-								// 		"Patients Visit Completed",
-								// 	],
-								// 	datasets: [
-								// 		{
-								// 			label: "Patients",
-								// 			backgroundColor: ["#3e95cd", "#3e95cd"],
-								// 			data: [323, 560],
-								// 		},
-								// 	],
-								// }}
-								// options={{
-								// 	indexAxis: "y",
-								// 	scales: {},
-								// }}
-							/>
-						</div>
-					)}
+				{children !== null ? (
 					<div>
-						<Tableur {...(table_ || {})} />
+						<h2>Something</h2>
 					</div>
-				</div>
+				) : (
+					<div className="grid grid-flow-col overscroll-y-none object-contain">
+						{chart_ && (
+							<div>
+								<Chart {...chart_} />
+							</div>
+						)}
+						{!DEV_graph && (
+							<div>
+								<Tableur {...(table_ || {})} />
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 			{/* Tab section for the querying area */}
 			<div className="absolute bottom-0 left-0 right-0 rounded-b-md bg-slate-800 text-green-200 print:hidden">

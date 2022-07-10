@@ -1,0 +1,495 @@
+[
+	{
+		"deviceNumber": "0001",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352845141441909", "353051561441904"],
+		"devicePhoneNumber": "0746322058",
+		"deployedFacility": {
+			"name": "Janja Family Care",
+			"location": "Maila Moja B"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Halima Abasi Sitwi",
+		"userPhoneNumber": "255719254745",
+		"userId": "9635f6fa-921d-11eb-a8b3-0242ac130003",
+		"QRContents": "1|9635f6fa-921d-11eb-a8b3-0242ac130003|halima|abasi sitwi|addo dispenser|+255719254745|janja family care|kibaha|e031778e-921d-11eb-a8b3-0242ac130003"
+	},
+	{
+		"deviceNumber": "0002",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352523/32/732900/4", "355508227329003"],
+		"devicePhoneNumber": "0744137515",
+		"deployedFacility": {
+			"name": "Ebeneza DLDM",
+			"location": "Visiga"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Tabu Arthur",
+		"userPhoneNumber": "255754273738",
+		"userId": "6eeacf6a-921f-11eb-a8b3-0242ac130003",
+		"QRContents": "1|6eeacf6a-921f-11eb-a8b3-0242ac130003|tabu|arthur|addo dispenser|+255754273738|ebeneza dldm|kibaha|a50e693a-921f-11eb-a8b3-0242ac130003"
+	},
+	{
+		"deviceNumber": "0003",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352845/14/143720/4", "353051/56/143720/9"],
+		"devicePhoneNumber": "0744158738",
+		"deployedFacility": {
+			"name": "Ganzu DLDM",
+			"location": "Visiga"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Zainabu Said",
+		"userPhoneNumber": "255712866391",
+		"userId": "ccf4e6e0-921f-11eb-a8b3-0242ac130003",
+		"QRContents": "1|ccf4e6e0-921f-11eb-a8b3-0242ac130003|zainabu|said|addo dispenser|+255712866391|ganzu dldm|kibaha|f6d4e8b6-921f-11eb-a8b3-0242ac130003"
+	},
+	{
+		"deviceNumber": "0004",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352845/14/144716/1", "353051/56/144716/6"],
+		"devicePhoneNumber": "0745706753",
+		"deployedFacility": {
+			"name": "Healling",
+			"location": "Mbwawa"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Mwanaiza Mdee",
+		"userPhoneNumber": "255755947253",
+		"userId": "fa173f0c-81fb-11ec-a8a3-0242ac120002",
+		"QRContents": "1|fa173f0c-81fb-11ec-a8a3-0242ac120002|mwanaiza|mdee|addo dispenser|+255755947253|healling|kibaha|1b3e2ce0-81fc-11ec-a8a3-0242ac120002"
+	},
+	{
+		"deviceNumber": "0005",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352523/32/547778/9", "355508225477788"],
+		"devicePhoneNumber": "0744415304",
+		"deployedFacility": {
+			"name": "Asia DLDM",
+			"location": "Kibaha"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Zelda Mussa",
+		"userPhoneNumber": "255658567600",
+		"userId": "ed773c00-9220-11eb-a8b3-0242ac130003",
+		"QRContents": "1|ed773c00-9220-11eb-a8b3-0242ac130003|zelda|mussa|addo dispenser|+255658567600|asia dldm|kibaha|0b4907c2-9221-11eb-a8b3-0242ac130003"
+	},
+	{
+		"deviceNumber": "0006",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352523/32/549110/3", "355508225491102"],
+		"devicePhoneNumber": "0744471382",
+		"deployedFacility": {
+			"name": "Shalom 2 DLDM",
+			"location": "Kibaha"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Adolfina Fracis",
+		"userPhoneNumber": "255718947183",
+		"userId": "303dddbe-9221-11eb-a8b3-0242ac130003",
+		"QRContents": "1|303dddbe-9221-11eb-a8b3-0242ac130003|adolfina|francis|addo dispenser|+255718947183|shalom 2 dldm|kibaha|a370c134-9221-11eb-a8b3-0242ac130003"
+	},
+	{
+		"deviceNumber": "0007",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352523/32/548286/2", "355508225482861"],
+		"devicePhoneNumber": "0744395726",
+		"deployedFacility": {
+			"name": "Mogosi 87 DLDM",
+			"location": "Janga"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Namvua Abdul",
+		"userPhoneNumber": "255676832771",
+		"userId": "af146cca-9221-11eb-a8b3-0242ac130003",
+		"QRContents": "1|af146cca-9221-11eb-a8b3-0242ac130003|namvua|abdul|addo dispenser|+255676832771|magosi 87 dldm|kibaha|d813c2a6-9221-11eb-a8b3-0242ac130003"
+	},
+	{
+		"deviceNumber": "0008",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352523/32/548003/1", "355508225480030"],
+		"devicePhoneNumber": "0744943249",
+		"deployedFacility": {
+			"name": "Ely J DLDM",
+			"location": "Mlandizi"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Stumai Salehe",
+		"userPhoneNumber": "255657379307",
+		"userId": "e945ee96-9221-11eb-a8b3-0242ac130003",
+		"QRContents": "1|e945ee96-9221-11eb-a8b3-0242ac130003|stumai|salehe|addo dispenser|+255657379307|ely j dldm|kibaha|ee25f956-9221-11eb-a8b3-0242ac130003"
+	},
+	{
+		"deviceNumber": "0009",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352845141446395", "353051561446390"],
+		"devicePhoneNumber": "0746468326",
+		"deployedFacility": {
+			"name": "Hoza",
+			"location": "Sofu"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Happy Wadelanga",
+		"userPhoneNumber": "255766510586",
+		"userId": "eefdeb34-81fb-11ec-a8a3-0242ac120002",
+		"QRContents": "1|eefdeb34-81fb-11ec-a8a3-0242ac120002|happy|wadelanga|addo dispenser|+255766510586|hoza|kibaha|136131d4-81fc-11ec-a8a3-0242ac120002"
+	},
+	{
+		"deviceNumber": "0010",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung A02 S",
+		"imei": ["352523/32/547899/3", "355508225478992"],
+		"devicePhoneNumber": "0745441770",
+		"deployedFacility": {
+			"name": "Bravo DLDM",
+			"location": "Janga"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Zaina Nyahenga",
+		"userPhoneNumber": "255714250169",
+		"userId": "4718e1ae-9222-11eb-a8b3-0242ac130003",
+		"QRContents": "1|4718e1ae-9222-11eb-a8b3-0242ac130003|zaina|nyahenga|addo dispenser|+255742250169|bravo dldm|kibaha|4718e3d4-9222-11eb-a8b3-0242ac130003"
+	},
+	{
+		"deviceNumber": "0011",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["350711556239885", "356086276239885"],
+		"devicePhoneNumber": "0759650426",
+		"deployedFacility": {
+			"name": "Patandi Hospital",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinician",
+		"userFullName": "Elisha Mugini",
+		"userPhoneNumber": "255763116718",
+		"userId": "c5d2e3d2-2e27-11eb-adc1-0242ac120002",
+		"QRContents": "1|c5d2e3d2-2e27-11eb-adc1-0242ac120002|elisha|mugini|clinician|+255763116718|patandi|arusha|7a833cdc-2e28-11eb-adc1-0242ac120002"
+	},
+	{
+		"deviceNumber": "0012",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["352998442369103", "353856712369105"],
+		"devicePhoneNumber": "0746108362",
+		"deployedFacility": {
+			"name": "Patandi Hospital",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "art-nurse",
+		"userFullName": "Happy Nyoni",
+		"userPhoneNumber": "255755992817",
+		"userId": "a7a4a3d4-c835-11eb-b8bc-0242ac130003",
+		"QRContents": "1|a7a4a3d4-c835-11eb-b8bc-0242ac130003|happy|nyoni|art nurse|+255755992817|patandi|arusha|7a833cdc-2e28-11eb-adc1-0242ac120002"
+	},
+	{
+		"deviceNumber": "0013",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["359573261047420", "359613631047427"],
+		"devicePhoneNumber": "0744215479",
+		"deployedFacility": {
+			"name": "Patandi Hospital",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "medical-officer",
+		"userFullName": "Dr. Agnes Kanusya",
+		"userPhoneNumber": "255754604023",
+		"userId": "2ad413ea-d4f7-437a-84ee-f959dff627c2",
+		"QRContents": "1|2ad413ea-d4f7-437a-84ee-f959dff627c2|agnes|kanusya|medical officer| +255754604023|patandi|arusha|7a833cdc-2e28-11eb-adc1-0242ac120002"
+	},
+	{
+		"deviceNumber": "0014",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["350711556239919", "356086276239919"],
+		"devicePhoneNumber": "0744580866",
+		"deployedFacility": {
+			"name": "Mbuguni Health Centre",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinician",
+		"userFullName": "Sabato Michael",
+		"userPhoneNumber": "255627979057",
+		"userId": "c5d2e828-2e27-11eb-adc1-0242ac120002",
+		"QRContents": "1|c5d2e828-2e27-11eb-adc1-0242ac120002|sabato|michael|clinician|+255627979057|patandi|arusha|7a833f48-2e28-11eb-adc1-0242ac120002"
+	},
+	{
+		"deviceNumber": "0015",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["352998442365838", "353856712365838"],
+		"devicePhoneNumber": "0746375437",
+		"deployedFacility": {
+			"name": "Nkoaranga Lutheran Hospital",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinician",
+		"userFullName": "Elihaika Jero",
+		"userPhoneNumber": "255769840865",
+		"userId": "a8ae4766-c836-11eb-b8bc-0242ac130003",
+		"QRContents": "1|a8ae4766-c836-11eb-b8bc-0242ac130003|elihaika|jero|clinician|+255769840865|nkoaranga|arusha|90e1d49a-c836-11eb-b8bc-0242ac130003"
+	},
+	{
+		"deviceNumber": "0016",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["352998442366422", "353856712366424"],
+		"devicePhoneNumber": "0745974404",
+		"deployedFacility": {
+			"name": "Dream CTC",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinical-officer",
+		"userFullName": "Lightness Guninita",
+		"userPhoneNumber": "255712269507",
+		"userId": "7fb3b706-c836-11eb-b8bc-0242ac130003",
+		"QRContents": "1|7fb3b706-c836-11eb-b8bc-0242ac130003|lightness|guninita|clinical officer|+255712269507|usa dream|arusha|aa99d3c6-bbdc-11eb-8529-0242ac130003"
+	},
+	{
+		"deviceNumber": "0017",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["350711556228649", "356086276228649"],
+		"devicePhoneNumber": "0745021767",
+		"deployedFacility": {
+			"name": "Usa Government",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinician",
+		"userFullName": "Rehema Atugonza Makaka",
+		"userPhoneNumber": "255767599231",
+		"userId": "dab0aebf-fdd1-458f-9547-9b3e7279ca64",
+		"QRContents": "1|dab0aebf-fdd1-458f-9547-9b3e7279ca64|rehema|atugonza makaka|clinician|+255767599231|usa government|arusha|49a63e79-ebec-4d86-8373-af2346920d16"
+	},
+	{
+		"deviceNumber": "0018",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["350711556239968", "356086276239968"],
+		"devicePhoneNumber": "0748219174",
+		"deployedFacility": {
+			"name": "Momela",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinician",
+		"userFullName": "Yasini Kahlifa",
+		"userPhoneNumber": "255755767648",
+		"userId": "7ba31607-bedb-481a-840e-da522172ef70",
+		"QRContents": "1|7ba31607-bedb-481a-840e-da522172ef70|yasini|kahlifa|clinician|+255755767648|momela|arusha|7f6cbe41-5b52-4749-81ab-c35c7cc3ee35"
+	},
+	{
+		"deviceNumber": "0019",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["359573261041084", "359613631041081"],
+		"devicePhoneNumber": "0746822093",
+		"deployedFacility": {
+			"name": "Makiba",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinician",
+		"userFullName": "Rukia Bakary",
+		"userPhoneNumber": "255764605003",
+		"userId": "f1d1c0ca-b2e4-42b7-9eef-d348b4cf0667",
+		"QRContents": "1|f1d1c0ca-b2e4-42b7-9eef-d348b4cf0667|rukia|bakary|clinician|+255764605003|makiba|arusha|459ce917-0387-457e-890a-5a8a6a652f47"
+	},
+	{
+		"deviceNumber": "0020",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["359573261042520", "359613631042527"],
+		"devicePhoneNumber": "0745761518",
+		"deployedFacility": {
+			"name": "Ngarenanyuki Health Centre",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinician",
+		"userFullName": "Johnas Kaguo",
+		"userPhoneNumber": "255743445658",
+		"userId": "b141352d-b71b-4a59-a0aa-fe5ce4e52650",
+		"QRContents": "1|b141352d-b71b-4a59-a0aa-fe5ce4e52650|johnas|kaguo|clinician|+255743445658|ngarenanyuki|arusha|e1b2fdca-c709-4308-a4a6-3879f9576155"
+	},
+	{
+		"deviceNumber": "0021",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["359573261042397", "359613631042394"],
+		"devicePhoneNumber": "0742975273",
+		"deployedFacility": {
+			"name": "Mareu",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "clinician",
+		"userFullName": "Hakimu Kaluse",
+		"userPhoneNumber": "255755533486",
+		"userId": "67d614d9-7e56-44a8-857c-eba66280dfb4",
+		"QRContents": "1|67d614d9-7e56-44a8-857c-eba66280dfb4|hakimu|kaluse|clinician|+255755533486|mareu|arusha|d61290c4-7a6c-4993-84f4-6629adeaba08"
+	},
+	{
+		"deviceNumber": "0022",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["", ""],
+		"devicePhoneNumber": "",
+		"deployedFacility": {
+			"name": "",
+			"location": ""
+		},
+		"project": "",
+		"userType": "ctc-clinician",
+		"userFullName": "Dr. Agnes Feksi",
+		"userPhoneNumber": "255688008150",
+		"userId": "a05df126-4dc7-11ec-81d3-0242ac130003",
+		"QRContents": "1|a05df126-4dc7-11ec-81d3-0242ac130003|agnes|feksi|ctc clinician| +255688008150|patandi|arusha|7a833cdc-2e28-11eb-adc1-0242ac120002"
+	},
+	{
+		"deviceNumber": "0023",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["", ""],
+		"devicePhoneNumber": "0745773658",
+		"deployedFacility": {
+			"name": "Patandi",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "ctc-clinician",
+		"userFullName": "Emmanuel Ole Mkopi",
+		"userPhoneNumber": "255713883624",
+		"userId": "152c232e-4dc8-11ec-81d3-0242ac130003",
+		"QRContents": "1|152c232e-4dc8-11ec-81d3-0242ac130003|emmanuel|ole mkopi|ctc clinician| +255713883624|patandi|arusha|7a833cdc-2e28-11eb-adc1-0242ac120002"
+	},
+	{
+		"deviceNumber": "0024",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["", ""],
+		"devicePhoneNumber": "0746597168",
+		"deployedFacility": {
+			"name": "Usa Dreams CTC",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "art-nurse",
+		"userFullName": "Esther Mhando",
+		"userPhoneNumber": "255654070817",
+		"userId": "6d301daa-4dc8-11ec-81d3-0242ac130003",
+		"QRContents": "1|6d301daa-4dc8-11ec-81d3-0242ac130003|esther|mhando|art nurse|+255654070817|usa dream|arusha|aa99d3c6-bbdc-11eb-8529-0242ac130003"
+	},
+	{
+		"deviceNumber": "0025",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A12",
+		"imei": ["", ""],
+		"devicePhoneNumber": "0744995036",
+		"deployedFacility": {
+			"name": "Usa Dreams CTC",
+			"location": "Meru District"
+		},
+		"project": "hiv-scale-up",
+		"userType": "art-nurse",
+		"userFullName": "Yusuph James Mwingwa",
+		"userPhoneNumber": "255744392006",
+		"userId": "33b3fae6-4dc9-11ec-81d3-0242ac130003",
+		"QRContents": "1|33b3fae6-4dc9-11ec-81d3-0242ac130003|yusuph|james mwingwa|art nurse|+255744392006|usa dream|arusha|aa99d3c6-bbdc-11eb-8529-0242ac130003"
+	},
+	{
+		"deviceNumber": "0027",
+		"deviceType": "Tablet",
+		"deviceModel": "",
+		"imei": ["", ""],
+		"devicePhoneNumber": "",
+		"deployedFacility": {
+			"name": "Mbuguni Health Centre",
+			"location": "Meru District"
+		},
+		"project": "other",
+		"userType": "clinician",
+		"userFullName": "Sabato Michael",
+		"userPhoneNumber": "255627979057",
+		"userId": "c5d2e828-2e27-11eb-adc1-0242ac120002",
+		"QRContents": "1|c5d2e828-2e27-11eb-adc1-0242ac120002|sabato|michael|clinician|+255627979057|patandi|arusha|7a833f48-2e28-11eb-adc1-0242ac120002"
+	},
+	{
+		"deviceNumber": "0028",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A03 Core",
+		"imei": ["350165822951346", "350393172951340"],
+		"devicePhoneNumber": "0742017515",
+		"deployedFacility": {
+			"name": "Hakikazi",
+			"location": "Kongowe"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Esther Semwaiko",
+		"userPhoneNumber": "0745-410905",
+		"userId": "f4422af6-81fb-11ec-a8a3-0242ac120002",
+		"QRContents": "1|f4422af6-81fb-11ec-a8a3-0242ac120002|esther|semwaiko|addo dispenser|+255745410905|hakikazi|kibaha|179e5204-81fc-11ec-a8a3-0242ac120002"
+	},
+	{
+		"deviceNumber": "0029",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A03 Core",
+		"imei": ["350165828346921", "350393178346925"],
+		"devicePhoneNumber": "0763543506",
+		"deployedFacility": {
+			"name": "Ushora",
+			"location": "Misugusugu"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Joyce Mnangala",
+		"userPhoneNumber": "0713-401775",
+		"userId": "fdc2fe02-81fb-11ec-a8a3-0242ac120002",
+		"QRContents": "1|fdc2fe02-81fb-11ec-a8a3-0242ac120002|joyce|mnangala|addo dispenser|+255713401775|ushora|kibaha|1ee9ed16-81fc-11ec-a8a3-0242ac120002"
+	},
+	{
+		"deviceNumber": "0030",
+		"deviceType": "Smart Phone",
+		"deviceModel": "Samsung Galaxy A03 Core",
+		"imei": ["350165828144003", "350393178144007"],
+		"devicePhoneNumber": "0747253642",
+		"deployedFacility": {
+			"name": "Zaha",
+			"location": "Kongowe"
+		},
+		"project": "afya-tek",
+		"userType": "addo-dispenser",
+		"userFullName": "Rehema Habibu Said",
+		"userPhoneNumber": "0717-048724",
+		"userId": "e82792e2-81fb-11ec-a8a3-0242ac120002",
+		"QRContents": "1|e82792e2-81fb-11ec-a8a3-0242ac120002|rehema|said|addo dispenser|+255717048724|zaha|kibaha|0ccd1a5e-81fc-11ec-a8a3-0242ac120002"
+	}
+]

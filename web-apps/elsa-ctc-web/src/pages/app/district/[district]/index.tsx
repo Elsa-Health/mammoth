@@ -109,27 +109,29 @@ export default function Page() {
 						</div>
 						<div className="col-span-6 row-span-6 rounded-md bg-slate-200">
 							<QueryBox
-								title="Gender Distribution: Cummulative (year to date)"
-								run={district.runOverview}
+								title="Gender Distribution - Patients"
+								DEV_graph
+								run={district.runGenderDistributionForPatients}
 							/>
 						</div>
-						<div className="col-span-6 row-span-6 rounded-md bg-slate-200">
+						{/* <div className="col-span-6 row-span-6 rounded-md bg-slate-200">
 							<QueryBox
-								title="Gender Distribution: This Week"
-								run={district.runOverview}
+								DEV_graph
+								title="Gender Distribution - Visits"
+								run={district.runGenderDistributionForVisits}
 							/>
-						</div>
-						<div className="col-span-full row-span-4 rounded-md bg-slate-200">
+						</div> */}
+						{/* <div className="col-span-full row-span-4 rounded-md bg-slate-200">
 							<QueryBox
 								title="ARV Pickup Location - Weekly"
 								run={district.runARVPickupLocationWeekly}
 							/>
-						</div>
+						</div> */}
 
 						{/* ------------------- */}
 
 						{/* Single column */}
-						<div className="row-span-8 col-span-6 rounded-md bg-slate-200">
+						{/* <div className="row-span-8 col-span-6 rounded-md bg-slate-200">
 							<QueryBox
 								title="Tuberclosis - All Facilities"
 								run={district.runARVPickupLocationWeekly}
@@ -147,17 +149,11 @@ export default function Page() {
 								title="Tuberclosis Prevention - All facilities"
 								run={district.runARVPickupLocationWeekly}
 							/>
-						</div>
-						<div className="col-span-full rounded-md bg-slate-200">
+						</div> */}
+						<div className="col-span-6 rounded-md bg-slate-200 ">
 							<QueryBox
 								title="Patients on Anti-retrovirals"
-								run={district.runARVPickupLocationWeekly}
-							/>
-						</div>
-						<div className="col-span-full rounded-md bg-slate-200">
-							<QueryBox
-								title="Patients on Anti-retrovirals"
-								run={district.runARVPickupLocationWeekly}
+								run={district.runAntiRetrovirals}
 							/>
 						</div>
 						<div className="col-span-full py-4">
@@ -166,13 +162,19 @@ export default function Page() {
 								ARV Stock
 							</h2>
 						</div>
+						<div className="col-span-full rounded-md bg-slate-200">
+							<QueryBox
+								title="Recent stock activity"
+								run={district.runARVStock}
+							/>
+						</div>
 
 						{Array(12)
 							.fill(true)
 							.map((d, ix) => (
 								<div
 									key={ix}
-									className={`h-12 rounded bg-slate-200 print:bg-transparent `}
+									className={`h-12 rounded bg-slate-200 print:hidden `}
 								/>
 							))}
 						{/* ** Single columns */}
@@ -182,25 +184,37 @@ export default function Page() {
 							</h2>
 						</div>
 
+						<div className="col-span-full rounded-md bg-slate-200">
+							<QueryBox
+								title="All registered facilities"
+								run={district.runStatsForFacilities}
+							/>
+						</div>
 						{Array(12)
 							.fill(true)
 							.map((d, ix) => (
 								<div
 									key={ix}
-									className={`h-12 rounded bg-slate-200 print:bg-transparent `}
+									className={`h-12 rounded bg-slate-200 print:hidden `}
 								/>
 							))}
 
 						<div className="col-span-full py-4">
 							<h2 className="text-2xl font-semibold">Users</h2>
 						</div>
+						<div className="col-span-full rounded-md bg-slate-200">
+							<QueryBox
+								title="All known users"
+								run={district.runUsers}
+							/>
+						</div>
 						{/* Makes it look pretty... leave this */}
-						{Array(120)
+						{Array(88)
 							.fill(true)
 							.map((d, ix) => (
 								<div
 									key={ix}
-									className={`h-12 rounded bg-slate-200 print:bg-transparent `}
+									className={`h-12 rounded bg-slate-200 print:hidden `}
 								/>
 							))}
 					</div>
