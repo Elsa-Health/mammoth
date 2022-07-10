@@ -206,11 +206,11 @@ export default function QueryBox({
 	};
 
 	return (
-		<div className="relative h-full w-full bg-white drop-shadow-lg">
+		<div className="relative h-full w-full bg-white drop-shadow-lg print:drop-shadow-none">
 			{/* yarn start */}
-			<div className="mb-8 h-full overflow-auto rounded-t-md border py-4 px-4 print:mb-0 print:p-2">
-				<div className="flex flex-row-reverse items-center justify-between">
-					<div className="flex">
+			<div className="mb-8 h-full overflow-auto rounded-t-md border py-4 px-4 print:mb-0 print:border-none print:p-0 print:p-2">
+				<div className="flex flex-row-reverse items-center justify-between print:flex-row">
+					<div className="flex print:hidden">
 						<button
 							onClick={execute}
 							className="rounded-full border border-purple-300 p-2 hover:ring-2 hover:ring-purple-400"
@@ -219,11 +219,19 @@ export default function QueryBox({
 						</button>
 					</div>
 					<div className="inline-flex flex-row items-center gap-2">
-						{loading && (
-							<Loading className={"h-5 w-auto text-purple-400"} />
-						)}
+						<div className="print:hidden">
+							{loading && (
+								<Loading
+									className={"h-5 w-auto text-purple-400"}
+								/>
+							)}
+						</div>
 						{/* NEXT: Make this editable */}
-						{title && <h2 className="text-xl">{title}</h2>}
+						{title && (
+							<h2 className="text-xl print:px-2 print:py-1.5 print:text-base print:font-medium">
+								{title}
+							</h2>
+						)}
 					</div>
 				</div>
 				<div className="grid grid-flow-col">
@@ -360,7 +368,15 @@ function Tableur<
 
 	return (
 		<Table>
-			<Table.Header list={c.map((x) => x.text)} />
+			<Table.Header
+				TH={(props) => (
+					<Table.TH
+						{...props}
+						className={"py-1.5 pl-3 text-left print:bg-slate-100"}
+					/>
+				)}
+				list={c.map((x) => x.text)}
+			/>
 			<Table.Body
 				data={data
 					.map((r) => c.map(({ key }) => value(r[key])))

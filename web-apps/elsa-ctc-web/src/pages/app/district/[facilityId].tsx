@@ -59,23 +59,38 @@ export default function Page() {
 						"col-span-full py-12 px-4 sm:px-6 lg:px-8 "
 					}
 					Header={
-						<div className="flex flex-col justify-between space-y-3 md:flex-row md:items-center">
-							<div className="space-y-2">
-								<h2 className="text-3xl font-medium">
-									Hi there,
-								</h2>
-								<p className="text-gray-500">
-									{
-										"Here are the recent ongoing statistics for your district"
-									}
-								</p>
+						<>
+							<div>
+								<div className="space-y-2">
+									<h2 className="text-3xl font-medium">
+										Hi there
+									</h2>
+									<p className="text-gray-500">
+										{
+											"Here are the recent ongoing statistics for your district"
+										}
+									</p>
+								</div>
 							</div>
-							<div className="gap-3">
-								<Button onClick={() => alert("No!")}>
-									Print
-								</Button>
+
+							<div className="flex flex-col justify-between space-y-3 md:flex-row md:items-center">
+								<div className="space-y-2">
+									<h2 className="text-3xl font-medium">
+										Hi there,
+									</h2>
+									<p className="text-gray-500">
+										{
+											"Here are the recent ongoing statistics for your district"
+										}
+									</p>
+								</div>
+								<div className="gap-3">
+									<Button onClick={() => alert("No!")}>
+										Print
+									</Button>
+								</div>
 							</div>
-						</div>
+						</>
 					}
 					className={$extend("mt-8")}
 				>
