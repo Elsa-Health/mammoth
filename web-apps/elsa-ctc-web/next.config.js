@@ -3,4 +3,8 @@ const nextConfig = {
 	reactStrictMode: true,
 };
 
-module.exports = nextConfig;
+const withTM = require("next-transpile-modules")([
+	"react-use",
+	"@elsa-health/emr",
+]);
+module.exports = withTM(nextConfig);

@@ -27,9 +27,9 @@ export function Badge({ text, className }: BadgeProps) {
 
 export function BadgeWithDot({ text }: BadgeProps) {
 	return (
-		<span className="inline-flex items-center rounded-full bg-biashara-blue-800/10 px-3 py-0.5 text-sm font-medium text-biashara-blue-800">
+		<span className="bg-biashara-blue-800/10 text-biashara-blue-800 inline-flex items-center rounded-full px-3 py-0.5 text-sm font-medium">
 			<svg
-				className="-ml-1 mr-1.5 h-2 w-2 text-biashara-blue-800"
+				className="text-biashara-blue-800 -ml-1 mr-1.5 h-2 w-2"
 				fill="currentColor"
 				viewBox="0 0 8 8"
 			>
@@ -68,11 +68,13 @@ export function Tab({
 	Header = Tab.Header,
 	list,
 	children,
+	className,
 	panelClassName,
 }: {
 	Header?: typeof Tab.Header;
 	list: string[];
 	children: React.ReactNode;
+	className?: ClassName;
 	panelClassName?: ClassName;
 }) {
 	return (
@@ -96,14 +98,14 @@ Tab.Header = function TabHeader({
 }) {
 	return (
 		<NTab.List
-			className={$className(className, "flex border-b px-4 gap-5")}
+			className={$className(className, "flex gap-5 border-b px-4")}
 		>
 			{(list ?? []).map((tx, ix) => (
 				<React.Fragment key={ix}>
 					<NTab
 						className={({ selected }: { selected: boolean }) =>
 							classNames(
-								`py-2 cursor-pointer border-b-2`,
+								`cursor-pointer border-b-2 py-2`,
 								selected
 									? "border-purple-500"
 									: "border-transparent"
@@ -115,7 +117,7 @@ Tab.Header = function TabHeader({
 								className={$className(
 									labelClassName?.(selected),
 									classNames(
-										"whitespace-nowrap cursor-pointer",
+										"cursor-pointer whitespace-nowrap",
 										selected
 											? "text-purple-500"
 											: "text-gray-600"

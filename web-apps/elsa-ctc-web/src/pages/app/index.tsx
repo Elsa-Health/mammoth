@@ -12,6 +12,9 @@ import { Button } from "@ui/forms/buttons";
 import { useForm } from "react-hook-form";
 import { Input } from "@ui/forms/rhf";
 
+import QueryBox from "@bagpack/querybox";
+import * as district from "@bagpack/runners/district";
+
 function ItemReport() {
 	return (
 		<div className="divide-y rounded-md border border-gray-200 shadow-sm">
@@ -39,21 +42,7 @@ function ItemReport() {
 	);
 }
 
-function useModal(initial: boolean = false) {
-	const [visible, set] = React.useState(initial);
-	return {
-		visible,
-		open: () => set(true),
-		toggle: () => set((s) => !s),
-		dismiss: () => set(false),
-	};
-}
-
-import { tw } from "twind";
-
 export default function Page() {
-	const tModal = useModal();
-
 	return (
 		<div className="relative h-full min-h-screen w-full">
 			<header className="container mx-auto px-6 py-4 text-2xl font-bold sm:py-4">
@@ -66,116 +55,143 @@ export default function Page() {
 			<div className="w-full border-b" />
 			<section className="container mx-auto grid h-full min-h-screen max-w-7xl divide-x md:grid-cols-12">
 				<Layout
-					wrapperClassName={"col-span-9 py-12 px-4 sm:px-6 lg:px-8 "}
+					wrapperClassName={
+						"col-span-full py-12 px-4 sm:px-6 lg:px-8 "
+					}
 					Header={
 						<div className="flex flex-col justify-between space-y-3 md:flex-row md:items-center">
 							<div className="space-y-2">
 								<h2 className="text-3xl font-medium">
-									Hi Richard
+									Hi there,
 								</h2>
 								<p className="text-gray-500">
 									{
-										"Here's what's happening with yout store today"
+										"Here are the recent ongoing statistics for your district"
 									}
 								</p>
 							</div>
-							<div className="grid grid-cols-2 gap-3">
-								<button
-									type="button"
-									className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-								>
-									<PlusIcon
-										className="-ml-0.5 mr-2 h-4 w-4"
-										aria-hidden="true"
-									/>
-									Add to Stock
-								</button>
-								<Button
-									text="Log Transaction"
-									onClick={tModal.toggle}
-								/>
+							<div className="gap-3">
+								<Button onClick={() => alert("No!")}>
+									Print
+								</Button>
 							</div>
 						</div>
 					}
 					className={$extend("mt-8")}
 				>
+					<div className="col-span-full py-4">
+						<h2 className="text-2xl font-semibold">
+							{" "}
+							Patients &amp; Visits
+						</h2>
+					</div>
 					<div className="grid h-full w-full grid-flow-row grid-cols-12 gap-2">
-						{Array(100)
+						<div className="col-span-full row-span-6 rounded-md bg-slate-200">
+							<QueryBox
+								title="Overview"
+								run={district.runOverview}
+							/>
+						</div>
+						<div className="col-span-6 row-span-6 rounded-md bg-slate-200">
+							<QueryBox
+								title="Gender Distribution: Cummulative (year to date)"
+								run={district.runOverview}
+							/>
+						</div>
+						<div className="col-span-6 row-span-6 rounded-md bg-slate-200">
+							<QueryBox
+								title="Gender Distribution: This Week"
+								run={district.runOverview}
+							/>
+						</div>
+						<div className="col-span-full row-span-4 rounded-md bg-slate-200">
+							<QueryBox
+								title="ARV Pickup Location - Weekly"
+								run={district.runARVPickupLocationWeekly}
+							/>
+						</div>
+
+						{/* ------------------- */}
+
+						{/* Single column */}
+						<div className="row-span-8 col-span-6 rounded-md bg-slate-200">
+							<QueryBox
+								title="Tuberclosis - All Facilities"
+								run={district.runARVPickupLocationWeekly}
+							/>
+						</div>
+						<div className="row-span-12 col-span-6 col-start-7 rounded-md bg-slate-200">
+							<QueryBox
+								title="Top Symptoms Reported - This week"
+								run={district.runARVPickupLocationWeekly}
+							/>
+						</div>
+
+						<div className="row-span-8 col-span-6 col-start-1 rounded-md bg-slate-200">
+							<QueryBox
+								title="Tuberclosis Prevention - All facilities"
+								run={district.runARVPickupLocationWeekly}
+							/>
+						</div>
+						<div className="col-span-full rounded-md bg-slate-200">
+							<QueryBox
+								title="Patients on Anti-retrovirals"
+								run={district.runARVPickupLocationWeekly}
+							/>
+						</div>
+						<div className="col-span-full rounded-md bg-slate-200">
+							<QueryBox
+								title="Patients on Anti-retrovirals"
+								run={district.runARVPickupLocationWeekly}
+							/>
+						</div>
+						<div className="col-span-full py-4">
+							<h2 className="text-2xl font-semibold">
+								{" "}
+								ARV Stock
+							</h2>
+						</div>
+
+						{Array(12)
 							.fill(true)
 							.map((d, ix) => (
 								<div
 									key={ix}
-									className={tw`h-12 bg-slate-200`}
-								></div>
+									className={`h-12 rounded bg-slate-200 print:bg-transparent `}
+								/>
+							))}
+						{/* ** Single columns */}
+						<div className="col-span-full py-4">
+							<h2 className="text-2xl font-semibold">
+								Facilities
+							</h2>
+						</div>
+
+						{Array(12)
+							.fill(true)
+							.map((d, ix) => (
+								<div
+									key={ix}
+									className={`h-12 rounded bg-slate-200 print:bg-transparent `}
+								/>
+							))}
+
+						<div className="col-span-full py-4">
+							<h2 className="text-2xl font-semibold">Users</h2>
+						</div>
+						{/* Makes it look pretty... leave this */}
+						{Array(120)
+							.fill(true)
+							.map((d, ix) => (
+								<div
+									key={ix}
+									className={`h-12 rounded bg-slate-200 print:bg-transparent `}
+								/>
 							))}
 					</div>
 					{/*  */}
 				</Layout>
 			</section>
-			<TransactionDialog {...tModal} />
 		</div>
-	);
-}
-
-type UseModal = ReturnType<typeof useModal>;
-function TransactionDialog({ visible, dismiss }: UseModal) {
-	const { handleSubmit, control } = useForm({
-		defaultValues: {
-			name: "",
-		},
-	});
-
-	const onSubmit = handleSubmit((vals) => {
-		// ...
-	});
-	return (
-		<Dialog
-			open={visible}
-			onClose={dismiss}
-			className="absolute top-0 bottom-0 left-0 right-0 flex flex-col items-center justify-center bg-slate-600/30 backdrop-blur-sm transition duration-75"
-		>
-			<Dialog.Panel
-				className={
-					"container mx-auto max-w-xl rounded-md px-8 drop-shadow-2xl transition duration-150"
-				}
-			>
-				<Layout
-					Header={
-						<div className="rounded-t bg-white/90 p-6 backdrop-blur-md">
-							<Dialog.Title className={"text-xl font-medium"}>
-								Log Purchase
-							</Dialog.Title>
-							<Dialog.Description className={"text-gray-600"}>
-								Record the purchase taking place
-							</Dialog.Description>
-						</div>
-					}
-					className="divide-y bg-white"
-				>
-					<div className="px-6 py-6">
-						<Input
-							control={control}
-							name="name"
-							placeholder="Name"
-						/>
-					</div>
-					<div className="px-6 py-4">
-						<Button
-							onClick={onSubmit}
-							className={$extend("relative w-full")}
-						>
-							<span className="absolute inset-0 left-0 ml-2 inline-flex h-full items-center">
-								<CurrencyEuroIcon className="h-auto w-6" />
-							</span>
-							<label>Record</label>
-						</Button>
-						<p className="mt-2 text-center text-xs text-gray-600">
-							Lorem ipsum dolor sit amet, consectetur adipiscing
-							elit.
-						</p>
-					</div>
-				</Layout>
-			</Dialog.Panel>
-		</Dialog>
 	);
 }

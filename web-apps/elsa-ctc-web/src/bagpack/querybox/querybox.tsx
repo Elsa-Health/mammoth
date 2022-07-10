@@ -1,15 +1,9 @@
 import React from "react";
 
 import SimpleEditor from "react-simple-code-editor";
-import Prism, { highlight, languages } from "prismjs";
+import Prism, { highlight } from "prismjs";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-
-import {
-	getCoreRowModel,
-	useReactTable,
-	ColumnDef,
-} from "@tanstack/react-table";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { a11yDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -19,15 +13,20 @@ import * as R from "ramda";
 
 import { query } from "@bagpack/elsa";
 import { List } from "immutable";
-import { title } from "process";
-import { Chart } from "@ui/charts";
 import { Tab } from "@ui/misc";
 import { $extend, classNames } from "@ui/utils";
-import { ChartSquareBarIcon, TableIcon } from "@heroicons/react/solid";
+import {
+	ChartSquareBarIcon,
+	ChevronDownIcon,
+	ChevronUpIcon,
+	PlayIcon,
+	TableIcon,
+} from "@heroicons/react/solid";
 import { Table } from "@ui/components";
 import { ChartProps } from "react-chartjs-2";
 import { ChartTypeRegistry } from "chart.js";
-import { useAsync } from "react-use";
+
+import { useAsync, useAsyncFn } from "react-use";
 
 const Editor = () => {
 	const [code, setCode] = React.useState(
@@ -64,7 +63,10 @@ type Mapping<K extends string, V> = { [f in K]: V };
 type Data<TV extends Mapping<string, any>, F extends keyof TV = keyof TV> =
 	| TV[]
 	| TV[F][][];
-const table = <T extends Mapping<string, any>, C extends keyof T = keyof T>(x: {
+const table = <
+	T extends Mapping<string, any> = Mapping<string, any>,
+	C extends keyof T = keyof T
+>(x: {
 	columns: Array<C>;
 	data: Data<T, C>;
 	title?: (x: C, all: C[]) => string | null;
@@ -87,6 +89,7 @@ const table = <T extends Mapping<string, any>, C extends keyof T = keyof T>(x: {
 };
 
 import { differenceInDays } from "date-fns";
+import * as D from "date-fns";
 
 const chart = <T extends keyof ChartTypeRegistry>(p: ChartProps<T>) => {};
 
@@ -110,47 +113,42 @@ const isWithInWeek = (date_: string) =>
 
 const countInWeeks = (d: string[]) => count(R.filter(isWithInWeek, d));
 
-async function run() {
-	const patients = await query("/collection/patients/data").then(dx);
-	const visits = await query("/collection/visits/data").then(dx);
+type QueryRunnerProps = {
+	table: typeof table;
+	chart: typeof chart;
+	r: typeof R;
+	d: typeof D;
+	query: typeof query;
+	is: {
+		withinWeek: typeof isWithInWeek;
+	};
+	h: {
+		date: typeof date;
+		dx: typeof dx;
+	};
+	log: (a: any) => void;
+};
+export type QueryRunner = (tools: QueryRunnerProps) => Promise<{
+	drawTable?: ReturnType<typeof table>;
+	drawChart?: ReturnType<typeof chart>;
+} | void>;
 
-	// something
-	const d = [
-		[
-			"Patient Registered (#)",
-			count(patients),
-			countInWeeks(pluck("createdAt", patients)),
-		],
-		[
-			"Patient Visits Completed (#)",
-			count(patients),
-			countInWeeks(pluck("createdAt", visits)),
-		],
-	];
+import { Disclosure } from "@headlessui/react";
+import { Loading } from "@ui/icons";
+import { nanoid } from "nanoid";
+import { Chart } from "@ui/charts";
 
-	console.log(d);
-	// aggregate(R.sum, patients);
-
-	// console.log(
-	// 	patients.map(
-	// 		chain(pick(["createdAt", "id"]), (d) => ({
-	// 			id: d.id,
-	// 			createdAt: date(d.createdAt),
-	// 		}))
-	// 	)
-	// );
-}
-
-function create(val: any) {
-	return Function(`return ${val} ;`)();
-}
-create(30);
-
-// something
-run();
-
-export default function QueryBox() {
-	const [table_, setTable] = React.useState(() => ({
+// NEXT: Make the contents here savable
+export default function QueryBox({
+	title,
+	run,
+	id = nanoid(),
+}: {
+	title?: string;
+	run: QueryRunner;
+	id?: string;
+}) {
+	const [table_, setTable] = React.useState<null | any>(() => ({
 		data: List(),
 		columns: [],
 	}));
@@ -159,52 +157,73 @@ export default function QueryBox() {
 	const [chart_, setChart] = React.useState<ChartProps | null>(() => null);
 
 	const [code, setCode] = React.useState(
-		`function add(a, b) {\n  return a + b;\n}`
+		// `function add(a, b) {\n  return a + b;\n}`
+		`// will fix this \n${run.toString()}`
 	);
+	const [logs, setLogs] = React.useState(List());
+	const [error, setError] = React.useState<null | Error>(null);
 
-	useAsync(async () => {
-		const patients = await query("/collection/patients/data");
-
-		// ...
-		const s = table<{
-			type: string;
-			overall: number;
-			"this-week": number;
-			"last-week": string;
-		}>({
-			columns: ["type", "overall", "this-week", "last-week"],
-			data: [
-				[
-					"Patient Registered (#)",
-					count(patients),
-					count(patients),
-					count(patients),
-				],
-				["Patients Visit Completed", 560, 2, "+14"],
-			],
-			title: (x) => (x === "type" ? null : x.toUpperCase()),
-		});
-
-		const c = chart({
-			type: "line",
-			data: { datasets: [] },
-		});
-
-		setTable(s);
+	const [{ loading }, execute] = useAsyncFn(() => {
+		setError(null);
+		// execute the function in th runner
+		return run({
+			table,
+			chart,
+			r: R,
+			d: D,
+			log: log,
+			query,
+			h: { date, dx },
+			is: { withinWeek: isWithInWeek },
+		})
+			.then((out) => {
+				const { drawTable, drawChart } = out || {};
+				log(out);
+				setTable(drawTable ?? null);
+				setChart(drawChart ?? null);
+			})
+			.catch((err) => {
+				setError(err);
+			});
 	}, []);
 
+	React.useEffect(() => {
+		let s = false;
+
+		if (!s) {
+			execute();
+			s = true;
+		}
+
+		return () => {
+			s = false;
+		};
+	}, [execute]);
+
+	const log = (s: any) => {
+		setLogs((s) => s.insert(0, value(s)));
+		console.log(value(s));
+	};
+
 	return (
-		<div className="w-full h-full drop-shadow-lg bg-white">
+		<div className="relative h-full w-full bg-white drop-shadow-lg">
 			{/* yarn start */}
-			<div className="py-4 px-6 border rounded-t-md">
-				<div className="flex justify-end">
-					<div className="gap-2 flex flex-row">
-						<button className="p-2 border rounded-full">
-							<TableIcon className="h-5 w-auto" />
+			<div className="mb-8 h-full overflow-auto rounded-t-md border py-4 px-4 print:mb-0 print:p-2">
+				<div className="flex flex-row-reverse items-center justify-between">
+					<div className="flex">
+						<button
+							onClick={execute}
+							className="rounded-full border border-purple-300 p-2 hover:ring-2 hover:ring-purple-400"
+						>
+							<PlayIcon className="h-5 w-auto text-purple-500" />
 						</button>
-						<button className="p-2 border rounded-full">
-							<ChartSquareBarIcon className="h-5 w-auto" />
-						</button>
+					</div>
+					<div className="inline-flex flex-row items-center gap-2">
+						{loading && (
+							<Loading className={"h-5 w-auto text-purple-400"} />
+						)}
+						{/* NEXT: Make this editable */}
+						{title && <h2 className="text-xl">{title}</h2>}
 					</div>
 				</div>
 				<div className="grid grid-flow-col">
@@ -240,59 +259,83 @@ export default function QueryBox() {
 				</div>
 			</div>
 			{/* Tab section for the querying area */}
-			<div className="bg-slate-800 text-green-200 rounded-b-md">
-				<Tab
-					list={["Query", "Logs"]}
-					Header={(props) => (
-						<Tab.Header
-							className={
-								"flex px-4 gap-6 bg-slate-900/30 text-sm"
-							}
-							labelClassName={(selected) =>
-								classNames(
-									"cursor-pointer whitespace-nowrap",
-									selected
-										? "text-purple-300"
-										: "text-gray-200"
-								)
-							}
-							{...props}
-						/>
-					)}
-					panelClassName="p-0"
-				>
-					<Tab.Panel className={"text-sm h-48"}>
-						<SimpleEditor
-							value={code}
-							onValueChange={(code) => setCode(code)}
-							highlight={(value) =>
-								// @ts-ignore
-								highlight(value, Prism.languages.js)
-							}
-							padding={10}
-							style={{
-								fontFamily:
-									'"Fira code", "Fira Mono", monospace',
-								fontSize: 12,
-								lineHeight: 1.5,
-								height: "100%",
-							}}
-						/>
-					</Tab.Panel>
-					<Tab.Panel className={"text-sm h-48"}>
-						<SyntaxHighlighter
-							language="javascript"
-							style={a11yDark}
-							customStyle={{
-								height: "100%",
-								fontSize: 12,
-								marginTop: -1,
-							}}
+			<div className="absolute bottom-0 left-0 right-0 rounded-b-md bg-slate-800 text-green-200 print:hidden">
+				<Disclosure>
+					<div className="flex flex-col-reverse">
+						<Tab
+							list={["Query", "Logs"]}
+							Header={(props) => (
+								<div className="relative">
+									<Tab.Header
+										className={
+											"flex gap-6 bg-slate-900/30 px-4 text-sm"
+										}
+										labelClassName={(selected) =>
+											classNames(
+												"cursor-pointer whitespace-nowrap",
+												selected
+													? "text-purple-300"
+													: "text-gray-200"
+											)
+										}
+										{...props}
+									/>
+									<Disclosure.Button className="absolute right-0 top-0 py-2 px-1">
+										{/* @ts-ignore */}
+										{({ open }) => (
+											<button className="mr-2 rounded-full border border-white/40 p-1">
+												{open ? (
+													<ChevronUpIcon className="h-4 w-auto text-white" />
+												) : (
+													<ChevronDownIcon className="h-4 w-auto text-white" />
+												)}
+											</button>
+										)}
+									</Disclosure.Button>
+								</div>
+							)}
+							panelClassName="p-0"
 						>
-							{JSON.stringify(table_, undefined, 2)}
-						</SyntaxHighlighter>
-					</Tab.Panel>
-				</Tab>
+							<Disclosure.Panel>
+								<Tab.Panel className={"h-48 text-sm"}>
+									<SimpleEditor
+										value={code}
+										onValueChange={(code) => setCode(code)}
+										highlight={(value) =>
+											// @ts-ignore
+											highlight(value, Prism.languages.js)
+										}
+										padding={10}
+										style={{
+											fontFamily:
+												'"Fira code", "Fira Mono", monospace',
+											fontSize: 12,
+											overflow: "auto",
+											height: "100%",
+										}}
+									/>
+								</Tab.Panel>
+								<Tab.Panel className={"h-48 text-sm"}>
+									<SyntaxHighlighter
+										language="javascript"
+										style={a11yDark}
+										customStyle={{
+											height: "100%",
+											fontSize: 12,
+											marginTop: -1,
+										}}
+									>
+										{JSON.stringify(
+											logs.toArray(),
+											undefined,
+											2
+										)}
+									</SyntaxHighlighter>
+								</Tab.Panel>
+							</Disclosure.Panel>
+						</Tab>
+					</div>
+				</Disclosure>
 			</div>
 		</div>
 	);

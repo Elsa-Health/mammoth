@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 * {
-	@apply transition-colors ease-in-out duration-75 focus:outline-none;
+	@apply transition-colors duration-75 ease-in-out focus:outline-none;
 }

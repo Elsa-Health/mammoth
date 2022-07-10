@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Input } from "@ui/forms/input-groups";
+import { Input } from "@ui/forms";
 import { Button } from "@ui/forms/buttons";
 import { Badge, BadgeWithDot, Info, Tab } from "@ui/misc";
 // import { InformationCircleIcon } from "@heroicons/react/solid";
@@ -14,7 +14,7 @@ import {
 	NOT_LINES_CONFIG,
 } from "@ui/charts";
 import { line } from "@ui/charts/units";
-import { combine } from "app/utils";
+import { combine } from "@bagpack/utils";
 
 const DEFAULT_CONFIG = combine(GRIDLESS_CONFIG, NOT_LINES_CONFIG, HIDE_LEGEND);
 

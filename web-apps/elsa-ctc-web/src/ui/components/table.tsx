@@ -100,7 +100,7 @@ Table.TD = function TableData({
 		<td
 			className={$className(
 				className,
-				"whitespace-nowrap py-4 px-3 text-sm text-gray-500"
+				"whitespace-nowrap py-2 px-3 text-sm text-gray-500"
 			)}
 		>
 			{children}
