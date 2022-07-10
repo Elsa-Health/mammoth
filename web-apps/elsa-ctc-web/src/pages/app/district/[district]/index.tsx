@@ -14,6 +14,7 @@ import { Input } from "@ui/forms/rhf";
 
 import QueryBox from "@bagpack/querybox";
 import * as district from "@bagpack/runners/district";
+import { GetServerSideProps, GetStaticProps } from "next";
 
 function ItemReport() {
 	return (
@@ -209,3 +210,8 @@ export default function Page() {
 		</div>
 	);
 }
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+	const { district } = ctx.query;
+	return { props: { district: district } };
+};
