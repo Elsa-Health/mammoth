@@ -18,7 +18,7 @@ import * as d from "date-fns";
 
 import devices from "@server/devices-to-use.json";
 import { facilities } from "../facilities";
-import { withRunner } from "./utils";
+import { withRunner } from "./_utils";
 import _ from "lodash";
 
 import generateRandomColor from "randomcolor";

@@ -238,7 +238,7 @@ return {
 	return (
 		<div className="relative h-full w-full bg-white drop-shadow-lg print:drop-shadow-none">
 			{/* yarn start */}
-			<div className="mb-8 h-full overflow-y-auto rounded-t-md border py-4 px-4 print:mb-0 print:border-none print:p-0 print:p-2">
+			<div className="mb-8 h-full overflow-y-auto rounded-t-md border py-4 px-4 print:mb-0 print:border-none print:p-2">
 				<div className="flex flex-row-reverse items-center justify-between print:flex-row">
 					<div className="flex print:hidden">
 						<button
