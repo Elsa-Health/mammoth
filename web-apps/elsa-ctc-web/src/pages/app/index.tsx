@@ -7,12 +7,14 @@ export default function Page() {
 		<div className="flex min-h-screen w-full flex-col items-center justify-center gap-4">
 			<img src="/assets/elsa-logo.png" className="" alt="Elsa Logo" />
 			<div className="grid grid-cols-2 gap-4">
-				<Link href="/app/district">
-					<a className="underline hover:text-orange-600">District</a>
+				<Link href="/app/district/meru">
+					<a className="underline hover:text-orange-600">
+						District (/meru)
+					</a>
 				</Link>
 				<Link href="/app/district/02020100">
 					<a className="underline hover:text-indigo-600">
-						Faciliy (02020100)
+						Faciliy (/meru/02020100)
 					</a>
 				</Link>
 			</div>
