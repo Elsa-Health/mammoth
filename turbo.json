@@ -2,7 +2,7 @@
 	"pipeline": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": ["dist/**", ".next/**"]
+			"outputs": ["dist/**", ".next/**", "lib/**"]
 		},
 		"test": {
 			"dependsOn": ["^test"]
@@ -14,6 +14,10 @@
 		"coverage:ci": {
 			"dependsOn": ["^coverage:ci"],
 			"outputs": ["coverage/**"]
+		},
+		"build:web": {
+			"dependsOn": ["^build:web-deps"],
+			"outputs": [".next/**", "lib/**"]
 		},
 		"lint": {
 			"outputs": []
