@@ -7,7 +7,8 @@
 		"test": "jest",
 		"build": "rm -rf ./lib && tsc -p .",
 		"clean": "rm -rf .turbo && rm -rf node_modules",
-		"dev": "nodemon -e ts --exec \"yarn build\" --watch src --watch health.types"
+		"dev": "nodemon -e ts --exec \"yarn build\" --watch src --watch health.types",
+		"postinstall": "yarn build"
 	},
 	"devDependencies": {
 		"@babel/runtime": "^7.18.3",
