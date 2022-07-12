@@ -26,9 +26,7 @@
 			"**/@elsa-ui/react-native-workflows/",
 			"**/@elsa-ui/react-native-workflows/**",
 			"**/dotenv/",
-			"**/zod/",
-			"**/react-use/",
-			"**/react-use/**"
+			"**/zod/"
 		]
 	},
 	"scripts": {
