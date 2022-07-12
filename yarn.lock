@@ -6999,16 +6999,16 @@
   integrity sha512-HQZo6gfx1D0+DU3nWlNLD5iA6Ef4JAXh0LeD8lOGrJwEDBwwJNKQza6WoXhhY1uQrxOuU8ROxV7CqiQV4CoiLw==
 
 "@tanstack/react-table@^8.1.4":
-  version "8.2.3"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.2.3.tgz#bc451497d53b788581c0c226626e625c904a2d20"
-  integrity sha512-48vfd1gOsjE6XCUrFQ8ZSUNRDEbDhFNmYgPlB8RkO+kyvOGut219lZ5rsu8Znw6YVU/WhUmsdE+GMGUeCjFdVQ==
+  version "8.2.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.2.4.tgz#bb95430483893f486b47f203f088bdfd48dbe1fc"
+  integrity sha512-u+3XqujBRMAZrtwZSzzFEAyG6H2JoaEJI+88OKurGCelalz7KE3evY+HgAsUjvaolLlk2OI/E6Cg/jSY0CXmYA==
   dependencies:
-    "@tanstack/table-core" "8.2.3"
+    "@tanstack/table-core" "8.2.4"
 
-"@tanstack/table-core@8.2.3":
-  version "8.2.3"
-  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.2.3.tgz#2ca0c8564262a6624bfddfd9b8361c4b829621e9"
-  integrity sha512-jzWAXgoXj8OK5zCrUfApesZ0+Admley/+T+W21MQxkfFaPRyoz+wiM+3xARpwGkB7SPzc3FuAzF4Ae9JcKq6gw==
+"@tanstack/table-core@8.2.4":
+  version "8.2.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.2.4.tgz#680c87761a93e9d3480ad725e61558f14a634d3d"
+  integrity sha512-G7fGSh4p9BrcNGrXirWuNwI3nZVIFlLdMS1nytiE5EVBr2Yjvt0LE2t5ke9+LeIMjGVe1HqT9zrGa2ZtDOe1zQ==
 
 "@testing-library/dom@^8.5.0":
   version "8.16.0"
@@ -17370,9 +17370,9 @@ react-async@^10.0.1:
   integrity sha512-ORUz5ca0B57QgBIzEZM5SuhJ6xFjkvEEs0gylLNlWf06vuVcLZsjIw3wx58jJkZG38p+0nUAxRgFW2b7mnVZzA==
 
 react-chartjs-2@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/react-chartjs-2/-/react-chartjs-2-4.2.0.tgz#bc5693a8b161f125301cf28ab0fe980d7dce54aa"
-  integrity sha512-9Vm9Sg9XAKiR579/FnBkesofjW9goaaFLfS7XlGTzUJlWFZGSE6A/pBI6+i/bP3pobKZoFcWJdFnjShytToqXw==
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/react-chartjs-2/-/react-chartjs-2-4.3.0.tgz#822db15e7fd488129dcf6aef20b51c5e723cba10"
+  integrity sha512-zWnW3ReDlSC8PNiZKNqu8J/CHBOsVvx1AB4PicFbEAMUf/rpgO0/8ykRSPqS00kBUjP9d8lzfq1gFdLwYFWC8w==
 
 react-dev-utils@^12.0.1:
   version "12.0.1"
