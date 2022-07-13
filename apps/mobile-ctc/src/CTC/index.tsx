@@ -1064,12 +1064,15 @@ function App({
                 ).map(ir => ({
                   requestId: ir.id,
                   requestDate: ir.createdAt,
-                  onViewInvestigation: () => navigation.navigate('ctc.view-investigation', {
-                    request: ir.id,
-                    investigationIdentifier: ir.data.investigationId,
-                    investigationName: Investigation.item.fromKey(ir.data.investigationId)
-                    obj: ir
-                  })
+                  onViewInvestigation: () =>
+                    navigation.navigate('ctc.view-investigation', {
+                      request: ir.id,
+                      investigationIdentifier: ir.data.investigationId,
+                      investigationName: Investigation.item.fromKey(
+                        ir.data.investigationId,
+                      ),
+                      obj: ir,
+                    }),
                 }));
               },
               async fetchVisits(patientId) {
