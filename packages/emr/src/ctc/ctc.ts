@@ -30,6 +30,8 @@ import * as t from "../../health.types/v1";
 import { Data, DDMMYYYYDateString } from "../../health.types/v1/_primitives";
 
 import * as ctc from "./ctc.types";
+export * from "./ctc.types";
+
 import produce from "immer";
 import { WritableDraft } from "immer/dist/internal";
 
