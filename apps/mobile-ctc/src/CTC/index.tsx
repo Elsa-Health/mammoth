@@ -75,6 +75,8 @@ import {
   ctc,
   prepareLazyExecutors,
   executeChain,
+  InvestigationResult,
+  Observation,
 } from '@elsa-health/emr';
 import {date, utcDateString} from '@elsa-health/emr/lib/utils';
 
@@ -178,6 +180,10 @@ function App({
       investigationRequest: prepareLazyExecutors(
         data => (data?.id ?? uuid.v4()) as string,
         Emr.collection('investigation-requests'),
+      ),
+      investigationResult: prepareLazyExecutors(
+        data => (data?.id ?? uuid.v4()) as string,
+        Emr.collection('investigation-results'),
       ),
     }),
     [Emr],
@@ -322,7 +328,6 @@ function App({
       <ConnectionStatus status={status} retry={retry} />
 
       <Stack.Navigator
-        // initialRouteName="ctc.medication-visit"
         screenOptions={{
           headerShown: false,
           presentation: 'formSheet',
@@ -366,6 +371,104 @@ function App({
               },
             }),
           })}
+        />
+        <Stack.Screen
+          name="ctc.view-investigation"
+          component={withFlowContext(
+            ViewInvestigationScreen<ctc.InvestigationRequest>,
+            {
+              actions: ({navigation}) => ({
+                async fetchInvestigationResults(
+                  investigationId,
+                  authorizingRequest,
+                ) {
+                  const invRes = await query<ctc.InvestigationResult>(
+                    Emr.collection('investigation-results'),
+                    {
+                      where: item =>
+                        item.authorizingRequest.id === investigationId,
+                    },
+                  );
+
+                  return invRes.toArray().map(f => {
+                    return {
+                      id: f.id,
+                      identifier: authorizingRequest.data.investigationId,
+                      shape: authorizingRequest.data.obj,
+                      value: f.observation.data,
+                      createdAt: date(f.createdAt),
+                    };
+                  });
+                  // return (
+                  //   [
+                  //     'urinalysis',
+                  //     'dried-blood-spot-dbs-test',
+                  //     'cd-4-count',
+                  //   ] as Investigation[]
+                  // ).map(f => ({
+                  //   id: f,
+                  //   identifier: f,
+                  //   shape: Investigation.fromKey(f),
+                  //   value: null,
+                  //   createdAt: new Date(),
+                  // }));
+                  //.toArray();
+                },
+                async saveResult(results, authorizingRequest) {
+                  let invResult: ctc.InvestigationResult | null = null;
+                  // save the investigation result
+                  if (results.id) {
+                    // editing existing one
+                    invResult = InvestigationResult<ctc.InvestigationResult>({
+                      id: results.id,
+                      authorizingRequest,
+                      createdAt: utcDateString(results.createdAt),
+                      observation: Observation({
+                        data: results.value,
+                        reason: 'Updated!',
+                      }),
+                      shape: authorizingRequest.data.obj,
+                      lastUpdatedAt: utcDateString(),
+                    });
+                  } else {
+                    invResult = InvestigationResult<ctc.InvestigationResult>({
+                      id: `inv-res:${uuid.v4()}`,
+                      authorizingRequest,
+                      observation: Observation({
+                        data: results.value,
+                        reason: 'Created',
+                      }),
+                      shape: authorizingRequest.data.obj,
+                      lastUpdatedAt: utcDateString(),
+                    });
+                  }
+
+                  console.log({results, authorizingRequest});
+                  if (invResult === null) {
+                    ToastAndroid.show(
+                      'Unable to create the investigation results!',
+                      ToastAndroid.LONG,
+                    );
+                    return;
+                  }
+
+                  // save the investigation result
+                  executeChain([
+                    // executor.investigationResult(({add}) =>
+                    //   add(invResult as ctc.InvestigationResult),
+                    // ),
+                    () =>
+                      ToastAndroid.show(
+                        'Investigation Result Updated!',
+                        ToastAndroid.LONG,
+                      ),
+                    () => console.log('Done!'),
+                    navigation.goBack,
+                  ]);
+                },
+              }),
+            },
+          )}
         />
         <Stack.Screen
           name="ctc.report-missed-appointments"
@@ -955,10 +1058,6 @@ function App({
               },
             }),
           })}
-        />
-        <Stack.Screen
-          name="ctc.view-investigation"
-          component={withFlowContext(ViewInvestigationScreen, {})}
         />
         <Stack.Screen
           name="ctc.view-visit"

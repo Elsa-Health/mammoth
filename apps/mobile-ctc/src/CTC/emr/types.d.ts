@@ -169,6 +169,7 @@ export declare namespace CTC {
   }>;
   export type InvestigationResult = t.InvestigationResult<
     t.P.Data,
+    any,
     InvestigationRequest
   >;
 

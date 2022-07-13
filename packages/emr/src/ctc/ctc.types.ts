@@ -158,6 +158,7 @@ export type InvestigationRequest = t.InvestigationRequest<{
 }>;
 export type InvestigationResult = t.InvestigationResult<
 	t.P.Data,
+	any,
 	InvestigationRequest
 >;
 

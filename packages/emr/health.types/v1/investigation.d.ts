@@ -1,6 +1,6 @@
 import { Observation } from "./observation";
 import { Patient, Practitioner } from "./personnel";
-import { Nullable, Referred, Resource } from "./_primitives";
+import { Nullable, Referred, Resource, UTCDateTimeString } from "./_primitives";
 
 export type InvestigationRequest<IRq extends Data = Data> = Resource<
 	"InvestigationRequest",
@@ -24,6 +24,7 @@ export type InvestigationRequest<IRq extends Data = Data> = Resource<
 >;
 
 export type InvestigationResult<
+	Shape extends Data,
 	D extends Data,
 	InvReq extends InvestigationRequest
 > = Resource<
@@ -39,6 +40,16 @@ export type InvestigationResult<
 		 * (e.g. Lab Tech)
 		 */
 		recorder: Nullable<Referred<Practitioner>>;
+
+		/**
+		 * Expected shape of the investigation result
+		 */
+		shape: Shape;
+
+		/**
+		 * Last time the result was updated
+		 */
+		lastUpdatedAt: UTCDateTimeString;
 
 		/**
 		 * observation collected from the investigation

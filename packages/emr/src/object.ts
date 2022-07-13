@@ -369,8 +369,13 @@ export function InvestigationRequest<IRq extends t.InvestigationRequest>(
 }
 
 export function InvestigationResult<
-	IRs extends t.InvestigationResult<P.Data, t.InvestigationRequest>
->(d: MustHave<IRs, "id" | "authorizingRequest" | "observation">) {
+	IRs extends t.InvestigationResult<P.Data, P.Data, t.InvestigationRequest>
+>(
+	d: MustHave<
+		IRs,
+		"id" | "authorizingRequest" | "observation" | "shape" | "lastUpdatedAt"
+	>
+) {
 	invariant(d.id, "Investigation result `id` field missing");
 	invariant(
 		d.authorizingRequest,
@@ -380,6 +385,8 @@ export function InvestigationResult<
 		d.observation,
 		"Investigation request `observation` field missing"
 	);
+	invariant(d.shape, "Investigation request `shape` field missing");
+	invariant(d.shape, "Investigation request `lastUpdatedAt` field missing");
 
 	return freeze(
 		extend(d, {
@@ -389,6 +396,9 @@ export function InvestigationResult<
 			createdAt: date(d.createdAt).toUTCString(),
 			observation: d.observation,
 			recorder: d.recorder ?? null,
+			lastUpdatedAt: date(d.lastUpdatedAt).toUTCString(),
+			shape: d.shape,
+
 			resourceType: "InvestigationResult",
 		} as IRs)
 	);
