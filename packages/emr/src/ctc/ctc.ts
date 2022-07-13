@@ -4,17 +4,28 @@
  * visit
  */
 
-import { Medication as MD, Investigation } from "elsa-health-data-fns";
+import { Medication as MD, Investigation } from "elsa-health-data-fns/lib";
 import {
 	AppointmentRequest,
 	AppointmentResponse,
+	InvestigationRequest,
 	Medication,
 	MedicationRequest,
+	Patient,
 	refer,
 	reference,
 	Visit,
 } from "../object";
-import { concat, date, getDateFromDMYFormat, utcDateString } from "../utils";
+import {
+	concat,
+	convertDMYToDate,
+	date,
+	getDateFromDMYFormat,
+	getIfTrue,
+	runIfNotUnd,
+	text,
+	utcDateString,
+} from "../utils";
 import * as t from "../../health.types/v1";
 import { Data, DDMMYYYYDateString } from "../../health.types/v1/_primitives";
 
@@ -23,6 +34,9 @@ import produce from "immer";
 import { WritableDraft } from "immer/dist/internal";
 
 import isEqual from "lodash.isequal";
+import * as z from "zod";
+import * as D from "date-fns";
+import * as R from "ramda";
 
 export type SimpleVisitData = {
 	// regimenDecision: string;
@@ -43,6 +57,16 @@ export type SimpleVisitData = {
 
 export const patientReference = (id: string) => reference("Patient", id);
 
+/**
+ * This creates the visit and the associated information
+ * TODO: include investigation information
+ *
+ * @param generateId
+ * @param patientId
+ * @param doctorId
+ * @param data
+ * @returns
+ */
 export function createDataForSimpleVisit(
 	generateId: () => string,
 	patientId: string,
@@ -229,3 +253,135 @@ export function editDataFromSimpleVisit(
 
 	return { updatedVisit, medicationRequests };
 }
+
+export const PatientFormType = z.object({
+	patientId: z.string(),
+	firstName: z.string(),
+	familyName: z.string(),
+	phoneNumber: z.string(),
+	resident: z.string(),
+
+	dateOfBirth: z.string(),
+	maritalStatus: z.string(),
+
+	// HIV+ status
+	hasPositiveTest: z.boolean(),
+	dateOfTest: z.string().optional(),
+
+	// ARVs
+	hasPatientOnARVs: z.boolean(),
+	dateStartedARVs: z.string().optional(),
+
+	// WHO
+	whoStage: z.union([
+		z.literal("Stage 1"),
+		z.literal("Stage 2"),
+		z.literal("Stage 3"),
+	]),
+
+	hasTreatmentSupport: z.boolean(),
+	typeOfSupport: z.string().optional(),
+
+	sex: z.union([z.literal("male"), z.literal("female")]),
+});
+
+export type PatientFormType = z.infer<typeof PatientFormType>;
+
+const convertDMYToYMD = R.pipe(convertDMYToDate, (d) =>
+	D.format(d, "yyyy-MM-dd")
+);
+
+/**
+ * Register new patient and create the needed objects
+ * @param from
+ * @param registeredOrganization
+ * @param createdAt
+ * @returns
+ */
+export function registerNewPatient(
+	generateId: () => string,
+	from: PatientFormType,
+	doctorId: string,
+	investigations: Investigation[],
+	registeredOrganization: ctc.Organization,
+	createdAt: Date = new Date()
+) {
+	// validates that the content is in the specified format
+	PatientFormType.parse(from);
+
+	const address = text(from.resident);
+	const info = {
+		firstName: text(from.firstName),
+		familyName: text(from.familyName),
+		phoneNumber: text(from.phoneNumber),
+		address: address !== null ? `District ${address}` : address,
+	};
+
+	const contact = {
+		phoneNumber: text(from.phoneNumber),
+		email: null,
+	};
+
+	const data = {
+		hasPositiveStatus: from.hasPositiveTest,
+		hasTreatmentSupport: from.hasTreatmentSupport,
+		isCurrentlyOnARV: from.hasPatientOnARVs,
+	};
+
+	// patient object
+	const patient = Patient<ctc.Patient>({
+		id: from.patientId,
+		resourceType: "Patient",
+		code: null,
+		createdAt: createdAt.toUTCString(),
+
+		info: Object.values(info).every((d) => d === null) ? null : info,
+		active: true,
+
+		contact: Object.values(contact).every((d) => d === null)
+			? null
+			: contact,
+		sex: from.sex,
+		maritalStatus: from.maritalStatus,
+		link: null,
+		communication: {
+			language: "en",
+		},
+		birthDate: convertDMYToYMD(from.dateOfBirth),
+		managingOrganization: registeredOrganization,
+		extendedData: {
+			...data,
+			dateOfHIVPositiveTest: getIfTrue(
+				data.hasPositiveStatus,
+				runIfNotUnd(from.dateOfTest, convertDMYToYMD)
+			),
+			dateOfStartARV: getIfTrue(
+				data.isCurrentlyOnARV,
+				runIfNotUnd(from.dateStartedARVs, convertDMYToYMD)
+			),
+			typeOfSupport: getIfTrue(
+				data.hasTreatmentSupport,
+				from.typeOfSupport
+			),
+			whoStage: from.whoStage ?? null,
+		},
+	});
+
+	// other information created during the registration
+	const investigationRequests = investigations.map((inv) => {
+		return InvestigationRequest<ctc.InvestigationRequest>({
+			id: generateId(),
+			requester: practitionerReference(doctorId),
+			subject: patientReference(patient.id),
+			data: {
+				investigationId: inv,
+				// @ts-ignore
+				obj: Investigation.fromKey(inv) ?? null,
+			},
+		});
+	});
+
+	return { patient, investigationRequests };
+}
+
+const practitionerReference = (id: string) => reference("Practitioner", id);

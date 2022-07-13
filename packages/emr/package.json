@@ -7,8 +7,7 @@
 		"test": "jest",
 		"build": "rm -rf ./lib && tsc -p .",
 		"clean": "rm -rf .turbo && rm -rf node_modules",
-		"dev": "nodemon -e ts --exec \"yarn build\" --watch src --watch health.types",
-		"postinstall": "yarn build"
+		"dev": "nodemon -e ts --exec \"yarn build\" --watch src --watch health.types"
 	},
 	"devDependencies": {
 		"@babel/runtime": "^7.18.3",
@@ -16,6 +15,7 @@
 		"@types/jest": "^28.1.4",
 		"@types/lodash.isequal": "^4.5.6",
 		"@types/node": "^18.0.0",
+		"@types/ramda": "^0.28.15",
 		"ansi-styles": "^6.1.0",
 		"nanoid": "^4.0.0",
 		"nodemon": "^2.0.16",
@@ -31,6 +31,8 @@
 		"lodash.isequal": "^4.5.0",
 		"minimist": "^1.2.6",
 		"papai": "^0.2.1",
-		"tiny-invariant": "^1.2.0"
+		"ramda": "^0.28.0",
+		"tiny-invariant": "^1.2.0",
+		"zod": "^3.17.3"
 	}
 }

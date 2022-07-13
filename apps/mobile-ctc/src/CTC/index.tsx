@@ -171,6 +171,14 @@ function App({
         data => (data?.id ?? uuid.v4()) as string,
         Emr.collection('stock'),
       ),
+      patient: prepareLazyExecutors(
+        data => (data?.id ?? uuid.v4()) as string,
+        Emr.collection('patients'),
+      ),
+      investigationRequest: prepareLazyExecutors(
+        data => (data?.id ?? uuid.v4()) as string,
+        Emr.collection('investigation-requests'),
+      ),
     }),
     [Emr],
   );
@@ -789,44 +797,28 @@ function App({
             entry: {myCtcId: provider.facility.ctcCode},
             actions: ({navigation}) => ({
               onRegisterPatient(patient, investigations) {
-                const d = translatePatient(patient, organization);
+                const {patient: newPatient, investigationRequests} =
+                  ctc.registerNewPatient(
+                    () => uuid.v4() as string,
+                    patient,
+                    doctor.id,
+                    investigations,
+                    organization,
+                  );
 
-                // create patient
-                setDoc(doc(Emr.collection('patients'), d.id), d)
+                executeChain([
+                  executor.patient(({add}) => add(newPatient)),
+                  executor.investigationRequest(({multiAdd}) =>
+                    multiAdd(investigationRequests),
+                  ),
+                ])
                   .then(() => {
                     ToastAndroid.show(
                       'Patient ' + patient.patientId + ' registered !.',
                       ToastAndroid.SHORT,
                     );
+                    navigation.goBack();
                   })
-                  .then(() => {
-                    // update collection
-                    return setDocs(
-                      Emr.collection('investigation-requests'),
-                      investigations?.map(inv => {
-                        const id = `inv-req:${uuid.v4()}`;
-                        return [
-                          id,
-                          investigationRequest(
-                            {
-                              id,
-                              requester: reference(doctor),
-                              subject: {
-                                resourceReferenced: 'Patient',
-                                resourceType: 'Reference',
-                                id: d.id,
-                              },
-                            },
-                            {
-                              investigationId: inv,
-                              obj: Investigation.fromKey(inv) ?? null,
-                            },
-                          ),
-                        ];
-                      }) || [],
-                    );
-                  })
-                  .then(() => navigation.goBack())
                   .catch(err => {
                     ToastAndroid.show(
                       'Unable to register patient. Please try again later',

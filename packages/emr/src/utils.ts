@@ -108,3 +108,57 @@ export function resourceItem<
 export function concat<T>(...args: Array<T>[]) {
 	return args.reduce((acc, curr) => acc.concat(curr), []);
 }
+
+/**
+ * Checks if the input is a proper text
+ * @param str
+ * @param fallback
+ */
+export const text = <T extends string | null>(
+	str: string | undefined,
+	fallback?: T
+): string | T | null => {
+	if (str === undefined) return fallback ?? null;
+	if (str.trim().length === 0) return fallback ?? null;
+	return str.trim();
+};
+
+export const runIfNotUnd = <T, O>(d: T | undefined, fn: (d: T) => O) =>
+	runIfIsNot(d, undefined, fn, null);
+
+const runIfIsNot = <T, NT, O, F>(
+	d: T | NT,
+	nd: NT,
+	fn: (i: T) => O,
+	fallback: F
+) => {
+	if (d !== nd) {
+		return fn(d as T);
+	}
+
+	return fallback;
+};
+
+export const getIfTrue = <T>(
+	condition: boolean,
+	value: T | undefined
+): T | null => {
+	return Boolean(condition) ? value ?? null : null;
+};
+
+export function convertDMYToDate(date: DDMMYYYYDateString): Date {
+	const vals = removeWhiteSpace(date).split("/");
+
+	if (vals.length !== 3) {
+		throw new Error(
+			"Invalid data format. The date needs to be in the formate DD / MM / YYYY"
+		);
+	}
+
+	try {
+		const [d, m, y] = vals;
+		return new Date(`${y}-${m}-${d}`);
+	} catch (err) {
+		throw new Error("Unable to parse the number into a proper Date object");
+	}
+}

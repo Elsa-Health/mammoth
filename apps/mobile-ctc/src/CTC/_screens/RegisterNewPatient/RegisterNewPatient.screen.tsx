@@ -115,7 +115,7 @@ export default function RegisterNewPatientScreen({
   const [isHaveInvestigation, setHaveInvestigation] = React.useState(false);
 
   const patientCTCIDRef = React.useRef();
-  const {handleSubmit, control, setValue, getValues} = useForm<
+  const {handleSubmit, control, setValue} = useForm<
     PatientFormType & {investigations: Investigation[]}
   >({
     defaultValues: {
