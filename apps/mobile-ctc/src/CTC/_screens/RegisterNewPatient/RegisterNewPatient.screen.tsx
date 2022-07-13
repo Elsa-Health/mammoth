@@ -106,6 +106,7 @@ export default function RegisterNewPatientScreen({
     onRegisterPatient: (
       patient: PatientFormType,
       investigations: Investigation[] | null,
+      cb: (err?: Error) => void,
     ) => void;
   }
 >) {

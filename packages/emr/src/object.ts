@@ -253,7 +253,7 @@ export function Organization<Org extends t.Organization<P.Data, P.Data>>(
 	invariant(d.identifier, "Organization identifier missing");
 	invariant(d.name, "Organization name missing");
 
-	freeze(
+	return freeze(
 		extend(d, {
 			id: d.id,
 			active: d.active ?? true,

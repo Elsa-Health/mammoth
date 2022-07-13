@@ -99,7 +99,9 @@ export default function ViewInvestigationScreen<Request>({
 
   return (
     <BottomSheetModalProvider>
-      <Layout title={`Investigation #${12341242}`} style={{padding: 0}}>
+      <Layout
+        title={`Investigation #${e.request.id.slice(0, 8)}`}
+        style={{padding: 0}}>
         <ScrollView
           contentContainerStyle={{padding: spacing.md}}
           style={{flex: 1}}>

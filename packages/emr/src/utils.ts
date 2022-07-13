@@ -115,9 +115,10 @@ export function concat<T>(...args: Array<T>[]) {
  * @param fallback
  */
 export const text = <T extends string | null>(
-	str: string | undefined,
+	str: string | undefined | null,
 	fallback?: T
 ): string | T | null => {
+	if (str === null) return fallback ?? null;
 	if (str === undefined) return fallback ?? null;
 	if (str.trim().length === 0) return fallback ?? null;
 	return str.trim();
@@ -146,19 +147,30 @@ export const getIfTrue = <T>(
 	return Boolean(condition) ? value ?? null : null;
 };
 
-export function convertDMYToDate(date: DDMMYYYYDateString): Date {
-	const vals = removeWhiteSpace(date).split("/");
+import { parse, isValid } from "date-fns";
+import { enGB } from "date-fns/locale";
 
-	if (vals.length !== 3) {
+export const isValidDateString = (date: string, format: string = "P") => {
+	return isValid(parse(date, format, new Date(), { locale: enGB }));
+};
+
+export function convertDMYToDate(date: DDMMYYYYDateString): Date {
+	const gbDate = removeWhiteSpace(date)
+		.split("/")
+		.map((s) => s.trim())
+		.join("/");
+
+	try {
+		const d = parse(gbDate, "P", new Date(), { locale: enGB });
+		if (!isValid(gbDate)) {
+			console.log({ date });
+			throw {};
+		}
+
+		return d;
+	} catch (err) {
 		throw new Error(
 			"Invalid data format. The date needs to be in the formate DD / MM / YYYY"
 		);
-	}
-
-	try {
-		const [d, m, y] = vals;
-		return new Date(`${y}-${m}-${d}`);
-	} catch (err) {
-		throw new Error("Unable to parse the number into a proper Date object");
 	}
 }

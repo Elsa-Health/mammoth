@@ -9,13 +9,18 @@ import ItemStorage from "papai/stores/collection/ItemStorage";
 import {
 	createDataForSimpleVisit,
 	editDataFromSimpleVisit,
+	registerNewPatient,
 } from "../../src/ctc/ctc";
+import * as ctc from "../../src/ctc/ctc";
+
 import {
 	executeChain,
 	prepareLazyExecutors,
 	runTransaction,
 } from "../../src/ctc/store";
 import { addDays, format } from "date-fns";
+import { CTC } from "elsa-health-data-fns/lib";
+import { Organization } from "../../src/object";
 
 /**
  * Id generator
@@ -75,6 +80,39 @@ const medicationRequests = collection(mockedStore, "medication-requests");
 describe("Visit Creation", () => {
 	const fakePatientId = `patient-${generateId()}`;
 	const fakeDoctorId = `doctor-${generateId()}`;
+	const fakeOrganization = Organization<ctc.Organization>({
+		id: `org-${generateId()}`,
+		identifier: {
+			ctcCode: "12312323",
+		},
+		name: "Some fancy place",
+	});
+
+	test("custom data that failed on run", () => {
+		const data = registerNewPatient(
+			generateId,
+			{
+				dateOfBirth: "21 / 02 / 1994",
+				dateOfTest: "14 / 02 / 1992",
+				dateStartedARVs: "",
+				familyName: "Fury",
+				firstName: "Mike",
+				hasPatientOnARVs: false,
+				hasPositiveTest: true,
+				hasTreatmentSupport: true,
+				maritalStatus: "Single",
+				patientId: "11111111111121",
+				phoneNumber: "",
+				resident: "Arusha",
+				sex: "female",
+				typeOfSupport: "Partner / Spouse",
+				whoStage: "Stage 3",
+			},
+			fakeDoctorId,
+			[],
+			fakeOrganization
+		);
+	});
 
 	describe("WITHOUT without previous appointment", () => {
 		const dataWoAppt = createDataForSimpleVisit(
@@ -92,6 +130,7 @@ describe("Visit Creation", () => {
 				visitType: "community",
 			}
 		);
+
 		test("data outputs", () => {
 			expect(dataWoAppt).toMatchObject({
 				visit: expect.any(Object),

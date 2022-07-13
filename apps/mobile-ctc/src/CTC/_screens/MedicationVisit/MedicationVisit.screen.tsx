@@ -5,6 +5,7 @@ import {useTheme} from '@elsa-ui/react-native/theme';
 import {format} from 'date-fns';
 import id from 'date-fns/esm/locale/id/index.js';
 import {ARV, CTC, Investigation, Medication} from 'elsa-health-data-fns/lib';
+import {List} from 'immutable';
 import React from 'react';
 import {useForm, Controller, ResolverResult} from 'react-hook-form';
 import {ScrollView, useWindowDimensions, View} from 'react-native';
@@ -14,13 +15,11 @@ import {
   Checkbox,
   HelperText,
   RadioButton,
-  TextInput,
   TouchableRipple,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAsyncRetry} from 'react-use';
 import {UseAppointments, UseStockData} from '../../emr/react-hooks';
-import {CTC as eCTC} from '../../emr/types';
 import {
   Block,
   Column,
@@ -289,12 +288,13 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
                       {
                         name: 'ARV Regimens',
                         id: 1,
-                        children: Object.entries(medications ?? {}).map(
-                          ([id, obj]) => ({
+                        children: List(Object.entries(medications ?? {}))
+                          .map(([id, obj]) => ({
                             id,
                             name: obj.text,
-                          }),
-                        ),
+                          }))
+                          .sortBy(d => d.name)
+                          .toArray(),
                       },
                     ]}
                     uniqueKey="id"
@@ -353,7 +353,9 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
                     {
                       name: 'Medication',
                       id: 1,
-                      children: ion(Medication.all.pairs()),
+                      children: List(ion(Medication.all.pairs()))
+                        .sortBy(d => d.name)
+                        .toArray(),
                     },
                   ]}
                   uniqueKey="id"
@@ -367,7 +369,7 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
           </Column>
         </Section>
 
-        {/* <Section
+        <Section
           title="Request Investigations"
           desc="Make investigation requests for the patient">
           <Controller
@@ -382,9 +384,13 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
                     {
                       name: 'Investigations',
                       id: 1,
-                      children: Investigation.name
-                        .pairs()
-                        .map(([id, name]) => ({id, name})),
+                      children: List(
+                        Investigation.name
+                          .pairs()
+                          .map(([id, name]) => ({id, name})),
+                      )
+                        .sortBy(d => d.name)
+                        .toArray(),
                     },
                   ]}
                   uniqueKey="id"
@@ -401,7 +407,7 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
               </>
             )}
           />
-        </Section> */}
+        </Section>
 
         {/* Date */}
         <Section

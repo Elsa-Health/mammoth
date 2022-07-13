@@ -121,12 +121,34 @@ export function createDataForSimpleVisit(
 		});
 	}
 
+	// create investigation requests
+	const investigationRequests = data.investigations
+		.map((inv) => ({
+			// @ts-ignore
+			shape: Investigation.fromKey(inv) ?? null,
+			identifier: inv,
+		}))
+		// skip those whose share aren't supported
+		.filter((s) => s.shape !== null)
+		.map((x) =>
+			InvestigationRequest<ctc.InvestigationRequest>({
+				id: generateId(),
+				data: {
+					investigationId: x.identifier,
+					obj: x.shape,
+				},
+				subject: patientReference(patientId),
+				requester: practitionerReference(doctorId),
+			})
+		);
+
 	// 2. Create visit object
 	const visit = Visit<ctc.Visit>({
 		id: generateId(),
 		date: utcDateString(getDateFromDMYFormat(data.dateOfVisit)),
 		subject: patientReference(patientId),
 		practitioner: reference("Practitioner", doctorId),
+		investigationRequests: [],
 		extendedData: data,
 		prescriptions: medicationRequests.map((v) => refer(v)),
 		associatedAppointmentResponse: apptResp,
@@ -153,6 +175,7 @@ export function createDataForSimpleVisit(
 		appointmentRequest,
 		appointmentResponse: apptResp,
 		medicationRequests,
+		investigationRequests,
 	};
 }
 
@@ -236,6 +259,34 @@ export function editDataFromSimpleVisit(
 			);
 	}
 
+	let investigationRequests = null;
+	if (data.investigations !== undefined) {
+		investigationRequests = data.investigations
+			.filter(
+				(inv) =>
+					// medication not in the thing
+					!prevData.investigations.includes(inv)
+			)
+			.map((inv) => ({
+				// @ts-ignore
+				shape: Investigation.fromKey(inv) ?? null,
+				identifier: inv,
+			}))
+			// skip those whose share aren't supported
+			.filter((s) => s.shape !== null)
+			.map((x) =>
+				InvestigationRequest<ctc.InvestigationRequest>({
+					id: generateId(),
+					data: {
+						investigationId: x.identifier,
+						obj: x.shape,
+					},
+					subject: patientReference(patientId),
+					requester: practitionerReference(doctorId),
+				})
+			);
+	}
+
 	// updated visit
 	const updatedVisit = produce(
 		Visit<ctc.Visit>(visit),
@@ -253,7 +304,12 @@ export function editDataFromSimpleVisit(
 		}
 	);
 
-	return { updatedVisit, medicationRequests };
+	return {
+		updatedVisit,
+		medicationRequests,
+		investigationRequests,
+		appointmentRequest,
+	};
 }
 
 export const PatientFormType = z.object({
@@ -355,11 +411,14 @@ export function registerNewPatient(
 			...data,
 			dateOfHIVPositiveTest: getIfTrue(
 				data.hasPositiveStatus,
-				runIfNotUnd(from.dateOfTest, convertDMYToYMD)
+				runIfNotUnd(text(from.dateOfTest) ?? undefined, convertDMYToYMD)
 			),
 			dateOfStartARV: getIfTrue(
 				data.isCurrentlyOnARV,
-				runIfNotUnd(from.dateStartedARVs, convertDMYToYMD)
+				runIfNotUnd(
+					text(from.dateStartedARVs) ?? undefined,
+					convertDMYToYMD
+				)
 			),
 			typeOfSupport: getIfTrue(
 				data.hasTreatmentSupport,
