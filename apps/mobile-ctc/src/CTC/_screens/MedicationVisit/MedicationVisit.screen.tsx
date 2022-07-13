@@ -20,6 +20,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAsyncRetry} from 'react-use';
 import {UseAppointments, UseStockData} from '../../emr/react-hooks';
+import {patient} from '../../storage/migration-v0-v1';
 import {
   Block,
   Column,
@@ -54,7 +55,11 @@ const durationOptions: Array<{value: DurationOpt; text: string}> = [
   {value: '90-days', text: '90 days'},
 ];
 
-export default function MedicationVisitScreen<Patient, Visit, Org>({
+export default function MedicationVisitScreen<
+  Patient extends {id: string},
+  Visit,
+  Org,
+>({
   entry: e,
   actions: $,
 }: WorkflowScreenProps<
@@ -72,7 +77,9 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
       visit: Visit | null,
     ) => void;
     fetchMedications: () => Promise<UseStockData['medications']>;
-    fetchAppointments: () => Promise<UseAppointments['appointments']>;
+    fetchAppointments: (
+      patientId: string,
+    ) => Promise<UseAppointments['appointments']>;
     onDiscard: () => void;
   }
 >) {
@@ -100,7 +107,10 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
   const notEdit = Boolean((e.visit ?? null) === null);
 
   const [isFromAppt, setIsFromAppt] = React.useState(false);
-  const {value: appointments} = useAsyncRetry($.fetchAppointments, []);
+  const {value: appointments} = useAsyncRetry(
+    () => $.fetchAppointments(e.patient.id),
+    [e.patient],
+  );
   const {value: medications} = useAsyncRetry(async () => {
     const s = await $.fetchMedications();
     const out = Object.fromEntries(
@@ -185,7 +195,7 @@ export default function MedicationVisitScreen<Patient, Visit, Org>({
         </Section>
 
         {/* Appointment */}
-        {appointments !== undefined && (
+        {appointments !== undefined && appointments.count() > 0 && (
           <Section
             title="From an appointment"
             desc="Is visit this from an appointment?"

@@ -632,10 +632,19 @@ function App({
                 async fetchMedications() {
                   return stock.medications?.toArray() ?? [];
                 },
-                async fetchAppointments() {
-                  const appts = appointments.appointments.filter(
-                    d => d.type === 'not-responded',
-                  );
+                async fetchAppointments(patientId: string) {
+                  const appts = appointments.appointments
+                    .filter(d => d.type === 'not-responded')
+                    .filter(
+                      d =>
+                        d.participants
+                          .filter(
+                            x =>
+                              x.resourceType === 'Reference' &&
+                              x.resourceReferenced === 'Patient',
+                          )
+                          .findIndex(x => x.id === patientId) > -1,
+                    );
 
                   return appts;
                 },
@@ -748,7 +757,7 @@ function App({
                     );
                   }
 
-                  return executeChain()
+                  return executeChain(pendingUpdateOps)
                     .then(() => {
                       // indicate success
                       ToastAndroid.show(
@@ -928,21 +937,30 @@ function App({
             actions: ({navigation}) => ({
               onRegisterPatient(patient, investigations, cb) {
                 console.log(patient);
-                const {patient: newPatient, investigationRequests} =
-                  ctc.registerNewPatient(
-                    () => uuid.v4() as string,
-                    patient,
-                    doctor.id,
-                    investigations,
-                    organization,
-                  );
+                const {
+                  patient: newPatient,
+                  investigationRequests,
+                  adhocVisit,
+                } = ctc.registerNewPatient(
+                  () => uuid.v4() as string,
+                  patient,
+                  doctor.id,
+                  investigations,
+                  organization,
+                );
 
-                executeChain([
+                const ops = [
                   executor.patient(({add}) => add(newPatient)),
                   executor.investigationRequest(({multiAdd}) =>
                     multiAdd(investigationRequests),
                   ),
-                ])
+                ];
+
+                if ((adhocVisit ?? null) !== null) {
+                  ops.push(executor.visit(({add}) => add(adhocVisit)));
+                }
+
+                executeChain(ops)
                   .then(() => {
                     ToastAndroid.show(
                       'Patient ' + patient.patientId + ' registered !.',
@@ -1038,11 +1056,33 @@ function App({
 
                 return null;
               },
-              async fetchVisits(patientId: string) {
+              async fetchInvestigationRequests(patientId) {
+                (
+                  await query(Emr.collection('investigation-requests'), {
+                    where: item => item.subject.id === patientId,
+                  })
+                ).map(ir => ({
+                  requestId: ir.id,
+                  requestDate: ir.createdAt,
+                  onViewInvestigation: () => navigation.navigate('ctc.view-investigation', {
+                    request: ir.id,
+                    investigationIdentifier: ir.data.investigationId,
+                    investigationName: Investigation.item.fromKey(ir.data.investigationId)
+                    obj: ir
+                  })
+                }));
+              },
+              async fetchVisits(patientId) {
                 return (
                   await queryCollection(Emr.collection('visits'), {
-                    where: item => {
-                      return item.subject.id === patientId;
+                    where: {
+                      $and: [
+                        item => item.subject.id === patientId,
+
+                        // TODO: include type to represent adhoc visit
+                        // this will exclude all adhoc visits
+                        item => item.extendedData !== null,
+                      ],
                     },
                   })
                 )

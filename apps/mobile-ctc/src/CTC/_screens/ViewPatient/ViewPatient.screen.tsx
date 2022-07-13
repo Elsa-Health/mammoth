@@ -25,6 +25,12 @@ export type VisitItem = {
   onEditVisit: () => void;
 };
 
+export type InvestigationRequestItem = {
+  onViewInvestigation: () => void;
+  requestId: string;
+  requestDate: Date | string;
+};
+
 export type NextAppointmentItem = {
   appointmentDate: string;
 };
@@ -37,6 +43,9 @@ export default function ViewPatientScreen({
     onToEditPatient: (patient: CTCPatient) => void;
     nextAppointment: (patientId: string) => Promise<null | NextAppointmentItem>;
     fetchVisits: (patientId: string) => Promise<VisitItem[]>;
+    fetchInvestigationRequests: (
+      patientId: string,
+    ) => Promise<InvestigationRequestItem[]>;
   }
 >) {
   const {spacing} = useTheme();
@@ -95,10 +104,94 @@ export default function ViewPatientScreen({
             </View>
           </Section>
         )}
+        {/* Recent Investigation Requests */}
+        <InvestigationRequests
+          fetch={() => $.fetchInvestigationRequests(e.patient.id)}
+        />
         {/* Past Visits */}
         <HistorySection fetchVisits={() => $.fetchVisits(e.patient.id)} />
       </ScrollView>
     </Layout>
+  );
+}
+
+function InvRequestItem({hist: hist}: {hist: InvestigationRequestItem}) {
+  return (
+    <Row contentStyle={{marginVertical: 8}}>
+      <View>
+        <TitledItem title="Request Date">
+          {format(new Date(hist.requestDate), 'MMMM dd, yyyy')}
+        </TitledItem>
+        <TitledItem title="Request ID" spaceTop>
+          {hist.requestId}
+        </TitledItem>
+      </View>
+      <View>
+        <Button
+          icon="file-eye-outline"
+          mode="outlined"
+          onPress={visit.onViewInvestigation}>
+          View
+        </Button>
+      </View>
+    </Row>
+  );
+}
+function InvestigationRequests({
+  fetch: fetch,
+}: {
+  fetch: () => Promise<InvestigationRequestItem[]>;
+}) {
+  const {loading, error, retry, value} = useAsyncRetry(fetch, [fetch]);
+
+  if (loading) {
+    return (
+      <View style={{marginVertical: 8, paddingVertical: 8}}>
+        <ActivityIndicator animating />
+        <Text>Loading History</Text>
+      </View>
+    );
+  }
+
+  if (error || value === undefined) {
+    return (
+      <View>
+        <Text>
+          Unable to show the recent investigation requests. There seems to be an
+          error
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <Section
+      title="Investigation Requests"
+      desc="Recent investigation requests for the patients"
+      spaceTop
+      right={
+        <IconButton
+          icon="refresh"
+          size={20}
+          color="#4665af"
+          onPress={() => {
+            ToastAndroid.show('Updating information', ToastAndroid.SHORT);
+            retry();
+          }}
+        />
+      }>
+      {value.length === 0 && (
+        <Text italic style={{textAlign: 'center'}}>
+          There are no investigation requests made for this patient
+        </Text>
+      )}
+      {value.map((hist, ix) => (
+        <>
+          <InvRequestItem key={ix} hist={hist} />
+          <Divider />
+        </>
+      ))}
+    </Section>
   );
 }
 

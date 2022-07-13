@@ -428,6 +428,21 @@ export function registerNewPatient(
 		},
 	});
 
+	let adhocVisit: null | ctc.Visit = null;
+	// include adhoc visit if there are investigationRequests
+	if (investigations.length > 0) {
+		adhocVisit = Visit<ctc.Visit>({
+			id: generateId(),
+			date: utcDateString(new Date()),
+			subject: patientReference(from.patientId),
+			practitioner: reference("Practitioner", doctorId),
+			investigationRequests: [],
+			extendedData: null,
+			prescriptions: [],
+			associatedAppointmentResponse: null,
+		});
+	}
+
 	// other information created during the registration
 	const investigationRequests = investigations.map((inv) => {
 		return InvestigationRequest<ctc.InvestigationRequest>({
@@ -442,7 +457,7 @@ export function registerNewPatient(
 		});
 	});
 
-	return { patient, investigationRequests };
+	return { patient, investigationRequests, adhocVisit };
 }
 
 const practitionerReference = (id: string) => reference("Practitioner", id);

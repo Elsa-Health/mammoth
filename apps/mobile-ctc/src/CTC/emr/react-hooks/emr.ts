@@ -29,6 +29,7 @@ import {format} from 'date-fns';
 import {EMRModule} from '../store';
 import {date} from '@elsa-health/emr/lib/utils';
 import {SingleStockItem} from '../../_screens/MedicationStock';
+import {ctc} from '@elsa-health/emr';
 
 // create medications
 // const arvSingleFactory = randomSample.factory(
@@ -107,6 +108,7 @@ export type Appointment = {
   requestDate: UTCDateTimeString;
   originVisitId: string | null;
   request: CTC.AppointmentRequest;
+  participants: Array<Referred<ctc.Patient> | Referred<ctc.Doctor>>;
 } & (
   | {type: 'not-responded'; responseDate: null; response: null}
   | {
@@ -142,30 +144,31 @@ export function useAppointments(emr: EMRModule) {
           f => f.authorizingAppointmentRequest.id === d.id,
         );
 
+        const obj = {
+          requestId: d.id,
+          originVisitId: d.visit?.id ?? null,
+          requestDate: d.appointmentDate,
+          request: d,
+          participants: d.participants,
+        };
+
         if (dx !== undefined) {
           return {
-            requestId: d.id,
-            originVisitId: d.visit?.id ?? null,
-            requestDate: d.appointmentDate,
+            ...obj,
             responseDate: dx.createdAt,
             type: 'responded',
-            request: d,
             response: dx,
           } as Appointment;
         }
 
         // check va
         return {
-          requestId: d.id,
-          originVisitId: d.visit?.id ?? null,
-          requestDate: d.appointmentDate,
-          responseDate: null,
+          ...obj,
           type: 'not-responded',
-          request: d,
           response: null,
         } as Appointment;
       }) ?? null;
-  }, [apptResps, apptRqs]);
+  }, [appointments, apptResps, apptRqs]);
 
   return {
     'appointment-requests': apptRqs,

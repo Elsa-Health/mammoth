@@ -162,8 +162,7 @@ export function convertDMYToDate(date: DDMMYYYYDateString): Date {
 
 	try {
 		const d = parse(gbDate, "P", new Date(), { locale: enGB });
-		if (!isValid(gbDate)) {
-			console.log({ date });
+		if (!isValid(d)) {
 			throw {};
 		}
 
