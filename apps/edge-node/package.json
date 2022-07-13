@@ -6,6 +6,7 @@
 		"build": "tsc -P .",
 		"start": "node dist/core/index.js",
 		"docker": "docker-compose up --remove-orphans",
+		"devy": "tsnd --respawn server/index.ts --watch server",
 		"dev:start": "tsnd --respawn server/core/index.ts",
 		"dev:watch": "tsnd --respawn server/core/index.ts --watch server",
 		"test": "echo \"Error: no test script specified\" && exit 1"
@@ -39,6 +40,7 @@
 		"rxjs": "^7.5.4",
 		"sabertooth-core": "^0.2.1",
 		"sabertooth-stores": "^0.1.5",
+		"ts-node-dev": "2.0.0",
 		"uuid": "^8.3.2",
 		"ws": "^8.5.0"
 	}

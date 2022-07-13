@@ -21,6 +21,6 @@
 		/* Type declaration files to be included in compilation. */
 		"allowUmdGlobalAccess": true /* Allow accessing UMD globals from modules. */
 	},
-	"include": ["server/**/*"],
+	"include": ["server/**/*", "server/index.ts"],
 	"exclude": ["**/node_modules/*", "./dist/*", "**/*.spec.ts", "**/*.test.ts"]
 }
