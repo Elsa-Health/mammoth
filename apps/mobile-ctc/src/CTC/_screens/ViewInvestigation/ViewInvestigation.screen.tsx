@@ -97,6 +97,8 @@ export default function ViewInvestigationScreen<Request>({
     [singleBottomSheetRef],
   );
 
+  console.log(e.request);
+
   return (
     <BottomSheetModalProvider>
       <Layout

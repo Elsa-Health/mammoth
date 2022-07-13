@@ -117,24 +117,24 @@ export default function ViewPatientScreen({
 
 function InvRequestItem({hist: hist}: {hist: InvestigationRequestItem}) {
   return (
-    <Row contentStyle={{marginVertical: 8}}>
+    <Column contentStyle={{marginVertical: 8}}>
       <View>
         <TitledItem title="Request Date">
           {format(new Date(hist.requestDate), 'MMMM dd, yyyy')}
         </TitledItem>
-        <TitledItem title="Request ID" spaceTop>
-          {hist.requestId}
+        <TitledItem title="Investigation" spaceTop>
+          {hist.text}
         </TitledItem>
       </View>
-      <View>
+      <View style={{marginTop: 8}}>
         <Button
           icon="file-eye-outline"
           mode="outlined"
-          onPress={visit.onViewInvestigation}>
+          onPress={hist.onViewInvestigation}>
           View
         </Button>
       </View>
-    </Row>
+    </Column>
   );
 }
 function InvestigationRequests({
@@ -144,6 +144,7 @@ function InvestigationRequests({
 }) {
   const {loading, error, retry, value} = useAsyncRetry(fetch, [fetch]);
 
+  console.log(value);
   if (loading) {
     return (
       <View style={{marginVertical: 8, paddingVertical: 8}}>
@@ -155,8 +156,8 @@ function InvestigationRequests({
 
   if (error || value === undefined) {
     return (
-      <View>
-        <Text>
+      <View style={{marginVertical: 8, paddingVertical: 8}}>
+        <Text italic style={{textAlign: 'center'}}>
           Unable to show the recent investigation requests. There seems to be an
           error
         </Text>
@@ -215,8 +216,10 @@ function HistorySection({
 
   if (error || value === undefined) {
     return (
-      <View>
-        <Text>Unable to show the history. There seems to be an error</Text>
+      <View style={{marginVertical: 8, paddingVertical: 8}}>
+        <Text italic style={{textAlign: 'center'}}>
+          Unable to show the history. There seems to be an error
+        </Text>
       </View>
     );
   }

@@ -1057,23 +1057,39 @@ function App({
                 return null;
               },
               async fetchInvestigationRequests(patientId) {
-                (
+                return (
                   await query(Emr.collection('investigation-requests'), {
                     where: item => item.subject.id === patientId,
                   })
-                ).map(ir => ({
-                  requestId: ir.id,
-                  requestDate: ir.createdAt,
-                  onViewInvestigation: () =>
-                    navigation.navigate('ctc.view-investigation', {
-                      request: ir.id,
-                      investigationIdentifier: ir.data.investigationId,
-                      investigationName: Investigation.item.fromKey(
-                        ir.data.investigationId,
-                      ),
-                      obj: ir,
-                    }),
-                }));
+                )
+                  .map(ir => ({
+                    requestId: ir.id,
+                    requestDate: ir.createdAt,
+                    text:
+                      Investigation.item.fromKey(ir.data.investigationId) ??
+                      ir.data.investigationId,
+                    onViewInvestigation: () => {
+                      console.log('Going to the page with:', {
+                        request: ir.id,
+                        investigationIdentifier: ir.data.investigationId,
+                        investigationName: Investigation.item.fromKey(
+                          ir.data.investigationId,
+                        ),
+                        obj: ir,
+                      });
+                      navigation.navigate('ctc.view-investigation', {
+                        request: {
+                          id: ir.id,
+                          investigationIdentifier: ir.data.investigationId,
+                          investigationName: Investigation.item.fromKey(
+                            ir.data.investigationId,
+                          ),
+                          obj: ir,
+                        },
+                      });
+                    },
+                  }))
+                  .toArray();
               },
               async fetchVisits(patientId) {
                 return (
