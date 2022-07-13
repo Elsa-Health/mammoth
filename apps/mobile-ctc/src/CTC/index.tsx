@@ -492,7 +492,7 @@ function App({
                   where: item => item.id === patientId,
                 });
 
-                console.log('-> something!!');
+                // console.log('-> something!!');
                 let patient;
 
                 if (patients.count() > 0) {
@@ -647,6 +647,7 @@ function App({
                       appointmentResponse,
                       appointmentRequest,
                       medicationRequests,
+                      investigationRequests,
                     } = ctc.createDataForSimpleVisit(
                       () => uuid.v4() as string,
                       patient.id,
@@ -666,6 +667,11 @@ function App({
                       // to store the medication requests
                       executor.medicationRequest(({multiAdd}) =>
                         multiAdd(medicationRequests),
+                      ),
+
+                      // store the investigation requests
+                      executor.investigationRequest(({multiAdd}) =>
+                        multiAdd(investigationRequests),
                       ),
                     ];
 
@@ -702,16 +708,20 @@ function App({
 
                   // updating existing visit
                   //  and output information
-                  const {updatedVisit, medicationRequests} =
-                    ctc.editDataFromSimpleVisit(
-                      () => uuid.v4() as string,
-                      patient.id,
-                      doctor.id,
-                      data,
-                      refVisit,
-                    );
+                  const {
+                    updatedVisit,
+                    medicationRequests,
+                    appointmentRequest,
+                    investigationRequests,
+                  } = ctc.editDataFromSimpleVisit(
+                    () => uuid.v4() as string,
+                    patient.id,
+                    doctor.id,
+                    data,
+                    refVisit,
+                  );
 
-                  return executeChain([
+                  const pendingUpdateOps = [
                     // update visit
                     executor.visit(({set}) =>
                       set([updatedVisit.id, updatedVisit]),
@@ -720,7 +730,25 @@ function App({
                     executor.medicationRequest(({multiSet}) =>
                       multiSet(medicationRequests.map(m => [m.id, m])),
                     ),
-                  ])
+                  ];
+
+                  if (appointmentRequest !== null) {
+                    pendingUpdateOps.push(
+                      executor.apptRequest(({set}) =>
+                        set([appointmentRequest.id, appointmentRequest]),
+                      ),
+                    );
+                  }
+
+                  if (investigationRequests !== null) {
+                    pendingUpdateOps.push(
+                      executor.investigationRequest(({multiSet}) =>
+                        multiSet(investigationRequests.map(x => [x.id, x])),
+                      ),
+                    );
+                  }
+
+                  return executeChain()
                     .then(() => {
                       // indicate success
                       ToastAndroid.show(
@@ -898,7 +926,8 @@ function App({
           component={withFlowContext(RegisterNewPatientScreen, {
             entry: {myCtcId: provider.facility.ctcCode},
             actions: ({navigation}) => ({
-              onRegisterPatient(patient, investigations) {
+              onRegisterPatient(patient, investigations, cb) {
+                console.log(patient);
                 const {patient: newPatient, investigationRequests} =
                   ctc.registerNewPatient(
                     () => uuid.v4() as string,
