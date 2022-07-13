@@ -317,7 +317,7 @@ function App({
         return () => sub.unsubscribe();
       }
     }
-  }, [socket, status]);
+  }, [socket, status, provider]);
 
   const stock = useStock(Emr);
   const appointments = useAppointments(Emr);
@@ -326,7 +326,6 @@ function App({
   return (
     <>
       <ConnectionStatus status={status} retry={retry} />
-
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
