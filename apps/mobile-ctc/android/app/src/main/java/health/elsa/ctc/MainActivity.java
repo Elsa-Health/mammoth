@@ -1,18 +1,19 @@
 package health.elsa.ctc;
 
 import android.os.Bundle;
+
+import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
+
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
 
-// react-native-splash-screen >= 0.3.1
 import org.devio.rn.splashscreen.SplashScreen;
-import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-      SplashScreen.show(this);  // here
+      SplashScreen.show(this); 
       super.onCreate(savedInstanceState);
   }
 
@@ -27,11 +28,27 @@ public class MainActivity extends ReactActivity {
 
   @Override
   protected ReactActivityDelegate createReactActivityDelegate() {
-    return new ReactActivityDelegate(this, getMainComponentName()) {
-      @Override
-      protected ReactRootView createRootView() {
-       return new RNGestureHandlerEnabledRootView(MainActivity.this);
-      }
-    };
+    return new MainActivityDelegate(this, getMainComponentName());
+  }
+
+  public static class MainActivityDelegate extends ReactActivityDelegate {
+    public MainActivityDelegate(ReactActivity activity, String mainComponentName) {
+      super(activity, mainComponentName);
+    }
+
+    @Override
+    protected ReactRootView createRootView() {
+      ReactRootView reactRootView = new ReactRootView(getContext());
+      // If you opted-in for the New Architecture, we enable the Fabric Renderer.
+      reactRootView.setIsFabric(BuildConfig.IS_NEW_ARCHITECTURE_ENABLED);
+      return reactRootView;
+    }
+
+    @Override
+    protected boolean isConcurrentRootEnabled() {
+      // If you opted-in for the New Architecture, we enable Concurrent Root (i.e. React 18).
+      // More on this on https://reactjs.org/blog/2022/03/29/react-v18.html
+      return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
+    }
   }
 }
