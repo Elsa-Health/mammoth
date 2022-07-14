@@ -19,7 +19,6 @@ import ReportMissedAppointmentScreen from './_screens/ReportMissedAppointment';
 
 import MedicationDispenseScreen from './_screens/MedicationDispense';
 import MedicationRequestScreen from './_screens/MedicationRequest';
-import MedicationStockDashboardScreen from './_screens/MedicationStockDashboard';
 
 import NewVisitEntryScreen from './_screens/BasicPatientIntake';
 import HIVStageIntakeScreen from './_screens/HIVStageIntake';
@@ -46,12 +45,7 @@ import {
 import {List} from 'immutable';
 import {ToastAndroid, View} from 'react-native';
 import _ from 'lodash';
-import {translatePatient} from './actions/translate';
-import {
-  getOrganizationFromProvider,
-  investigationRequest,
-  reference,
-} from './actions/basic';
+import {getOrganizationFromProvider, reference} from './actions/basic';
 import {queryPatientsFromSearch} from './actions/ui';
 import {CTC} from './emr/types';
 import {ConfirmVisitModal, useVisit} from './actions/hook';

@@ -1,12 +1,12 @@
 import React from 'react';
-import {WorkflowScreenProps} from '../..';
+import {WorkflowScreenProps} from '../../../@workflows';
 
 import {StyleSheet, View} from 'react-native';
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import {useTheme} from '../../../@libs/elsa-ui/theme';
-import {Text} from '../../../@libs/elsa-ui/components';
-import {ElsaColorableIcon} from '../../../@libs/elsa-ui/visuals/vectors';
+import {useTheme} from '@elsa-ui/react-native/theme';
+import {Text} from '@elsa-ui/react-native/components';
+import {ElsaColorableIcon} from '@elsa-ui/react-native/visuals/vectors';
 import {Modal, Portal, Button, ActivityIndicator} from 'react-native-paper';
 
 import firestore from '@react-native-firebase/firestore';

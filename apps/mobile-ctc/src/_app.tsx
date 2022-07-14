@@ -22,7 +22,7 @@ import CTC from './CTC';
 import {NavigationContainer} from '@react-navigation/native';
 import produce from 'immer';
 
-import QRLogin from './@workflows/screens/QRAuthentication';
+import QRLogin from './CTC/_screens/QRAuthentication';
 import * as Sentry from '@sentry/react-native';
 
 import {Text} from '@elsa-ui/react-native/components';
