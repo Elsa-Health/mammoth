@@ -15,6 +15,7 @@ import {format} from 'date-fns';
 import produce from 'immer';
 import {CTCPatient} from '../../emr/types';
 import {useAsyncFn} from 'react-use';
+import {PatientQuery} from '../../misc';
 
 const options: Array<{name: Option; icon: string}> = [
   // {name: 'id', icon: 'tag-text-outline'},
@@ -35,6 +36,7 @@ export default function PatientDashboardScreen({
       query: SearchQuery,
     ) => Promise<Array<PatientItemProps>>;
     onNewPatient: () => void;
+    getMyCTCId: () => string;
   }
 >) {
   const {spacing} = useTheme();
@@ -56,11 +58,11 @@ export default function PatientDashboardScreen({
     [$.getPatientsFromQuery],
   );
 
-  const searchTextInputRef = React.useRef();
+  const searchTextInputRef = React.useRef(null);
 
   const search = React.useCallback(
-    () => query({input: searchText, searchIn: searchOptions}),
-    [searchText, searchOptions],
+    (s: string) => () => query({input: s, searchIn: searchOptions}),
+    [searchOptions, query],
   );
   const resetSearch = React.useCallback(() => {
     query({});
@@ -85,14 +87,20 @@ export default function PatientDashboardScreen({
           desc="Search for the patient"
           removeLine>
           <Column wrapperStyle={{marginBottom: 8}}>
-            <Searchbar
-              ref={searchTextInputRef}
-              value={searchText}
-              onChangeText={onChangeSearchText}
-              onSubmitEditing={search}
-              style={{borderColor: '#CCC', borderWidth: 0.6, elevation: 2}}
-            />
+            <PatientQuery
+              onChange={onChangeSearchText}
+              myCtcId={$.getMyCTCId()}
+              onFocus={searchTextInputRef.current?.focus}>
+              <Searchbar
+                ref={searchTextInputRef}
+                value={searchText}
+                onChangeText={onChangeSearchText}
+                onSubmitEditing={search(searchText)}
+                style={{borderColor: '#CCC', borderWidth: 0.6, elevation: 2}}
+              />
+            </PatientQuery>
           </Column>
+          <Text>Search By</Text>
           <Row spaceTop contentStyle={{justifyContent: 'flex-start'}}>
             {options.map(({name, icon}, ix) => {
               const selected = searchOptions[name];

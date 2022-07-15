@@ -274,11 +274,13 @@ export function useWebSocket({
       // const socket = socketRef.current;
       socket.onopen = () => {
         setStatus('online');
-        onOpen?.(socket);
+        if (socket !== undefined) {
+          onOpen?.(socket);
+        }
       };
 
       socket.onmessage = e => {
-        if (socket.readyState === WebSocket.OPEN) {
+        if (socket?.readyState === WebSocket.OPEN) {
           onMessage?.(e);
 
           if (e.data !== undefined) {
@@ -297,10 +299,10 @@ export function useWebSocket({
 
       socket.onclose = () => {
         setStatus('offline');
-        socket.close();
+        socket?.close?.();
       };
     }
-  }, [socket, url]);
+  }, [socket, url, onOpen, onData, onMessage]);
 
   /**
    * Reconnecting to the websocket server

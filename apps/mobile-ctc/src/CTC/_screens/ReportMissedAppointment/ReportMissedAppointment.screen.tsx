@@ -15,6 +15,7 @@ import {ScrollView, View} from 'react-native';
 
 import * as z from 'zod';
 import {useAsyncFn, useDebounce} from 'react-use';
+import {PatientQuery} from '../../misc';
 
 const MissedPatientReport = z.object({
   patientId: z.string(),
@@ -31,6 +32,7 @@ export default function ReportMissedAppointmentScreen({
 }: WorkflowScreenProps<
   {
     patientId?: string;
+    myCtcId: string;
   },
   {
     checkIfPatientExists: (patientId: string) => Promise<boolean>;
@@ -47,6 +49,8 @@ export default function ReportMissedAppointmentScreen({
       dateOfBirth: undefined,
     },
   });
+
+  const pTxtRef = React.useRef(null);
 
   const [{loading}, onSubmit] = useAsyncFn(handleSubmit($.onSubmitReport), [
     handleSubmit,
@@ -82,15 +86,19 @@ export default function ReportMissedAppointmentScreen({
             }}
             render={({field, fieldState}) => (
               <>
-                <TextInput
-                  mode="outlined"
-                  value={field.value}
-                  maxLength={14}
-                  placeholder="Patient ID"
-                  keyboardType="number-pad"
-                  onChangeText={field.onChange}
-                  ref={field.ref}
-                />
+                <PatientQuery onChange={field.onChange} myCtcId={e.myCtcId}>
+                  <TextInput
+                    mode="outlined"
+                    value={field.value}
+                    maxLength={14}
+                    error={Boolean(fieldState.error)}
+                    placeholder="Patient ID"
+                    keyboardType="number-pad"
+                    onChangeText={field.onChange}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                  />
+                </PatientQuery>
                 {fieldState.error && (
                   <HelperText type="error">
                     {fieldState.error.message}

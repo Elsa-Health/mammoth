@@ -81,6 +81,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Migration} from './emr/temp.migrate';
 import {useApp} from './misc';
 
+import SplashScreen from 'react-native-splash-screen';
+
 const Stack = createNativeStackNavigator();
 
 function practitioner(ep: ElsaProvider): CTC.Doctor {
@@ -267,6 +269,11 @@ export default function App({
       // console.log(docs[0]);
     },
   });
+
+  React.useEffect(() => {
+    SplashScreen.hide();
+  }, []);
+
   // -------------------------------------
 
   // Get web socket
@@ -293,8 +300,6 @@ export default function App({
       syncContentsFromSocket(data);
     },
   });
-
-  const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
 
   const [updateStatus, updateRetry] = useApp(s => [
     s.updateStatus,
@@ -470,6 +475,9 @@ export default function App({
         <Stack.Screen
           name="ctc.report-missed-appointments"
           component={withFlowContext(ReportMissedAppointmentScreen, {
+            entry: {
+              myCtcId: provider.facility.ctcCode,
+            },
             actions: ({navigation}) => ({
               async checkIfPatientExists(patientId) {
                 const s = await query(Emr.collection('patients'), {
@@ -988,6 +996,7 @@ export default function App({
           name="ctc.patient-dashboard"
           component={withFlowContext(PatientDashboard, {
             actions: ({navigation}) => ({
+              getMyCTCId: () => provider.facility.ctcCode,
               getPatientsFromQuery(query) {
                 return queryPatientsFromSearch(
                   Emr.collection('patients'),
@@ -1360,82 +1369,6 @@ export default function App({
           })}
         />
         {/* Visit something */}
-        <Stack.Screen
-          name="ctc.first-patient-intake"
-          component={withFlowContext(NewVisitEntryScreen, {
-            actions: ({navigation}) => ({
-              onNext(data, patient, organization) {
-                initiateVisit(doctor, patient);
-                setValue('firstPatientIntake', data);
-                navigation.push('ctc.hiv-stage-intake');
-                // ...
-              },
-            }),
-          })}
-        />
-        <Stack.Screen
-          name="ctc.hiv-stage-intake"
-          component={withFlowContext(HIVStageIntakeScreen, {
-            entry: {
-              initial: {
-                patientId: '1234567890111213',
-                facility: 'Meru District CTC',
-              },
-            },
-            actions: ({navigation}) => ({
-              onNext(values, isPerformingSymptomAssessment) {
-                setValue('currentHIVStatus', values);
-                if (!isPerformingSymptomAssessment) {
-                  navigation.push('ctc.adherence-assessment');
-                } else {
-                  ToastAndroid.show(
-                    'Unable to do that right now',
-                    ToastAndroid.LONG,
-                  );
-                }
-              },
-            }),
-          })}
-        />
-        <Stack.Screen
-          name="ctc.adherence-assessment"
-          component={withFlowContext(HIVAdherenceAssessmentScreen, {
-            entry: {
-              initial: {
-                patientId: '1234567890111213',
-                facility: 'Meru District CTC',
-              },
-            },
-            actions: ({navigation}) => ({
-              onNext(data) {
-                navigation.push('ctc.conclude-assessment');
-                setValue('patientAdherenceInfo', data);
-              },
-              onSkip() {},
-            }),
-          })}
-        />
-        <Stack.Screen
-          name="ctc.conclude-assessment"
-          component={withFlowContext(ConcludeAssessmentScreen, {
-            entry: {
-              initial: {
-                patientId: '1234567890111213',
-                facility: 'Meru District CTC',
-              },
-            },
-            actions: ({navigation}) => ({
-              onDiscard() {
-                console.log('Discarding the visit');
-                navigation.popToTop();
-              },
-              onComplete(value) {
-                setValue('conclusionAssessment', value);
-                confirm();
-              },
-            }),
-          })}
-        />
       </Stack.Navigator>
     </>
   );

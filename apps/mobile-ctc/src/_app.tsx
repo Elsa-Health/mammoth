@@ -26,10 +26,13 @@ import QRLogin from './CTC/_screens/QRAuthentication';
 import * as Sentry from '@sentry/react-native';
 
 import {Text} from '@elsa-ui/react-native/components';
-import {View} from 'react-native';
+import {ToastAndroid, View} from 'react-native';
 import {Analytics} from './CTC/analytics';
 
 import pj from '../package.json';
+
+// Construct a new instrumentation instance. This is needed to communicate between the integration and React
+const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
 
 // FIXME: Remove API key and secret
 if (!__DEV__) {
@@ -39,6 +42,13 @@ if (!__DEV__) {
     // We recommend adjusting this value in production.
     // tracesSampleRate: 1.0,
     tracesSampleRate: 0.5,
+    integrations: [
+      new Sentry.ReactNativeTracing({
+        // Pass instrumentation to be used as `routingInstrumentation`
+        routingInstrumentation,
+        // ...
+      }),
+    ],
   });
 }
 
@@ -61,6 +71,11 @@ function _Application() {
   // const {provider, set} = useApplication();
 
   const {loading, state, logout, set} = useApplication();
+  // Create a ref for the navigation container
+  const navigation = React.useRef();
+  React.useEffect(() => {
+    SplashScreen.hide();
+  }, []);
 
   React.useEffect(() => {
     if (state) {
@@ -79,7 +94,12 @@ function _Application() {
 
   if (state !== null) {
     return (
-      <NavigationContainer>
+      <NavigationContainer
+        ref={navigation}
+        onReady={() => {
+          // Register the navigation container with the instrumentation
+          routingInstrumentation.registerNavigationContainer(navigation);
+        }}>
         <CTC
           appVersion={pj.version}
           provider={state.provider}
@@ -97,8 +117,16 @@ function _Application() {
       actions={{
         authenticate: authenticate,
         onQueryProvider: async provider => {
-          set({provider, settings: null});
-          await Analytics.logEvent('login');
+          try {
+            set({provider, settings: null});
+            await Analytics.logEvent('login');
+          } catch (err) {
+            ToastAndroid.show(
+              'Log In failed. Please report this or try again later.',
+              ToastAndroid.SHORT,
+            );
+            Sentry.captureException(err);
+          }
         },
       }}
     />
@@ -172,10 +200,6 @@ function CodePushWrapper({children}: {children: React.ReactNode}) {
 }
 
 function App() {
-  React.useEffect(() => {
-    SplashScreen.hide();
-  }, []);
-
   return (
     <ThemeProvider
       theme={theme =>

@@ -34,6 +34,7 @@ import _ from 'lodash';
 import {useForm, Controller} from 'react-hook-form';
 import Collapsible from 'react-native-collapsible';
 import {Investigation} from 'elsa-health-data-fns/lib';
+import {PatientQuery} from '../../misc';
 const DISTRICTS = [
   'Meru',
   'Arusha City',
@@ -112,11 +113,10 @@ export default function RegisterNewPatientScreen({
   }
 >) {
   const {spacing} = useTheme();
-  const [showSelectionModal, setShow] = React.useState(false);
 
   const [isHaveInvestigation, setHaveInvestigation] = React.useState(false);
 
-  const patientCTCIDRef = React.useRef();
+  const patientCTCIDRef = React.useRef(null);
   const {handleSubmit, control, setValue} = useForm<
     PatientFormType & {investigations: Investigation[]}
   >({
@@ -149,53 +149,6 @@ export default function RegisterNewPatientScreen({
 
   return (
     <>
-      <Portal>
-        <Modal
-          visible={showSelectionModal}
-          onDismiss={() => setShow(false)}
-          contentContainerStyle={{
-            backgroundColor: 'white',
-            margin: 36,
-          }}>
-          <View>
-            <View style={{paddingHorizontal: 16, paddingVertical: 12}}>
-              <Text font="bold" size={'lg'}>
-                Select CTC
-              </Text>
-            </View>
-            <View>
-              {CTCOptionsAvailable.map(([name, ctc], ix) => (
-                <TouchableRipple
-                  key={ix}
-                  onPress={() => {
-                    setShow(false);
-                    setValue('patientId', ctc);
-                    patientCTCIDRef.current?.focus?.();
-                  }}>
-                  <View
-                    style={{
-                      paddingVertical: 8,
-                      paddingHorizontal: 16,
-                    }}>
-                    <Text size={16} style={{marginBottom: 4, letterSpacing: 1}}>
-                      {name}
-                    </Text>
-                    <Text
-                      font="medium"
-                      size={16}
-                      style={{
-                        textTransform: 'uppercase',
-                        letterSpacing: 1,
-                      }}>
-                      {ctc}
-                    </Text>
-                  </View>
-                </TouchableRipple>
-              ))}
-            </View>
-          </View>
-        </Modal>
-      </Portal>
       <Layout title="Register Patient" style={{padding: 0}}>
         <ScrollView
           contentContainerStyle={{padding: spacing.md}}
@@ -224,52 +177,40 @@ export default function RegisterNewPatientScreen({
                   },
                 }}
                 render={({
-                  field: {onChange, onBlur, value, ref},
+                  field: {onChange, onBlur, value},
                   fieldState: {error},
                 }) => {
                   // set
-                  patientCTCIDRef.current = ref;
                   return (
                     <>
-                      <TextInput
-                        ref={ref}
-                        error={Boolean(error)}
-                        placeholder="XXXXXXXXYYYYYY"
-                        mode="outlined"
-                        value={value}
-                        keyboardType="number-pad"
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        render={props => (
-                          <TextInputMask {...props} mask="[00000000][000000]" />
+                      <PatientQuery
+                        onChange={onChange}
+                        myCtcId={myCtcId}
+                        onFocus={patientCTCIDRef.current?.onFocus}>
+                        <TextInput
+                          ref={patientCTCIDRef.current}
+                          error={Boolean(error)}
+                          placeholder="XXXXXXXXYYYYYY"
+                          mode="outlined"
+                          value={value}
+                          keyboardType="number-pad"
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          render={props => (
+                            <TextInputMask
+                              {...props}
+                              mask="[00000000][000000]"
+                            />
+                          )}
+                        />
+                        {error !== undefined && (
+                          <HelperText type="error">{error.message}</HelperText>
                         )}
-                      />
-                      {error !== undefined && (
-                        <HelperText type="error">{error.message}</HelperText>
-                      )}
+                      </PatientQuery>
                     </>
                   );
                 }}
               />
-              <Row
-                contentStyle={{justifyContent: 'flex-start'}}
-                spaceTop
-                spaceBottom>
-                {myCtcId !== undefined && (
-                  <Chip
-                    icon="home"
-                    onPress={() => {
-                      setValue('patientId', myCtcId);
-                      patientCTCIDRef.current?.focus?.();
-                    }}
-                    style={{marginRight: 4}}>
-                    My facility
-                  </Chip>
-                )}
-                <Chip icon="information" onPress={() => setShow(true)}>
-                  Select Facility
-                </Chip>
-              </Row>
             </Column>
 
             {/* Sex */}
