@@ -545,6 +545,7 @@ export function ControlDateInput({
   mode = 'outlined',
   required = false,
   dateTimeProps,
+  rules = {},
 }: {
   control: any;
   name: string;
@@ -554,12 +555,14 @@ export function ControlDateInput({
     minDate: Date;
     maxDate: Date;
   }>;
+  rules?: any;
 }) {
   const {field, fieldState} = useController({
     control,
     name,
     rules: {
       required: {value: required, message: 'Date is required'},
+      ...rules,
       validate: (date: string) => {
         const dateFormat = isDateFormatValid(date);
 

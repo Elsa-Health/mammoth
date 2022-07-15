@@ -106,8 +106,9 @@ export default function RegisterNewPatientScreen({
     onRegisterPatient: (
       patient: PatientFormType,
       investigations: Investigation[] | null,
-      cb: (err?: Error) => void,
+      cb?: (err?: Error) => void,
     ) => void;
+    checkIfPatientExists: (patientId: string) => Promise<boolean>;
   }
 >) {
   const {spacing} = useTheme();
@@ -139,15 +140,12 @@ export default function RegisterNewPatientScreen({
     },
   });
 
-  const onSubmit = React.useCallback(
-    handleSubmit(({investigations, ...value}) => {
-      return $.onRegisterPatient(
-        value,
-        isHaveInvestigation ? investigations : null,
-      );
-    }),
-    [handleSubmit, $.onRegisterPatient, isHaveInvestigation],
-  );
+  const onSubmit = handleSubmit(({investigations, ...value}) => {
+    return $.onRegisterPatient(
+      value,
+      isHaveInvestigation ? investigations : null,
+    );
+  });
 
   return (
     <>
@@ -211,7 +209,20 @@ export default function RegisterNewPatientScreen({
               <Controller
                 name="patientId"
                 control={control}
-                rules={{required: true, pattern: new RegExp(/(\d+){14}/g)}}
+                rules={{
+                  required: {value: true, message: 'Patient ID Required'},
+                  pattern: {
+                    value: new RegExp(/(\d+){14}/g),
+                    message: 'Must have 14 numbers',
+                  },
+                  validate: async pid => {
+                    if (await $.checkIfPatientExists(pid)) {
+                      return 'Patient exists. Please register with a different number';
+                    } else {
+                      return true;
+                    }
+                  },
+                }}
                 render={({
                   field: {onChange, onBlur, value, ref},
                   fieldState: {error},
@@ -234,18 +245,7 @@ export default function RegisterNewPatientScreen({
                         )}
                       />
                       {error !== undefined && (
-                        <>
-                          {error.type === 'required' && (
-                            <HelperText type="error">
-                              Required Patient ID
-                            </HelperText>
-                          )}
-                          {error.type === 'pattern' && (
-                            <HelperText type="error">
-                              Must consist of only 14 numbers
-                            </HelperText>
-                          )}
-                        </>
+                        <HelperText type="error">{error.message}</HelperText>
                       )}
                     </>
                   );
@@ -290,7 +290,12 @@ export default function RegisterNewPatientScreen({
             </Column>
             <Column spaceTop>
               <Text>Date of Birth</Text>
-              <ControlDateInput name="dateOfBirth" control={control} />
+              <ControlDateInput
+                name="dateOfBirth"
+                control={control}
+                required
+                dateTimeProps={{maxDate: new Date()}}
+              />
             </Column>
           </Section>
           {/* Register Patient*/}
@@ -408,19 +413,11 @@ export default function RegisterNewPatientScreen({
                     {field.value && (
                       <Column spaceTop>
                         <Text>Date since known status</Text>
-                        <Controller
+                        <ControlDateInput
                           name="dateOfTest"
                           control={control}
-                          render={({field, formState}) => (
-                            <>
-                              <DateInput {...field} />
-                              {formState.isDirty && (
-                                <HelperText type="error">
-                                  {formState.errors.dateOfBirth}
-                                </HelperText>
-                              )}
-                            </>
-                          )}
+                          required={field.value}
+                          dateTimeProps={{maxDate: new Date()}}
                         />
                       </Column>
                     )}
@@ -450,8 +447,10 @@ export default function RegisterNewPatientScreen({
                       <Column spaceTop>
                         <Text>ARV Start Date</Text>
                         <ControlDateInput
-                          name="dateStartedARVs"
+                          name="dateOfTest"
                           control={control}
+                          required={field.value}
+                          dateTimeProps={{maxDate: new Date()}}
                         />
                       </Column>
                     )}

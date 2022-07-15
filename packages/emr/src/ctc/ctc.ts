@@ -331,11 +331,7 @@ export const PatientFormType = z.object({
 	dateStartedARVs: z.string().optional(),
 
 	// WHO
-	whoStage: z.union([
-		z.literal("Stage 1"),
-		z.literal("Stage 2"),
-		z.literal("Stage 3"),
-	]),
+	whoStage: z.string(),
 
 	hasTreatmentSupport: z.boolean(),
 	typeOfSupport: z.string().optional(),

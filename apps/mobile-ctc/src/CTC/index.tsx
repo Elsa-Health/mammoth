@@ -79,9 +79,7 @@ import type {Document} from 'papai/collection/types';
 // Migration code
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Migration} from './emr/temp.migrate';
-import {TouchableRipple} from 'react-native-paper';
-import {Text} from '@elsa-ui/react-native/components';
-import produce from 'immer';
+import {useApp} from './misc';
 
 const Stack = createNativeStackNavigator();
 
@@ -122,7 +120,7 @@ function practitioner(ep: ElsaProvider): CTC.Doctor {
   };
 }
 
-function App({
+export default function App({
   provider,
   appVersion,
   logout,
@@ -298,12 +296,19 @@ function App({
 
   const {setValue, initiateVisit, context, ready: show, confirm} = useVisit();
 
+  const [updateStatus, updateRetry] = useApp(s => [
+    s.updateStatus,
+    s.updateRetryFn,
+  ]);
+
   React.useEffect(() => {
+    updateStatus(status);
+    updateRetry(retry);
     if (socket !== undefined) {
-      console.log('Socket present');
+      // console.log('Socket present');
       // only send if ready
       if (status === 'online') {
-        console.log('Socket readyState');
+        // console.log('Socket readyState');
         const sub = onSnapshotUpdate(provider, msg => {
           socket.send(JSON.stringify(msg));
         });
@@ -311,7 +316,7 @@ function App({
         return () => sub.unsubscribe();
       }
     }
-  }, [socket, status, provider]);
+  }, [socket, status, provider, retry]);
 
   const stock = useStock(Emr);
   const appointments = useAppointments(Emr);
@@ -319,7 +324,6 @@ function App({
 
   return (
     <>
-      <ConnectionStatus status={status} retry={retry} />
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -447,9 +451,9 @@ function App({
 
                   // save the investigation result
                   executeChain([
-                    // executor.investigationResult(({add}) =>
-                    //   add(invResult as ctc.InvestigationResult),
-                    // ),
+                    executor.investigationResult(({add}) =>
+                      add(invResult as ctc.InvestigationResult),
+                    ),
                     () =>
                       ToastAndroid.show(
                         'Investigation Result Updated!',
@@ -516,7 +520,7 @@ function App({
                   patient = newPatient;
                 }
 
-                console.log({patient});
+                // console.log({patient});
 
                 if (patient === undefined) {
                   ToastAndroid.show(
@@ -929,6 +933,13 @@ function App({
           component={withFlowContext(RegisterNewPatientScreen, {
             entry: {myCtcId: provider.facility.ctcCode},
             actions: ({navigation}) => ({
+              async checkIfPatientExists(patientId) {
+                const s = await query(Emr.collection('patients'), {
+                  where: item => item.id === patientId,
+                });
+
+                return s.count() > 0;
+              },
               onRegisterPatient(patient, investigations, cb) {
                 console.log(patient);
                 const {
@@ -1426,59 +1437,13 @@ function App({
           })}
         />
       </Stack.Navigator>
-      <ConfirmVisitModal
-        visible={show}
-        context={context}
-        cancelVisit={() => {
-          console.log('Visit cancelled; navigate to dashboard');
-        }}
-        generateId={uuid.v4}
-        recordVisit={async visit => {
-          console.log(visit);
-          // store
-          navigation.navigate('ctc.dashboard');
-        }}
-      />
     </>
   );
 }
-
-function ConnectionStatus({
-  status,
-  retry,
-}: {
-  status: NetworkStatus;
-  retry: () => void;
-}) {
-  return (
-    <TouchableRipple
-      onPress={status === 'error' || status === 'offline' ? retry : undefined}>
-      <View
-        style={{
-          backgroundColor:
-            status === 'connecting'
-              ? '#CCC'
-              : status === 'offline'
-              ? '#EEE'
-              : status === 'online'
-              ? '#4665af'
-              : '#F00',
-
-          paddingVertical: 2,
-        }}>
-        <Text
-          size="sm"
-          font="medium"
-          style={{textAlign: 'center'}}
-          color={status === 'online' || status === 'error' ? '#FFF' : '#000'}>
-          {_.capitalize(status)}{' '}
-          {(status === 'error' || status === 'offline') && 'Reconnect?'}
-        </Text>
-      </View>
-    </TouchableRipple>
-  );
-}
-
-export default function (props: {provider: ElsaProvider}) {
-  return <App {...props} />;
-}
+// export default function (props: {provider: ElsaProvider}) {
+//   return (
+//     <>
+//       <App {...props} />
+//     </>
+//   );
+// }

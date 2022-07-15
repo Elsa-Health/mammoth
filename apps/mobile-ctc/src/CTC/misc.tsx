@@ -7,6 +7,11 @@ import FileViewer from 'react-native-file-viewer';
 import {fetchPatients, fetchAppointments, fetchVisits} from './fns';
 
 import {format} from 'date-fns';
+import {TouchableRipple} from 'react-native-paper';
+import {Text} from '@elsa-ui/react-native/components';
+import create from 'zustand';
+import {View} from 'react-native';
+import {capitalize} from 'lodash';
 
 export const generateReport = async () => {
   const patientsCount = (await fetchPatients()).length;
@@ -73,3 +78,49 @@ export const generateReport = async () => {
     throw new Error('Failed! Unable to generate report');
   }
 };
+
+type AppContextState = {
+  status: NetworkStatus | undefined;
+  retry: () => void;
+  updateStatus: (status: NetworkStatus | undefined) => void;
+  updateRetryFn: (retry: () => void) => void;
+};
+export const useApp = create<AppContextState>(set => ({
+  status: 'offline',
+  updateStatus: status => set(_s => ({status})),
+  retry: () => {},
+  updateRetryFn: retry => set(_s => ({retry})),
+}));
+
+export function ConnectionStatus() {
+  const status = useApp(s => s.status);
+  const retry = useApp(s => s.retry);
+
+  return (
+    <TouchableRipple
+      onPress={status === 'error' || status === 'offline' ? retry : undefined}>
+      <View
+        style={{
+          backgroundColor:
+            status === 'connecting'
+              ? '#CCC'
+              : status === 'offline'
+              ? '#EEE'
+              : status === 'online'
+              ? '#4665af'
+              : '#F00',
+
+          paddingVertical: 2,
+        }}>
+        <Text
+          size="sm"
+          font="medium"
+          style={{textAlign: 'center'}}
+          color={status === 'online' || status === 'error' ? '#FFF' : '#000'}>
+          {capitalize(status)}{' '}
+          {(status === 'error' || status === 'offline') && 'Reconnect?'}
+        </Text>
+      </View>
+    </TouchableRipple>
+  );
+}
