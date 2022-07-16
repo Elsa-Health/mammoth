@@ -386,7 +386,10 @@ export function InvestigationResult<
 		"Investigation request `observation` field missing"
 	);
 	invariant(d.shape, "Investigation request `shape` field missing");
-	invariant(d.shape, "Investigation request `lastUpdatedAt` field missing");
+	invariant(
+		d.lastUpdatedAt,
+		"Investigation request `lastUpdatedAt` field missing"
+	);
 
 	return freeze(
 		extend(d, {
