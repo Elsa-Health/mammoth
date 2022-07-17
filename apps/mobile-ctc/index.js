@@ -6,8 +6,8 @@ import 'react-native-reanimated';
 import 'react-native-gesture-handler';
 
 import {AppRegistry} from 'react-native';
-import App from './src/_app';
-// import App from './src/_zeApp';
+// import App from './src/_app';
+import App from './src/_zeApp';
 import {name as appName} from './app.json';
 
 import codePush from 'react-native-code-push';
