@@ -356,7 +356,7 @@ export function registerNewPatient(
 	generateId: () => string,
 	from: PatientFormType,
 	doctorId: string,
-	investigations: Investigation[],
+	investigations: Investigation[] | null,
 	registeredOrganization: ctc.Organization,
 	createdAt: Date = new Date()
 ) {
@@ -426,7 +426,7 @@ export function registerNewPatient(
 
 	let adhocVisit: null | ctc.Visit = null;
 	// include adhoc visit if there are investigationRequests
-	if (investigations.length > 0) {
+	if ((investigations ?? []).length > 0) {
 		adhocVisit = Visit<ctc.Visit>({
 			id: generateId(),
 			date: utcDateString(new Date()),
@@ -440,7 +440,7 @@ export function registerNewPatient(
 	}
 
 	// other information created during the registration
-	const investigationRequests = investigations.map((inv) => {
+	const investigationRequests = (investigations ?? []).map((inv) => {
 		return InvestigationRequest<ctc.InvestigationRequest>({
 			id: generateId(),
 			requester: practitionerReference(doctorId),

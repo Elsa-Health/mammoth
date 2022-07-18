@@ -104,6 +104,19 @@ const webSocketServer = new WebSocketServer({
 	server,
 });
 
+// async function runServer() {
+// 	// Initialize the server
+// 	await ServerDB.open();
+
+// 	// Setup the websocket server
+// 	applyInitialSocketSubscription(
+// 		ServerDB.clock,
+// 		webSocketServer,
+// 		ServerDB.public(),
+// 		ServerDB.statebox
+// 	);
+// }
+
 ServerDB.open()
 	.then(() =>
 		// Initialize the wbsocket server

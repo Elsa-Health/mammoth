@@ -41,7 +41,7 @@ type InvestigationProps = {
   id: string;
   shape: InvestigationTypeRecord<string>;
   identifier: string;
-  result: any;
+  value: any;
   createdAt: Date;
 };
 
@@ -220,8 +220,8 @@ function InvestigationResultItem({
     <TouchableItem onPress={onPress} spaceBottom>
       <Row>
         <TitledItem title="Result" spaceTop>
-          {(props.result ?? null) !== null
-            ? JSON.stringify(props.result ?? '-')
+          {(props.value ?? null) !== null
+            ? JSON.stringify(props.value ?? '-')
             : 'N/A'}
         </TitledItem>
         <TitledItem title="Recorded">
@@ -235,13 +235,14 @@ function InvestigationResultItem({
 function InvestigationFormOnly({
   shape,
   identifier,
+  value,
   saveResult: saveResult,
 }: InvestigationProps & {saveResult: (result: any) => Promise<void>}) {
   const {handleSubmit, control} = useForm<{
     result: string | null | {[field: string]: string | null};
   }>({
     defaultValues: {
-      result: null,
+      result: value ?? null,
     },
   });
 

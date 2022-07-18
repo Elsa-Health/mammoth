@@ -25,16 +25,15 @@ export async function queryPatientsFromSearch<T>(
 
     // add function to search from name
     if (Boolean(searchIn?.name)) {
-      console.log('Name Q');
       orQueries.push(p => {
         const firstName = lower((p.info?.firstName ?? '').trim());
         const familyName = lower((p.info?.familyName ?? '').trim());
         const fullName = lower(`${firstName} ${familyName}`.trim());
 
         return (
-          firstName.startsWith(input) ||
-          familyName.startsWith(input) ||
-          fullName.startsWith(input)
+          firstName.includes(input) ||
+          familyName.includes(input) ||
+          fullName.includes(input)
         );
       });
     }

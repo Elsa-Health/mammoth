@@ -17,6 +17,8 @@ import {ElsaColorableIcon} from '@elsa-ui/react-native/visuals/vectors';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 import {ConnectionStatus} from '../../misc';
 
+let render = 0;
+
 export default function DashboardScreen({
   entry: {fullName},
   actions: $,
@@ -42,10 +44,16 @@ export default function DashboardScreen({
   const {color} = useTheme();
   const [visible, setVisible] = React.useState(false);
 
+  // React.useEffect(() => {
+  //   return () => {
+  //     render = 0;
+  //   };
+  // });
+
+  // console.log(++render);
+
   return (
     <>
-      {/* HACK: should move the component to global page once app render problem is resolved */}
-      <ConnectionStatus />
       <Layout hideHeader style={{backgroundColor: '#FFF', flex: 1, padding: 0}}>
         <View
           style={{

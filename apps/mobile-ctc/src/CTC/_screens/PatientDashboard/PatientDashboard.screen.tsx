@@ -80,7 +80,11 @@ export default function PatientDashboardScreen({
   return (
     <Layout title="Patient Dashboard" style={{padding: 0}}>
       <ScrollView
-        contentContainerStyle={{padding: spacing.md}}
+        contentContainerStyle={{
+          padding: spacing.md,
+          // compensates for the bottom button
+          paddingBottom: 52,
+        }}
         style={{flex: 1}}>
         <Section
           title="Search Patient"
@@ -92,6 +96,7 @@ export default function PatientDashboardScreen({
               myCtcId={$.getMyCTCId()}
               onFocus={searchTextInputRef.current?.focus}>
               <Searchbar
+                placeholder="Enter patient detail"
                 ref={searchTextInputRef}
                 value={searchText}
                 onChangeText={onChangeSearchText}
@@ -174,6 +179,7 @@ export default function PatientDashboardScreen({
           right: 0,
           bottom: 0,
         }}
+        label="Add Patient"
         icon="plus"
         onPress={$.onNewPatient}
       />

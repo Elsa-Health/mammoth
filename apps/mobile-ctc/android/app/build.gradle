@@ -207,13 +207,13 @@ dependencies {
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
-  // Import the Firebase BoM
-  implementation platform('com.google.firebase:firebase-bom:29.3.1')
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:29.3.1')
 
-  implementation 'com.google.firebase:firebase-analytics'
-  implementation 'com.google.firebase:firebase-auth'
-  implementation 'com.google.firebase:firebase-firestore'
-  implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-messaging'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.fbjni'

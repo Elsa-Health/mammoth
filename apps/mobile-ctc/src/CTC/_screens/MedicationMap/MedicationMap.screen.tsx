@@ -152,7 +152,7 @@ function Something({ctcCode, items: _items, organization: org}) {
   const latest = React.useMemo(() => {
     const d = items
       .map(item => new Date(item?.timestamp))
-      .sortBy(d => d.getTime())
+      .sortBy(d => -d.getTime())
       .get(0);
 
     if (d !== undefined) {

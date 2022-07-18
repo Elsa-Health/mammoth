@@ -1,10 +1,11 @@
 import {
   clearCollection,
   collection,
-  Document,
   getDocs,
   onCollectionSnapshot,
   onSnapshot,
+  onUpdateCollectionDocument,
+  query,
   setDocs,
 } from 'papai/collection';
 import {useAsync, useAsyncFn, useAsyncRetry} from 'react-use';
@@ -30,6 +31,11 @@ import {EMRModule} from '../store';
 import {date} from '@elsa-health/emr/lib/utils';
 import {SingleStockItem} from '../../_screens/MedicationStock';
 import {ctc} from '@elsa-health/emr';
+import {useWorkflowStore} from '../../workflow';
+
+import * as R from 'ramda';
+import {Document} from 'papai/collection/types';
+import produce from 'immer';
 
 // create medications
 // const arvSingleFactory = randomSample.factory(
@@ -54,53 +60,152 @@ import {ctc} from '@elsa-health/emr';
 // );
 
 export type UseStockData = ReturnType<typeof useStock>;
-export function useStock(emr: EMRModule) {
-  // run seed
-  // setDocs(
-  //   emr.collection('stock'),
-  //   stock().map(d => [d.id, d]),
-  // );
 
-  // ... use medication stock inforamtion
-  // const [medications, queryMedication] = useCollectionAsWorklet(
-  //   emr.collection('medications'),
-  // );
+/**
+ * Generic listener to a collection
+ * @param key
+ * @param collection
+ */
+export function useListenCollection<
+  K extends string,
+  C extends CollectionNode<Document.Data>,
+>(key: K, collection: C) {
+  const set = useWorkflowStore(s => s.setValue);
 
-  const [{value: stock_}] = useCollectionAsWorklet(emr.collection('stock'));
+  // initial read
+  React.useEffect(() => {
+    query(collection).then(vals => {
+      set(s =>
+        produce(s, df => {
+          // setting up the content
+          // might want to serialize at this point
+          df[key] = vals;
+        }),
+      );
+    });
+  }, []);
 
-  // queryStock();
-  // React.useEffect(() => {
-  //   console.log(stock_);
-  // }, [stock_]);
+  // setting up the collection to auto update as needed
+  React.useEffect(() => {
+    const sub = onUpdateCollectionDocument(collection, function (d) {
+      // fires when something changes
+      query(collection).then(vals => {
+        set(s =>
+          produce(s, df => {
+            // setting up the content
+            // might want to serialize at this point
+            df[key] = vals;
+          }),
+        );
+      });
+    });
 
-  // stock information
-  return {
-    arvs: Object.fromEntries(
-      (stock_ ?? List())
-        .map(d => [
-          d.id,
-          [
-            d.medication.identifier,
-            {
-              count: d.count.toString(),
-              form: d.medication.form,
-              expiresAt: format(date(d.expiresAt), 'dd / MM / yyyy'),
-              ingredients: d.medication.ingredients.map(d => d.identifier),
-              alias: d.medication.alias,
-              type: d.medication.type,
-              estimatedFor: '30-days',
-              identifier: d.medication.identifier,
-              text: d.medication.text,
-              group: d.extendedData?.group ?? 'adults',
-              concentrationValue: null,
-            } as SingleStockItem,
-          ],
-        ])
-        .toArray(),
-    ),
-    // List of medications
-    medications: (stock_ ?? List()).map(d => d.medication).toSet(),
-  };
+    return () => sub.unsubscribe();
+  }, [collection, key]);
+}
+
+// export function useStock(emr: EMRModule) {
+//   // run seed
+//   // setDocs(
+//   //   emr.collection('stock'),
+//   //   stock().map(d => [d.id, d]),
+//   // );
+
+//   // ... use medication stock inforamtion
+//   // const [medications, queryMedication] = useCollectionAsWorklet(
+//   //   emr.collection('medications'),
+//   // );
+//   const stockColl = emr.collection('stock');
+//   const [{value: stock_}] = useCollectionAsWorklet(stockColl);
+
+//   const setStore = useWorkflowStore(s => s.setValue);
+
+//   React.useEffect(() => {
+//     stockColl;
+//   }, []);
+
+//   // queryStock();
+//   // React.useEffect(() => {
+//   //   console.log(stock_);
+//   // }, [stock_]);
+
+//   // stock information
+//   return {
+//     arvs: Object.fromEntries(
+//       (stock_ ?? List())
+//         .map(d => [
+//           d.id,
+//           [
+//             d.medication.identifier,
+//             {
+//               count: d.count.toString(),
+//               form: d.medication.form,
+//               expiresAt: format(date(d.expiresAt), 'dd / MM / yyyy'),
+//               ingredients: d.medication.ingredients.map(d => d.identifier),
+//               alias: d.medication.alias,
+//               type: d.medication.type,
+//               estimatedFor: '30-days',
+//               identifier: d.medication.identifier,
+//               text: d.medication.text,
+//               group: d.extendedData?.group ?? 'adults',
+//               concentrationValue: null,
+//             } as SingleStockItem,
+//           ],
+//         ])
+//         .toArray(),
+//     ),
+//     // List of medications
+//     medications: (stock_ ?? List()).map(d => d.medication).toSet(),
+//   };
+// }
+
+export function useAttachStockListener(stockCollection: any) {
+  const set = useWorkflowStore(s => s.setValue);
+
+  // setting up the collection to auto update as needed
+  React.useEffect(() => {
+    const sub = onUpdateCollectionDocument(stockCollection, function (d) {
+      // fires when something changes
+      query(stockCollection).then(vals => {
+        set(s =>
+          produce(s, df => {
+            // setting up the content
+            // might want to serialize at this point
+            df['report-stock'] = {
+              arvs: Object.fromEntries(
+                vals
+                  .map(d => [
+                    d.id,
+                    [
+                      d.medication.identifier,
+                      {
+                        count: d.count.toString(),
+                        form: d.medication.form,
+                        expiresAt: format(date(d.expiresAt), 'dd / MM / yyyy'),
+                        ingredients: d.medication.ingredients.map(
+                          d => d.identifier,
+                        ),
+                        alias: d.medication.alias,
+                        type: d.medication.type,
+                        estimatedFor: '30-days',
+                        identifier: d.medication.identifier,
+                        text: d.medication.text,
+                        group: d.extendedData?.group ?? 'adults',
+                        concentrationValue: null,
+                      } as SingleStockItem,
+                    ],
+                  ])
+                  .toArray(),
+              ),
+              medications: vals.map(d => d.medication).toSet(),
+            };
+          }),
+        );
+      });
+    });
+
+    return () => sub.unsubscribe();
+  }, [stockCollection]);
 }
 
 export type Appointment = {
@@ -119,63 +224,107 @@ export type Appointment = {
 );
 
 export type UseAppointments = ReturnType<typeof useAppointments>;
-export function useAppointments(emr: EMRModule) {
-  // ...
-  const [{value: apptRqs}, q_] = useCollectionAsWorklet(
-    emr.collection('appointment-requests'),
-  );
-  const [{value: apptResps}, qrs_] = useCollectionAsWorklet(
-    emr.collection('appointment-responses'),
-  );
 
-  // appointment records
-  const appointments = useSharedValue<List<Appointment> | null>(null);
+export function useAttachAppointmentsListener() {
+  const apptResps = useWorkflowStore(s => s.value['appointment-responses']);
+  const apptRqs = useWorkflowStore(s => s.value['appointment-requests']);
 
-  // appointment requests
-  // ...
+  const set = useWorkflowStore(s => s.setValue);
+
   React.useEffect(() => {
-    'worklet';
-    const baseReps = apptResps ?? List();
+    set(s =>
+      produce(s, df => {
+        df['appointments'] = (apptRqs ?? List()).map(d => {
+          const dx = apptResps.find(
+            f => f.authorizingAppointmentRequest.id === d.id,
+          );
 
-    // update the values
-    appointments.value =
-      (apptRqs ?? List()).map(d => {
-        const dx = baseReps.find(
-          f => f.authorizingAppointmentRequest.id === d.id,
-        );
+          const obj = {
+            requestId: d.id,
+            originVisitId: d.visit?.id ?? null,
+            requestDate: d.appointmentDate,
+            request: d,
+            participants: d.participants,
+          };
 
-        const obj = {
-          requestId: d.id,
-          originVisitId: d.visit?.id ?? null,
-          requestDate: d.appointmentDate,
-          request: d,
-          participants: d.participants,
-        };
+          if (dx !== undefined) {
+            return {
+              ...obj,
+              responseDate: dx.createdAt,
+              type: 'responded',
+              response: dx,
+            } as Appointment;
+          }
 
-        if (dx !== undefined) {
+          // check va
           return {
             ...obj,
-            responseDate: dx.createdAt,
-            type: 'responded',
-            response: dx,
+            type: 'not-responded',
+            response: null,
           } as Appointment;
-        }
-
-        // check va
-        return {
-          ...obj,
-          type: 'not-responded',
-          response: null,
-        } as Appointment;
-      }) ?? null;
-  }, [appointments, apptResps, apptRqs]);
-
-  return {
-    'appointment-requests': apptRqs,
-    'appointment-responses': apptResps,
-    appointments: appointments.value ?? List(),
-  };
+        });
+      }),
+    );
+  }, [apptResps, apptRqs]);
 }
+
+// export function useAppointments(emr: EMRModule) {
+//   // ...
+//   const [{value: apptRqs}, q_] = useCollectionAsWorklet(
+//     emr.collection('appointment-requests'),
+//   );
+//   const [{value: apptResps}, qrs_] = useCollectionAsWorklet(
+//     emr.collection('appointment-responses'),
+//   );
+
+//   // appointment records
+//   const appointments = useSharedValue<List<Appointment> | null>(null);
+
+//   // appointment requests
+//   // ...
+//   React.useEffect(() => {
+//     'worklet';
+//     const baseReps = apptResps ?? List();
+
+//     // update the values
+//     appointments.value =
+//       (apptRqs ?? List()).map(d => {
+//         const dx = baseReps.find(
+//           f => f.authorizingAppointmentRequest.id === d.id,
+//         );
+
+//         const obj = {
+//           requestId: d.id,
+//           originVisitId: d.visit?.id ?? null,
+//           requestDate: d.appointmentDate,
+//           request: d,
+//           participants: d.participants,
+//         };
+
+//         if (dx !== undefined) {
+//           return {
+//             ...obj,
+//             responseDate: dx.createdAt,
+//             type: 'responded',
+//             response: dx,
+//           } as Appointment;
+//         }
+
+//         // check va
+//         return {
+//           ...obj,
+//           type: 'not-responded',
+//           response: null,
+//         } as Appointment;
+//       }) ?? null;
+//   }, [appointments, apptResps, apptRqs]);
+
+//   return {
+//     'appointment-requests': apptRqs,
+//     'appointment-responses': apptResps,
+//     appointments: appointments.value ?? List(),
+//   };
+// }
 
 export function useMedicationStock(emr: EMRModule) {
   // get stock information

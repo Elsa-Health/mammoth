@@ -14,6 +14,7 @@ import {View} from 'react-native';
 import {capitalize} from 'lodash';
 import {Row} from './temp-components';
 import {NetworkStatus} from '../app/utils';
+import {useWorkflowStore} from './workflow';
 
 export const generateReport = async () => {
   const patientsCount = (await fetchPatients()).length;
@@ -94,9 +95,8 @@ export const useApp = create<AppContextState>(set => ({
   updateRetryFn: retry => set(_s => ({retry})),
 }));
 
-export function ConnectionStatus() {
-  const status = useApp(s => s.status);
-  const retry = useApp(s => s.retry);
+export function ConnectionStatus({retry}: any) {
+  const status = useWorkflowStore(s => s.value.networkStatus);
 
   return (
     <TouchableRipple

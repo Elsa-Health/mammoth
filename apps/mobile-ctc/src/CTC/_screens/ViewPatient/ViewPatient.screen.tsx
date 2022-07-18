@@ -16,7 +16,7 @@ import {CTCOrganization, CTCPatient, CTCVisit} from '../../emr/types';
 import {useAsync, useAsyncRetry} from 'react-use';
 import {visit} from '../../storage/migration-v0-v1';
 import {format} from 'date-fns';
-import {useSharedValue} from 'react-native-reanimated';
+import {Linking} from 'react-native';
 
 export type VisitItem = {
   visitDate: UTCDateTimeString;
@@ -61,6 +61,8 @@ export default function ViewPatientScreen({
     return $.nextAppointment(e.patient.id);
   }, [e.patient]);
 
+  // setup the phoneNumber
+  const phone = e.patient.contact?.phoneNumber?.replace('(+255)', '') ?? null;
   return (
     <Layout title="View Patient" style={{padding: 0}}>
       <ScrollView
@@ -72,17 +74,14 @@ export default function ViewPatientScreen({
           desc="Information about the patient"
           removeLine
           right={
-            <IconButton
-              icon="phone"
-              size={20}
-              color="#4665af"
-              onPress={() =>
-                ToastAndroid.show(
-                  'Unable to call at the moment',
-                  ToastAndroid.SHORT,
-                )
-              }
-            />
+            Boolean(phone) && (
+              <IconButton
+                icon="phone"
+                size={20}
+                color="#4665af"
+                onPress={() => Linking.openURL(`tel:${phone}`)}
+              />
+            )
           }>
           <Column>
             <TitledItem title="ID">{e.patient.id}</TitledItem>

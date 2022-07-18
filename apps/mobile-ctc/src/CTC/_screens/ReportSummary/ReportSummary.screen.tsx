@@ -20,6 +20,8 @@ import {
   TitledItem,
 } from '../../temp-components';
 
+import * as R from 'ramda';
+
 const Chip = ({
   children,
   roundedLeft: left,
@@ -56,19 +58,52 @@ const reportTitleMap = {
 };
 
 import {subDays, subWeeks, subMonths, subYears} from 'date-fns';
+import {useWorkflowStore} from '../../workflow';
+import {List} from 'immutable';
+import {groupByFn} from '../MedicationStock/helpers';
+
 const now = () => new Date();
 const date = (dateStr: string) => new Date(dateStr);
-export default function ReportSummaryScreen({
-  entry: {data, brief},
-}: WorkflowScreenProps<UseEMRReport, {}>) {
+export default function ReportSummaryScreen({}: WorkflowScreenProps<
+  UseEMRReport,
+  {}
+>) {
   const [date_, setDate] = React.useState<null | Date>(null);
   const {spacing} = useTheme();
+
+  const apptx = useWorkflowStore(s => s.value.appointments);
+  const data = useWorkflowStore(s =>
+    R.pick(['visits', 'patients', 'inv.reqs', 'medication-requests'], s.value),
+  );
+
+  const brief = React.useMemo(() => {
+    return {
+      recentVisits: (data.visits || List([]))
+        .sortBy(d => -date(d.date ?? d.createdAt).getTime())
+        .map(visit => ({
+          visitDate: visit.date ?? visit.createdAt,
+          patient: visit.subject.id,
+        }))
+        .toArray(),
+
+      top3RequestedMedication: groupByFn(
+        (data['medication-requests'] ?? List()).toArray(),
+        ({medication}) =>
+          medication.resourceType === 'Medication'
+            ? medication.name
+            : 'unknown',
+      )
+        .map(([id, req]) => [id, standardName(arvName(id)), req.length])
+        .sortBy(d => -d[2])
+        .filter(([id, ..._]) => ARV.regimen.fromKey(id) !== undefined)
+        .slice(0, 3),
+    };
+  }, []);
   const appointments = React.useMemo(
     () =>
-      data.appointments?.filter(d =>
-        date_ ? isAfter(date(d.createdAt), date_) : true,
-      ),
-    [data.appointments],
+      apptx?.filter(d => (date_ ? isAfter(date(d.createdAt), date_) : true)) ??
+      List(),
+    [apptx],
   );
   const groups = React.useMemo(
     () => [

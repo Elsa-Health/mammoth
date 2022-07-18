@@ -250,11 +250,13 @@ export function useWebSocket({
   onOpen,
   onMessage,
   onData,
+  onChangeStatus: changeStatus,
 }: {
   url: string;
   onOpen?: (socket: WebSocket) => void;
   onMessage?: (e: WebSocketMessageEvent) => void;
   onData?: <T>(data: T) => void;
+  onChangeStatus?: (status: NetworkStatus | undefined) => void;
 }) {
   const [socket, setSocket] = React.useState<WebSocket | undefined>(
     () => undefined,
@@ -263,6 +265,10 @@ export function useWebSocket({
   const [status, setStatus] = React.useState<NetworkStatus | undefined>(
     'connecting',
   );
+
+  React.useEffect(() => {
+    changeStatus && changeStatus(status);
+  }, [status, changeStatus]);
 
   // const socketRef = React.useRef<WebSocket>(initWebsocket(url));
 

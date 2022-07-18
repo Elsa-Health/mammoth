@@ -51,11 +51,17 @@ import {CTC} from './emr/types';
 import {ConfirmVisitModal, useVisit} from './actions/hook';
 import MedicationVisit from './_screens/MedicationVisit';
 import MedicationStock from './_screens/MedicationStock';
-import {useAppointments, useStock, useEMRReport} from './emr/react-hooks';
+import {
+  useAppointments,
+  useStock,
+  useEMRReport,
+  useAttachStockListener,
+  useListenCollection,
+  useAttachAppointmentsListener,
+} from './emr/react-hooks';
 
 import * as Sentry from '@sentry/react-native';
 import {queryCollection} from './emr/actions';
-import {convert_v0_patient_to_v1} from './storage/migration-v0-v1';
 import {convertDMYToDate, removeWhiteSpace} from './emr/utils';
 import {format, isAfter} from 'date-fns';
 import {getEMR, onSnapshotUpdate, Seeding} from './emr/store';
@@ -77,13 +83,14 @@ import {date, utcDateString} from '@elsa-health/emr/lib/utils';
 import {syncContentsFromSocket, fetchCRDTMessages} from './actions/socket';
 import type {Document} from 'papai/collection/types';
 // Migration code
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Migration} from './emr/temp.migrate';
-import {useApp} from './misc';
+import {ConnectionStatus, useApp} from './misc';
 
 import SplashScreen from 'react-native-splash-screen';
-
-const Stack = createNativeStackNavigator();
+import * as R from 'ramda';
+import {Stack, useWorkflowStore, WorkflowProvider} from './workflow';
+import produce from 'immer';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 function practitioner(ep: ElsaProvider): CTC.Doctor {
   return {
@@ -122,7 +129,15 @@ function practitioner(ep: ElsaProvider): CTC.Doctor {
   };
 }
 
-export default function App({
+export default function Main(props: any) {
+  return (
+    <WorkflowProvider>
+      <App {...props} />
+    </WorkflowProvider>
+  );
+}
+
+function App({
   provider,
   appVersion,
   logout,
@@ -199,87 +214,30 @@ export default function App({
     }
   }, [organization, Emr]);
 
-  // Migrating the contents from the old edge server
-  //  to this storage.
-  // --------------------------------------
-  // This code should be removed in the future.
-  // --------------------------------------
-  // to remove by v3 or v2.5
-  //  (if there are those missing, then, might want
-  //   to add the update manual push)
-  useWebSocket({
-    url: 'wss://ctc-edge-server.fly.dev/channel/cmrdt',
-    onOpen(socket) {
-      console.log('Connection established!');
-    },
-    onMessage(e) {
-      console.log('onMessage');
-
-      // update
-      AsyncStorage.getItem('MIGRATE-OVER-PATIENT')
-        .then(isToPatientMigrate => {
-          // ...
-          if (isToPatientMigrate !== null) {
-            console.log('Not migrating patient...');
-            return;
-          }
-
-          const ou =
-            isToPatientMigrate !== null ? JSON.parse(isToPatientMigrate) : null;
-          // console.log({isToSeed, ou});
-          if (ou !== null) {
-            console.log('Not migrating patient...');
-            return;
-          }
-
-          // assumed HUGE payload
-          // -----------------
-          const x: [Document.Ref, {[k: string]: Data}][] = e.data
-            ? JSON.parse(e.data)
-            : [];
-
-          if (x.length === 0) {
-            return;
-          }
-
-          // console.log(x[0]);
-          // console.log({collectionId, id, result});
-
-          // Might want to change this later
-          // this assumes all are coming from one collection
-          const docs = x
-            .filter(c => c.state.op.collectionId === 'patients')
-            .map(c => {
-              const {
-                state: {
-                  op: {collectionId, id},
-                  result,
-                },
-              } = c;
-
-              return [id, convert_v0_patient_to_v1(id, result)];
-            });
-
-          return setDocs(Emr.collection('patients'), docs).then(_ =>
-            AsyncStorage.setItem('MIGRATE-OVER-PATIENT', JSON.stringify(true)),
-          );
-        })
-        .then(() => console.log('Patient migration completed!'))
-        .catch(err => console.error(err));
-      // console.log(docs[0]);
-    },
-  });
-
   React.useEffect(() => {
     SplashScreen.hide();
   }, []);
+
+  // setting values
+  const set = useWorkflowStore(s => R.pipe(s.setValue));
+
+  // setting up the values on the pages
+  React.useEffect(() => {
+    console.log('SHOUT');
+    set(s =>
+      produce(s, df => {
+        df.provider = provider.toJSON();
+        df.appVersion = appVersion;
+      }),
+    );
+  }, [provider, appVersion]);
 
   // -------------------------------------
 
   // Get web socket
   const {socket, status, retry} = useWebSocket({
     url: `wss://${
-      __DEV__ ? 'f7ca-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
+      !__DEV__ ? 'f7ca-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
     }/ws/crdt/state`,
     // url: 'wss://e784-197-250-61-138.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
@@ -299,36 +257,70 @@ export default function App({
       // peform synchronization
       syncContentsFromSocket(data);
     },
+    // fires when status changed
+    onChangeStatus(status) {
+      set(s =>
+        produce(s, df => {
+          df.networkStatus = status;
+        }),
+      );
+    },
   });
 
-  const [updateStatus, updateRetry] = useApp(s => [
-    s.updateStatus,
-    s.updateRetryFn,
-  ]);
+  // const [updateStatus, updateRetry] = useApp(s => [
+  //   s.updateStatus,
+  //   s.updateRetryFn,
+  // ]);
 
   React.useEffect(() => {
-    updateStatus(status);
-    updateRetry(retry);
-    if (socket !== undefined) {
-      // console.log('Socket present');
-      // only send if ready
-      if (status === 'online') {
-        // console.log('Socket readyState');
-        const sub = onSnapshotUpdate(provider, msg => {
-          socket.send(JSON.stringify(msg));
-        });
+    if (socket !== undefined && status === 'online') {
+      // console.log('Socket readyState');
+      const sub = onSnapshotUpdate(provider, msg => {
+        socket.send(JSON.stringify(msg));
+      });
 
-        return () => sub.unsubscribe();
-      }
+      return () => sub.unsubscribe();
     }
-  }, [socket, status, provider, retry]);
+  }, [socket, status, provider]);
 
-  const stock = useStock(Emr);
-  const appointments = useAppointments(Emr);
-  const report = useEMRReport(Emr);
+  // ---------------------------
+  // STORE LISTENERS
+  // ---------------------------
+
+  // attach store listeners and write them to a public place
+  useListenCollection('visits', Emr.collection('visits'));
+  useListenCollection('patients', Emr.collection('patients'));
+  useListenCollection('publicStock', Emr.collection('publicStock'));
+  useListenCollection('inv.reqs', Emr.collection('investigation-requests'));
+  useListenCollection('inv.results', Emr.collection('investigation-results'));
+  useListenCollection('stock', Emr.collection('stock'));
+
+  useListenCollection(
+    'medication-requests',
+    Emr.collection('medication-requests'),
+  );
+
+  // special store listeners
+  useAttachStockListener(Emr.collection('stock'));
+
+  // Appointment related stores
+  useListenCollection(
+    'appointment-requests',
+    Emr.collection('appointment-requests'),
+  );
+  useListenCollection(
+    'appointment-responses',
+    Emr.collection('appointment-responses'),
+  );
+  // listens from changes of the 2 above
+  useAttachAppointmentsListener();
+
+  // const stock = useStock(Emr);
+  // const report = useEMRReport(Emr);
 
   return (
-    <>
+    <SafeAreaView style={{flex: 1}}>
+      <ConnectionStatus retry={retry} />
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -418,9 +410,13 @@ export default function App({
                 },
                 async saveResult(results, authorizingRequest) {
                   let invResult: ctc.InvestigationResult | null = null;
+
+                  console.log('===>', results);
                   // save the investigation result
                   if (results.id) {
+                    console.log('UPDATED!!');
                     // editing existing one
+                    // TODO: Change this to a todo script instead
                     invResult = InvestigationResult<ctc.InvestigationResult>({
                       id: results.id,
                       authorizingRequest,
@@ -465,7 +461,7 @@ export default function App({
                         ToastAndroid.LONG,
                       ),
                     () => console.log('Done!'),
-                    navigation.goBack,
+                    // navigation.goBack,
                   ]);
                 },
               }),
@@ -584,10 +580,7 @@ export default function App({
         />
         <Stack.Screen
           name="ctc.view-appointments"
-          component={withFlowContext(ViewAppointmentsScreen, {
-            entry: appointments,
-            actions: ({navigation}) => ({}),
-          })}
+          component={withFlowContext(ViewAppointmentsScreen)}
         />
         <Stack.Screen
           name="ctc.medication-map"
@@ -625,9 +618,7 @@ export default function App({
         /> */}
         <Stack.Screen
           name="ctc.report-summary"
-          component={withFlowContext(ReportSummaryScreen, {
-            entry: report,
-          })}
+          component={withFlowContext(ReportSummaryScreen)}
         />
         <Stack.Screen
           name="ctc.medication-visit"
@@ -791,7 +782,6 @@ export default function App({
         <Stack.Screen
           name="ctc.medication-stock"
           component={withFlowContext(MedicationStock, {
-            entry: stock,
             actions: ({navigation}) => ({
               async setARVStockItem(_id, [medicationId, data]) {
                 console.log(_id, medicationId, data);
@@ -979,7 +969,10 @@ export default function App({
                       'Patient ' + patient.patientId + ' registered !.',
                       ToastAndroid.SHORT,
                     );
-                    navigation.goBack();
+                    navigation.navigate('ctc.view-patient', {
+                      patient: newPatient,
+                      organization,
+                    });
                   })
                   .catch(err => {
                     ToastAndroid.show(
@@ -1083,14 +1076,14 @@ export default function App({
                       Investigation.item.fromKey(ir.data.investigationId) ??
                       ir.data.investigationId,
                     onViewInvestigation: () => {
-                      console.log('Going to the page with:', {
-                        request: ir.id,
-                        investigationIdentifier: ir.data.investigationId,
-                        investigationName: Investigation.item.fromKey(
-                          ir.data.investigationId,
-                        ),
-                        obj: ir,
-                      });
+                      // console.log('Going to the page with:', {
+                      //   request: ir.id,
+                      //   investigationIdentifier: ir.data.investigationId,
+                      //   investigationName: Investigation.item.fromKey(
+                      //     ir.data.investigationId,
+                      //   ),
+                      //   obj: ir,
+                      // });
                       navigation.navigate('ctc.view-investigation', {
                         request: {
                           id: ir.id,
@@ -1370,7 +1363,7 @@ export default function App({
         />
         {/* Visit something */}
       </Stack.Navigator>
-    </>
+    </SafeAreaView>
   );
 }
 // export default function (props: {provider: ElsaProvider}) {

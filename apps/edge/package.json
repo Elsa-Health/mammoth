@@ -30,6 +30,8 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^3.14.0",
+		"@sentry/node": "^7.7.0",
+		"@sentry/tracing": "^7.7.0",
 		"@trpc/server": "^9.25.3",
 		"cors": "^2.8.5",
 		"date-fns": "^2.28.0",

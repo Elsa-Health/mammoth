@@ -13,15 +13,11 @@ import {
 } from '../../temp-components';
 import {WorkflowScreenProps} from '@elsa-ui/react-native-workflows';
 
-import CollapsibleView from 'react-native-collapsible';
-import {Button, IconButton, TouchableRipple} from 'react-native-paper';
-
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {format, isAfter} from 'date-fns';
-import {useAsyncRetry} from 'react-use';
 import {Appointment, UseAppointments} from '../../emr/react-hooks';
 import {groupByFn} from '../MedicationStock/helpers';
 import {date} from '@elsa-health/emr/lib/utils';
+import {useWorkflowStore} from '../../workflow';
 
 const nameMap = {
   upcoming: 'Upcoming Appointments',
@@ -29,26 +25,27 @@ const nameMap = {
   completed: 'Completed Appointments',
 };
 
-export default function ViewAppointmentsScreen({
-  entry: e,
-  actions: $,
-}: WorkflowScreenProps<
+export default function ViewAppointmentsScreen({}: WorkflowScreenProps<
   UseAppointments,
   {
     onNext: () => void;
   }
 >) {
   const {spacing} = useTheme();
+
+  // shared data
+  const appointments = useWorkflowStore(s => s.value.appointments);
+
   const groups = React.useMemo(
     () =>
-      groupByFn(e.appointments.toArray(), item => {
+      groupByFn(appointments, item => {
         return item.type === 'responded'
           ? 'completed'
           : isAfter(date(item.requestDate), new Date())
           ? 'upcoming'
           : 'missed';
       }),
-    [e?.appointments],
+    [appointments],
   );
 
   return (
@@ -60,6 +57,12 @@ export default function ViewAppointmentsScreen({
           spaceTop
           title="Summary"
           desc="Brief information about on the appointments">
+          {groups.count() == 0 && (
+            <Text italic style={{textAlign: 'center'}}>
+              There are no recorded appointment information that are stored. Try
+              again later
+            </Text>
+          )}
           <Row>
             {groups.map(([title, vs], ix) => (
               <React.Fragment key={ix}>

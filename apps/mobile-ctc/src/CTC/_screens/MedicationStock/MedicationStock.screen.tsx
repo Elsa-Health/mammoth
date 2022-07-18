@@ -40,6 +40,7 @@ import _ from 'lodash';
 import {Controller, useForm} from 'react-hook-form';
 
 import z from 'zod';
+import {useWorkflowStore} from '../../workflow';
 
 const SingleStockItem = z.object({
   count: z.string(),
@@ -77,12 +78,9 @@ type F = keyof ARVMap;
 type V = ARVMap[F];
 
 export default function MedicationStockScreen({
-  entry: e,
   actions: $,
 }: WorkflowScreenProps<
-  {
-    arvs: ARVMap;
-  },
+  {},
   {
     setARVStockItem: (
       id: string | null,
@@ -90,6 +88,7 @@ export default function MedicationStockScreen({
     ) => Promise<void>;
   }
 >) {
+  const e = useWorkflowStore(s => s.value.stock || {});
   const {spacing} = useTheme();
   // Summary of stock
   const groups = React.useMemo(
