@@ -237,7 +237,7 @@ function App({
   // Get web socket
   const {socket, status, retry} = useWebSocket({
     url: `wss://${
-      !__DEV__ ? 'f7ca-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
+      __DEV__ ? 'f7ca-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
     }/ws/crdt/state`,
     // url: 'wss://e784-197-250-61-138.eu.ngrok.io/ws/crdt/state',
     onOpen(socket) {
