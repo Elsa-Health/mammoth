@@ -91,6 +91,8 @@ import * as R from 'ramda';
 import {Stack, useWorkflowStore, WorkflowProvider} from './workflow';
 import produce from 'immer';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import ConnectionSync from './emr/sync';
+import {Portal} from 'react-native-paper';
 
 function practitioner(ep: ElsaProvider): CTC.Doctor {
   return {
@@ -136,6 +138,8 @@ export default function Main(props: any) {
     </WorkflowProvider>
   );
 }
+
+let render = 0;
 
 function App({
   provider,
@@ -218,12 +222,17 @@ function App({
     SplashScreen.hide();
   }, []);
 
+  // Something
+  React.useEffect(() => {
+    console.log(++render);
+  }, [render]);
+
   // setting values
   const set = useWorkflowStore(s => R.pipe(s.setValue));
 
   // setting up the values on the pages
   React.useEffect(() => {
-    console.log('SHOUT');
+    // console.log('SHOUT');
     set(s =>
       produce(s, df => {
         df.provider = provider.toJSON();
@@ -231,57 +240,6 @@ function App({
       }),
     );
   }, [provider, appVersion]);
-
-  // -------------------------------------
-
-  // Get web socket
-  const {socket, status, retry} = useWebSocket({
-    url: `wss://${
-      __DEV__ ? 'f7ca-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
-    }/ws/crdt/state`,
-    // url: 'wss://e784-197-250-61-138.eu.ngrok.io/ws/crdt/state',
-    onOpen(socket) {
-      // Connected
-      if (socket.readyState === WebSocket.OPEN) {
-        fetchCRDTMessages(provider).then(message => {
-          if (message !== null) {
-            // console.log(s);
-            const s = JSON.stringify(message);
-            socket.send(s);
-          }
-        });
-      }
-    },
-    onData(data) {
-      // console.log(`[${provider.facility.ctcCode ?? 'UNKNOWN'}]:`, data);
-      // peform synchronization
-      syncContentsFromSocket(data);
-    },
-    // fires when status changed
-    onChangeStatus(status) {
-      set(s =>
-        produce(s, df => {
-          df.networkStatus = status;
-        }),
-      );
-    },
-  });
-
-  // const [updateStatus, updateRetry] = useApp(s => [
-  //   s.updateStatus,
-  //   s.updateRetryFn,
-  // ]);
-
-  React.useEffect(() => {
-    if (socket !== undefined && status === 'online') {
-      // console.log('Socket readyState');
-      const sub = onSnapshotUpdate(provider, msg => {
-        socket.send(JSON.stringify(msg));
-      });
-
-      return () => sub.unsubscribe();
-    }
-  }, [socket, status, provider]);
 
   // ---------------------------
   // STORE LISTENERS
@@ -320,7 +278,19 @@ function App({
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <ConnectionStatus retry={retry} />
+      <ConnectionSync
+        wsURL={`wss://${
+          __DEV__ ? 'f7ca-197-250-61-138.eu.ngrok.io' : 'bounce-edge.fly.dev'
+        }/ws/crdt/state`}
+        provider={provider}
+        onChangeStatus={status => {
+          set(s =>
+            produce(s, df => {
+              df.networkStatus = status;
+            }),
+          );
+        }}
+      />
       <Stack.Navigator
         screenOptions={{
           headerShown: false,

@@ -65,6 +65,7 @@ const {WorkflowProvider, useWorkflowContext, useWorkflowStore} =
     patients: List<ctc.Patient>;
     'appointment-requests': List<ctc.AppointmentRequest>;
     'appointment-responses': List<ctc.AppointmentResponse>;
+    'medication-requests': List<ctc.MedicationRequest>;
     stock: any;
   }>();
 

@@ -98,29 +98,49 @@ export const useApp = create<AppContextState>(set => ({
 export function ConnectionStatus({retry}: any) {
   const status = useWorkflowStore(s => s.value.networkStatus);
 
+  const onPress = React.useCallback(() => {
+    console.log(retry);
+    return status === 'error' || status === 'offline' ? retry() : undefined;
+  }, [status, retry]);
+
+  const color = React.useMemo(
+    () => (status === 'online' || status === 'error' ? '#FFF' : '#000'),
+    [status],
+  );
+
+  const backgroundColor = React.useMemo(
+    () =>
+      status === 'connecting'
+        ? '#CCC'
+        : status === 'offline'
+        ? '#EEE'
+        : status === 'online'
+        ? '#4665af'
+        : '#F00',
+    [status],
+  );
+
+  const text = React.useMemo(
+    () =>
+      `${capitalize(status)}. ${
+        status === 'error' || status === 'offline' ? 'Press to reconnect?' : ''
+      }`,
+    [status],
+  );
+
   return (
-    <TouchableRipple
-      onPress={status === 'error' || status === 'offline' ? retry : undefined}>
+    <TouchableRipple onPress={onPress}>
       <View
         style={{
-          backgroundColor:
-            status === 'connecting'
-              ? '#CCC'
-              : status === 'offline'
-              ? '#EEE'
-              : status === 'online'
-              ? '#4665af'
-              : '#F00',
-
+          backgroundColor,
           paddingVertical: 2,
         }}>
         <Text
           size="sm"
           font="medium"
           style={{textAlign: 'center'}}
-          color={status === 'online' || status === 'error' ? '#FFF' : '#000'}>
-          {capitalize(status)}{' '}
-          {(status === 'error' || status === 'offline') && 'Reconnect?'}
+          color={color}>
+          {text}
         </Text>
       </View>
     </TouchableRipple>

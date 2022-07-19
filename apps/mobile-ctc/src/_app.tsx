@@ -31,6 +31,11 @@ import {Analytics} from './CTC/analytics';
 
 import pj from '../package.json';
 
+import codePush from 'react-native-code-push';
+import {useAsync} from 'react-use';
+import {ProgressBar} from 'react-native-paper';
+import {ErrorBoundary} from './error-boundary';
+
 // Construct a new instrumentation instance. This is needed to communicate between the integration and React
 const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
 
@@ -133,10 +138,6 @@ function _Application() {
   );
 }
 
-import codePush from 'react-native-code-push';
-import {useAsync} from 'react-use';
-import {ProgressBar} from 'react-native-paper';
-
 function CodePushWrapper({children}: {children: React.ReactNode}) {
   const [text, set] = React.useState(`Version: ${pj.version}`);
   const [progress, setProgress] = React.useState(0);
@@ -201,22 +202,24 @@ function CodePushWrapper({children}: {children: React.ReactNode}) {
 
 function App() {
   return (
-    <ThemeProvider
-      theme={theme =>
-        produce(theme, df => {
-          df.contentType = 'colored';
-        })
-      }>
-      <ApplicationProvider>
-        <LanguageProvider>
-          <SafeAreaProvider>
-            <CodePushWrapper>
-              <_Application />
-            </CodePushWrapper>
-          </SafeAreaProvider>
-        </LanguageProvider>
-      </ApplicationProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider
+        theme={theme =>
+          produce(theme, df => {
+            df.contentType = 'colored';
+          })
+        }>
+        <ApplicationProvider>
+          <LanguageProvider>
+            <SafeAreaProvider>
+              <CodePushWrapper>
+                <_Application />
+              </CodePushWrapper>
+            </SafeAreaProvider>
+          </LanguageProvider>
+        </ApplicationProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

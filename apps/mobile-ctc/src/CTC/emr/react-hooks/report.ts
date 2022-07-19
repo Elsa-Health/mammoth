@@ -122,7 +122,6 @@ export function useEMRReport(emr: EMRModule) {
     },
   };
 }
-
 // -------------
 // UTILS
 // -------------

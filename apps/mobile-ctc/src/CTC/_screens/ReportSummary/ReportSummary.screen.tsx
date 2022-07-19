@@ -61,6 +61,7 @@ import {subDays, subWeeks, subMonths, subYears} from 'date-fns';
 import {useWorkflowStore} from '../../workflow';
 import {List} from 'immutable';
 import {groupByFn} from '../MedicationStock/helpers';
+import {ARV} from 'elsa-health-data-fns/lib';
 
 const now = () => new Date();
 const date = (dateStr: string) => new Date(dateStr);
@@ -93,12 +94,14 @@ export default function ReportSummaryScreen({}: WorkflowScreenProps<
             ? medication.name
             : 'unknown',
       )
-        .map(([id, req]) => [id, standardName(arvName(id)), req.length])
-        .sortBy(d => -d[2])
-        .filter(([id, ..._]) => ARV.regimen.fromKey(id) !== undefined)
+        .map(([id, req]) => {
+          return {id, length: req.length};
+        })
+        .sortBy(d => d.length)
+        .filter(({id}) => ARV.regimen.fromKey(id) !== undefined)
         .slice(0, 3),
     };
-  }, []);
+  }, [data.visits, data['medication-requests']]);
   const appointments = React.useMemo(
     () =>
       apptx?.filter(d => (date_ ? isAfter(date(d.createdAt), date_) : true)) ??
